@@ -5,6 +5,7 @@ local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local FontConfig = require(ReplicatedStorage.Config.FontConfig)
@@ -41,6 +42,15 @@ local function qualityColor(quality: number): Color3
 	return Color3.fromRGB(220, 60, 60)
 end
 
+local function qualityShakeIntensity(quality: number): number
+	if quality == ChopQuality.Perfect then
+		return ChopConfig.PerfectShakeIntensity
+	elseif quality == ChopQuality.Good then
+		return ChopConfig.GoodShakeIntensity
+	end
+	return ChopConfig.SloppyShakeIntensity
+end
+
 local function computePosition(elapsed: number): number
 	local phase = (elapsed / ChopConfig.CycleSeconds) % 1
 	return 1 - math.abs(2 * phase - 1)
@@ -50,6 +60,67 @@ local minigameActive = false
 local activeTrove: TroveInstance? = nil
 local activeResultLabel: TextLabel? = nil
 local frozenPosition: number? = nil
+
+local function shakeCamera(camera: Camera, baseCFrame: CFrame, intensity: number, duration: number)
+	local startTime = os.clock()
+	local connection: RBXScriptConnection
+	connection = RunService.RenderStepped:Connect(function()
+		local elapsed = os.clock() - startTime
+		if elapsed >= duration then
+			camera.CFrame = baseCFrame
+			connection:Disconnect()
+			return
+		end
+		local decay = 1 - elapsed / duration
+		local offsetX = (math.random() * 2 - 1) * intensity * decay
+		local offsetY = (math.random() * 2 - 1) * intensity * decay
+		local offsetZ = (math.random() * 2 - 1) * intensity * decay
+		camera.CFrame = baseCFrame * CFrame.new(offsetX, offsetY, offsetZ)
+	end)
+end
+
+local function spawnDamageNumber(worldPos: Vector3, payout: number, quality: number)
+	local anchor = Instance.new("Part")
+	anchor.Name = "DamageNumber"
+	anchor.Anchored = true
+	anchor.CanCollide = false
+	anchor.CanQuery = false
+	anchor.CanTouch = false
+	anchor.Transparency = 1
+	anchor.Size = Vector3.new(0.1, 0.1, 0.1)
+	anchor.Position = worldPos + ChopConfig.DamageNumberStartOffset
+	anchor.Parent = workspace
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Size = UDim2.new(0, 220, 0, 80)
+	billboard.AlwaysOnTop = true
+	billboard.MaxDistance = 200
+	billboard.LightInfluence = 0
+	billboard.Parent = anchor
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, 0, 1, 0)
+	label.BackgroundTransparency = 1
+	label.FontFace = FontConfig.Default
+	label.TextScaled = true
+	label.Text = `+{payout}`
+	label.TextColor3 = qualityColor(quality)
+	label.TextStrokeTransparency = 0
+	label.TextStrokeColor3 = Color3.new(0, 0, 0)
+	label.Parent = billboard
+
+	local duration = ChopConfig.DamageNumberRiseSeconds
+	local info = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local endPos = anchor.Position + Vector3.new(0, ChopConfig.DamageNumberRiseStuds, 0)
+	TweenService:Create(anchor, info, { Position = endPos }):Play()
+	TweenService:Create(label, info, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+
+	task.delay(duration + 0.1, function()
+		if anchor.Parent then
+			anchor:Destroy()
+		end
+	end)
+end
 
 local function endMinigame()
 	if not minigameActive then
@@ -213,6 +284,19 @@ function ChopController.Start(self: any)
 		if activeResultLabel then
 			activeResultLabel.Text = qualityName(quality) .. "!"
 			activeResultLabel.TextColor3 = qualityColor(quality)
+		end
+		local camera = workspace.CurrentCamera
+		if camera and camera.CameraType == Enum.CameraType.Scriptable then
+			shakeCamera(
+				camera,
+				camera.CFrame,
+				qualityShakeIntensity(quality),
+				ChopConfig.ShakeDurationSeconds
+			)
+		end
+		local rock = CollectionService:GetTagged(ROCK_TAG)[1] :: BasePart?
+		if rock then
+			spawnDamageNumber(rock.Position, payout, quality)
 		end
 		task.delay(RESULT_DISPLAY_SECONDS, function()
 			endMinigame()
