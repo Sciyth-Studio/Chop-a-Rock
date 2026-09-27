@@ -1,6 +1,6 @@
 {
-  "name": "Game Boilerplate",
-  "servePort": 34873,
+  "name": "KarateChop",
+  "servePort": 34872,
   "tree": {
     "$className": "DataModel",
     "$ignoreUnknownInstances": true,
