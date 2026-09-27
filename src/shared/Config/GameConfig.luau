@@ -1,5 +1,5 @@
 --!strict
 
 return table.freeze({
-	Name = "Game Boilerplate",
+	Name = "Chop a Rock",
 })

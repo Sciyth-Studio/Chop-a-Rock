@@ -1,0 +1,76 @@
+--!strict
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+export type AssetCategory = "VFX" | "Sounds" | "Animations" | "Models" | "Images"
+
+type AssetEntry = {
+	Category: AssetCategory,
+	InstanceName: string,
+}
+
+local map: { [string]: AssetEntry } = {}
+
+local warned: { [string]: true } = {}
+
+local function warnOnce(key: string, message: string)
+	if warned[key] then
+		return
+	end
+	warned[key] = true
+	warn(message)
+end
+
+local function makePlaceholder(key: string, category: AssetCategory?): Instance
+	if category == "Sounds" then
+		local sound = Instance.new("Sound")
+		sound.Name = key
+		return sound
+	elseif category == "Animations" then
+		local animation = Instance.new("Animation")
+		animation.Name = key
+		return animation
+	elseif category == "Images" then
+		local decal = Instance.new("Decal")
+		decal.Name = key
+		return decal
+	elseif category == "VFX" then
+		local attachment = Instance.new("Attachment")
+		attachment.Name = key
+		return attachment
+	end
+	local part = Instance.new("Part")
+	part.Name = key
+	part.Size = Vector3.new(2, 2, 2)
+	part.Anchored = true
+	return part
+end
+
+local AssetRegistry = {}
+
+function AssetRegistry.get(key: string): Instance
+	local entry = map[key]
+	if not entry then
+		warnOnce(key, `[AssetRegistry] Unregistered asset key "{key}" — returning placeholder Part.`)
+		return makePlaceholder(key, nil)
+	end
+
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	if assets then
+		local category = assets:FindFirstChild(entry.Category)
+		if category then
+			local asset = category:FindFirstChild(entry.InstanceName)
+			if asset then
+				return asset:Clone()
+			end
+		end
+	end
+
+	warnOnce(
+		key,
+		`[AssetRegistry] Missing asset "Assets/{entry.Category}/{entry.InstanceName}" for key "{key}" — returning placeholder.`
+	)
+	return makePlaceholder(key, entry.Category)
+end
+
+return AssetRegistry
