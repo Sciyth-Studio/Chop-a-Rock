@@ -44,7 +44,7 @@ You get to chop a really big rock and it is incredibly satisfying.
 
 Expectations:
 Money printer.
-[OPEN] Define a measurable target (e.g., concurrent players within X days, Robux/month by month Y).
+Measurable target: 1,000 concurrent players (CCU).
 
 MONETIZATION NOTE — must be resolved by Section 10:
 Randomness now comes from gem drops earned by chopping, not from purchased rolls (arms are strict upgrades). Remaining question: may Robux affect drop randomness (e.g., a "2x luck" gamepass)? Audience is 6–12; paid random items on Roblox require disclosed odds.
@@ -93,8 +93,7 @@ Loop details:
 ================================
 03. VISUAL DIRECTION
 ================================
-Art style: Smooth cartoon.
-  [OPEN] Smooth (no studs) or cartoon with studs texture?
+Art style: Smooth cartoon, minimal textures. UI keeps textures minimal too. User builds the map; AI does not author world geometry.
 
 Character:
 - Default Roblox avatars.
@@ -107,7 +106,7 @@ Impact / anime language:
 - Screen shake, slow-mo frame before contact, giant damage number, pre-fractured debris.
 - Player character held at fixed size so the boulder visibly dwarfs them.
 - Japanese "yoo" sound effect on perfect breaks (signature sound; source royalty-free or record original — do not rip).
-  [OPEN] Any additional visual anime elements (speed lines, impact flash), or keep to aura + sound + shake?
+  Additional anime elements (speed lines, impact flash, etc.): closed — decided through playtesting, not planning.
 
 Rock tiers:
 gray → mossy → obsidian → glowing → crystalline → cosmic
@@ -115,7 +114,7 @@ gray → mossy → obsidian → glowing → crystalline → cosmic
 
 Gems:
 - Collectible gems drop from rocks and are displayed on pedestals at the base.
-  [OPEN] Gem visual language per rarity (color, glow, size, particles).
+  Gem presentation per rarity: a text label per gem is sufficient; no bespoke visual language required.
 
 Overall mood: Bright.
 [PROPOSED] Cosmic tier uses vivid nebula colors rather than a dark/black space sky, to stay consistent with the bright mood.
@@ -187,7 +186,7 @@ First upgrade:
 
 First 5 minutes:
 - Player completes the tutorial.
-[TBD] What happens after the tutorial.
+- After the tutorial, the player is simply told to start playing. No further handholding.
 
 Reasons to come back:
 1. Weekly rewards.
@@ -220,7 +219,7 @@ Note: with training and bases at the hub, the server naturally gathers in one vi
 MAIN LOCATION / STARTING AREA:
 The training hub in the spawn area. New players see the cutscene and tutorial there, then walk out into zone 1.
 Rocks are per-player: each player sees and chops their own copy of each rock.
-[OPEN] How many base plots per server (sets the max server size)?
+Base plots per server: 8 (this effectively sets max server size).
 
 ================================
 07. PROGRESSION, ECONOMY, AND REWARDS
@@ -234,7 +233,7 @@ Two axes:
   - Idle (AFK) training is allowed.
   - Better training methods are unlocked by rebirthing.
   Training method: karate-themed board/brick breaking stacks (1 board → 5 boards → bricks → ice → steel), using the same timing meter as rock chops. Bench pressing rejected (signature mechanic of the lifting-simulator genre this redesign differentiates from); pushups rejected (no clean upgrade path).
-  [OPEN] Does idle training happen only while in-game (AFK in server), or also while offline?
+  Idle/AFK training happens only while in-server. Money still earns offline via gems at the base; strength does not.
   [PROPOSED] Active timed training (good/perfect releases) trains faster than idle, so skill still pays.
 - LUCK: gems placed on base pedestals. Improves rarity of future gem drops.
 Plus: base expansion (pedestal slots, floors) and rebirth.
@@ -562,3 +561,13 @@ DECISION LOG
   - Timing meter parameters reclassified [OPEN] → [PLAYTEST]; all thresholds config-driven.
   - Rock size (2048-stud axis cap) resolved: boulders stay well within, not a concern.
   - UI-authoring conflict resolved in favor of the boilerplate's AGENTS.md convention (StarterGui-authored, code finds by name); Section 04 updated.
+2026-09-27 — Batch of previously-open items closed:
+  - Success target: 1,000 CCU (§00).
+  - Art style: smooth cartoon with minimal textures; UI textures also minimal; user handles map building (§03).
+  - Additional anime visual elements: closed — decided through playtesting (§03).
+  - Gem visual per rarity: text label per gem is sufficient; no bespoke visual language (§03).
+  - Post-tutorial: player is told to start playing, no further handholding (§05).
+  - Base plots per server: 8, effectively setting server size (§06).
+  - Idle training: in-server only; money earns offline via gems, strength does not (§07).
+  - Rebirth reset scope remains [TBD]; code stays config-driven so either resolution slots in later.
+  - Speculative future-content questions (post-cosmic tier, offline cap tuning, duplicate-gem handling, index rewards, daily-vs-weekly rewards, random events, PvP arena) deferred as content updates — not surfaced again until they gate actual code.
