@@ -3,6 +3,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local Lifecycle = require(ReplicatedStorage.Lifecycle)
@@ -61,6 +62,53 @@ local function breakRock()
 	end)
 end
 
+local function splitRock()
+	local part = rockPart
+	local prompt = rockPrompt
+	if not part or not prompt then
+		return
+	end
+	local basePos = part.Position
+	local originalSize = part.Size
+	local halfSize = Vector3.new(originalSize.X / 2, originalSize.Y, originalSize.Z)
+	local halfOffsetX = originalSize.X / 4
+
+	part.Transparency = 1
+	part.CanCollide = false
+	prompt.Enabled = false
+
+	local respawnSeconds = RockConfig.Rocks.Basic.RespawnSeconds
+	local tweenInfo = TweenInfo.new(respawnSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local halves: { BasePart } = {}
+	for _, offsetX in { -halfOffsetX, halfOffsetX } do
+		local half = Instance.new("Part")
+		half.Name = "Rock_Basic_Half"
+		half.Size = halfSize
+		half.Position = basePos + Vector3.new(offsetX, 0, 0)
+		half.Anchored = true
+		half.CanCollide = false
+		half.Color = part.Color
+		half.Material = part.Material
+		half.Parent = workspace
+		table.insert(halves, half)
+
+		local tiltRad = math.rad(if offsetX < 0 then 15 else -15)
+		local endCFrame = CFrame.new(basePos + Vector3.new(offsetX * 3, 0, 0)) * CFrame.Angles(0, 0, tiltRad)
+		TweenService:Create(half, tweenInfo, { CFrame = endCFrame, Transparency = 0.5 }):Play()
+	end
+
+	task.delay(respawnSeconds, function()
+		for _, half in halves do
+			half:Destroy()
+		end
+		if part.Parent and prompt.Parent then
+			part.Transparency = 0
+			part.CanCollide = true
+			prompt.Enabled = true
+		end
+	end)
+end
+
 function RockService.Init(_self: any, _services: { [string]: any }) end
 
 function RockService.Start(_self: any)
@@ -108,7 +156,11 @@ function RockService.Start(_self: any)
 		print(
 			`[RockService] {player.Name} chopped: quality={quality}, position={string.format("%.3f", position)}, payout={payout}`
 		)
-		breakRock()
+		if quality == ChopQuality.Perfect then
+			splitRock()
+		else
+			breakRock()
+		end
 	end))
 
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)

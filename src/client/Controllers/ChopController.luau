@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local FontConfig = require(ReplicatedStorage.Config.FontConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -14,6 +15,7 @@ type TroveInstance = typeof(Trove.new())
 
 local ROCK_TAG = "ChopRock"
 local RELEASE_ACTION = "ChopRelease"
+local RESULT_DISPLAY_SECONDS = 0.7
 
 local function qualityName(quality: number): string
 	if quality == ChopQuality.Perfect then
@@ -28,6 +30,17 @@ local function qualityName(quality: number): string
 	return "Unknown"
 end
 
+local function qualityColor(quality: number): Color3
+	if quality == ChopQuality.Perfect then
+		return Color3.fromRGB(240, 220, 60)
+	elseif quality == ChopQuality.Good then
+		return Color3.fromRGB(80, 200, 80)
+	elseif quality == ChopQuality.Sloppy then
+		return Color3.fromRGB(220, 140, 60)
+	end
+	return Color3.fromRGB(220, 60, 60)
+end
+
 local function computePosition(elapsed: number): number
 	local phase = (elapsed / ChopConfig.CycleSeconds) % 1
 	return 1 - math.abs(2 * phase - 1)
@@ -35,6 +48,8 @@ end
 
 local minigameActive = false
 local activeTrove: TroveInstance? = nil
+local activeResultLabel: TextLabel? = nil
+local frozenPosition: number? = nil
 
 local function endMinigame()
 	if not minigameActive then
@@ -46,6 +61,8 @@ local function endMinigame()
 		activeTrove:Destroy()
 		activeTrove = nil
 	end
+	activeResultLabel = nil
+	frozenPosition = nil
 	local camera = workspace.CurrentCamera
 	if camera then
 		camera.CameraType = Enum.CameraType.Custom
@@ -57,6 +74,7 @@ local function beginMinigame()
 		return
 	end
 	minigameActive = true
+	frozenPosition = nil
 
 	local trove = Trove.new()
 	activeTrove = trove
@@ -138,16 +156,36 @@ local function beginMinigame()
 	cursor.Position = UDim2.new(0.5, 0, 1, 0)
 	cursor.Parent = barBackground
 
+	local resultLabel = Instance.new("TextLabel")
+	resultLabel.AnchorPoint = Vector2.new(0, 0.5)
+	resultLabel.Position = UDim2.new(0.72, 60, 0.5, 0)
+	resultLabel.Size = UDim2.new(0, 260, 0, 80)
+	resultLabel.BackgroundTransparency = 1
+	resultLabel.FontFace = FontConfig.Default
+	resultLabel.TextScaled = true
+	resultLabel.TextColor3 = Color3.new(1, 1, 1)
+	resultLabel.TextStrokeTransparency = 0
+	resultLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+	resultLabel.TextXAlignment = Enum.TextXAlignment.Left
+	resultLabel.Text = ""
+	resultLabel.Parent = screenGui
+	activeResultLabel = resultLabel
+
 	local startTime = os.clock()
 
 	trove:Add(RunService.RenderStepped:Connect(function()
-		local elapsed = os.clock() - startTime
-		local position = computePosition(elapsed)
+		local position: number
+		if frozenPosition then
+			position = frozenPosition
+		else
+			position = computePosition(os.clock() - startTime)
+		end
 		cursor.Position = UDim2.new(0.5, 0, 1 - position, 0)
 	end))
 
 	ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
 		if inputState == Enum.UserInputState.Begin then
+			frozenPosition = computePosition(os.clock() - startTime)
 			Packets.ChopRelease:Fire()
 			ContextActionService:UnbindAction(RELEASE_ACTION)
 			return Enum.ContextActionResult.Sink
@@ -171,8 +209,14 @@ function ChopController.Start(self: any)
 		beginMinigame()
 	end))
 	trove:Add(Packets.ChopResult.OnClientEvent:Connect(function(quality: number, payout: number)
-		endMinigame()
 		print(`[ChopController] {qualityName(quality)} chop, payout={payout}`)
+		if activeResultLabel then
+			activeResultLabel.Text = qualityName(quality) .. "!"
+			activeResultLabel.TextColor3 = qualityColor(quality)
+		end
+		task.delay(RESULT_DISPLAY_SECONDS, function()
+			endMinigame()
+		end)
 	end))
 end
 
