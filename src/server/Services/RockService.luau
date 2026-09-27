@@ -3,7 +3,6 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local Lifecycle = require(ReplicatedStorage.Lifecycle)
@@ -44,7 +43,7 @@ local function classify(position: number): (number, number)
 	return quality, payout
 end
 
-local function breakRock()
+local function hideRock()
 	local part = rockPart
 	local prompt = rockPrompt
 	if not part or not prompt then
@@ -53,59 +52,114 @@ local function breakRock()
 	part.Transparency = 1
 	part.CanCollide = false
 	prompt.Enabled = false
-	task.delay(RockConfig.Rocks.Basic.RespawnSeconds, function()
-		if part.Parent and prompt.Parent then
-			part.Transparency = 0
-			part.CanCollide = true
-			prompt.Enabled = true
+end
+
+local function restoreRock()
+	local part = rockPart
+	local prompt = rockPrompt
+	if part and prompt and part.Parent and prompt.Parent then
+		part.Transparency = 0
+		part.CanCollide = true
+		prompt.Enabled = true
+	end
+end
+
+local function breakRock()
+	hideRock()
+	task.delay(RockConfig.Rocks.Basic.RespawnSeconds, restoreRock)
+end
+
+local function breakRockWithDebris(chunkCount: number)
+	local part = rockPart
+	if not part then
+		return
+	end
+	local basePos = part.Position
+	local halfSize = part.Size / 2
+	local color = part.Color
+	local material = part.Material
+	hideRock()
+
+	local chunks: { BasePart } = {}
+	local scale = ChopConfig.ChunkSpawnVelocityScale
+	for _ = 1, chunkCount do
+		local chunk = Instance.new("Part")
+		chunk.Name = "Rock_Chunk"
+		chunk.Size =
+			Vector3.new(0.7 + math.random() * 0.8, 0.7 + math.random() * 0.8, 0.7 + math.random() * 0.8)
+		chunk.Position = basePos
+			+ Vector3.new(
+				(math.random() * 2 - 1) * halfSize.X * 0.5,
+				(math.random() * 2 - 1) * halfSize.Y * 0.5,
+				(math.random() * 2 - 1) * halfSize.Z * 0.5
+			)
+		chunk.Anchored = false
+		chunk.CanCollide = true
+		chunk.CanQuery = false
+		chunk.Color = color
+		chunk.Material = material
+		chunk.Parent = workspace
+		chunk.AssemblyLinearVelocity = Vector3.new(
+			(math.random() * 2 - 1) * scale,
+			math.random() * scale * 0.7,
+			(math.random() * 2 - 1) * scale
+		)
+		chunk.AssemblyAngularVelocity =
+			Vector3.new((math.random() * 2 - 1) * 8, (math.random() * 2 - 1) * 8, (math.random() * 2 - 1) * 8)
+		table.insert(chunks, chunk)
+	end
+
+	task.delay(ChopConfig.ChunkLifetimeSeconds, function()
+		for _, chunk in chunks do
+			if chunk.Parent then
+				chunk:Destroy()
+			end
 		end
 	end)
+
+	task.delay(RockConfig.Rocks.Basic.RespawnSeconds, restoreRock)
 end
 
 local function splitRock()
 	local part = rockPart
-	local prompt = rockPrompt
-	if not part or not prompt then
+	if not part then
 		return
 	end
 	local basePos = part.Position
 	local originalSize = part.Size
 	local halfSize = Vector3.new(originalSize.X / 2, originalSize.Y, originalSize.Z)
 	local halfOffsetX = originalSize.X / 4
+	local color = part.Color
+	local material = part.Material
+	hideRock()
 
-	part.Transparency = 1
-	part.CanCollide = false
-	prompt.Enabled = false
-
-	local respawnSeconds = RockConfig.Rocks.Basic.RespawnSeconds
-	local tweenInfo = TweenInfo.new(respawnSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local halves: { BasePart } = {}
 	for _, offsetX in { -halfOffsetX, halfOffsetX } do
 		local half = Instance.new("Part")
 		half.Name = "Rock_Basic_Half"
 		half.Size = halfSize
 		half.Position = basePos + Vector3.new(offsetX, 0, 0)
-		half.Anchored = true
-		half.CanCollide = false
-		half.Color = part.Color
-		half.Material = part.Material
+		half.Anchored = false
+		half.CanCollide = true
+		half.CanQuery = false
+		half.Color = color
+		half.Material = material
 		half.Parent = workspace
 		table.insert(halves, half)
 
-		local tiltRad = math.rad(if offsetX < 0 then 15 else -15)
-		local endCFrame = CFrame.new(basePos + Vector3.new(offsetX * 3, 0, 0)) * CFrame.Angles(0, 0, tiltRad)
-		TweenService:Create(half, tweenInfo, { CFrame = endCFrame, Transparency = 0.5 }):Play()
+		local direction = if offsetX < 0 then -1 else 1
+		half.AssemblyLinearVelocity =
+			Vector3.new(direction * ChopConfig.SplitPushXStuds, ChopConfig.SplitPushYStuds, 0)
+		half.AssemblyAngularVelocity = Vector3.new(0, 0, -direction * ChopConfig.SplitTorqueRadPerSec)
 	end
 
-	task.delay(respawnSeconds, function()
+	task.delay(RockConfig.Rocks.Basic.RespawnSeconds, function()
 		for _, half in halves do
-			half:Destroy()
+			if half.Parent then
+				half:Destroy()
+			end
 		end
-		if part.Parent and prompt.Parent then
-			part.Transparency = 0
-			part.CanCollide = true
-			prompt.Enabled = true
-		end
+		restoreRock()
 	end)
 end
 
@@ -158,6 +212,10 @@ function RockService.Start(_self: any)
 		)
 		if quality == ChopQuality.Perfect then
 			splitRock()
+		elseif quality == ChopQuality.Good then
+			breakRockWithDebris(ChopConfig.GoodChunkCount)
+		elseif quality == ChopQuality.Sloppy then
+			breakRockWithDebris(ChopConfig.SloppyChunkCount)
 		else
 			breakRock()
 		end

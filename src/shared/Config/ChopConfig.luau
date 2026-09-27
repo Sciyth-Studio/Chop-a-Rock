@@ -18,6 +18,13 @@ export type ChopSettings = {
 	DamageNumberRiseSeconds: number,
 	DamageNumberRiseStuds: number,
 	DamageNumberStartOffset: Vector3,
+	SloppyChunkCount: number,
+	GoodChunkCount: number,
+	ChunkLifetimeSeconds: number,
+	ChunkSpawnVelocityScale: number,
+	SplitPushXStuds: number,
+	SplitPushYStuds: number,
+	SplitTorqueRadPerSec: number,
 }
 
 local ChopConfig: ChopSettings = {
@@ -38,6 +45,13 @@ local ChopConfig: ChopSettings = {
 	DamageNumberRiseSeconds = 0.9,
 	DamageNumberRiseStuds = 5,
 	DamageNumberStartOffset = Vector3.new(0, 2, 0),
+	SloppyChunkCount = 3,
+	GoodChunkCount = 7,
+	ChunkLifetimeSeconds = 1.5,
+	ChunkSpawnVelocityScale = 25,
+	SplitPushXStuds = 4,
+	SplitPushYStuds = 3,
+	SplitTorqueRadPerSec = 5,
 }
 
 return table.freeze(ChopConfig)
