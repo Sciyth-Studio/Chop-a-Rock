@@ -1,25 +1,29 @@
 --!strict
 
 export type ChopSettings = {
-	WindupSeconds: number,
-	PerfectWindowCenter: number,
-	PerfectWindowWidth: number,
-	GoodWindowWidth: number,
+	CycleSeconds: number,
+	GoodThreshold: number,
+	PerfectThreshold: number,
 	LatencyCompensationSeconds: number,
 	SloppyPayoutMultiplier: number,
 	GoodPayoutMultiplier: number,
 	PerfectPayoutMultiplier: number,
+	CameraOffsetFromRock: Vector3,
+	CameraLookOffset: Vector3,
+	PlayerSnapOffsetFromRock: Vector3,
 }
 
 local ChopConfig: ChopSettings = {
-	WindupSeconds = 1.2,
-	PerfectWindowCenter = 0.75,
-	PerfectWindowWidth = 0.06,
-	GoodWindowWidth = 0.24,
-	LatencyCompensationSeconds = 0.08,
+	CycleSeconds = 1.5,
+	GoodThreshold = 0.70,
+	PerfectThreshold = 0.94,
+	LatencyCompensationSeconds = 0.05,
 	SloppyPayoutMultiplier = 0.4,
 	GoodPayoutMultiplier = 1.0,
 	PerfectPayoutMultiplier = 1.75,
+	CameraOffsetFromRock = Vector3.new(0, 8, -14),
+	CameraLookOffset = Vector3.new(0, 0, 0),
+	PlayerSnapOffsetFromRock = Vector3.new(0, 0, -8),
 }
 
 return table.freeze(ChopConfig)
