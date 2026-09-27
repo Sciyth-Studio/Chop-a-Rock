@@ -1,0 +1,564 @@
+================================
+MASTER GAME PLANNING DOCUMENT
+================================
+An architectural guide for creating a Roblox game with AI.
+The user must fill this document out manually before major development begins.
+AI may help expand, clarify, organize, or improve information ONLY after the user has established the core ideas.
+AI will use this document to create a proper development roadmap, checklist, system plan, concepts, and implementation order.
+AI MUST continuously refer back to this document and the approved roadmap while developing the game.
+AI MUST NOT silently invent major gameplay mechanics, progression systems, monetization, lore, functionality, or design decisions that contradict or replace what the user has established.
+If important information is missing, unclear, contradictory, or unrealistic, AI must identify it before that area of development begins.
+
+TAGS USED IN THIS DOCUMENT:
+[PROPOSED] = Suggested by AI, NOT yet approved by the user. Do not build from it until approved.
+[OPEN]     = Unanswered question. Must be resolved before dependent development begins.
+[TBD]      = User has deliberately deferred this.
+[PLAYTEST] = To be decided through playtesting. AI must build these as configurable values, not hardcoded behavior.
+
+See DECISION LOG at the end of this document for design changes over time.
+
+================================
+00. INTRODUCTION
+================================
+Game Name:
+Chop a Rock
+
+1 DETAILED Paragraph Description of Game:
+(Revised 2026-09-26 to reflect the two-axis progression change — see Decision Log.)
+Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up a karate chop and shattering a giant rock in a single hit. Players approach a boulder — a scaled cube part that grows through color and material tiers (gray → mossy → obsidian → glowing → crystalline → cosmic) — hold to wind up, and release as a meter passes through a power band. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are strong enough, the release timing scales the reward rather than gating it, so a sloppy release still breaks the rock for a small payout while a good one pays full and a perfect one triggers a bonus multiplier, a bigger shatter, and a louder crunch. Breaking rocks earns money and can drop gems. Progression runs on two axes: STRENGTH, raised by buying strict arm upgrades with money, which unlocks heavier rocks further out; and LUCK, raised by placing collected gems on pedestals at the player's base, which improves the rarity of future drops. Bigger rocks drop rarer gems, gems at the base also earn money while offline, and money buys more pedestal slots. Rebirthing resets strength and level to one and unlocks a new base floor. An index tracks every kind of rock broken and every gem found. Impact gets all the polish: screen shake, a slow-mo frame before contact, a giant damage number, and pre-fractured debris, with the player character held at fixed size so the boulder visibly dwarfs them. NPC crowds cheer and server-wide announcements fire on milestone breaks, because being seen being strong is half the fantasy. Icon-driven UI, huge buttons, minimal reading, monetized through gamepasses rather than randomized eggs.
+
+Game Type:
+Simulator / RNG
+
+Main Player Fantasy:
+Karate chopping a super big rock like an anime character.
+
+Target Audience:
+Ages 6–12.
+[PROPOSED] Design rule: UI is designed for the youngest players (icons, colors, no reading required); progression depth is designed for the oldest players.
+
+Main Selling Point:
+You get to chop a really big rock and it is incredibly satisfying.
+[PROPOSED] Sharper version: "The only simulator where every hit is a skill moment — built to look insane in a clip." (One skill-based, anime-impact action vs. the click-spam/auto-swing typical of the genre.)
+[PROPOSED] Differentiating link: timing quality affects gem drop rarity (perfect chops = better odds), so skill feeds both progression axes.
+
+Expectations:
+Money printer.
+[OPEN] Define a measurable target (e.g., concurrent players within X days, Robux/month by month Y).
+
+MONETIZATION NOTE — must be resolved by Section 10:
+Randomness now comes from gem drops earned by chopping, not from purchased rolls (arms are strict upgrades). Remaining question: may Robux affect drop randomness (e.g., a "2x luck" gamepass)? Audience is 6–12; paid random items on Roblox require disclosed odds.
+
+================================
+01. REFERENCES
+================================
+MANDATORY TO REVIEW THIS SECTION WITH WHAT THE USER PROVIDED THOROUGHLY.
+YOU WILL TAKE HEAVY INSPIRATION FROM PROVIDED SOURCES.
+
+[TBD] User has deferred references. AI must NOT invent or assume reference games in their place.
+Revisit before Visual Direction work begins.
+Known reference (named by user in discussion): "Lift a Rock" — user considers the original design too close to it; the two-axis progression change was made to differentiate. Details of what to take/avoid are still TBD.
+
+Reference 1 Link/Idea:
+Reference Description and Purpose:
+Specific Elements To Take Inspiration From:
+Specific Elements NOT To Copy:
+
+================================
+02. CORE GAMEPLAY LOOP
+================================
+Step #1: Train to build strength (idle allowed).
+Step #2: Walk to a boulder.
+Step #3: Hold to wind up the chop; release as the meter passes through the power band.
+Step #4: If too weak → the rock cracks, no reward.
+Step #5: If strong enough → the rock shatters. Timing sets payout:
+         sloppy = small payout, good = full payout, perfect = bonus multiplier + bigger shatter + louder crunch.
+Step #6: Earn money. Chance to drop a gem.
+Step #7: Spend money on the next arm upgrade (strict upgrade → more strength per training action).
+Step #8: Place gems on base pedestals (more luck → rarer future drops; gems also earn money offline).
+Step #9: With more strength, move further out to heavier rocks, which drop rarer gems.
+Step #10: Buy more pedestal slots; eventually rebirth (strength + level reset to 1; new floor, multipliers, better training method).
+Step #11: Repeat.
+
+Loop details:
+- Rock respawn: instant after breaking.
+- One chop (approach, wind-up, impact) takes about 5 seconds (~12 chops per minute).
+- Players move on when they have earned enough to do what's required to try the next rock.
+- Players need a periodic indication of what to do next.
+
+[PROPOSED] Next-goal bar: a persistent bar showing "your strength → next rock's requirement," plus an arrow/pulse when it fills.
+[PROPOSED] ~0.5s reform animation on respawn instead of a true instant pop, so the break has a beat to land.
+(Resolved: arms are now strict upgrades bought with money, so money converts predictably into strength. Pity system no longer needed.)
+
+================================
+03. VISUAL DIRECTION
+================================
+Art style: Smooth cartoon.
+  [OPEN] Smooth (no studs) or cartoon with studs texture?
+
+Character:
+- Default Roblox avatars.
+- Equipped arm tier is visible on the player. Arms are strict upgrades; each tier has its own look.
+- Method: leaning toward a glove/gauntlet accessory; direct arm material change is also viable.
+- Each arm tier has its own aura effect (keeps the arm readable even under clothing).
+  Rig: R15 for everything.
+
+Impact / anime language:
+- Screen shake, slow-mo frame before contact, giant damage number, pre-fractured debris.
+- Player character held at fixed size so the boulder visibly dwarfs them.
+- Japanese "yoo" sound effect on perfect breaks (signature sound; source royalty-free or record original — do not rip).
+  [OPEN] Any additional visual anime elements (speed lines, impact flash), or keep to aura + sound + shake?
+
+Rock tiers:
+gray → mossy → obsidian → glowing → crystalline → cosmic
+- Each tier also changes the environment (sky, atmosphere, particles), not just the rock. This implies a zone-based world (see Section 06).
+
+Gems:
+- Collectible gems drop from rocks and are displayed on pedestals at the base.
+  [OPEN] Gem visual language per rarity (color, glow, size, particles).
+
+Overall mood: Bright.
+[PROPOSED] Cosmic tier uses vivid nebula colors rather than a dark/black space sky, to stay consistent with the bright mood.
+
+================================
+04. AI'S PURPOSE AND OBJECTIVE
+================================
+DIVISION OF LABOR:
+- AI writes scripts.
+- User does everything else (building, models, VFX, sounds, animations) until otherwise decided.
+- UI: follows the boilerplate's AGENTS.md convention. ScreenGuis are authored in Studio's StarterGui and live in the place file (Rojo does not sync StarterGui). Screen modules under src/client/Controllers/UIController/Screens/ find elements by name inside the ScreenGui and drive them. If a Roblox Studio MCP is available, AI creates/edits ScreenGuis through it; otherwise AI writes the screen module and asks the user to author the ScreenGui in Studio. User must save the place after UI changes.
+
+WORKFLOW:
+- Rojo with files.
+- Code standards are defined in the project's AGENTS.md. AI must read AGENTS.md before writing code.
+
+OUTPUT STYLE:
+- Whole files every time.
+- Comments only when requested.
+- AI must make NO changes outside the requested scope, even when outputting a whole file.
+- User reviews git diffs before committing.
+
+IDEA HANDLING:
+- Anything player-facing: AI proposes and waits for approval.
+- Internal implementation details (naming, internal structure) that follow AGENTS.md: AI may decide.
+
+ASSET HANDOFF CONVENTION:
+How AI-written scripts reference user-made assets.
+
+1. Location: all user-made assets live under
+     ReplicatedStorage/Assets/
+       VFX/
+       Sounds/
+       Animations/
+       Models/
+       Images/
+2. Naming: Category_Subject_Variant, PascalCase
+     e.g. VFX_Shatter_Perfect, VFX_Aura_Obsidian, SFX_Chop_Yoo, Anim_Chop_Windup, Model_Rock_Mossy, Model_Gem_Ruby
+3. Registry: scripts NEVER reference assets by path or ID directly. All lookups go through one ModuleScript
+   (ReplicatedStorage/Shared/AssetRegistry) that maps keys to asset locations/IDs.
+   Renaming or replacing an asset = one edit in the registry.
+4. Placeholders: if an asset doesn't exist yet, AssetRegistry returns a placeholder (plain part, blank sound)
+   and prints a warning naming the missing asset. The game must run with zero real assets.
+5. Missing-asset list: when AI writes code that needs a new asset, it lists the asset name(s) it expects
+   at the end of its response so the user knows what to make.
+6. Rojo: the Assets folder is made in Studio, not in files. It must either be exported as .rbxm into the repo
+   or marked $ignoreUnknownInstances in the Rojo project file, so syncing never wipes it.
+
+================================
+05. THE FIRST PLAYER EXPERIENCE
+================================
+First 10 seconds — intro cutscene:
+1. A bacon hair tries to chop a rock and fails.
+2. A sensei with an aura arrives and chops the rock with a super big effect.
+3. Camera moves to the player; the tutorial begins.
+[PROPOSED] Cutscene plays only on a player's first join, stays under ~15 seconds, and is skippable.
+
+Teaching the chop:
+- Mandatory tutorial with very obvious explanations.
+- The first chop is fully walked through.
+[PROPOSED] Explanations are visual (icons, pulsing hand, ghost demo), not text, to work for age 6.
+
+First break:
+- Guaranteed break, guaranteed perfect, full fanfare.
+
+First upgrade:
+- The first break pays enough for the first arm upgrade (base chop → first basic arm, small stat boost, e.g. +1).
+[PROPOSED] Tutorial also guarantees a first gem drop and walks the player through placing it on a pedestal, so both progression axes are taught.
+
+First 5 minutes:
+- Player completes the tutorial.
+[TBD] What happens after the tutorial.
+
+Reasons to come back:
+1. Weekly rewards.
+2. Potentially a PvP chop arena.
+3. Random events.
+4. Rock index — every kind of rock broken and every gem found.
+5. Offline income from gems at the base.
+[OPEN] Weekly is a long gap for 6–12; consider daily login streaks instead of or in addition.
+[OPEN] Define what random events are.
+[OPEN] PvP arena is large scope — MVP or later update? (Decide in Section 10.)
+
+================================
+06. WORLD, CONTENT, AND PLAYER INTERACTION
+================================
+
+WORLD TYPE:
+Hub + zones. A central spawn hub, with a straight line of zones (one per rock tier) leading out from it (user's leaning: straight line).
+
+WORLD DESCRIPTION:
+- Spawn hub: a central training hub, ringed by player base plots.
+- Training hub: where the intro cutscene and tutorial happen, and where all strength training takes place (including idle training).
+  Hub aesthetic: mountain training grounds with sakura trees around (anime training-arc feel; bright, outdoor). Not a dojo.
+- Base plots: fixed-pedestal bases arranged around the hub. Other players can walk in and view your gems. A Home button teleports the player back to their base.
+- Zones: a straight line leading out from the hub, one zone per rock tier. Each zone's environment matches its tier.
+[PROPOSED] Zones separated by gates showing the required strength; breaking through fires a server announcement.
+[PROPOSED] Teleport pad unlocks when a player first reaches a zone; players can jump to their highest zone from the hub.
+[PROPOSED] Handcrafted tiers (gray → cosmic) form the line. Anything beyond cosmic uses teleports into reused/generated zones rather than extending the line (Roblox physics/rendering degrade far from the world origin).
+Note: with training and bases at the hub, the server naturally gathers in one visible place; the zones are where players go to chop.
+
+MAIN LOCATION / STARTING AREA:
+The training hub in the spawn area. New players see the cutscene and tutorial there, then walk out into zone 1.
+Rocks are per-player: each player sees and chops their own copy of each rock.
+[OPEN] How many base plots per server (sets the max server size)?
+
+================================
+07. PROGRESSION, ECONOMY, AND REWARDS
+================================
+
+MAIN PROGRESSION METHOD:
+Two axes:
+- STRENGTH: gained by TRAINING, amplified by strict arm upgrades bought with money. Determines which rocks can be broken.
+  - Training builds strength linearly.
+  - Better arms increase the amount of strength gained per training action (arms act as a training-gain multiplier).
+  - Idle (AFK) training is allowed.
+  - Better training methods are unlocked by rebirthing.
+  Training method: karate-themed board/brick breaking stacks (1 board → 5 boards → bricks → ice → steel), using the same timing meter as rock chops. Bench pressing rejected (signature mechanic of the lifting-simulator genre this redesign differentiates from); pushups rejected (no clean upgrade path).
+  [OPEN] Does idle training happen only while in-game (AFK in server), or also while offline?
+  [PROPOSED] Active timed training (good/perfect releases) trains faster than idle, so skill still pays.
+- LUCK: gems placed on base pedestals. Improves rarity of future gem drops.
+Plus: base expansion (pedestal slots, floors) and rebirth.
+
+PRIMARY CURRENCY: Money
+How is it earned?
+- Breaking rocks (payout scaled by timing quality: sloppy / good / perfect).
+- Offline income from gems placed at the base.
+What is it spent on?
+- Arm upgrades (strength).
+- Additional pedestal slots at the base.
+
+SECONDARY CURRENCY:
+None defined.
+
+PREMIUM CURRENCY, if any:
+None defined.
+
+UPGRADES:
+- Arms: strict tier upgrades → more strength; each tier has a unique look + aura.
+- Base: more pedestal slots (money); more floors (rebirth).
+
+ITEM / EQUIPMENT TIERS:
+- Arm tiers (strict, sequential).
+- Gems (collection, placed at base).
+
+RARITIES:
+Gems have rarities. Bigger rocks give better odds of rarer gems.
+The user does not restrict what can be found: any gem can in principle drop from any rock; rock size and luck change the odds.
+[OPEN] Number of rarities and their names.
+[OPEN] Odds table (must be displayable to players).
+
+UNLOCK REQUIREMENTS:
+- Rocks/zones: strength.
+- Base floors: rebirth.
+
+PLAYER LEVELS:
+Cosmetic only (no gameplay effect). Resets to 1 on rebirth.
+
+XP SYSTEM:
+EXP bar is filled by strength. Level is effectively a display of strength progress.
+
+REWARDS:
+What activities give rewards? Breaking rocks (money + gem drop chance); gems at base (offline money).
+What determines reward amount? Rock size/tier, timing quality, luck (for gem rarity).
+[PROPOSED] Timing quality also improves gem drop odds.
+How does risk affect reward? Attempting a rock that's too strong = crack, no reward.
+
+REBIRTH:
+- Resets strength and level to 1.
+- Unlocks a new base floor (more pedestal space).
+- Grants multipliers to money gain and strength gain.
+[OPEN] What else resets? Money? Arm tier (since arms = strength)? Pedestal slots?
+       → [PLAYTEST] User will decide through playtesting. Code must support either choice via config.
+[OPEN] What persists? Presumably gems, index, and floors — confirm.
+[PLAYTEST] Do rebirth multipliers stack per rebirth (additive/multiplicative), and by how much?
+
+OFFLINE INCOME:
+- Gems at the base earn money while the player is offline.
+[OPEN] Offline cap (e.g., max hours accrued) — without one, offline income can outpace active play.
+[PROPOSED] Active chopping should always earn clearly more per minute than offline income, so playing beats idling.
+
+COLLECTION / INDEX:
+- Tracks every kind of rock broken and every gem found.
+[OPEN] What happens to duplicate gems? (Sell, fuse, keep, discard?)
+[OPEN] Rewards for completing index entries/pages?
+
+GENERAL PROGRESSION FLOW:
+Base chop
+↓
+Train → strength (linear; idle allowed)
+Break rocks → money + gem drops
+↓
+Buy arm upgrades (training-gain multiplier) ← money
+Place gems on pedestals (luck + offline money)
+↓
+Break bigger rocks → rarer gems
+↓
+Buy more pedestal slots
+↓
+Rebirth → strength + level reset to 1; new floor, money/strength-gain multipliers, better training method unlocked
+↓
+Repeat with more luck, base capacity, and faster training
+
+[OPEN] What happens after the cosmic tier? Does rebirth replace "infinite" rock tiers, or do tiers continue past cosmic?
+
+================================
+08. CORE SYSTEMS AND FUNCTIONALITY
+================================
+
+Define the major systems the game requires.
+This section describes WHAT systems must exist.
+Detailed technical implementation comes later.
+
+Only fill out systems that actually apply to the game.
+
+PLAYER / CHARACTER SYSTEM:
+Strength, level, luck, arm tier, rebirth count.
+
+INVENTORY SYSTEM:
+Gem inventory (gems not currently on pedestals).
+
+ITEM / EQUIPMENT / TOOL SYSTEM:
+Arm tiers (equipment). Gems (collectibles).
+
+COMBAT SYSTEM:
+Not applicable (unless PvP arena is added).
+
+INTERACTION SYSTEM:
+Chop (hold/release timing meter). Pedestal placement at base.
+
+QUEST / OBJECTIVE SYSTEM:
+Tutorial. [PROPOSED] Next-goal bar.
+
+SHOP / SELLING SYSTEM:
+Arm upgrade shop. Pedestal slot purchases.
+
+NPC / ENEMY SYSTEM:
+Sensei (cutscene/tutorial). Bacon hair (cutscene). Cheering NPC crowds.
+
+RESOURCE / SPAWNING SYSTEM:
+Rocks per zone, instant respawn. Gem drop rolls on break.
+
+VEHICLE SYSTEM:
+Not applicable.
+
+BUILDING / CRAFTING SYSTEM:
+Base with fixed pedestals (no free placement). Multiple floors unlocked by rebirth.
+
+TRADING SYSTEM:
+Not defined.
+
+PARTY / TEAM / MATCHMAKING SYSTEM:
+Not defined.
+
+LEADERBOARD / ACHIEVEMENT SYSTEM:
+Rock/gem index. Server-wide announcements on milestone breaks.
+
+OTHER IMPORTANT SYSTEMS:
+Rebirth. Offline income.
+
+IMPORTANT TECHNICAL REQUIREMENTS:
+What player data must save between sessions?
+Money, strength, arm tier, level, rebirth count, gems owned, pedestal placements, slots, floors, index, last-online time (for offline income).
+Does the game require multiplayer interaction? If so, explain the important interactions.
+Are there valuable or exploitable systems that must be secure/server-controlled?
+Chop timing, payouts, gem drops, offline income calculation, purchases — all server-authoritative.
+Are there special performance requirements?
+Are there systems the user specifically wants implemented a certain way?
+- All balance values (rock strength requirements, payouts, drop odds, arm multipliers, training rates, rebirth multipliers, slot prices, offline income rates/caps) live in config ModuleScripts, never hardcoded in logic.
+- Rebirth reset rules are config-driven: a list of which stats/items reset vs. persist, so they can be changed after playtesting without rewriting the rebirth system.
+Other important technical requirements:
+
+Carried-over questions:
+Rocks are per-player (see Section 06). Rock visuals may be client-side, but the server tracks each player's rock state and validates every break (strength check, timing result, payout).
+Rock size: boulders stay well within Roblox's 2048-stud per-axis part cap; not a concern.
+[PLAYTEST] Timing meter tuning (power-band width, sloppy/good/perfect thresholds, mobile touch-latency compensation, young-kid motor-control margins). All values live in config; no hardcoded thresholds.
+[OPEN] DataStore save-schema versioning/migration plan.
+[OPEN] Offline income must use server time, not client time (clock exploits).
+
+================================
+09. UI, AUDIO, FEEDBACK, AND GAME FEEL
+================================
+
+UI Style:
+Known: icon-driven, huge buttons, minimal reading.
+
+Important UI:
+HUD:
+Menus:
+Inventory:
+Shop:
+Other:
+Known needs: arm upgrade shop, gem inventory, pedestal placement, index, rebirth, offline-earnings popup.
+
+PLAYER FEEDBACK:
+What should happen visually/audio-wise when the player:
+Earns something:
+Buys something:
+Upgrades:
+Fails:
+Completes an objective:
+Gets a rare gem drop:
+
+MUSIC / AUDIO DIRECTION:
+Known: "yoo" sound on perfect breaks.
+
+VFX DIRECTION:
+Known: per-arm-tier aura effects; shatter scales with timing quality.
+
+ANIMATION DIRECTION:
+
+OTHER:
+
+Carried-over questions:
+[OPEN] Show required strength before the player swings (lock icon / red-green indicator), so failures are a choice, not a surprise.
+[OPEN] Big-number display (e.g., 1.2Qa) readable by young kids.
+
+================================
+10. SCOPE, MONETIZATION, RISKS, AND LIMITATIONS
+================================
+
+EXPECTED PROJECT SCALE:
+Small / Medium / Large
+Explain what the user realistically expects one person + AI to achieve:
+
+MVP:
+What is the SMALLEST version of the game that proves the main gameplay idea is fun?
+1 zone, timing meter, rock breaking, basic training, money, 2 arm tiers.
+Purpose: prove the chop (timing meter + break) feels good and the train → chop → upgrade loop works.
+
+MVP MUST HAVE:
+1. One zone.
+2. Timing meter (hold to wind up, release in power band; sloppy/good/perfect).
+3. Rock breaking, including full impact polish (screen shake, slow-mo frame, damage number, shatter debris, "yoo" SFX on perfect).
+4. Basic training (strength).
+5. Money.
+6. Two arm tiers.
+7. Two rock strengths in the one zone (tests "too weak → crack" and "train to break the next rock").
+Training method for MVP: karate board breaks (start with a single stack tier; more tiers unlock via rebirth post-MVP).
+MVP success criteria: the developer finds themselves playing instead of developing for more than 10 continuous minutes.
+
+MVP MUST NOT HAVE:
+(Everything not listed above is out of the MVP, including:)
+1. Gems, luck, drops, index.
+2. Player bases, pedestals, offline income.
+3. Rebirth, floors, multipliers.
+4. Monetization.
+5. Additional zones, teleports, gates.
+
+FEATURES FOR LATER UPDATES:
+1. Gems + luck + base pedestals (second progression axis).
+2. Rebirth, floors, better training methods.
+3. Offline income, rock/gem index.
+4. More zones, teleport pads, strength gates.
+5. Tutorial cutscene, random events, weekly rewards, potential PvP arena.
+
+MONETIZATION:
+Gamepasses:
+Developer Products:
+Subscriptions:
+Private Servers:
+Cosmetics:
+Other:
+
+PAY-TO-WIN LIMIT:
+What monetization is acceptable?
+What monetization is NOT acceptable?
+(Must resolve whether Robux may affect gem drop luck — see Section 00.)
+
+MAJOR DEVELOPMENT RISKS:
+Risk 1:
+Why it is dangerous:
+How it may be prevented/tested:
+
+Risk 2:
+Why it is dangerous:
+How it may be prevented/tested:
+
+Risk 3:
+Why it is dangerous:
+How it may be prevented/tested:
+
+================================
+FINAL AI INSTRUCTION
+================================
+
+Before development begins, AI must read this entire document.
+
+AI must identify:
+1. Missing critical information.
+2. Contradictory requirements.
+3. Unrealistic expectations.
+4. Major technical risks.
+5. Major design risks.
+6. Systems that depend on other unfinished systems.
+7. Areas requiring prototypes or research.
+8. Identify areas where additional detail would materially improve the roadmap and offer to help expand them.
+9. If critical success requirements are missing, AI must identify them and help the user define them before dependent development begins.
+
+AI will then produce:
+- A concise understanding of the game.
+- The game's primary gameplay loop.
+- The major system architecture.
+- A dependency-aware development roadmap.
+- An MVP definition.
+- Development phases.
+- A checklist for each phase.
+- Known risks and concerns.
+- Testing requirements.
+- Clear completion criteria.
+- A consolidated understanding of the information the user provided so the user can verify that AI understood the game correctly.
+
+During development:
+
+THE MASTER GAME PLANNING DOCUMENT defines WHAT the game should become.
+THE ROADMAP defines WHEN major parts should be created.
+FEATURE SPECIFICATIONS define HOW individual systems should behave.
+AGENTS.md defines HOW code must be written (standards, style, structure).
+THE CODE / ROBLOX PROJECT defines WHAT CURRENTLY EXISTS.
+
+AI must not confuse these five sources of truth.
+Precedence: for code standards, AGENTS.md wins. For game design, this document wins.
+If any two sources disagree, AI must identify the conflict rather than silently choosing one.
+Items tagged [PROPOSED] are not approved and must not be built from until the user approves them.
+The goal is NOT to generate the most code possible.
+The goal is to create the intended game correctly, incrementally, safely, and without unnecessary complexity.
+
+================================
+DECISION LOG
+================================
+2026-09-26 — Progression redesigned to differentiate from "Lift a Rock":
+  - Arms changed from RNG material rolls to strict upgrades bought with money.
+  - Breaking rocks can drop gems (collection). Bigger rocks give rarer gems. Nothing is restricted from dropping.
+  - Gems go on fixed pedestals at a player base; they increase luck and earn offline money.
+  - Money buys more pedestal slots. Rebirth resets strength and level to 1 and unlocks a new base floor.
+  - Index tracks rock kinds broken and gems found.
+  - Two scaling axes: strength and luck.
+2026-09-26 — User clarified: players also train strength (leaning toward bench pressing). Level is cosmetic, filled by strength. Rebirth grants money and strength-gain multipliers.
+2026-09-26 — Training builds strength linearly; arms multiply training gain; idle training allowed; better training methods unlocked by rebirth.
+2026-09-26 — Chop Duels (normalized PvP) was proposed by AI and not adopted.
+2026-09-26 — MVP-blocking resolutions:
+  - Training method: karate board/brick breaking stacks confirmed (bench pressing and pushups rejected). MVP uses a single stack tier.
+  - MVP success criteria: developer plays instead of developing for >10 continuous minutes.
+  - Timing meter parameters reclassified [OPEN] → [PLAYTEST]; all thresholds config-driven.
+  - Rock size (2048-stud axis cap) resolved: boulders stay well within, not a concern.
+  - UI-authoring conflict resolved in favor of the boilerplate's AGENTS.md convention (StarterGui-authored, code finds by name); Section 04 updated.
