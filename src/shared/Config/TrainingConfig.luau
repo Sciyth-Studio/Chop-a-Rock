@@ -1,17 +1,17 @@
 --!strict
 
 export type TrainingSettings = {
-	BaseStrengthPerRep: number,
-	SloppyMultiplier: number,
-	GoodMultiplier: number,
-	PerfectMultiplier: number,
+	StrengthPerChop: number,
+	ChopIntervalSeconds: number,
+	MaxLingerStuds: number,
+	SnapDistanceStuds: number,
 }
 
 local TrainingConfig: TrainingSettings = {
-	BaseStrengthPerRep = 1,
-	SloppyMultiplier = 0.5,
-	GoodMultiplier = 1.0,
-	PerfectMultiplier = 1.5,
+	StrengthPerChop = 1,
+	ChopIntervalSeconds = 1.2,
+	MaxLingerStuds = 15,
+	SnapDistanceStuds = 4,
 }
 
 return table.freeze(TrainingConfig)

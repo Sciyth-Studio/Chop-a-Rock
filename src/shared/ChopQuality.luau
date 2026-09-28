@@ -2,7 +2,9 @@
 
 return table.freeze({
 	Crack = 0,
-	Sloppy = 1,
-	Good = 2,
-	Perfect = 3,
+	Bad = 1,
+	Mid = 2,
+	Good = 3,
+	Great = 4,
+	Perfect = 5,
 })

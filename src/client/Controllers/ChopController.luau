@@ -20,37 +20,108 @@ local ROCK_TAG = "ChopRock"
 local RELEASE_ACTION = "ChopRelease"
 local RESULT_DISPLAY_SECONDS = 0.7
 
+local COLOR_BAD = Color3.fromRGB(255, 0, 0)
+local COLOR_MID = Color3.fromRGB(255, 140, 0)
+local COLOR_GOOD = Color3.fromRGB(0, 255, 0)
+local COLOR_GREAT = Color3.fromRGB(0, 120, 255)
+local COLOR_PERFECT_PURPLE = Color3.fromRGB(170, 0, 255)
+
+local RAINBOW_SEQUENCE = ColorSequence.new({
+	ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)),
+	ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 140, 0)),
+	ColorSequenceKeypoint.new(0.33, Color3.fromRGB(255, 255, 0)),
+	ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 255, 0)),
+	ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 120, 255)),
+	ColorSequenceKeypoint.new(0.83, Color3.fromRGB(90, 0, 255)),
+	ColorSequenceKeypoint.new(1.00, Color3.fromRGB(170, 0, 255)),
+})
+
 local function qualityName(quality: number): string
 	if quality == ChopQuality.Perfect then
 		return "Perfect"
+	elseif quality == ChopQuality.Great then
+		return "Great"
 	elseif quality == ChopQuality.Good then
 		return "Good"
-	elseif quality == ChopQuality.Sloppy then
-		return "Sloppy"
+	elseif quality == ChopQuality.Mid then
+		return "Mid"
+	elseif quality == ChopQuality.Bad then
+		return "Bad"
 	elseif quality == ChopQuality.Crack then
 		return "Crack"
 	end
 	return "Unknown"
 end
 
+local function qualityDisplayText(quality: number): string
+	if quality == ChopQuality.Perfect then
+		return "PERFECT!"
+	elseif quality == ChopQuality.Great then
+		return "Great!"
+	elseif quality == ChopQuality.Good then
+		return "Good!"
+	elseif quality == ChopQuality.Mid then
+		return "Mid.."
+	elseif quality == ChopQuality.Bad then
+		return "Bad.."
+	elseif quality == ChopQuality.Crack then
+		return "Crack!"
+	end
+	return "?"
+end
+
+local function addTextStroke(label: TextLabel)
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 4
+	stroke.Color = Color3.new(0, 0, 0)
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.Parent = label
+end
+
+local function addFrameStroke(frame: Frame, thickness: number)
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = thickness
+	stroke.Color = Color3.new(0, 0, 0)
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.LineJoinMode = Enum.LineJoinMode.Round
+	stroke.Parent = frame
+end
+
 local function qualityColor(quality: number): Color3
 	if quality == ChopQuality.Perfect then
-		return Color3.fromRGB(0, 255, 180)
+		return COLOR_PERFECT_PURPLE
+	elseif quality == ChopQuality.Great then
+		return COLOR_GREAT
 	elseif quality == ChopQuality.Good then
-		return Color3.fromRGB(0, 255, 0)
-	elseif quality == ChopQuality.Sloppy then
-		return Color3.fromRGB(255, 255, 0)
+		return COLOR_GOOD
+	elseif quality == ChopQuality.Mid then
+		return COLOR_MID
+	elseif quality == ChopQuality.Bad then
+		return COLOR_BAD
 	end
-	return Color3.fromRGB(255, 0, 0)
+	return COLOR_BAD
 end
 
 local function qualityShakeIntensity(quality: number): number
 	if quality == ChopQuality.Perfect then
 		return ChopConfig.PerfectShakeIntensity
+	elseif quality == ChopQuality.Great then
+		return ChopConfig.GreatShakeIntensity
 	elseif quality == ChopQuality.Good then
 		return ChopConfig.GoodShakeIntensity
+	elseif quality == ChopQuality.Mid then
+		return ChopConfig.MidShakeIntensity
 	end
-	return ChopConfig.SloppyShakeIntensity
+	return ChopConfig.BadShakeIntensity
+end
+
+local function applyRainbow(label: TextLabel)
+	label.TextColor3 = Color3.new(1, 1, 1)
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = RAINBOW_SEQUENCE
+	gradient.Rotation = 0
+	gradient.Parent = label
 end
 
 local function computePosition(elapsed: number): number
@@ -119,17 +190,23 @@ local function spawnDamageNumber(worldPos: Vector3, payout: number, quality: num
 	label.BackgroundTransparency = 1
 	label.FontFace = FontConfig.Default
 	label.TextScaled = true
-	label.Text = `+{payout}`
+	label.Text = `+${payout}`
 	label.TextColor3 = qualityColor(quality)
-	label.TextStrokeTransparency = 0
-	label.TextStrokeColor3 = Color3.new(0, 0, 0)
 	label.Parent = billboard
+	addTextStroke(label)
+	if quality == ChopQuality.Perfect then
+		applyRainbow(label)
+	end
+	local labelStroke = label:FindFirstChildOfClass("UIStroke")
 
 	local duration = ChopConfig.DamageNumberRiseSeconds
 	local info = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local endPos = anchor.Position + Vector3.new(0, ChopConfig.DamageNumberRiseStuds, 0)
 	TweenService:Create(anchor, info, { Position = endPos }):Play()
-	TweenService:Create(label, info, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	TweenService:Create(label, info, { TextTransparency = 1 }):Play()
+	if labelStroke then
+		TweenService:Create(labelStroke, info, { Transparency = 1 }):Play()
+	end
 
 	task.delay(duration + 0.1, function()
 		if anchor.Parent then
@@ -214,34 +291,52 @@ local function beginMinigame()
 	barBackground.AnchorPoint = Vector2.new(0, 0.5)
 	barBackground.Position = UDim2.new(0.72, 0, 0.5, 0)
 	barBackground.Size = UDim2.new(0, 40, 0, 400)
-	barBackground.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	barBackground.BackgroundColor3 = COLOR_BAD
 	barBackground.BorderSizePixel = 0
 	barBackground.Parent = screenGui
+	addFrameStroke(barBackground, 4)
+
+	local midZone = Instance.new("Frame")
+	midZone.AnchorPoint = Vector2.new(0, 0)
+	midZone.Position = UDim2.new(0, 0, 0, 0)
+	midZone.Size = UDim2.new(1, 0, 1 - ChopConfig.MidThreshold, 0)
+	midZone.BackgroundColor3 = COLOR_MID
+	midZone.BorderSizePixel = 0
+	midZone.Parent = barBackground
 
 	local goodZone = Instance.new("Frame")
 	goodZone.AnchorPoint = Vector2.new(0, 0)
 	goodZone.Position = UDim2.new(0, 0, 0, 0)
 	goodZone.Size = UDim2.new(1, 0, 1 - ChopConfig.GoodThreshold, 0)
-	goodZone.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+	goodZone.BackgroundColor3 = COLOR_GOOD
 	goodZone.BorderSizePixel = 0
 	goodZone.Parent = barBackground
+
+	local greatZone = Instance.new("Frame")
+	greatZone.AnchorPoint = Vector2.new(0, 0)
+	greatZone.Position = UDim2.new(0, 0, 0, 0)
+	greatZone.Size = UDim2.new(1, 0, 1 - ChopConfig.GreatThreshold, 0)
+	greatZone.BackgroundColor3 = COLOR_GREAT
+	greatZone.BorderSizePixel = 0
+	greatZone.Parent = barBackground
 
 	local perfectZone = Instance.new("Frame")
 	perfectZone.AnchorPoint = Vector2.new(0, 0)
 	perfectZone.Position = UDim2.new(0, 0, 0, 0)
 	perfectZone.Size = UDim2.new(1, 0, 1 - ChopConfig.PerfectThreshold, 0)
-	perfectZone.BackgroundColor3 = Color3.fromRGB(0, 255, 180)
+	perfectZone.BackgroundColor3 = COLOR_PERFECT_PURPLE
 	perfectZone.BorderSizePixel = 0
 	perfectZone.Parent = barBackground
 
 	local cursor = Instance.new("Frame")
 	cursor.AnchorPoint = Vector2.new(0.5, 0.5)
-	cursor.Size = UDim2.new(1.6, 0, 0, 4)
+	cursor.Size = UDim2.new(1.6, 0, 0, 6)
 	cursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	cursor.BorderSizePixel = 0
 	cursor.ZIndex = 5
 	cursor.Position = UDim2.new(0.5, 0, 1, 0)
 	cursor.Parent = barBackground
+	addFrameStroke(cursor, 2)
 
 	local resultLabel = Instance.new("TextLabel")
 	resultLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -251,11 +346,10 @@ local function beginMinigame()
 	resultLabel.FontFace = FontConfig.Default
 	resultLabel.TextScaled = true
 	resultLabel.TextColor3 = Color3.new(1, 1, 1)
-	resultLabel.TextStrokeTransparency = 0
-	resultLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
 	resultLabel.TextXAlignment = Enum.TextXAlignment.Left
 	resultLabel.Text = ""
 	resultLabel.Parent = screenGui
+	addTextStroke(resultLabel)
 	activeResultLabel = resultLabel
 
 	local startTime = os.clock()
@@ -302,8 +396,16 @@ function ChopController.Start(self: any)
 			return
 		end
 		if activeResultLabel then
-			activeResultLabel.Text = qualityName(quality) .. "!"
-			activeResultLabel.TextColor3 = qualityColor(quality)
+			local existingGradient = activeResultLabel:FindFirstChildOfClass("UIGradient")
+			if existingGradient then
+				existingGradient:Destroy()
+			end
+			activeResultLabel.Text = qualityDisplayText(quality)
+			if quality == ChopQuality.Perfect then
+				applyRainbow(activeResultLabel)
+			else
+				activeResultLabel.TextColor3 = qualityColor(quality)
+			end
 		end
 		local camera = workspace.CurrentCamera
 		if camera and camera.CameraType == Enum.CameraType.Scriptable then

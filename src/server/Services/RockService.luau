@@ -33,12 +33,18 @@ local function classify(position: number): (number, number)
 	if position >= ChopConfig.PerfectThreshold then
 		quality = ChopQuality.Perfect
 		multiplier = ChopConfig.PerfectPayoutMultiplier
+	elseif position >= ChopConfig.GreatThreshold then
+		quality = ChopQuality.Great
+		multiplier = ChopConfig.GreatPayoutMultiplier
 	elseif position >= ChopConfig.GoodThreshold then
 		quality = ChopQuality.Good
 		multiplier = ChopConfig.GoodPayoutMultiplier
+	elseif position >= ChopConfig.MidThreshold then
+		quality = ChopQuality.Mid
+		multiplier = ChopConfig.MidPayoutMultiplier
 	else
-		quality = ChopQuality.Sloppy
-		multiplier = ChopConfig.SloppyPayoutMultiplier
+		quality = ChopQuality.Bad
+		multiplier = ChopConfig.BadPayoutMultiplier
 	end
 	local payout = math.max(0, math.floor(RockConfig.Rocks.Basic.BasePayout * multiplier + 0.5))
 	return quality, payout
@@ -230,14 +236,22 @@ function RockService.Start(_self: any)
 			playSoundOnPart("SFX_Chop_Perfect", part)
 			playSoundOnPart("SFX_Rock_Break", part)
 			splitRock()
+		elseif quality == ChopQuality.Great then
+			playSoundOnPart("SFX_Chop_Great", part)
+			playSoundOnPart("SFX_Rock_Break", part)
+			breakRockWithDebris(ChopConfig.GreatChunkCount)
 		elseif quality == ChopQuality.Good then
 			playSoundOnPart("SFX_Chop_Good", part)
 			playSoundOnPart("SFX_Rock_Break", part)
 			breakRockWithDebris(ChopConfig.GoodChunkCount)
-		elseif quality == ChopQuality.Sloppy then
-			playSoundOnPart("SFX_Chop_Sloppy", part)
+		elseif quality == ChopQuality.Mid then
+			playSoundOnPart("SFX_Chop_Mid", part)
 			playSoundOnPart("SFX_Rock_Break", part)
-			breakRockWithDebris(ChopConfig.SloppyChunkCount)
+			breakRockWithDebris(ChopConfig.MidChunkCount)
+		elseif quality == ChopQuality.Bad then
+			playSoundOnPart("SFX_Chop_Bad", part)
+			playSoundOnPart("SFX_Rock_Break", part)
+			breakRockWithDebris(ChopConfig.BadChunkCount)
 		else
 			breakRock()
 		end

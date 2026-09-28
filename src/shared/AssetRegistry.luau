@@ -10,11 +10,14 @@ type AssetEntry = {
 }
 
 local map: { [string]: AssetEntry } = {
-	SFX_Chop_Sloppy = { Category = "Sounds", InstanceName = "SFX_Chop_Sloppy" },
+	SFX_Chop_Bad = { Category = "Sounds", InstanceName = "SFX_Chop_Bad" },
+	SFX_Chop_Mid = { Category = "Sounds", InstanceName = "SFX_Chop_Mid" },
 	SFX_Chop_Good = { Category = "Sounds", InstanceName = "SFX_Chop_Good" },
+	SFX_Chop_Great = { Category = "Sounds", InstanceName = "SFX_Chop_Great" },
 	SFX_Chop_Perfect = { Category = "Sounds", InstanceName = "SFX_Chop_Perfect" },
 	SFX_Rock_Break = { Category = "Sounds", InstanceName = "SFX_Rock_Break" },
 	SFX_Money_Gain = { Category = "Sounds", InstanceName = "SFX_Money_Gain" },
+	SFX_Train_Chop = { Category = "Sounds", InstanceName = "SFX_Train_Chop" },
 }
 
 local warned: { [string]: true } = {}
