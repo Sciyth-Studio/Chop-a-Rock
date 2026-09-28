@@ -5,7 +5,9 @@ local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
+local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local FontConfig = require(ReplicatedStorage.Config.FontConfig)
@@ -33,13 +35,13 @@ end
 
 local function qualityColor(quality: number): Color3
 	if quality == ChopQuality.Perfect then
-		return Color3.fromRGB(240, 220, 60)
+		return Color3.fromRGB(0, 255, 180)
 	elseif quality == ChopQuality.Good then
-		return Color3.fromRGB(80, 200, 80)
+		return Color3.fromRGB(0, 255, 0)
 	elseif quality == ChopQuality.Sloppy then
-		return Color3.fromRGB(220, 140, 60)
+		return Color3.fromRGB(255, 255, 0)
 	end
-	return Color3.fromRGB(220, 60, 60)
+	return Color3.fromRGB(255, 0, 0)
 end
 
 local function qualityShakeIntensity(quality: number): number
@@ -76,6 +78,20 @@ local function shakeCamera(camera: Camera, baseCFrame: CFrame, intensity: number
 		local offsetY = (math.random() * 2 - 1) * intensity * decay
 		local offsetZ = (math.random() * 2 - 1) * intensity * decay
 		camera.CFrame = baseCFrame * CFrame.new(offsetX, offsetY, offsetZ)
+	end)
+end
+
+local function playLocalSound(key: string)
+	local asset = AssetRegistry.get(key)
+	if not asset:IsA("Sound") then
+		asset:Destroy()
+		return
+	end
+	SoundService:PlayLocalSound(asset)
+	task.delay(5, function()
+		if asset.Parent then
+			asset:Destroy()
+		end
 	end)
 end
 
@@ -206,7 +222,7 @@ local function beginMinigame()
 	goodZone.AnchorPoint = Vector2.new(0, 0)
 	goodZone.Position = UDim2.new(0, 0, 0, 0)
 	goodZone.Size = UDim2.new(1, 0, 1 - ChopConfig.GoodThreshold, 0)
-	goodZone.BackgroundColor3 = Color3.fromRGB(80, 200, 80)
+	goodZone.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 	goodZone.BorderSizePixel = 0
 	goodZone.Parent = barBackground
 
@@ -214,7 +230,7 @@ local function beginMinigame()
 	perfectZone.AnchorPoint = Vector2.new(0, 0)
 	perfectZone.Position = UDim2.new(0, 0, 0, 0)
 	perfectZone.Size = UDim2.new(1, 0, 1 - ChopConfig.PerfectThreshold, 0)
-	perfectZone.BackgroundColor3 = Color3.fromRGB(240, 220, 60)
+	perfectZone.BackgroundColor3 = Color3.fromRGB(0, 255, 180)
 	perfectZone.BorderSizePixel = 0
 	perfectZone.Parent = barBackground
 
@@ -281,6 +297,10 @@ function ChopController.Start(self: any)
 	end))
 	trove:Add(Packets.ChopResult.OnClientEvent:Connect(function(quality: number, payout: number)
 		print(`[ChopController] {qualityName(quality)} chop, payout={payout}`)
+		task.wait(ChopConfig.SlowMoPreImpactSeconds)
+		if not minigameActive then
+			return
+		end
 		if activeResultLabel then
 			activeResultLabel.Text = qualityName(quality) .. "!"
 			activeResultLabel.TextColor3 = qualityColor(quality)
@@ -295,9 +315,12 @@ function ChopController.Start(self: any)
 			)
 		end
 		local rock = CollectionService:GetTagged(ROCK_TAG)[1] :: BasePart?
-		if rock then
-			spawnDamageNumber(rock.Position, payout, quality)
-		end
+		task.delay(ChopConfig.MoneyEffectDelaySeconds, function()
+			if rock then
+				spawnDamageNumber(rock.Position, payout, quality)
+			end
+			playLocalSound("SFX_Money_Gain")
+		end)
 		task.delay(RESULT_DISPLAY_SECONDS, function()
 			endMinigame()
 		end)

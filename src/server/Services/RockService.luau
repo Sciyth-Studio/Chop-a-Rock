@@ -3,6 +3,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local Lifecycle = require(ReplicatedStorage.Lifecycle)
@@ -41,6 +42,21 @@ local function classify(position: number): (number, number)
 	end
 	local payout = math.max(0, math.floor(RockConfig.Rocks.Basic.BasePayout * multiplier + 0.5))
 	return quality, payout
+end
+
+local function playSoundOnPart(key: string, part: BasePart)
+	local asset = AssetRegistry.get(key)
+	if not asset:IsA("Sound") then
+		asset:Destroy()
+		return
+	end
+	asset.Parent = part
+	asset:Play()
+	task.delay(5, function()
+		if asset.Parent then
+			asset:Destroy()
+		end
+	end)
 end
 
 local function hideRock()
@@ -211,10 +227,16 @@ function RockService.Start(_self: any)
 			`[RockService] {player.Name} chopped: quality={quality}, position={string.format("%.3f", position)}, payout={payout}`
 		)
 		if quality == ChopQuality.Perfect then
+			playSoundOnPart("SFX_Chop_Perfect", part)
+			playSoundOnPart("SFX_Rock_Break", part)
 			splitRock()
 		elseif quality == ChopQuality.Good then
+			playSoundOnPart("SFX_Chop_Good", part)
+			playSoundOnPart("SFX_Rock_Break", part)
 			breakRockWithDebris(ChopConfig.GoodChunkCount)
 		elseif quality == ChopQuality.Sloppy then
+			playSoundOnPart("SFX_Chop_Sloppy", part)
+			playSoundOnPart("SFX_Rock_Break", part)
 			breakRockWithDebris(ChopConfig.SloppyChunkCount)
 		else
 			breakRock()

@@ -25,6 +25,8 @@ export type ChopSettings = {
 	SplitPushXStuds: number,
 	SplitPushYStuds: number,
 	SplitTorqueRadPerSec: number,
+	SlowMoPreImpactSeconds: number,
+	MoneyEffectDelaySeconds: number,
 }
 
 local ChopConfig: ChopSettings = {
@@ -49,9 +51,11 @@ local ChopConfig: ChopSettings = {
 	GoodChunkCount = 7,
 	ChunkLifetimeSeconds = 1.5,
 	ChunkSpawnVelocityScale = 25,
-	SplitPushXStuds = 4,
-	SplitPushYStuds = 3,
-	SplitTorqueRadPerSec = 5,
+	SplitPushXStuds = 10,
+	SplitPushYStuds = 8,
+	SplitTorqueRadPerSec = 6,
+	SlowMoPreImpactSeconds = 0.12,
+	MoneyEffectDelaySeconds = 0.5,
 }
 
 return table.freeze(ChopConfig)

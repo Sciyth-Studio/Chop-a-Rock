@@ -7,7 +7,16 @@
     "ReplicatedStorage": {
       "$ignoreUnknownInstances": true,
       "$path": "src/shared",
-      "Packages": { "$path": "Packages" }
+      "Packages": { "$path": "Packages" },
+      "Assets": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "VFX": { "$className": "Folder", "$ignoreUnknownInstances": true },
+        "Sounds": { "$className": "Folder", "$ignoreUnknownInstances": true },
+        "Animations": { "$className": "Folder", "$ignoreUnknownInstances": true },
+        "Models": { "$className": "Folder", "$ignoreUnknownInstances": true },
+        "Images": { "$className": "Folder", "$ignoreUnknownInstances": true }
+      }
     },
     "ServerScriptService": {
       "$ignoreUnknownInstances": true,

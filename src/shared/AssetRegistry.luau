@@ -9,7 +9,13 @@ type AssetEntry = {
 	InstanceName: string,
 }
 
-local map: { [string]: AssetEntry } = {}
+local map: { [string]: AssetEntry } = {
+	SFX_Chop_Sloppy = { Category = "Sounds", InstanceName = "SFX_Chop_Sloppy" },
+	SFX_Chop_Good = { Category = "Sounds", InstanceName = "SFX_Chop_Good" },
+	SFX_Chop_Perfect = { Category = "Sounds", InstanceName = "SFX_Chop_Perfect" },
+	SFX_Rock_Break = { Category = "Sounds", InstanceName = "SFX_Rock_Break" },
+	SFX_Money_Gain = { Category = "Sounds", InstanceName = "SFX_Money_Gain" },
+}
 
 local warned: { [string]: true } = {}
 
