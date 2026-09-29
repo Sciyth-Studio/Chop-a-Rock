@@ -2,10 +2,15 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local WaitFor = require(ReplicatedStorage.Packages.WaitFor)
 local Types = require(script.Types)
 
-local modules: { [string]: Types.ScreenModule } = {}
+local modules: { [string]: Types.ScreenModule } = {
+	Hud = require(script.Screens.Hud),
+	ChopMeter = require(script.Screens.ChopMeter),
+	TrainingHint = require(script.Screens.TrainingHint),
+}
 
 local UIController = { Name = "UIController" }
 local registry: { [string]: any } = {}
@@ -70,6 +75,7 @@ function UIController.Start(_self: any)
 					error(`{gui:GetFullName()} is a {gui.ClassName}, not a ScreenGui`)
 				end
 				gui.ResetOnSpawn = false
+				Typography.Apply(gui)
 				local screen = module.new(context, gui)
 				screens[name] = screen
 				if screen.StartsOpen then

@@ -1,54 +1,19 @@
 --!strict
 
 local ContextActionService = game:GetService("ContextActionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local FontConfig = require(ReplicatedStorage.Config.FontConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
 type TroveInstance = typeof(Trove.new())
 
 local STOP_ACTION = "TrainingStop"
+local HINT_SCREEN = "TrainingHint"
 
-local activeTrove: TroveInstance? = nil
+local uiController: any = nil
 
-local function hideUI()
-	if activeTrove then
-		activeTrove:Destroy()
-		activeTrove = nil
-	end
-end
-
-local function showUI()
-	hideUI()
-	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
-	local trove = Trove.new()
-	activeTrove = trove
-
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "TrainingHint"
-	screenGui.ResetOnSpawn = false
-	screenGui.Parent = playerGui
-	trove:Add(screenGui)
-
-	local label = Instance.new("TextLabel")
-	label.AnchorPoint = Vector2.new(0.5, 0.5)
-	label.Position = UDim2.new(0.5, 0, 0.85, 0)
-	label.Size = UDim2.new(0, 520, 0, 70)
-	label.BackgroundTransparency = 1
-	label.FontFace = FontConfig.Default
-	label.TextScaled = true
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.Text = "Press SPACE to stop training"
-	label.Parent = screenGui
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Thickness = 4
-	stroke.Color = Color3.new(0, 0, 0)
-	stroke.LineJoinMode = Enum.LineJoinMode.Round
-	stroke.Parent = label
-
+local function beginTraining()
+	uiController:Open(HINT_SCREEN)
 	ContextActionService:BindAction(STOP_ACTION, function(_actionName, inputState)
 		if inputState == Enum.UserInputState.Begin then
 			Packets.TrainingStopRequest:Fire()
@@ -56,10 +21,11 @@ local function showUI()
 		end
 		return Enum.ContextActionResult.Pass
 	end, false, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
+end
 
-	trove:Add(function()
-		ContextActionService:UnbindAction(STOP_ACTION)
-	end)
+local function endTraining()
+	ContextActionService:UnbindAction(STOP_ACTION)
+	uiController:Close(HINT_SCREEN)
 end
 
 local TrainingController = {
@@ -67,18 +33,19 @@ local TrainingController = {
 	_trove = nil :: TroveInstance?,
 }
 
-function TrainingController.Init(self: any, _controllers: { [string]: any })
+function TrainingController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
+	uiController = controllers.UIController
 end
 
 function TrainingController.Start(self: any)
 	local trove = self._trove :: TroveInstance
-	trove:Add(Packets.TrainingStarted.OnClientEvent:Connect(showUI))
-	trove:Add(Packets.TrainingStopped.OnClientEvent:Connect(hideUI))
+	trove:Add(Packets.TrainingStarted.OnClientEvent:Connect(beginTraining))
+	trove:Add(Packets.TrainingStopped.OnClientEvent:Connect(endTraining))
 end
 
 function TrainingController.Destroy(self: any)
-	hideUI()
+	endTraining()
 	if self._trove then
 		self._trove:Destroy()
 		self._trove = nil

@@ -10,6 +10,7 @@ local Lifecycle = require(ReplicatedStorage.Lifecycle)
 local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local WalletService = require(script.Parent.WalletService)
 
 local ROCK_TAG = "ChopRock"
 
@@ -228,6 +229,9 @@ function RockService.Start(_self: any)
 		local elapsed = math.max(0, os.clock() - state.StartTime - ChopConfig.LatencyCompensationSeconds)
 		local position = computePosition(elapsed)
 		local quality, payout = classify(position)
+		if payout > 0 then
+			WalletService.addMoney(player, payout)
+		end
 		Packets.ChopResult:FireClient(player, quality, payout)
 		print(
 			`[RockService] {player.Name} chopped: quality={quality}, position={string.format("%.3f", position)}, payout={payout}`

@@ -18,6 +18,7 @@ local map: { [string]: AssetEntry } = {
 	SFX_Rock_Break = { Category = "Sounds", InstanceName = "SFX_Rock_Break" },
 	SFX_Money_Gain = { Category = "Sounds", InstanceName = "SFX_Money_Gain" },
 	SFX_Train_Chop = { Category = "Sounds", InstanceName = "SFX_Train_Chop" },
+	VFX_DamageNumber = { Category = "VFX", InstanceName = "VFX_DamageNumber" },
 }
 
 local warned: { [string]: true } = {}
