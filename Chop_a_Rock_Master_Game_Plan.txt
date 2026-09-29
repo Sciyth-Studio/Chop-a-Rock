@@ -571,3 +571,8 @@ DECISION LOG
   - Idle training: in-server only; money earns offline via gems, strength does not (§07).
   - Rebirth reset scope remains [TBD]; code stays config-driven so either resolution slots in later.
   - Speculative future-content questions (post-cosmic tier, offline cap tuning, duplicate-gem handling, index rewards, daily-vs-weekly rewards, random events, PvP arena) deferred as content updates — not surfaced again until they gate actual code.
+2026-09-28 — After first MVP playtest (no bugs found, but not enough content for a 10-minute session):
+  - Items/gems dropping out of rocks is rejected. A collection aspect is still wanted; its form is [TBD].
+  - Knock-on effects to resolve once the collection form is chosen: the LUCK axis (was gem-based), base pedestals, offline gem income, and the rock/gem index all assumed gem drops from rocks.
+  - Arm visuals: different textures plus effects applied over the player's base arms (no separate accessory models).
+  - Next-goal bar (strength toward the next rock's requirement) built in the HUD.

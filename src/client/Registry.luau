@@ -9,6 +9,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.ComponentController),
 	require(script.Parent.Controllers.ChopController),
 	require(script.Parent.Controllers.TrainingController),
+	require(script.Parent.Controllers.GuideController),
 }
 
 return controllers

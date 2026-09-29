@@ -19,6 +19,8 @@ local map: { [string]: AssetEntry } = {
 	SFX_Rock_Crack = { Category = "Sounds", InstanceName = "SFX_Rock_Crack" },
 	SFX_Money_Gain = { Category = "Sounds", InstanceName = "SFX_Money_Gain" },
 	SFX_Train_Chop = { Category = "Sounds", InstanceName = "SFX_Train_Chop" },
+	UI_RockLabel = { Category = "VFX", InstanceName = "RockLabel" },
+	Image_GuideArrow = { Category = "Images", InstanceName = "GuideArrow" },
 	VFX_DamageNumber = { Category = "VFX", InstanceName = "VFX_DamageNumber" },
 }
 
