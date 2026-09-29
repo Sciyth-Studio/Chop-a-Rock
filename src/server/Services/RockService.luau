@@ -223,8 +223,9 @@ local function spawnRock(key: string, config: RockConfig.Rock): RockState
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = "Chop"
 	prompt.ObjectText = config.DisplayName
-	prompt.HoldDuration = 0
-	prompt.MaxActivationDistance = 12 + config.PlaceholderSize.X / 2
+	prompt.HoldDuration = ChopConfig.PromptHoldSeconds
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	prompt.MaxActivationDistance = ChopConfig.PromptRangeStuds + config.PlaceholderSize.X / 2
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = part
 

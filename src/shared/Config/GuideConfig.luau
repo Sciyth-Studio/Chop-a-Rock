@@ -4,8 +4,6 @@ export type GuideSettings = {
 	LabelTemplateKey: string,
 	LabelMaxDistance: number,
 	LabelHeightAboveRock: number,
-	LabelUnlockedColor: Color3,
-	LabelLockedColor: Color3,
 	ArrowImageKey: string,
 	ArrowSize: Vector3,
 	ArrowCount: number,
@@ -18,14 +16,13 @@ export type GuideSettings = {
 	ArrowFallbackColor: Color3,
 	GrindDistance: number,
 	ArrivalDistance: number,
+	ShopArrivalDistance: number,
 }
 
 local GuideConfig: GuideSettings = {
 	LabelTemplateKey = "UI_RockLabel",
 	LabelMaxDistance = 120,
 	LabelHeightAboveRock = 3,
-	LabelUnlockedColor = Color3.fromRGB(0, 255, 0),
-	LabelLockedColor = Color3.fromRGB(255, 0, 0),
 	ArrowImageKey = "Image_GuideArrow",
 	ArrowSize = Vector3.new(3, 0.2, 3),
 	ArrowCount = 6,
@@ -34,10 +31,11 @@ local GuideConfig: GuideSettings = {
 	ArrowChestHeight = 1,
 	ArrowStartDistance = 5,
 	ArrowStopDistance = 8,
-	ArrowYawDegrees = 0,
+	ArrowYawDegrees = 180,
 	ArrowFallbackColor = Color3.fromRGB(255, 255, 0),
 	GrindDistance = 18,
 	ArrivalDistance = 25,
+	ShopArrivalDistance = 14,
 }
 
 return table.freeze(GuideConfig)

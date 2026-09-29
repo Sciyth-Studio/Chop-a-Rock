@@ -12,6 +12,10 @@ export type QualityStyle = {
 export type ChopStyleSettings = {
 	Qualities: { [number]: QualityStyle },
 	Fallback: QualityStyle,
+	TextDarkenAmount: number,
+	TextLightenAmount: number,
+	StrokeDarkenAmount: number,
+	TextGradientRotation: number,
 }
 
 local crack: QualityStyle = {
@@ -56,6 +60,10 @@ local ChopStyleConfig: ChopStyleSettings = {
 		},
 	},
 	Fallback = crack,
+	TextDarkenAmount = 0.35,
+	TextLightenAmount = 0.55,
+	StrokeDarkenAmount = 0.6,
+	TextGradientRotation = 90,
 }
 
 return table.freeze(ChopStyleConfig)

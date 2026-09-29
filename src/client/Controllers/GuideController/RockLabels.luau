@@ -1,7 +1,6 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local GuideConfig = require(ReplicatedStorage.Config.GuideConfig)
@@ -17,11 +16,6 @@ local NAME_LABEL = "NameLabel"
 local REQUIREMENT_LABEL = "RequirementLabel"
 
 local RockLabels = {}
-
-local function readStrength(): number
-	local value = Players.LocalPlayer:GetAttribute("Strength")
-	return if type(value) == "number" then value else 0
-end
 
 local function findLabel(root: Instance, name: string): TextLabel?
 	local found = root:FindFirstChild(name, true)
@@ -60,18 +54,10 @@ local function attach(trove: TroveInstance, part: Instance)
 	template.MaxDistance = GuideConfig.LabelMaxDistance
 	template.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + GuideConfig.LabelHeightAboveRock, 0)
 	nameLabel.Text = config.DisplayName
-	requirementLabel.Text = `STR {NumberFormat.Commas(config.StrengthRequired)}`
-
-	local function refresh()
-		requirementLabel.TextColor3 = if readStrength() >= config.StrengthRequired
-			then GuideConfig.LabelUnlockedColor
-			else GuideConfig.LabelLockedColor
-	end
-	refresh()
+	requirementLabel.Text = `Strength {NumberFormat.Commas(config.StrengthRequired)}`
 
 	template.Parent = part
 	trove:Add(template)
-	trove:Connect(Players.LocalPlayer:GetAttributeChangedSignal("Strength"), refresh)
 end
 
 function RockLabels.Start(trove: TroveInstance)

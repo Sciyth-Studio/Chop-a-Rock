@@ -2,6 +2,9 @@
 
 export type ChopSettings = {
 	CycleSeconds: number,
+	PromptHoldSeconds: number,
+	PromptRangeStuds: number,
+	PromptFillTransparency: number,
 	MidThreshold: number,
 	GoodThreshold: number,
 	GreatThreshold: number,
@@ -21,9 +24,6 @@ export type ChopSettings = {
 	GoodShakeIntensity: number,
 	GreatShakeIntensity: number,
 	PerfectShakeIntensity: number,
-	DamageNumberRiseSeconds: number,
-	DamageNumberRiseStuds: number,
-	DamageNumberStartOffset: Vector3,
 	BadChunkCount: number,
 	MidChunkCount: number,
 	GoodChunkCount: number,
@@ -39,6 +39,9 @@ export type ChopSettings = {
 
 local ChopConfig: ChopSettings = {
 	CycleSeconds = 1.5,
+	PromptHoldSeconds = 0.5,
+	PromptRangeStuds = 12,
+	PromptFillTransparency = 0.4,
 	MidThreshold = 0.44,
 	GoodThreshold = 0.70,
 	GreatThreshold = 0.85,
@@ -58,9 +61,6 @@ local ChopConfig: ChopSettings = {
 	GoodShakeIntensity = 0.7,
 	GreatShakeIntensity = 1.0,
 	PerfectShakeIntensity = 1.4,
-	DamageNumberRiseSeconds = 0.9,
-	DamageNumberRiseStuds = 5,
-	DamageNumberStartOffset = Vector3.new(0, 2, 0),
 	BadChunkCount = 2,
 	MidChunkCount = 4,
 	GoodChunkCount = 7,

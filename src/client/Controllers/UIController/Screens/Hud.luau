@@ -13,7 +13,7 @@ local DELTA_TEMPLATE = "MoneyDelta"
 local Hud = {}
 
 local function formatMoney(value: number): string
-	return `${NumberFormat.Commas(value)}`
+	return `${NumberFormat.Compact(value)}`
 end
 
 function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
@@ -67,9 +67,20 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			local source = template :: TextLabel
 			local floating = source:Clone()
 			floating.Text = if delta > 0 then `+{formatMoney(delta)}` else `-{formatMoney(-delta)}`
-			floating.TextColor3 = if delta > 0
-				then EconomyConfig.MoneyGainColor
-				else EconomyConfig.MoneyLossColor
+			local style = if delta > 0 then EconomyConfig.MoneyGainStyle else EconomyConfig.MoneyLossStyle
+			floating.TextColor3 = Color3.new(1, 1, 1)
+			local gradient = floating:FindFirstChildWhichIsA("UIGradient")
+			if gradient then
+				gradient.Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, style.DarkColor),
+					ColorSequenceKeypoint.new(0.5, style.LightColor),
+					ColorSequenceKeypoint.new(1, style.DarkColor),
+				})
+			end
+			local floatingStroke = floating:FindFirstChildWhichIsA("UIStroke")
+			if floatingStroke then
+				floatingStroke.Color = style.StrokeColor
+			end
 			local startX = label.TextBounds.X + EconomyConfig.MoneyDeltaGapPixels
 			floating.Position = UDim2.new(0, startX, 0, 0)
 			floating.Visible = true
@@ -114,7 +125,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 
 	bindMoney()
 	bind("Strength", "Strength", function(value: number): string
-		return `STR {NumberFormat.Commas(value)}`
+		return NumberFormat.Compact(value)
 	end)
 
 	return {

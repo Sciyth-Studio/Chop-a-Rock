@@ -20,8 +20,8 @@ local map: { [string]: AssetEntry } = {
 	SFX_Money_Gain = { Category = "Sounds", InstanceName = "SFX_Money_Gain" },
 	SFX_Train_Chop = { Category = "Sounds", InstanceName = "SFX_Train_Chop" },
 	UI_RockLabel = { Category = "VFX", InstanceName = "RockLabel" },
+	UI_ChopPrompt = { Category = "VFX", InstanceName = "ChopPrompt" },
 	Image_GuideArrow = { Category = "Images", InstanceName = "GuideArrow" },
-	VFX_DamageNumber = { Category = "VFX", InstanceName = "VFX_DamageNumber" },
 }
 
 local warned: { [string]: true } = {}

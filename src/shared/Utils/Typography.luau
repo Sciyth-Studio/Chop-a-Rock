@@ -5,13 +5,19 @@ local FontConfig = require(ReplicatedStorage.Config.FontConfig)
 
 local Typography = {}
 
+local function fontFor(instance: Instance): Font
+	return if instance:GetAttribute(FontConfig.ItalicAttribute) == true
+		then FontConfig.Italic
+		else FontConfig.Default
+end
+
 local function apply(instance: Instance)
 	if instance:IsA("TextLabel") then
-		instance.FontFace = FontConfig.Default
+		instance.FontFace = fontFor(instance)
 	elseif instance:IsA("TextButton") then
-		instance.FontFace = FontConfig.Default
+		instance.FontFace = fontFor(instance)
 	elseif instance:IsA("TextBox") then
-		instance.FontFace = FontConfig.Default
+		instance.FontFace = fontFor(instance)
 	end
 end
 
