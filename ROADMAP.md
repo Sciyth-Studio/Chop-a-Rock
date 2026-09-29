@@ -80,6 +80,8 @@
 
 **Goal:** prove the train → chop → upgrade cycle by adding just enough progression to have a decision. All balance values live in `Config`; nothing hardcoded.
 
+**Status (2026-09-28):** built — saved Cash/Strength/ArmTier via `DataService`, passive training (no meter, by decision), arm shop with sequential tiers, second rock with crack-on-too-weak, HUD. Remaining: arm visuals on the player (`VisualAssetKey`), Crack SFX asset (`SFX_Rock_Crack`), and the balance-number sign-off below.
+
 **Deliverables:**
 - Player state (server, ProfileStore-backed):
   - `Strength`, `Money`, `ArmTier`.

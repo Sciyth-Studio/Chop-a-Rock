@@ -2,16 +2,11 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
 local Hud = {}
-
-local function formatNumber(value: number): string
-	local digits = tostring(math.floor(value))
-	local grouped = digits:reverse():gsub("(%d%d%d)", "%1,"):reverse()
-	return (grouped:gsub("^,", ""))
-end
 
 function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	local player = Players.LocalPlayer
@@ -34,11 +29,11 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		refresh()
 	end
 
-	bind("Money", "Money", function(value: number): string
-		return `${formatNumber(value)}`
+	bind("Money", "Cash", function(value: number): string
+		return `${NumberFormat.Commas(value)}`
 	end)
 	bind("Strength", "Strength", function(value: number): string
-		return `STR {formatNumber(value)}`
+		return `STR {NumberFormat.Commas(value)}`
 	end)
 
 	return {

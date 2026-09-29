@@ -9,9 +9,10 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.GameService),
 	require(script.Parent.Services.ComponentService),
 	require(script.Parent.Services.StatsService),
-	require(script.Parent.Services.WalletService),
+	require(script.Parent.Services.ArmService),
 	require(script.Parent.Services.RockService),
 	require(script.Parent.Services.TrainingService),
+	require(script.Parent.Services.ShopService),
 }
 
 return services

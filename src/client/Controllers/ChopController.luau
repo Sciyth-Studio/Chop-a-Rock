@@ -1,13 +1,12 @@
 --!strict
 
-local CollectionService = game:GetService("CollectionService")
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
@@ -18,7 +17,6 @@ local Typography = require(ReplicatedStorage.Utils.Typography)
 
 type TroveInstance = typeof(Trove.new())
 
-local ROCK_TAG = "ChopRock"
 local RELEASE_ACTION = "ChopRelease"
 local METER_SCREEN = "ChopMeter"
 local RESULT_DISPLAY_SECONDS = 0.7
@@ -50,6 +48,8 @@ local minigameActive = false
 local activeTrove: TroveInstance? = nil
 local frozenPosition: number? = nil
 local minigameStartTime = 0
+local activeRock: BasePart? = nil
+local activeCanBreak = true
 
 local function shakeCamera(camera: Camera, baseCFrame: CFrame, intensity: number, duration: number)
 	local startTime = os.clock()
@@ -66,20 +66,6 @@ local function shakeCamera(camera: Camera, baseCFrame: CFrame, intensity: number
 		local offsetY = (math.random() * 2 - 1) * intensity * decay
 		local offsetZ = (math.random() * 2 - 1) * intensity * decay
 		camera.CFrame = baseCFrame * CFrame.new(offsetX, offsetY, offsetZ)
-	end)
-end
-
-local function playLocalSound(key: string)
-	local asset = AssetRegistry.get(key)
-	if not asset:IsA("Sound") then
-		asset:Destroy()
-		return
-	end
-	SoundService:PlayLocalSound(asset)
-	task.delay(5, function()
-		if asset.Parent then
-			asset:Destroy()
-		end
 	end)
 end
 
@@ -140,23 +126,25 @@ local function endMinigame()
 		activeTrove = nil
 	end
 	frozenPosition = nil
+	activeRock = nil
 	local camera = workspace.CurrentCamera
 	if camera then
 		camera.CameraType = Enum.CameraType.Custom
 	end
 end
 
-local function beginMinigame()
+local function beginMinigame(rock: BasePart, canBreak: boolean)
 	if minigameActive then
 		return
 	end
 	minigameActive = true
 	frozenPosition = nil
+	activeRock = rock
+	activeCanBreak = canBreak
 
 	local trove = Trove.new()
 	activeTrove = trove
 
-	local rock = CollectionService:GetTagged(ROCK_TAG)[1] :: BasePart?
 	local character = Players.LocalPlayer.Character
 
 	if rock and character then
@@ -216,6 +204,10 @@ local ChopController = {
 	ResultShown = nil :: any,
 }
 
+function ChopController.CanBreakRock(_self: any): boolean
+	return activeCanBreak
+end
+
 function ChopController.GetCursorPosition(_self: any): number
 	if not minigameActive then
 		return 0
@@ -231,8 +223,10 @@ end
 
 function ChopController.Start(self: any)
 	local trove = self._trove :: TroveInstance
-	trove:Add(Packets.ChopMinigameStart.OnClientEvent:Connect(function()
-		beginMinigame()
+	trove:Add(Packets.ChopMinigameStart.OnClientEvent:Connect(function(rock: Instance, canBreak: boolean)
+		if rock:IsA("BasePart") then
+			beginMinigame(rock, canBreak)
+		end
 	end))
 	trove:Add(Packets.ChopResult.OnClientEvent:Connect(function(quality: number, payout: number)
 		print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
@@ -250,13 +244,15 @@ function ChopController.Start(self: any)
 				ChopConfig.ShakeDurationSeconds
 			)
 		end
-		local rock = CollectionService:GetTagged(ROCK_TAG)[1] :: BasePart?
-		task.delay(ChopConfig.MoneyEffectDelaySeconds, function()
-			if rock then
-				spawnDamageNumber(rock.Position, payout, quality)
-			end
-			playLocalSound("SFX_Money_Gain")
-		end)
+		local rock = activeRock
+		if payout > 0 then
+			task.delay(ChopConfig.MoneyEffectDelaySeconds, function()
+				if rock then
+					spawnDamageNumber(rock.Position, payout, quality)
+				end
+				LocalSound.Play("SFX_Money_Gain")
+			end)
+		end
 		task.delay(RESULT_DISPLAY_SECONDS, function()
 			endMinigame()
 		end)

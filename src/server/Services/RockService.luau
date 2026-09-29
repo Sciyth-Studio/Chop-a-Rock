@@ -10,17 +10,26 @@ local Lifecycle = require(ReplicatedStorage.Lifecycle)
 local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local WalletService = require(script.Parent.WalletService)
+local DataService = require(script.Parent.DataService)
+local StatsService = require(script.Parent.StatsService)
 
 local ROCK_TAG = "ChopRock"
+local CRACK_SHAKE_STEPS = 4
+local CRACK_SHAKE_STUDS = 0.3
 
 local RockService: Lifecycle.System = { Name = "RockService" }
 
 local trove = Trove.new()
-local rockPart: BasePart? = nil
-local rockPrompt: ProximityPrompt? = nil
 
-type ChopState = { StartTime: number }
+type RockState = {
+	Key: string,
+	Config: RockConfig.Rock,
+	Part: BasePart,
+	Prompt: ProximityPrompt,
+}
+type ChopState = { StartTime: number, Rock: RockState, CanBreak: boolean }
+
+local rocks: { RockState } = {}
 local chops: { [Player]: ChopState } = {}
 
 local function computePosition(elapsed: number): number
@@ -28,7 +37,7 @@ local function computePosition(elapsed: number): number
 	return 1 - math.abs(2 * phase - 1)
 end
 
-local function classify(position: number): (number, number)
+local function classify(position: number, config: RockConfig.Rock): (number, number)
 	local quality: number
 	local multiplier: number
 	if position >= ChopConfig.PerfectThreshold then
@@ -47,7 +56,7 @@ local function classify(position: number): (number, number)
 		quality = ChopQuality.Bad
 		multiplier = ChopConfig.BadPayoutMultiplier
 	end
-	local payout = math.max(0, math.floor(RockConfig.Rocks.Basic.BasePayout * multiplier + 0.5))
+	local payout = math.max(0, math.floor(config.BasePayout * multiplier + 0.5))
 	return quality, payout
 end
 
@@ -66,42 +75,54 @@ local function playSoundOnPart(key: string, part: BasePart)
 	end)
 end
 
-local function hideRock()
-	local part = rockPart
-	local prompt = rockPrompt
-	if not part or not prompt then
-		return
-	end
-	part.Transparency = 1
-	part.CanCollide = false
-	prompt.Enabled = false
+local function hideRock(rock: RockState)
+	rock.Part.Transparency = 1
+	rock.Part.CanCollide = false
+	rock.Prompt.Enabled = false
 end
 
-local function restoreRock()
-	local part = rockPart
-	local prompt = rockPrompt
-	if part and prompt and part.Parent and prompt.Parent then
-		part.Transparency = 0
-		part.CanCollide = true
-		prompt.Enabled = true
+local function restoreRock(rock: RockState)
+	if rock.Part.Parent and rock.Prompt.Parent then
+		rock.Part.Transparency = 0
+		rock.Part.CanCollide = true
+		rock.Prompt.Enabled = true
 	end
 end
 
-local function breakRock()
-	hideRock()
-	task.delay(RockConfig.Rocks.Basic.RespawnSeconds, restoreRock)
+local function crackRock(rock: RockState)
+	local part = rock.Part
+	local origin = part.CFrame
+	rock.Prompt.Enabled = false
+	playSoundOnPart("SFX_Rock_Crack", part)
+	task.spawn(function()
+		for _ = 1, CRACK_SHAKE_STEPS do
+			if not part.Parent then
+				return
+			end
+			part.CFrame = origin
+				* CFrame.new(
+					(math.random() * 2 - 1) * CRACK_SHAKE_STUDS,
+					0,
+					(math.random() * 2 - 1) * CRACK_SHAKE_STUDS
+				)
+			task.wait(0.04)
+		end
+		if part.Parent then
+			part.CFrame = origin
+		end
+	end)
+	task.delay(rock.Config.RespawnSeconds, function()
+		restoreRock(rock)
+	end)
 end
 
-local function breakRockWithDebris(chunkCount: number)
-	local part = rockPart
-	if not part then
-		return
-	end
+local function breakRockWithDebris(rock: RockState, chunkCount: number)
+	local part = rock.Part
 	local basePos = part.Position
 	local halfSize = part.Size / 2
 	local color = part.Color
 	local material = part.Material
-	hideRock()
+	hideRock(rock)
 
 	local chunks: { BasePart } = {}
 	local scale = ChopConfig.ChunkSpawnVelocityScale
@@ -140,26 +161,25 @@ local function breakRockWithDebris(chunkCount: number)
 		end
 	end)
 
-	task.delay(RockConfig.Rocks.Basic.RespawnSeconds, restoreRock)
+	task.delay(rock.Config.RespawnSeconds, function()
+		restoreRock(rock)
+	end)
 end
 
-local function splitRock()
-	local part = rockPart
-	if not part then
-		return
-	end
+local function splitRock(rock: RockState)
+	local part = rock.Part
 	local basePos = part.Position
 	local originalSize = part.Size
 	local halfSize = Vector3.new(originalSize.X / 2, originalSize.Y, originalSize.Z)
 	local halfOffsetX = originalSize.X / 4
 	local color = part.Color
 	local material = part.Material
-	hideRock()
+	hideRock(rock)
 
 	local halves: { BasePart } = {}
 	for _, offsetX in { -halfOffsetX, halfOffsetX } do
 		local half = Instance.new("Part")
-		half.Name = "Rock_Basic_Half"
+		half.Name = `Rock_{rock.Key}_Half`
 		half.Size = halfSize
 		half.Position = basePos + Vector3.new(offsetX, 0, 0)
 		half.Anchored = false
@@ -176,100 +196,130 @@ local function splitRock()
 		half.AssemblyAngularVelocity = Vector3.new(0, 0, -direction * ChopConfig.SplitTorqueRadPerSec)
 	end
 
-	task.delay(RockConfig.Rocks.Basic.RespawnSeconds, function()
+	task.delay(rock.Config.RespawnSeconds, function()
 		for _, half in halves do
 			if half.Parent then
 				half:Destroy()
 			end
 		end
-		restoreRock()
+		restoreRock(rock)
 	end)
+end
+
+local function spawnRock(key: string, config: RockConfig.Rock): RockState
+	local part = Instance.new("Part")
+	part.Name = `Rock_{key}`
+	part.Size = config.PlaceholderSize
+	part.Position = config.PlaceholderPosition
+	part.Anchored = true
+	part.CanCollide = true
+	part.Color = config.PlaceholderColor
+	part.Material = Enum.Material.Slate
+	part.Parent = workspace
+	trove:Add(part)
+	CollectionService:AddTag(part, ROCK_TAG)
+	part:SetAttribute("RockKey", key)
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Chop"
+	prompt.ObjectText = config.DisplayName
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 12 + config.PlaceholderSize.X / 2
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = part
+
+	return { Key = key, Config = config, Part = part, Prompt = prompt }
+end
+
+local function onTriggered(rock: RockState, player: Player)
+	if not rock.Prompt.Enabled or chops[player] or player:GetAttribute("DataLoaded") ~= true then
+		return
+	end
+	local canBreak = StatsService:GetStrength(player) >= rock.Config.StrengthRequired
+	chops[player] = { StartTime = os.clock(), Rock = rock, CanBreak = canBreak }
+	rock.Prompt.Enabled = false
+	Packets.ChopMinigameStart:FireClient(player, rock.Part, canBreak)
+end
+
+local function onRelease(player: Player)
+	local state = chops[player]
+	if not state then
+		return
+	end
+	chops[player] = nil
+	local rock = state.Rock
+
+	if not state.CanBreak then
+		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0)
+		print(`[RockService] {player.Name} cracked {rock.Key} (too weak)`)
+		crackRock(rock)
+		return
+	end
+
+	local elapsed = math.max(0, os.clock() - state.StartTime - ChopConfig.LatencyCompensationSeconds)
+	local position = computePosition(elapsed)
+	local quality, payout = classify(position, rock.Config)
+	if payout > 0 then
+		DataService:AdjustCash(player, payout)
+	end
+	Packets.ChopResult:FireClient(player, quality, payout)
+	print(
+		`[RockService] {player.Name} chopped {rock.Key}: quality={quality}, position={string.format(
+			"%.3f",
+			position
+		)}, payout={payout}`
+	)
+
+	local part = rock.Part
+	if quality == ChopQuality.Perfect then
+		playSoundOnPart("SFX_Chop_Perfect", part)
+		playSoundOnPart("SFX_Rock_Break", part)
+		splitRock(rock)
+	elseif quality == ChopQuality.Great then
+		playSoundOnPart("SFX_Chop_Great", part)
+		playSoundOnPart("SFX_Rock_Break", part)
+		breakRockWithDebris(rock, ChopConfig.GreatChunkCount)
+	elseif quality == ChopQuality.Good then
+		playSoundOnPart("SFX_Chop_Good", part)
+		playSoundOnPart("SFX_Rock_Break", part)
+		breakRockWithDebris(rock, ChopConfig.GoodChunkCount)
+	elseif quality == ChopQuality.Mid then
+		playSoundOnPart("SFX_Chop_Mid", part)
+		playSoundOnPart("SFX_Rock_Break", part)
+		breakRockWithDebris(rock, ChopConfig.MidChunkCount)
+	else
+		playSoundOnPart("SFX_Chop_Bad", part)
+		playSoundOnPart("SFX_Rock_Break", part)
+		breakRockWithDebris(rock, ChopConfig.BadChunkCount)
+	end
 end
 
 function RockService.Init(_self: any, _services: { [string]: any }) end
 
 function RockService.Start(_self: any)
-	local part = Instance.new("Part")
-	part.Name = "Rock_Basic"
-	part.Size = Vector3.new(6, 6, 6)
-	part.Position = Vector3.new(0, 3, 0)
-	part.Anchored = true
-	part.CanCollide = true
-	part.Color = Color3.fromRGB(120, 120, 120)
-	part.Material = Enum.Material.Slate
-	part.Parent = workspace
-	trove:Add(part)
-	CollectionService:AddTag(part, ROCK_TAG)
-	rockPart = part
+	local rockConfigs: { [string]: RockConfig.Rock } = RockConfig.Rocks
+	for key, config in rockConfigs do
+		local rock = spawnRock(key, config)
+		table.insert(rocks, rock)
+		trove:Add(rock.Prompt.Triggered:Connect(function(player: Player)
+			onTriggered(rock, player)
+		end))
+	end
 
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.ActionText = "Chop"
-	prompt.ObjectText = RockConfig.Rocks.Basic.DisplayName
-	prompt.HoldDuration = 0
-	prompt.MaxActivationDistance = 12
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = part
-	rockPrompt = prompt
-
-	trove:Add(prompt.Triggered:Connect(function(player: Player)
-		if not prompt.Enabled or chops[player] then
-			return
-		end
-		chops[player] = { StartTime = os.clock() }
-		prompt.Enabled = false
-		Packets.ChopMinigameStart:FireClient(player)
-	end))
-
-	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(function(player: Player)
-		local state = chops[player]
-		if not state then
-			return
-		end
-		chops[player] = nil
-		local elapsed = math.max(0, os.clock() - state.StartTime - ChopConfig.LatencyCompensationSeconds)
-		local position = computePosition(elapsed)
-		local quality, payout = classify(position)
-		if payout > 0 then
-			WalletService.addMoney(player, payout)
-		end
-		Packets.ChopResult:FireClient(player, quality, payout)
-		print(
-			`[RockService] {player.Name} chopped: quality={quality}, position={string.format("%.3f", position)}, payout={payout}`
-		)
-		if quality == ChopQuality.Perfect then
-			playSoundOnPart("SFX_Chop_Perfect", part)
-			playSoundOnPart("SFX_Rock_Break", part)
-			splitRock()
-		elseif quality == ChopQuality.Great then
-			playSoundOnPart("SFX_Chop_Great", part)
-			playSoundOnPart("SFX_Rock_Break", part)
-			breakRockWithDebris(ChopConfig.GreatChunkCount)
-		elseif quality == ChopQuality.Good then
-			playSoundOnPart("SFX_Chop_Good", part)
-			playSoundOnPart("SFX_Rock_Break", part)
-			breakRockWithDebris(ChopConfig.GoodChunkCount)
-		elseif quality == ChopQuality.Mid then
-			playSoundOnPart("SFX_Chop_Mid", part)
-			playSoundOnPart("SFX_Rock_Break", part)
-			breakRockWithDebris(ChopConfig.MidChunkCount)
-		elseif quality == ChopQuality.Bad then
-			playSoundOnPart("SFX_Chop_Bad", part)
-			playSoundOnPart("SFX_Rock_Break", part)
-			breakRockWithDebris(ChopConfig.BadChunkCount)
-		else
-			breakRock()
-		end
-	end))
+	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(onRelease))
 
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
+		local state = chops[player]
 		chops[player] = nil
+		if state then
+			restoreRock(state.Rock)
+		end
 	end))
 end
 
 function RockService.Destroy(_self: any)
 	trove:Clean()
-	rockPart = nil
-	rockPrompt = nil
+	table.clear(rocks)
 	table.clear(chops)
 end
 

@@ -3,6 +3,8 @@
 export type Data = {
 	SchemaVersion: number,
 	Cash: number,
+	Strength: number,
+	ArmTier: number,
 	LastSeenAt: number,
 	Receipts: { [string]: number },
 }
@@ -12,6 +14,8 @@ local PlayerData = {}
 PlayerData.Template = {
 	SchemaVersion = 1,
 	Cash = 0,
+	Strength = 0,
+	ArmTier = 1,
 	LastSeenAt = 0,
 	Receipts = {},
 } :: Data
@@ -28,10 +32,13 @@ function PlayerData.Validate(data: any): boolean
 	if type(data) ~= "table" or (data.SchemaVersion ~= nil and data.SchemaVersion ~= 1) then
 		return false
 	end
-	for _, key in { "Cash", "LastSeenAt" } do
+	for _, key in { "Cash", "Strength", "LastSeenAt" } do
 		if data[key] ~= nil and not natural(data[key]) then
 			return false
 		end
+	end
+	if data.ArmTier ~= nil and (not natural(data.ArmTier) or data.ArmTier < 1) then
+		return false
 	end
 	if data.Receipts ~= nil then
 		if type(data.Receipts) ~= "table" then

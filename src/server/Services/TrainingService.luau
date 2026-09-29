@@ -8,6 +8,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local Packets = require(ReplicatedStorage.Packets)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local ArmService = require(script.Parent.ArmService)
 local StatsService = require(script.Parent.StatsService)
 
 local TRAINING_TAG = "TrainingBoard"
@@ -87,6 +88,9 @@ local function stopTraining(player: Player)
 end
 
 local function startTraining(player: Player, board: BasePart)
+	if player:GetAttribute("DataLoaded") ~= true then
+		return
+	end
 	if trainings[player] then
 		stopTraining(player)
 	end
@@ -126,7 +130,11 @@ local function tick()
 		end
 		if now - training.LastChopClock >= TrainingConfig.ChopIntervalSeconds then
 			training.LastChopClock = now
-			local newStrength = StatsService.addStrength(player, TrainingConfig.StrengthPerChop)
+			local gain = math.max(
+				1,
+				math.floor(TrainingConfig.StrengthPerChop * ArmService:GetTrainingMultiplier(player) + 0.5)
+			)
+			local newStrength = StatsService:AddStrength(player, gain)
 			playSoundOnPart("SFX_Train_Chop", training.Board)
 			print(`[TrainingService] {player.Name} trained: strength={newStrength}`)
 		end

@@ -3,54 +3,49 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local DataService = require(script.Parent.DataService)
 
 local trove = Trove.new()
-local strengths: { [Player]: number } = {}
 
 local StatsService = {
 	Name = "StatsService",
 }
 
 local function publish(player: Player)
-	player:SetAttribute("Strength", strengths[player] or 0)
+	local data = DataService:GetData(player)
+	if data then
+		player:SetAttribute("Strength", data.Strength)
+	end
 end
 
-local function register(player: Player)
-	strengths[player] = strengths[player] or 0
+function StatsService.GetStrength(_self: any, player: Player): number
+	local data = DataService:GetData(player)
+	return if data then data.Strength else 0
+end
+
+function StatsService.AddStrength(_self: any, player: Player, delta: number): number
+	local data = DataService:GetData(player)
+	if not data then
+		return 0
+	end
+	data.Strength += math.max(0, math.floor(delta))
 	publish(player)
-end
-
-function StatsService.getStrength(player: Player): number
-	return strengths[player] or 0
-end
-
-function StatsService.addStrength(player: Player, delta: number): number
-	local next_ = (strengths[player] or 0) + delta
-	strengths[player] = next_
-	publish(player)
-	return next_
-end
-
-function StatsService.setStrength(player: Player, value: number)
-	strengths[player] = value
-	publish(player)
+	return data.Strength
 end
 
 function StatsService.Init(_self: any, _services: { [string]: any }) end
 
 function StatsService.Start(_self: any)
-	trove:Add(Players.PlayerAdded:Connect(register))
-	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
-		strengths[player] = nil
+	trove:Add(DataService.PlayerLoaded:Connect(function(player: Player)
+		publish(player)
 	end))
 	for _, player in Players:GetPlayers() do
-		register(player)
+		publish(player)
 	end
 end
 
 function StatsService.Destroy(_self: any)
 	trove:Clean()
-	table.clear(strengths)
 end
 
 return StatsService

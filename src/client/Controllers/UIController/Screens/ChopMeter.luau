@@ -45,14 +45,26 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local resultLabel = findLabel(gui, "ResultLabel")
 	local rainbow = if resultLabel then resultLabel:FindFirstChild("RainbowGradient") else nil
 
-	if bar then
-		bar.BackgroundColor3 = ChopStyleConfig.Qualities[ChopQuality.Bad].Color
-	end
+	local zoneFrames: { { Frame: Frame, Quality: number } } = {}
 	for _, zone in zoneLayout do
 		local frame = findFrame(gui, zone.Name)
 		if frame then
 			frame.Size = UDim2.new(1, 0, 1 - zone.Threshold, 0)
-			frame.BackgroundColor3 = ChopStyleConfig.Qualities[zone.Quality].Color
+			table.insert(zoneFrames, { Frame = frame, Quality = zone.Quality })
+		end
+	end
+
+	local function applyZoneColors(canBreak: boolean)
+		local crackColor = ChopStyleConfig.Qualities[ChopQuality.Crack].Color
+		if bar then
+			bar.BackgroundColor3 = if canBreak
+				then ChopStyleConfig.Qualities[ChopQuality.Bad].Color
+				else crackColor
+		end
+		for _, zone in zoneFrames do
+			zone.Frame.BackgroundColor3 = if canBreak
+				then ChopStyleConfig.Qualities[zone.Quality].Color
+				else crackColor
 		end
 	end
 
@@ -89,6 +101,7 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		Open = function(_self: Types.Screen)
 			gui.Enabled = true
 			resetResult()
+			applyZoneColors(if chopController then chopController:CanBreakRock() else true)
 			if chopController and cursor then
 				openTrove:Add(RunService.RenderStepped:Connect(function()
 					cursor.Position = UDim2.new(0.5, 0, 1 - chopController:GetCursorPosition(), 0)

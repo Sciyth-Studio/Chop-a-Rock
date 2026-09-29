@@ -10,6 +10,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	Hud = require(script.Screens.Hud),
 	ChopMeter = require(script.Screens.ChopMeter),
 	TrainingHint = require(script.Screens.TrainingHint),
+	Shop = require(script.Screens.Shop),
 }
 
 local UIController = { Name = "UIController" }
