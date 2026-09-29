@@ -35,6 +35,21 @@ local function qualityColor(quality: number): Color3
 	return ChopStyleConfig.Qualities[quality].Color
 end
 
+local function sampleSequence(sequence: ColorSequence, t: number): Color3
+	local keypoints = sequence.Keypoints
+	local clamped = math.clamp(t, 0, 1)
+	for index = 1, #keypoints - 1 do
+		local first = keypoints[index]
+		local second = keypoints[index + 1]
+		if clamped <= second.Time then
+			local span = second.Time - first.Time
+			local alpha = if span > 0 then (clamped - first.Time) / span else 0
+			return first.Value:Lerp(second.Value, alpha)
+		end
+	end
+	return keypoints[#keypoints].Value
+end
+
 local function buildRamp(): ColorSequence
 	local stops = {
 		{ Level = 0, Color = qualityColor(ChopQuality.Bad) },
@@ -71,8 +86,7 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local chopController = context.Controllers.ChopController
 
 	local fill = findFrame(gui, "Fill")
-	local ramp = findFrame(gui, "Ramp")
-	local rampGradientInstance = if ramp then ramp:FindFirstChild("RampGradient") else nil
+	local rampGradientInstance = if fill then fill:FindFirstChild("RampGradient") else nil
 	local rampGradient: UIGradient? = if rampGradientInstance and rampGradientInstance:IsA("UIGradient")
 		then rampGradientInstance
 		else nil
@@ -90,19 +104,39 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local rampColor = buildRamp()
 	local crackColor = ColorSequence.new(qualityColor(ChopQuality.Crack))
 
+	local activeRamp = rampColor
+
 	local function applyRamp(canBreak: boolean)
-		if rampGradient then
-			rampGradient.Color = if canBreak then rampColor else crackColor
+		activeRamp = if canBreak then rampColor else crackColor
+	end
+
+	local function updateRamp(level: number)
+		if not rampGradient then
+			return
 		end
+		local keypoints: { ColorSequenceKeypoint } = {
+			ColorSequenceKeypoint.new(0, sampleSequence(activeRamp, 1 - level)),
+		}
+		for _, keypoint in activeRamp.Keypoints do
+			local position = 1 - (1 - keypoint.Time) / level
+			if position > 0.001 and position < 0.999 then
+				table.insert(keypoints, ColorSequenceKeypoint.new(position, keypoint.Value))
+			end
+		end
+		table.insert(keypoints, ColorSequenceKeypoint.new(1, sampleSequence(activeRamp, 1)))
+		rampGradient.Color = ColorSequence.new(keypoints)
 	end
 
 	local function setLevel(level: number)
-		if not fill or not ramp then
+		if not fill then
 			return
 		end
 		local clamped = math.clamp(level, 0, 1)
 		fill.Size = UDim2.new(1, 0, clamped, 0)
-		ramp.Size = UDim2.new(1, 0, 1 / math.max(clamped, MIN_LEVEL), 0)
+		fill.Visible = clamped > MIN_LEVEL
+		if fill.Visible then
+			updateRamp(clamped)
+		end
 	end
 
 	local function resetResult()
