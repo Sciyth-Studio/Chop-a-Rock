@@ -12,15 +12,13 @@ export type QualityStyle = {
 export type ChopStyleSettings = {
 	Qualities: { [number]: QualityStyle },
 	Fallback: QualityStyle,
-	TextEdgeColor: Color3,
-	TextCenterColor: Color3,
+	ResultTextStyle: string,
 	StrokeDarkenAmount: number,
-	TextGradientRotation: number,
 }
 
 local crack: QualityStyle = {
 	Name = "Crack",
-	DisplayText = "Crack!",
+	DisplayText = "Too weak...",
 	Color = Color3.fromRGB(255, 0, 0),
 	IsRainbow = false,
 }
@@ -60,10 +58,8 @@ local ChopStyleConfig: ChopStyleSettings = {
 		},
 	},
 	Fallback = crack,
-	TextEdgeColor = Color3.fromRGB(190, 190, 190),
-	TextCenterColor = Color3.fromRGB(255, 255, 255),
+	ResultTextStyle = "Chrome",
 	StrokeDarkenAmount = 0.6,
-	TextGradientRotation = 90,
 }
 
 return table.freeze(ChopStyleConfig)

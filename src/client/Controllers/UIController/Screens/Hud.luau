@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
+local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
@@ -123,10 +124,32 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
+	local function trackBackdrop(labelName: string)
+		local label = findLabel(labelName)
+		local row = if label then label.Parent else nil
+		local backdrop = if row then row:FindFirstChild(HudConfig.BackdropName) else nil
+		if not label or not backdrop or not backdrop:IsA("Frame") then
+			return
+		end
+		local function resize()
+			local bleed = HudConfig.BackdropScreenBleedPixels
+			local width = bleed
+				+ label.Position.X.Offset
+				+ label.TextBounds.X
+				+ HudConfig.BackdropPaddingPixels
+			backdrop.Position = UDim2.new(0, -bleed, 0, 0)
+			backdrop.Size = UDim2.new(0, width, 1, 0)
+		end
+		trove:Connect(label:GetPropertyChangedSignal("TextBounds"), resize)
+		resize()
+	end
+
 	bindMoney()
 	bind("Strength", "Strength", function(value: number): string
 		return NumberFormat.Compact(value)
 	end)
+	trackBackdrop("Strength")
+	trackBackdrop("Money")
 
 	return {
 		Modal = false,

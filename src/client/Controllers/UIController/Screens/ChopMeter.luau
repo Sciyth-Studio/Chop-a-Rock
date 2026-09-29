@@ -6,6 +6,7 @@ local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local Types = require(script.Parent.Parent.Types)
 
 local ChopMeter = {}
@@ -89,20 +90,6 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local rampColor = buildRamp()
 	local crackColor = ColorSequence.new(qualityColor(ChopQuality.Crack))
 
-	local function applyStyleGradient(gradient: UIGradient, style: ChopStyleConfig.QualityStyle)
-		if style.IsRainbow then
-			gradient.Color = rainbowColor
-			gradient.Rotation = rainbowRotation
-			return
-		end
-		gradient.Rotation = ChopStyleConfig.TextGradientRotation
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, ChopStyleConfig.TextEdgeColor),
-			ColorSequenceKeypoint.new(0.5, ChopStyleConfig.TextCenterColor),
-			ColorSequenceKeypoint.new(1, ChopStyleConfig.TextEdgeColor),
-		})
-	end
-
 	local function applyRamp(canBreak: boolean)
 		if rampGradient then
 			rampGradient.Color = if canBreak then rampColor else crackColor
@@ -133,13 +120,18 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 		local style = ChopStyleConfig.Qualities[quality] or ChopStyleConfig.Fallback
 		resultLabel.Text = style.DisplayText
-		resultLabel.TextColor3 = Color3.new(1, 1, 1)
-		if resultStroke then
-			resultStroke.Color = style.Color:Lerp(Color3.new(0, 0, 0), ChopStyleConfig.StrokeDarkenAmount)
-		end
-		if resultGradient then
-			resultGradient.Enabled = true
-			applyStyleGradient(resultGradient, style)
+		if style.IsRainbow then
+			resultLabel.TextColor3 = Color3.new(1, 1, 1)
+			if resultStroke then
+				resultStroke.Color = style.Color:Lerp(Color3.new(0, 0, 0), ChopStyleConfig.StrokeDarkenAmount)
+			end
+			if resultGradient then
+				resultGradient.Enabled = true
+				resultGradient.Color = rainbowColor
+				resultGradient.Rotation = rainbowRotation
+			end
+		else
+			Typography.ApplyTextStyle(resultLabel, ChopStyleConfig.ResultTextStyle)
 		end
 	end
 
