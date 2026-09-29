@@ -11,6 +11,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	ChopMeter = require(script.Screens.ChopMeter),
 	TrainingHint = require(script.Screens.TrainingHint),
 	Shop = require(script.Screens.Shop),
+	Notifications = require(script.Screens.Notifications),
 }
 
 local UIController = { Name = "UIController" }

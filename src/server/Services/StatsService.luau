@@ -3,7 +3,9 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local DataService = require(script.Parent.DataService)
+local NotificationService = require(script.Parent.NotificationService)
 
 local trove = Trove.new()
 
@@ -28,7 +30,14 @@ function StatsService.AddStrength(_self: any, player: Player, delta: number): nu
 	if not data then
 		return 0
 	end
+	local before = data.Strength
 	data.Strength += math.max(0, math.floor(delta))
+	local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
+	for _, rock in rocks do
+		if before < rock.StrengthRequired and data.Strength >= rock.StrengthRequired then
+			NotificationService:Notify(player, "Unlock", `{rock.DisplayName} unlocked!`)
+		end
+	end
 	publish(player)
 	return data.Strength
 end

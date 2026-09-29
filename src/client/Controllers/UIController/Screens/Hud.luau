@@ -2,36 +2,117 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
+local DELTA_TEMPLATE = "MoneyDelta"
+
 local Hud = {}
+
+local function formatMoney(value: number): string
+	return `${NumberFormat.Commas(value)}`
+end
 
 function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	local player = Players.LocalPlayer
 	local trove = Trove.new()
+	local isDestroyed = false
 
-	local function bind(labelName: string, attribute: string, format: (number) -> string)
+	local function readAttribute(attribute: string): number
+		local value = player:GetAttribute(attribute)
+		return if type(value) == "number" then value else 0
+	end
+
+	local function findLabel(labelName: string): TextLabel?
 		local found = gui:FindFirstChild(labelName, true)
 		if not found or not found:IsA("TextLabel") then
 			warn(`[Hud] Missing TextLabel "{labelName}" in {gui:GetFullName()}`)
+			return nil
+		end
+		return found
+	end
+
+	local function bind(labelName: string, attribute: string, format: (number) -> string)
+		local label = findLabel(labelName)
+		if not label then
 			return
 		end
-		local label: TextLabel = found
-
 		local function refresh()
-			local value = player:GetAttribute(attribute)
-			label.Text = format(if type(value) == "number" then value else 0)
+			label.Text = format(readAttribute(attribute))
 		end
-
 		trove:Connect(player:GetAttributeChangedSignal(attribute), refresh)
 		refresh()
 	end
 
-	bind("Money", "Cash", function(value: number): string
-		return `${NumberFormat.Commas(value)}`
-	end)
+	local function bindMoney()
+		local label = findLabel("Money")
+		if not label then
+			return
+		end
+		local template = label:FindFirstChild(DELTA_TEMPLATE)
+		if template and not template:IsA("TextLabel") then
+			template = nil
+		end
+		if not template then
+			warn(`[Hud] Missing TextLabel "{DELTA_TEMPLATE}" under Money; wallet changes will not animate`)
+		end
+
+		local lastTarget = readAttribute("Cash")
+		label.Text = formatMoney(lastTarget)
+
+		local function playDelta(delta: number, target: number)
+			local source = template :: TextLabel
+			local floating = source:Clone()
+			floating.Text = if delta > 0 then `+{formatMoney(delta)}` else `-{formatMoney(-delta)}`
+			floating.TextColor3 = if delta > 0
+				then EconomyConfig.MoneyGainColor
+				else EconomyConfig.MoneyLossColor
+			local startX = label.TextBounds.X + EconomyConfig.MoneyDeltaGapPixels
+			floating.Position = UDim2.new(0, startX, 0, 0)
+			floating.Visible = true
+			floating.Parent = label
+
+			local info = TweenInfo.new(
+				EconomyConfig.MoneyDeltaTravelSeconds,
+				Enum.EasingStyle.Quad,
+				Enum.EasingDirection.In
+			)
+			local slide = TweenService:Create(floating, info, {
+				Position = UDim2.new(0, label.TextBounds.X / 2, 0, 0),
+				TextTransparency = 1,
+			})
+			local stroke = floating:FindFirstChildWhichIsA("UIStroke")
+			if stroke then
+				TweenService:Create(stroke, info, { Transparency = 1 }):Play()
+			end
+			slide.Completed:Once(function()
+				floating:Destroy()
+				if not isDestroyed then
+					label.Text = formatMoney(target)
+				end
+			end)
+			slide:Play()
+		end
+
+		trove:Connect(player:GetAttributeChangedSignal("Cash"), function()
+			local target = readAttribute("Cash")
+			local delta = target - lastTarget
+			lastTarget = target
+			if delta == 0 then
+				return
+			end
+			if template then
+				playDelta(delta, target)
+			else
+				label.Text = formatMoney(target)
+			end
+		end)
+	end
+
+	bindMoney()
 	bind("Strength", "Strength", function(value: number): string
 		return `STR {NumberFormat.Commas(value)}`
 	end)
@@ -46,6 +127,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			gui.Enabled = false
 		end,
 		Destroy = function(_self: Types.Screen)
+			isDestroyed = true
 			trove:Destroy()
 		end,
 	}

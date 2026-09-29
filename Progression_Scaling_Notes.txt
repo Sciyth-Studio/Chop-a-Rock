@@ -1,0 +1,36 @@
+CHOP A ROCK - PROGRESSION SCALING NOTES [DRAFT, NOT APPROVED]
+
+Basis: incremental-game math (cost = base x rate^n, costs outgrow income, ~5-10x jumps between tiers,
+staggered tiers so older content stays useful). Current config: training = 1 strength per 1.2s x arm
+multiplier; chop cycle 1.5s + 0.8s respawn; Pebble needs 1 STR / pays 10; Boulder needs 10 / pays 50;
+Tier 2 arms cost 100 and double training gain.
+
+1. STRENGTH (rock requirements)
+- Each rock requires about 5x the previous one: 1, 10, 50, 250, 1,250, 6,250.
+- Arm gain multipliers double per tier (1, 2, 4, 8, 16, 32), so training time between rock unlocks grows
+  about 2.5x per tier instead of staying flat.
+- Pure training time to the next rock (approx): 11s, 24s, 60s, 150s, 375s.
+  Real time is about double if the player splits time evenly between training and chopping.
+- Target: first unlocks every 15-60s, then 2-6 minutes by the fifth rock. Keeps the first 10 minutes full.
+
+2. MONEY (rock payouts)
+- Payout grows about 4x per rock: 10, 50, 200, 800, 3,200. Slower than the 5x strength requirement,
+  so the best rock never makes every earlier rock worthless and payout stays tied to effort.
+- Bad/Mid/Good/Great/Perfect multipliers (0.15 / 0.5 / 1 / 1.35 / 1.75) stay as the skill layer on top.
+- Money must always have a use: there should always be an arm tier or shop item the player is
+  saving for, ideally within 30-90s of chopping.
+
+3. ITEM UPGRADES (arm tiers)
+- Gain multiplier: 2x per tier.
+- Price: about 8x per tier: 0, 100, 800, 6,400, 51,200. Price grows faster than gain, so each purchase
+  is a real decision, but always pays back within a few minutes of use.
+- Rule of thumb: a tier costs roughly 5-20 chops of the best rock the player can break when they can
+  first afford it, i.e. about 1-2 minutes of chopping.
+- Visuals/aura ramp up with each tier so the purchase is visible, not just numeric.
+
+4. CHECKS BEFORE LOCKING NUMBERS
+- No dead stretch longer than ~2 minutes without something to unlock or afford, until late tiers.
+- A new tier never makes the previous rock or arm obsolete instantly.
+- All values live in RockConfig / ArmConfig / TrainingConfig; nothing hardcoded.
+- Playtest against the 10-minute criterion and adjust the ratios (5x / 4x / 8x / 2x), not individual numbers.
+- Rebirth (post-MVP): use a root of lifetime earnings so each reset needs 4-8x more progress.

@@ -1,0 +1,30 @@
+--!strict
+
+export type NotificationSettings = {
+	Kinds: { [string]: boolean },
+	FallbackKind: string,
+	MaxVisible: number,
+	FadeInSeconds: number,
+	HoldSeconds: number,
+	FadeOutSeconds: number,
+	RepeatSuffix: string,
+}
+
+local NotificationConfig: NotificationSettings = {
+	Kinds = {
+		Info = true,
+		Purchase = true,
+		Unlock = true,
+		Event = true,
+		Modifier = true,
+		Error = true,
+	},
+	FallbackKind = "Info",
+	MaxVisible = 4,
+	FadeInSeconds = 0.15,
+	HoldSeconds = 2.5,
+	FadeOutSeconds = 0.6,
+	RepeatSuffix = " x",
+}
+
+return table.freeze(NotificationConfig)

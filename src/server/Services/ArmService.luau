@@ -6,6 +6,7 @@ local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local DataService = require(script.Parent.DataService)
+local NotificationService = require(script.Parent.NotificationService)
 
 local trove = Trove.new()
 
@@ -43,6 +44,7 @@ function ArmService.BuyTier(_self: any, player: Player, tierIndex: number): bool
 		return false
 	end
 	data.ArmTier = tierIndex
+	NotificationService:Notify(player, "Purchase", `Bought {tier.DisplayName}!`)
 	publish(player)
 	DataService:RequestSave(player)
 	return true

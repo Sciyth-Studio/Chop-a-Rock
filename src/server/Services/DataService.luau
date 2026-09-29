@@ -8,6 +8,8 @@ local ProfileStore = require(ServerScriptService.ServerPackages.ProfileStore)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local PlayerData = require(script.Parent.Parent.Data.PlayerData)
 local DataSessions = require(script.Parent.Parent.Data.DataSessions)
+local Packets = require(ReplicatedStorage.Packets)
+local NotificationService = require(script.Parent.NotificationService)
 
 local DataService = {
 	Name = "DataService",
@@ -17,6 +19,7 @@ local DataService = {
 }
 local sessions: DataSessions.DataSessions? = nil
 local connections: { RBXScriptConnection } = {}
+local devResetConnection: any = nil
 local stopped = false
 local warnedMock = false
 
@@ -87,6 +90,13 @@ function DataService.Start(_self: any)
 	for _, player in Players:GetPlayers() do
 		task.defer(load, player)
 	end
+	if RunService:IsStudio() then
+		devResetConnection = Packets.DevResetData.OnServerEvent:Connect(function(player: Player)
+			if DataService:ResetData(player) then
+				NotificationService:Notify(player, "Info", "Data reset")
+			end
+		end)
+	end
 end
 
 function DataService.RequestSave(_self: any, player: Player): boolean
@@ -117,12 +127,31 @@ function DataService.AdjustCash(_self: any, player: Player, amount: number): boo
 	return DataService:RequestSave(player)
 end
 
+function DataService.ResetData(_self: any, player: Player): boolean
+	local data = DataService:GetData(player)
+	if not data then
+		return false
+	end
+	local template = PlayerData.Template
+	data.Cash = template.Cash
+	data.Strength = template.Strength
+	data.ArmTier = template.ArmTier
+	table.clear(data.Receipts)
+	DataService.PlayerLoaded:Fire(player, data)
+	DataService:RequestSave(player)
+	return true
+end
+
 function DataService.Destroy(_self: any)
 	stopped = true
 	for _, connection in connections do
 		connection:Disconnect()
 	end
 	table.clear(connections)
+	if devResetConnection then
+		devResetConnection:Disconnect()
+		devResetConnection = nil
+	end
 	local activeSessions = sessions
 	if activeSessions then
 		for _, player in Players:GetPlayers() do
