@@ -12,8 +12,8 @@ export type QualityStyle = {
 export type ChopStyleSettings = {
 	Qualities: { [number]: QualityStyle },
 	Fallback: QualityStyle,
-	TextDarkenAmount: number,
-	TextLightenAmount: number,
+	TextEdgeColor: Color3,
+	TextCenterColor: Color3,
 	StrokeDarkenAmount: number,
 	TextGradientRotation: number,
 }
@@ -60,8 +60,8 @@ local ChopStyleConfig: ChopStyleSettings = {
 		},
 	},
 	Fallback = crack,
-	TextDarkenAmount = 0.35,
-	TextLightenAmount = 0.55,
+	TextEdgeColor = Color3.fromRGB(190, 190, 190),
+	TextCenterColor = Color3.fromRGB(255, 255, 255),
 	StrokeDarkenAmount = 0.6,
 	TextGradientRotation = 90,
 }

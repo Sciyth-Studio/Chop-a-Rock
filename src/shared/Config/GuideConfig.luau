@@ -17,6 +17,10 @@ export type GuideSettings = {
 	GrindDistance: number,
 	ArrivalDistance: number,
 	ShopArrivalDistance: number,
+	HighlightColor: Color3,
+	HighlightFillTransparency: number,
+	HighlightOutlineTransparency: number,
+	HighlightFadeSeconds: number,
 }
 
 local GuideConfig: GuideSettings = {
@@ -36,6 +40,10 @@ local GuideConfig: GuideSettings = {
 	GrindDistance = 18,
 	ArrivalDistance = 25,
 	ShopArrivalDistance = 14,
+	HighlightColor = Color3.fromRGB(255, 255, 255),
+	HighlightFillTransparency = 0.6,
+	HighlightOutlineTransparency = 0,
+	HighlightFadeSeconds = 0.5,
 }
 
 return table.freeze(GuideConfig)

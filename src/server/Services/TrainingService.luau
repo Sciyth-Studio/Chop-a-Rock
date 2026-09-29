@@ -155,6 +155,7 @@ local function setupBoard(instance: Instance)
 	prompt.ActionText = "Train"
 	prompt.ObjectText = "Training Board"
 	prompt.HoldDuration = 0
+	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.MaxActivationDistance = 10
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = part

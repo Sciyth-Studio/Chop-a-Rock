@@ -2,6 +2,7 @@
 
 export type ChopSettings = {
 	CycleSeconds: number,
+	ReferenceRockSize: number,
 	PromptHoldSeconds: number,
 	PromptRangeStuds: number,
 	PromptFillTransparency: number,
@@ -24,6 +25,9 @@ export type ChopSettings = {
 	GoodShakeIntensity: number,
 	GreatShakeIntensity: number,
 	PerfectShakeIntensity: number,
+	PerfectShakeDurationSeconds: number,
+	PerfectFlashBrightness: number,
+	PerfectFlashSeconds: number,
 	BadChunkCount: number,
 	MidChunkCount: number,
 	GoodChunkCount: number,
@@ -39,6 +43,7 @@ export type ChopSettings = {
 
 local ChopConfig: ChopSettings = {
 	CycleSeconds = 1.5,
+	ReferenceRockSize = 10,
 	PromptHoldSeconds = 0.5,
 	PromptRangeStuds = 12,
 	PromptFillTransparency = 0.4,
@@ -60,7 +65,10 @@ local ChopConfig: ChopSettings = {
 	MidShakeIntensity = 0.35,
 	GoodShakeIntensity = 0.7,
 	GreatShakeIntensity = 1.0,
-	PerfectShakeIntensity = 1.4,
+	PerfectShakeIntensity = 2.4,
+	PerfectShakeDurationSeconds = 0.35,
+	PerfectFlashBrightness = 0.35,
+	PerfectFlashSeconds = 0.45,
 	BadChunkCount = 2,
 	MidChunkCount = 4,
 	GoodChunkCount = 7,

@@ -1,9 +1,11 @@
 --!strict
 
 local ContextActionService = game:GetService("ContextActionService")
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -65,6 +67,20 @@ local function shakeCamera(camera: Camera, baseCFrame: CFrame, intensity: number
 	end)
 end
 
+local function flashScreen()
+	local effect = Instance.new("ColorCorrectionEffect")
+	effect.Name = "PerfectFlash"
+	effect.Brightness = ChopConfig.PerfectFlashBrightness
+	effect.Parent = Lighting
+	local info =
+		TweenInfo.new(ChopConfig.PerfectFlashSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(effect, info, { Brightness = 0 })
+	tween.Completed:Once(function()
+		effect:Destroy()
+	end)
+	tween:Play()
+end
+
 local function endMinigame()
 	if not minigameActive then
 		return
@@ -98,7 +114,10 @@ local function beginMinigame(rock: BasePart, canBreak: boolean)
 	if rock and character then
 		local rootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		if rootPart then
-			local snapPos = rock.Position + ChopConfig.PlayerSnapOffsetFromRock
+			local rockScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
+			local groundY = rock.Position.Y - rock.Size.Y / 2 + rootPart.Size.Y * 1.5
+			local snapPos = rock.Position + ChopConfig.PlayerSnapOffsetFromRock * rockScale
+			snapPos = Vector3.new(snapPos.X, groundY, snapPos.Z)
 			rootPart.CFrame = CFrame.lookAt(snapPos, rock.Position)
 		end
 	end
@@ -107,7 +126,8 @@ local function beginMinigame(rock: BasePart, canBreak: boolean)
 	if camera and rock then
 		camera.CameraType = Enum.CameraType.Scriptable
 		local rockPos = rock.Position
-		local cameraPos = rockPos + ChopConfig.CameraOffsetFromRock
+		local cameraScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
+		local cameraPos = rockPos + ChopConfig.CameraOffsetFromRock * cameraScale
 		local lookAt = rockPos + ChopConfig.CameraLookOffset
 		camera.CFrame = CFrame.new(cameraPos, lookAt)
 	end
@@ -183,13 +203,18 @@ function ChopController.Start(self: any)
 			return
 		end
 		self.ResultShown:Fire(quality)
+		if quality == ChopQuality.Perfect then
+			flashScreen()
+		end
 		local camera = workspace.CurrentCamera
 		if camera and camera.CameraType == Enum.CameraType.Scriptable then
 			shakeCamera(
 				camera,
 				camera.CFrame,
 				qualityShakeIntensity(quality),
-				ChopConfig.ShakeDurationSeconds
+				if quality == ChopQuality.Perfect
+					then ChopConfig.PerfectShakeDurationSeconds
+					else ChopConfig.ShakeDurationSeconds
 			)
 		end
 		if payout > 0 then

@@ -43,6 +43,7 @@ local function setupKiosk(instance: Instance)
 	prompt.ActionText = "Shop"
 	prompt.ObjectText = "Arm Shop"
 	prompt.HoldDuration = 0
+	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.MaxActivationDistance = 10
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = part

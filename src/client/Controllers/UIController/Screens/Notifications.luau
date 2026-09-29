@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
+local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
@@ -89,6 +90,7 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function show(kind: string, message: string)
+		LocalSound.Play(NotificationConfig.SoundKey)
 		for _, entry in entries do
 			if entry.Kind == kind and entry.Message == message then
 				entry.Count += 1

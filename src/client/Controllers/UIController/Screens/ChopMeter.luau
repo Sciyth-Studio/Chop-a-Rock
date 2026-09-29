@@ -95,13 +95,11 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			gradient.Rotation = rainbowRotation
 			return
 		end
-		local dark = style.Color:Lerp(Color3.new(0, 0, 0), ChopStyleConfig.TextDarkenAmount)
-		local light = style.Color:Lerp(Color3.new(1, 1, 1), ChopStyleConfig.TextLightenAmount)
 		gradient.Rotation = ChopStyleConfig.TextGradientRotation
 		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, dark),
-			ColorSequenceKeypoint.new(0.5, light),
-			ColorSequenceKeypoint.new(1, dark),
+			ColorSequenceKeypoint.new(0, ChopStyleConfig.TextEdgeColor),
+			ColorSequenceKeypoint.new(0.5, ChopStyleConfig.TextCenterColor),
+			ColorSequenceKeypoint.new(1, ChopStyleConfig.TextEdgeColor),
 		})
 	end
 

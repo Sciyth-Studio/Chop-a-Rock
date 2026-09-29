@@ -9,11 +9,13 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local GuideConfig = require(ReplicatedStorage.Config.GuideConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local TweenService = game:GetService("TweenService")
 
 type TroveInstance = typeof(Trove.new())
 type Arrow = { Part: BasePart, SetTransparency: (number) -> () }
 
 local SHOP_TAG = "ShopKiosk"
+local ROCK_TAG = "ChopRock"
 
 local ArrowTrail = {}
 
@@ -26,18 +28,29 @@ local function flatDistance(a: Vector3, b: Vector3): number
 	return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
 end
 
-local function bestBreakable(strength: number): RockConfig.Rock?
+local function bestBreakable(strength: number): (string?, RockConfig.Rock?)
+	local bestKey: string? = nil
 	local best: RockConfig.Rock? = nil
 	local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
-	for _, rock in rocks do
+	for key, rock in rocks do
 		if
 			rock.StrengthRequired <= strength
 			and (not best or rock.StrengthRequired > best.StrengthRequired)
 		then
+			bestKey = key
 			best = rock
 		end
 	end
-	return best
+	return bestKey, best
+end
+
+local function findRockPart(key: string): BasePart?
+	for _, tagged in CollectionService:GetTagged(ROCK_TAG) do
+		if tagged:IsA("BasePart") and tagged:GetAttribute("RockKey") == key then
+			return tagged
+		end
+	end
+	return nil
 end
 
 local function isNearWorseRock(position: Vector3, best: RockConfig.Rock): boolean
@@ -111,6 +124,9 @@ function ArrowTrail.Start(trove: TroveInstance)
 	local arrows: { Arrow } = {}
 	local isGuidingRock = false
 	local isShopDismissed = false
+	local guidedKey: string? = nil
+	local highlight: Highlight? = nil
+	local highlightKey: string? = nil
 
 	local function clear()
 		for _, arrow in arrows do
@@ -119,6 +135,59 @@ function ArrowTrail.Start(trove: TroveInstance)
 		table.clear(arrows)
 	end
 	trove:Add(clear)
+
+	local function fadeOutHighlight()
+		local current = highlight
+		if not current then
+			return
+		end
+		highlight = nil
+		highlightKey = nil
+		local info =
+			TweenInfo.new(GuideConfig.HighlightFadeSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		local tween = TweenService:Create(current, info, { FillTransparency = 1, OutlineTransparency = 1 })
+		tween.Completed:Once(function()
+			current:Destroy()
+		end)
+		tween:Play()
+	end
+
+	local function setHighlight(key: string?)
+		if key == highlightKey then
+			return
+		end
+		fadeOutHighlight()
+		if not key then
+			return
+		end
+		local part = findRockPart(key)
+		if not part then
+			return
+		end
+		local created = Instance.new("Highlight")
+		created.Name = "GuideHighlight"
+		created.FillColor = GuideConfig.HighlightColor
+		created.OutlineColor = GuideConfig.HighlightColor
+		created.FillTransparency = 1
+		created.OutlineTransparency = 1
+		created.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		created.Adornee = part
+		created.Parent = part
+		local info =
+			TweenInfo.new(GuideConfig.HighlightFadeSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		TweenService:Create(created, info, {
+			FillTransparency = GuideConfig.HighlightFillTransparency,
+			OutlineTransparency = GuideConfig.HighlightOutlineTransparency,
+		}):Play()
+		highlight = created
+		highlightKey = key
+	end
+	trove:Add(function()
+		if highlight then
+			highlight:Destroy()
+			highlight = nil
+		end
+	end)
 
 	local function ensureArrows()
 		if #arrows > 0 then
@@ -132,6 +201,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 	end
 
 	local function chooseTarget(position: Vector3): Vector3?
+		guidedKey = nil
 		local isReady = isReadyToUpgrade()
 		if not isReady then
 			isShopDismissed = false
@@ -145,8 +215,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 				return shopPosition
 			end
 		end
-
-		local best = bestBreakable(readAttribute("Strength"))
+		local bestKey, best = bestBreakable(readAttribute("Strength"))
 		if not best then
 			isGuidingRock = false
 			return nil
@@ -161,6 +230,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 		then
 			isGuidingRock = true
 		end
+		guidedKey = if isGuidingRock then bestKey else nil
 		return if isGuidingRock then target else nil
 	end
 
@@ -168,6 +238,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 		local character = Players.LocalPlayer.Character
 		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 		if not root or not root:IsA("BasePart") then
+			setHighlight(nil)
 			isGuidingRock = false
 			clear()
 			return
@@ -175,6 +246,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 
 		local position = root.Position
 		local target = chooseTarget(position)
+		setHighlight(guidedKey)
 		if not target then
 			clear()
 			return

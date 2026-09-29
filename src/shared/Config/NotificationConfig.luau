@@ -3,6 +3,7 @@
 export type NotificationSettings = {
 	Kinds: { [string]: boolean },
 	FallbackKind: string,
+	SoundKey: string,
 	MaxVisible: number,
 	FadeInSeconds: number,
 	HoldSeconds: number,
@@ -20,6 +21,7 @@ local NotificationConfig: NotificationSettings = {
 		Error = true,
 	},
 	FallbackKind = "Info",
+	SoundKey = "SFX_Notification",
 	MaxVisible = 4,
 	FadeInSeconds = 0.15,
 	HoldSeconds = 2.5,
