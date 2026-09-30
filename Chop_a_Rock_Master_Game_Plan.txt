@@ -25,7 +25,7 @@ Chop a Rock
 
 1 DETAILED Paragraph Description of Game:
 (Revised 2026-09-26 to reflect the two-axis progression change — see Decision Log.)
-Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up karate chops that whittle down a giant rock's health bar until it shatters (revised 2026-09-30: multi-chop rocks, see Decision Log). Players approach a boulder — a scaled cube part that grows through color and material tiers (gray → mossy → obsidian → glowing → crystalline → cosmic) — hold to wind up, and release as a meter passes through a power band. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are strong enough, the release timing scales the reward rather than gating it, so a sloppy release still breaks the rock for a small payout while a good one pays full and a perfect one triggers a bonus multiplier, a bigger shatter, and a louder crunch. Breaking rocks earns money and can drop gems. Progression runs on two axes: STRENGTH, raised by buying strict arm upgrades with money, which unlocks heavier rocks further out; and LUCK, raised by placing collected gems on pedestals at the player's base, which improves the rarity of future drops. Bigger rocks drop rarer gems, gems at the base also earn money while offline, and money buys more pedestal slots. Rebirthing resets strength and level to one and unlocks a new base floor. An index tracks every kind of rock broken and every gem found. Impact gets all the polish: screen shake, a slow-mo frame before contact, a giant damage number, and pre-fractured debris, with the player character held at fixed size so the boulder visibly dwarfs them. NPC crowds cheer and server-wide announcements fire on milestone breaks, because being seen being strong is half the fantasy. Icon-driven UI, huge buttons, minimal reading, monetized through gamepasses rather than randomized eggs.
+Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up karate chops that whittle down a giant rock's health bar until it shatters (revised 2026-09-30: multi-chop rocks, see Decision Log). Players approach a boulder — a scaled cube part that grows through color and material tiers (gray → mossy → obsidian → glowing → crystalline → cosmic) — hold to wind up, and release as a meter passes through a power band. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are strong enough, the release timing scales the reward rather than gating it, so a sloppy release still breaks the rock for a small payout while a good one pays full and a perfect one triggers a bonus multiplier, a bigger shatter, and a louder crunch. Breaking rocks earns money, and money buys geodes that crack open to hatch cute PET ROCKS (revised 2026-09-30: pet rocks replace gems, see Decision Log). Progression runs on two axes: STRENGTH, raised by buying strict arm upgrades with money, which unlocks heavier rocks further out; and LUCK, which improves the rarity of hatched pet rocks. A few pet rocks can be equipped to follow the player and boost their gains; the rest are displayed on pedestals at the player's base, where they earn money while offline, and money buys more pedestal slots. Rebirthing resets strength and level to one and unlocks a new base floor. An index tracks every kind of rock broken and every pet rock hatched. Impact gets all the polish: screen shake, a slow-mo frame before contact, a giant damage number, and pre-fractured debris, with the player character held at fixed size so the boulder visibly dwarfs them. NPC crowds cheer and server-wide announcements fire on milestone breaks, because being seen being strong is half the fantasy. Icon-driven UI, huge buttons, minimal reading, monetized through gamepasses rather than randomized eggs.
 
 Game Type:
 Simulator / RNG
@@ -40,14 +40,14 @@ Ages 6–12.
 Main Selling Point:
 You get to chop a really big rock and it is incredibly satisfying.
 [PROPOSED] Sharper version: "The only simulator where every hit is a skill moment — built to look insane in a clip." (One skill-based, anime-impact action vs. the click-spam/auto-swing typical of the genre.)
-[PROPOSED] Differentiating link: timing quality affects gem drop rarity (perfect chops = better odds), so skill feeds both progression axes.
+[PROPOSED] Differentiating link: geodes are cracked with the chop timing meter, and timing quality affects hatch rarity (perfect crack = better odds), so skill feeds both progression axes.
 
 Expectations:
 Money printer.
 Measurable target: 1,000 concurrent players (CCU).
 
 MONETIZATION NOTE — must be resolved by Section 10:
-Randomness now comes from gem drops earned by chopping, not from purchased rolls (arms are strict upgrades). Remaining question: may Robux affect drop randomness (e.g., a "2x luck" gamepass)? Audience is 6–12; paid random items on Roblox require disclosed odds.
+Randomness now comes from hatching pet rocks out of geodes bought with in-game money (arms are strict upgrades). Remaining questions: may geodes be bought with Robux, and may Robux affect hatch luck (e.g., a "2x luck" gamepass)? Audience is 6–12; paid random items on Roblox require disclosed odds.
 
 ================================
 01. REFERENCES
@@ -76,10 +76,10 @@ Step #5: If strong enough → each chop deals damage to the rock's health bar an
          until the rock breaks or the player leaves. Timing sets damage and payout:
          sloppy = small, good = full, perfect = bonus multiplier. The breaking chop gets the full shatter for its quality
          (perfect = bigger shatter + louder crunch).
-Step #6: Earn money. Chance to drop a gem.
-Step #7: Spend money on the next arm upgrade (strict upgrade → more strength per training action).
-Step #8: Place gems on base pedestals (more luck → rarer future drops; gems also earn money offline).
-Step #9: With more strength, move further out to heavier rocks, which drop rarer gems.
+Step #6: Earn money.
+Step #7: Spend money on the next arm upgrade (strict upgrade → more strength per training action), or on geodes that hatch pet rocks.
+Step #8: Equip a few pet rocks to follow you (boosts); display the rest on base pedestals (offline money). Luck improves hatch rarity.
+Step #9: With more strength, move further out to heavier rocks, which pay more money for better geodes.
 Step #10: Buy more pedestal slots; eventually rebirth (strength + level reset to 1; new floor, multipliers, better training method).
 Step #11: Repeat.
 
@@ -93,7 +93,8 @@ Loop details:
   BasePayout is per whole rock and was raised by HitsAtMinStrength so money per minute holds. [PLAYTEST]
 - Health is per player, per session; it resets when the player leaves the rock.
 - Moving power band: every chop, the server picks a random band center in [0.2, 0.8]. Bands nest around the center,
-  shifting inward rather than clipping at the bar's ends. The meter shows the full band layout faintly behind the fill.
+  shifting inward rather than clipping at the bar's ends. The meter shows the round's full band gradient, and a
+  Chrome-style line moves along it to show where the hit will land.
   Because a centered band is crossed twice per cycle (two half-length windows instead of one), all non-Bad bands are
   widened by a zone width multiplier. [PLAYTEST] center range, multiplier (draft 1.5).
 - Players move on when they have earned enough to do what's required to try the next rock.
@@ -125,9 +126,10 @@ Rock tiers:
 gray → mossy → obsidian → glowing → crystalline → cosmic
 - Each tier also changes the environment (sky, atmosphere, particles), not just the rock. This implies a zone-based world (see Section 06).
 
-Gems:
-- Collectible gems drop from rocks and are displayed on pedestals at the base.
-  Gem presentation per rarity: a text label per gem is sufficient; no bespoke visual language required.
+Pet rocks:
+- Cute collectible rocks (easy to model, original). Hatched from geodes; equipped ones follow the player, the rest sit on base pedestals.
+- Geodes: the "egg" of this game — a rock-shell container that cracks open to reveal a pet rock.
+[OPEN] Rarity presentation (label only, as gems were, or color/aura per rarity).
 
 Overall mood: Bright.
 [PROPOSED] Cosmic tier uses vivid nebula colors rather than a dark/black space sky, to stay consistent with the bright mood.
@@ -165,7 +167,7 @@ How AI-written scripts reference user-made assets.
        Models/
        Images/
 2. Naming: Category_Subject_Variant, PascalCase
-     e.g. VFX_Shatter_Perfect, VFX_Aura_Obsidian, SFX_Chop_Yoo, Anim_Chop_Windup, Model_Rock_Mossy, Model_Gem_Ruby
+     e.g. VFX_Shatter_Perfect, VFX_Aura_Obsidian, SFX_Chop_Yoo, Anim_Chop_Windup, Model_Rock_Mossy, Model_Pet_Pebbles, Model_Geode_Basic
 3. Registry: scripts NEVER reference assets by path or ID directly. All lookups go through one ModuleScript
    (ReplicatedStorage/Shared/AssetRegistry) that maps keys to asset locations/IDs.
    Renaming or replacing an asset = one edit in the registry.
@@ -195,7 +197,7 @@ First break:
 
 First upgrade:
 - The first break pays enough for the first arm upgrade (base chop → first basic arm, small stat boost, e.g. +1).
-[PROPOSED] Tutorial also guarantees a first gem drop and walks the player through placing it on a pedestal, so both progression axes are taught.
+[PROPOSED] Tutorial also gives a free first geode, walks the player through hatching and equipping the pet rock, so both progression axes are taught.
 
 First 5 minutes:
 - Player completes the tutorial.
@@ -205,8 +207,8 @@ Reasons to come back:
 1. Weekly rewards.
 2. Potentially a PvP chop arena.
 3. Random events.
-4. Rock index — every kind of rock broken and every gem found.
-5. Offline income from gems at the base.
+4. Index — every kind of rock broken and every pet rock hatched.
+5. Offline income from pet rocks displayed at the base.
 [OPEN] Weekly is a long gap for 6–12; consider daily login streaks instead of or in addition.
 [OPEN] Define what random events are.
 [OPEN] PvP arena is large scope — MVP or later update? (Decide in Section 10.)
@@ -222,7 +224,7 @@ WORLD DESCRIPTION:
 - Spawn hub: a central training hub, ringed by player base plots.
 - Training hub: where the intro cutscene and tutorial happen, and where all strength training takes place (including idle training).
   Hub aesthetic: mountain training grounds with sakura trees around (anime training-arc feel; bright, outdoor). Not a dojo.
-- Base plots: fixed-pedestal bases arranged around the hub. Other players can walk in and view your gems. A Home button teleports the player back to their base.
+- Base plots: fixed-pedestal bases arranged around the hub. Other players can walk in and view your pet rocks. A Home button teleports the player back to their base.
 - Zones: a straight line leading out from the hub, one zone per rock tier. Each zone's environment matches its tier.
 [PROPOSED] Zones separated by gates showing the required strength; breaking through fires a server announcement.
 [PROPOSED] Teleport pad unlocks when a player first reaches a zone; players can jump to their highest zone from the hub.
@@ -246,17 +248,22 @@ Two axes:
   - Idle (AFK) training is allowed.
   - Better training methods are unlocked by rebirthing.
   Training method: karate-themed board/brick breaking stacks (1 board → 5 boards → bricks → ice → steel), using the same timing meter as rock chops. Bench pressing rejected (signature mechanic of the lifting-simulator genre this redesign differentiates from); pushups rejected (no clean upgrade path).
-  Idle/AFK training happens only while in-server. Money still earns offline via gems at the base; strength does not.
+  Idle/AFK training happens only while in-server. Money still earns offline via pet rocks displayed at the base; strength does not.
   [PROPOSED] Active timed training (good/perfect releases) trains faster than idle, so skill still pays.
-- LUCK: gems placed on base pedestals. Improves rarity of future gem drops.
+- LUCK: improves the rarity of pet rocks hatched from geodes.
+  [OPEN] Where luck comes from (rebirths, pet rock effects, upgrades, or a mix).
+- PET ROCKS: hatched from geodes bought with money.
+  - Equipped: a limited number follow the player and boost gains. [OPEN] Money, strength gain, or both. [PLAYTEST] Slot count, boost sizes.
+  - Displayed: the rest sit on base pedestals and earn offline money.
 Plus: base expansion (pedestal slots, floors) and rebirth.
 
 PRIMARY CURRENCY: Money
 How is it earned?
 - Breaking rocks (payout scaled by timing quality: sloppy / good / perfect).
-- Offline income from gems placed at the base.
+- Offline income from pet rocks displayed at the base.
 What is it spent on?
 - Arm upgrades (strength).
+- Geodes (pet rocks).
 - Additional pedestal slots at the base.
 
 SECONDARY CURRENCY:
@@ -271,11 +278,12 @@ UPGRADES:
 
 ITEM / EQUIPMENT TIERS:
 - Arm tiers (strict, sequential).
-- Gems (collection, placed at base).
+- Pet rocks (collection; equipped or displayed at base).
+- Geodes (consumable; hatch one pet rock).
 
 RARITIES:
-Gems have rarities. Bigger rocks give better odds of rarer gems.
-The user does not restrict what can be found: any gem can in principle drop from any rock; rock size and luck change the odds.
+Pet rocks have rarities. Luck changes the odds.
+[PROPOSED] Geode tiers per zone (pricier geodes further out have better odds), replacing "bigger rocks drop rarer gems."
 [OPEN] Number of rarities and their names.
 [OPEN] Odds table (must be displayable to players).
 
@@ -290,9 +298,9 @@ XP SYSTEM:
 EXP bar is filled by strength. Level is effectively a display of strength progress.
 
 REWARDS:
-What activities give rewards? Breaking rocks (money + gem drop chance); gems at base (offline money).
-What determines reward amount? Rock size/tier, timing quality, luck (for gem rarity).
-[PROPOSED] Timing quality also improves gem drop odds.
+What activities give rewards? Breaking rocks (money); hatching geodes (pet rocks); pet rocks at base (offline money).
+What determines reward amount? Rock size/tier, timing quality, equipped pet boosts; luck (for hatch rarity).
+[PROPOSED] Geodes are cracked with the chop meter; timing quality improves hatch odds.
 How does risk affect reward? Attempting a rock that's too strong = crack, no reward.
 
 REBIRTH:
@@ -301,29 +309,30 @@ REBIRTH:
 - Grants multipliers to money gain and strength gain.
 [OPEN] What else resets? Money? Arm tier (since arms = strength)? Pedestal slots?
        → [PLAYTEST] User will decide through playtesting. Code must support either choice via config.
-[OPEN] What persists? Presumably gems, index, and floors — confirm.
+[OPEN] What persists? Presumably pet rocks, index, and floors — confirm.
 [PLAYTEST] Do rebirth multipliers stack per rebirth (additive/multiplicative), and by how much?
 
 OFFLINE INCOME:
-- Gems at the base earn money while the player is offline.
+- Pet rocks displayed at the base earn money while the player is offline.
 [OPEN] Offline cap (e.g., max hours accrued) — without one, offline income can outpace active play.
 [PROPOSED] Active chopping should always earn clearly more per minute than offline income, so playing beats idling.
 
 COLLECTION / INDEX:
-- Tracks every kind of rock broken and every gem found.
-[OPEN] What happens to duplicate gems? (Sell, fuse, keep, discard?)
+- Tracks every kind of rock broken and every pet rock hatched.
+[OPEN] What happens to duplicate pet rocks? (Sell, fuse, keep, discard?)
 [OPEN] Rewards for completing index entries/pages?
 
 GENERAL PROGRESSION FLOW:
 Base chop
 ↓
 Train → strength (linear; idle allowed)
-Break rocks → money + gem drops
+Break rocks → money
 ↓
 Buy arm upgrades (training-gain multiplier) ← money
-Place gems on pedestals (luck + offline money)
+Buy geodes → hatch pet rocks (luck improves rarity) ← money
+Equip pet rocks (boosts); display the rest on pedestals (offline money)
 ↓
-Break bigger rocks → rarer gems
+Break bigger rocks → more money → better geodes
 ↓
 Buy more pedestal slots
 ↓
@@ -347,28 +356,28 @@ PLAYER / CHARACTER SYSTEM:
 Strength, level, luck, arm tier, rebirth count.
 
 INVENTORY SYSTEM:
-Gem inventory (gems not currently on pedestals).
+Pet rock inventory (owned pet rocks; each is equipped, displayed on a pedestal, or stored).
 
 ITEM / EQUIPMENT / TOOL SYSTEM:
-Arm tiers (equipment). Gems (collectibles).
+Arm tiers (equipment). Pet rocks (collectibles; equipped pets follow the player). Geodes (hatchable).
 
 COMBAT SYSTEM:
 Not applicable (unless PvP arena is added).
 
 INTERACTION SYSTEM:
-Chop (hold/release timing meter). Pedestal placement at base.
+Chop (hold/release timing meter). Geode hatching. Pet equip / pedestal placement at base.
 
 QUEST / OBJECTIVE SYSTEM:
 Tutorial. [PROPOSED] Next-goal bar.
 
 SHOP / SELLING SYSTEM:
-Arm upgrade shop. Pedestal slot purchases.
+Arm upgrade shop. Geode shop. Pedestal slot purchases.
 
 NPC / ENEMY SYSTEM:
 Sensei (cutscene/tutorial). Bacon hair (cutscene). Cheering NPC crowds.
 
 RESOURCE / SPAWNING SYSTEM:
-Rocks per zone, instant respawn. Gem drop rolls on break.
+Rocks per zone, instant respawn. Hatch rolls when a geode is cracked.
 
 VEHICLE SYSTEM:
 Not applicable.
@@ -383,20 +392,20 @@ PARTY / TEAM / MATCHMAKING SYSTEM:
 Not defined.
 
 LEADERBOARD / ACHIEVEMENT SYSTEM:
-Rock/gem index. Server-wide announcements on milestone breaks.
+Rock/pet rock index. Server-wide announcements on rare hatches. Server-wide announcements on milestone breaks.
 
 OTHER IMPORTANT SYSTEMS:
 Rebirth. Offline income.
 
 IMPORTANT TECHNICAL REQUIREMENTS:
 What player data must save between sessions?
-Money, strength, arm tier, level, rebirth count, gems owned, pedestal placements, slots, floors, index, last-online time (for offline income).
+Money, strength, arm tier, level, rebirth count, pet rocks owned, equipped pets, pedestal placements, slots, floors, index, last-online time (for offline income).
 Does the game require multiplayer interaction? If so, explain the important interactions.
 Are there valuable or exploitable systems that must be secure/server-controlled?
-Chop timing, payouts, gem drops, offline income calculation, purchases — all server-authoritative.
+Chop timing, payouts, hatch rolls, pet boosts, offline income calculation, purchases — all server-authoritative.
 Are there special performance requirements?
 Are there systems the user specifically wants implemented a certain way?
-- All balance values (rock strength requirements, payouts, drop odds, arm multipliers, training rates, rebirth multipliers, slot prices, offline income rates/caps) live in config ModuleScripts, never hardcoded in logic.
+- All balance values (rock strength requirements, payouts, hatch odds, geode prices, pet boosts, arm multipliers, training rates, rebirth multipliers, slot prices, offline income rates/caps) live in config ModuleScripts, never hardcoded in logic.
 - Rebirth reset rules are config-driven: a list of which stats/items reset vs. persist, so they can be changed after playtesting without rewriting the rebirth system.
 Other important technical requirements:
 
@@ -420,7 +429,7 @@ Menus:
 Inventory:
 Shop:
 Other:
-Known needs: arm upgrade shop, gem inventory, pedestal placement, index, rebirth, offline-earnings popup.
+Known needs: arm upgrade shop, geode shop + hatch reveal, pet rock inventory/equip, pedestal placement, index, rebirth, offline-earnings popup.
 
 PLAYER FEEDBACK:
 What should happen visually/audio-wise when the player:
@@ -429,7 +438,7 @@ Buys something:
 Upgrades:
 Fails:
 Completes an objective:
-Gets a rare gem drop:
+Hatches a rare pet rock:
 
 MUSIC / AUDIO DIRECTION:
 Known: "yoo" sound on perfect breaks.
@@ -471,16 +480,16 @@ MVP success criteria: the developer finds themselves playing instead of developi
 
 MVP MUST NOT HAVE:
 (Everything not listed above is out of the MVP, including:)
-1. Gems, luck, drops, index.
+1. Pet rocks, geodes, luck, index.
 2. Player bases, pedestals, offline income.
 3. Rebirth, floors, multipliers.
 4. Monetization.
 5. Additional zones, teleports, gates.
 
 FEATURES FOR LATER UPDATES:
-1. Gems + luck + base pedestals (second progression axis).
+1. Pet rocks + geodes + luck + base pedestals (second progression axis).
 2. Rebirth, floors, better training methods.
-3. Offline income, rock/gem index.
+3. Offline income, rock/pet rock index.
 4. More zones, teleport pads, strength gates.
 5. Tutorial cutscene, random events, weekly rewards, potential PvP arena.
 
@@ -495,7 +504,7 @@ Other:
 PAY-TO-WIN LIMIT:
 What monetization is acceptable?
 What monetization is NOT acceptable?
-(Must resolve whether Robux may affect gem drop luck — see Section 00.)
+(Must resolve whether geodes may be bought with Robux and whether Robux may affect hatch luck — see Section 00.)
 
 MAJOR DEVELOPMENT RISKS:
 Risk 1:
@@ -599,3 +608,14 @@ DECISION LOG
     plans once designed. Details [TBD].
   - Known issue, out of scope for now: the code shares one rock per tier across the server (prompt locked while one player
     chops), which conflicts with §06 "rocks are per-player" and gets worse with longer sessions.
+  - Meter follow-up: the fill no longer grows; it shows the full band gradient and a Chrome line marks where the hit lands.
+    Health bar sits at the very top of the screen; rock name label removed.
+2026-09-30 — Gems removed entirely; PET ROCKS take their place:
+  - Obtained by hatching GEODES bought with in-game money (the genre's "egg", themed). Nothing drops from rocks (09-28 stands).
+  - Pet rocks do both jobs: a few are equipped and follow the player for boosts; the rest are displayed on base pedestals and
+    earn offline money.
+  - LUCK stays the second axis and now improves hatch rarity. Source of luck is [OPEN].
+  - Bases, pedestals, floors (rebirth), and offline income are kept, now built around displayed pet rocks.
+  - Index now tracks rocks broken and pet rocks hatched.
+  - Still open: what equipped pets boost (money / strength / both), luck source, rarity count + odds table, duplicates,
+    Robux geodes / luck gamepasses. [PROPOSED] geodes cracked with the chop meter (timing affects odds), geode tiers per zone.
