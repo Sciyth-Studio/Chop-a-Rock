@@ -7,6 +7,7 @@ local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
@@ -22,6 +23,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	local player = Players.LocalPlayer
 	local trove = Trove.new()
 	local isDestroyed = false
+	ViewportScale.Bind(gui, trove)
 
 	local function readAttribute(attribute: string): number
 		local value = player:GetAttribute(attribute)
@@ -37,13 +39,23 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		return found
 	end
 
+	local function setText(label: TextLabel, text: string)
+		label.Text = text
+		local shadow = if label.Parent
+			then label.Parent:FindFirstChild(label.Name .. HudConfig.ShadowSuffix)
+			else nil
+		if shadow and shadow:IsA("TextLabel") then
+			shadow.Text = text
+		end
+	end
+
 	local function bind(labelName: string, attribute: string, format: (number) -> string)
 		local label = findLabel(labelName)
 		if not label then
 			return
 		end
 		local function refresh()
-			label.Text = format(readAttribute(attribute))
+			setText(label, format(readAttribute(attribute)))
 		end
 		trove:Connect(player:GetAttributeChangedSignal(attribute), refresh)
 		refresh()
@@ -63,7 +75,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 
 		local lastTarget = readAttribute("Cash")
-		label.Text = formatMoney(lastTarget)
+		setText(label, formatMoney(lastTarget))
 
 		local function playDelta(delta: number, target: number)
 			local source = template :: TextLabel
@@ -104,7 +116,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			slide.Completed:Once(function()
 				floating:Destroy()
 				if not isDestroyed then
-					label.Text = formatMoney(target)
+					setText(label, formatMoney(target))
 				end
 			end)
 			slide:Play()
@@ -120,7 +132,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			if template then
 				playDelta(delta, target)
 			else
-				label.Text = formatMoney(target)
+				setText(label, formatMoney(target))
 			end
 		end)
 	end
