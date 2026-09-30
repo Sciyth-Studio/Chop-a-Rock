@@ -111,26 +111,44 @@ local function beginMinigame(rock: BasePart, canBreak: boolean)
 
 	local character = Players.LocalPlayer.Character
 
-	if rock and character then
-		local rootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if rootPart then
-			local rockScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
-			local groundY = rock.Position.Y - rock.Size.Y / 2 + rootPart.Size.Y * 1.5
-			local snapPos = rock.Position + ChopConfig.PlayerSnapOffsetFromRock * rockScale
-			snapPos = Vector3.new(snapPos.X, groundY, snapPos.Z)
-			rootPart.CFrame = CFrame.lookAt(snapPos, rock.Position)
-		end
+	local rootPart = if character then character:FindFirstChild("HumanoidRootPart") :: BasePart? else nil
+	local rockScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
+	local rootStart: CFrame? = if rootPart then rootPart.CFrame else nil
+	local rootTarget: CFrame? = nil
+	if rootPart then
+		local groundY = rock.Position.Y - rock.Size.Y / 2 + rootPart.Size.Y * 1.5
+		local snapPos = rock.Position + ChopConfig.PlayerSnapOffsetFromRock * rockScale
+		snapPos = Vector3.new(snapPos.X, groundY, snapPos.Z)
+		rootTarget = CFrame.lookAt(snapPos, rock.Position)
 	end
 
 	local camera = workspace.CurrentCamera
-	if camera and rock then
+	local cameraStart: CFrame? = nil
+	local cameraTarget: CFrame? = nil
+	if camera then
 		camera.CameraType = Enum.CameraType.Scriptable
-		local rockPos = rock.Position
-		local cameraScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
-		local cameraPos = rockPos + ChopConfig.CameraOffsetFromRock * cameraScale
-		local lookAt = rockPos + ChopConfig.CameraLookOffset
-		camera.CFrame = CFrame.new(cameraPos, lookAt)
+		cameraStart = camera.CFrame
+		local cameraPos = rock.Position + ChopConfig.CameraOffsetFromRock * rockScale
+		cameraTarget = CFrame.new(cameraPos, rock.Position + ChopConfig.CameraLookOffset)
 	end
+
+	local transitionStart = os.clock()
+	local transition: RBXScriptConnection
+	transition = RunService.RenderStepped:Connect(function()
+		local progress = math.clamp((os.clock() - transitionStart) / ChopConfig.CameraTransitionSeconds, 0, 1)
+		local eased = progress * progress * (3 - 2 * progress)
+		if camera and cameraStart and cameraTarget then
+			camera.CFrame = cameraStart:Lerp(cameraTarget, eased)
+		end
+		if rootPart and rootStart and rootTarget then
+			rootPart.CFrame = rootStart:Lerp(rootTarget, eased)
+			rootPart.AssemblyLinearVelocity = Vector3.zero
+		end
+		if progress >= 1 then
+			transition:Disconnect()
+		end
+	end)
+	trove:Add(transition)
 
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if humanoid then
@@ -171,6 +189,14 @@ local ChopController = {
 	_trove = nil :: TroveInstance?,
 	ResultShown = nil :: any,
 }
+
+function ChopController.IsMinigameActive(_self: any): boolean
+	return minigameActive
+end
+
+function ChopController.IsReleased(_self: any): boolean
+	return frozenPosition ~= nil
+end
 
 function ChopController.CanBreakRock(_self: any): boolean
 	return activeCanBreak

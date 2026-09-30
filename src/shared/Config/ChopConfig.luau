@@ -3,6 +3,7 @@
 export type ChopSettings = {
 	CycleSeconds: number,
 	ReferenceRockSize: number,
+	CameraTransitionSeconds: number,
 	PromptHoldSeconds: number,
 	PromptRangeStuds: number,
 	PromptFillTransparency: number,
@@ -44,6 +45,7 @@ export type ChopSettings = {
 local ChopConfig: ChopSettings = {
 	CycleSeconds = 1.5,
 	ReferenceRockSize = 10,
+	CameraTransitionSeconds = 0.45,
 	PromptHoldSeconds = 0.5,
 	PromptRangeStuds = 12,
 	PromptFillTransparency = 0.4,
