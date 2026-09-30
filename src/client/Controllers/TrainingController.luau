@@ -20,7 +20,8 @@ local function beginTraining()
 			return Enum.ContextActionResult.Sink
 		end
 		return Enum.ContextActionResult.Pass
-	end, false, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
+	end, true, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
+	ContextActionService:SetTitle(STOP_ACTION, "STOP")
 end
 
 local function endTraining()

@@ -9,6 +9,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
+local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 
 type TroveInstance = typeof(Trove.new())
 type ActivePrompt = {
@@ -131,6 +132,7 @@ local function show(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInpu
 
 	template.Adornee = adornee
 	Typography.Apply(template)
+	ViewportScale.ApplyToBillboard(template)
 	template.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 

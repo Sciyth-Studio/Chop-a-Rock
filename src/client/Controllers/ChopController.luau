@@ -108,7 +108,8 @@ local function bindRelease()
 			return Enum.ContextActionResult.Sink
 		end
 		return Enum.ContextActionResult.Pass
-	end, false, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
+	end, true, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
+	ContextActionService:SetTitle(RELEASE_ACTION, "CHOP")
 end
 
 local function leaveMinigame()

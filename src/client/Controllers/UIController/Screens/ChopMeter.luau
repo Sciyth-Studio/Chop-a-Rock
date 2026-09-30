@@ -8,6 +8,7 @@ local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
+local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Types = require(script.Parent.Parent.Types)
 
 local ChopMeter = {}
@@ -85,6 +86,7 @@ end
 function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local trove = Trove.new()
 	local openTrove = Trove.new()
+	ViewportScale.Bind(gui, trove)
 	local chopController = context.Controllers.ChopController
 
 	local fill = findFrame(gui, "Fill")

@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
@@ -64,6 +65,7 @@ end
 function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local player = Players.LocalPlayer
 	local trove = Trove.new()
+	ViewportScale.Bind(gui, trove)
 	local rows: { Row } = {}
 
 	local list = findList(gui, "List")

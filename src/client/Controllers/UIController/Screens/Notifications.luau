@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
+local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
@@ -30,6 +31,7 @@ end
 
 function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local trove = Trove.new()
+	ViewportScale.Bind(gui, trove)
 	local container = findChild(gui, "Container", "Frame")
 	local template = findChild(gui, "Template", "Frame")
 	local controller = context.Controllers.NotificationController
