@@ -25,7 +25,7 @@ Chop a Rock
 
 1 DETAILED Paragraph Description of Game:
 (Revised 2026-09-26 to reflect the two-axis progression change — see Decision Log.)
-Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up a karate chop and shattering a giant rock in a single hit. Players approach a boulder — a scaled cube part that grows through color and material tiers (gray → mossy → obsidian → glowing → crystalline → cosmic) — hold to wind up, and release as a meter passes through a power band. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are strong enough, the release timing scales the reward rather than gating it, so a sloppy release still breaks the rock for a small payout while a good one pays full and a perfect one triggers a bonus multiplier, a bigger shatter, and a louder crunch. Breaking rocks earns money and can drop gems. Progression runs on two axes: STRENGTH, raised by buying strict arm upgrades with money, which unlocks heavier rocks further out; and LUCK, raised by placing collected gems on pedestals at the player's base, which improves the rarity of future drops. Bigger rocks drop rarer gems, gems at the base also earn money while offline, and money buys more pedestal slots. Rebirthing resets strength and level to one and unlocks a new base floor. An index tracks every kind of rock broken and every gem found. Impact gets all the polish: screen shake, a slow-mo frame before contact, a giant damage number, and pre-fractured debris, with the player character held at fixed size so the boulder visibly dwarfs them. NPC crowds cheer and server-wide announcements fire on milestone breaks, because being seen being strong is half the fantasy. Icon-driven UI, huge buttons, minimal reading, monetized through gamepasses rather than randomized eggs.
+Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up karate chops that whittle down a giant rock's health bar until it shatters (revised 2026-09-30: multi-chop rocks, see Decision Log). Players approach a boulder — a scaled cube part that grows through color and material tiers (gray → mossy → obsidian → glowing → crystalline → cosmic) — hold to wind up, and release as a meter passes through a power band. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are strong enough, the release timing scales the reward rather than gating it, so a sloppy release still breaks the rock for a small payout while a good one pays full and a perfect one triggers a bonus multiplier, a bigger shatter, and a louder crunch. Breaking rocks earns money and can drop gems. Progression runs on two axes: STRENGTH, raised by buying strict arm upgrades with money, which unlocks heavier rocks further out; and LUCK, raised by placing collected gems on pedestals at the player's base, which improves the rarity of future drops. Bigger rocks drop rarer gems, gems at the base also earn money while offline, and money buys more pedestal slots. Rebirthing resets strength and level to one and unlocks a new base floor. An index tracks every kind of rock broken and every gem found. Impact gets all the polish: screen shake, a slow-mo frame before contact, a giant damage number, and pre-fractured debris, with the player character held at fixed size so the boulder visibly dwarfs them. NPC crowds cheer and server-wide announcements fire on milestone breaks, because being seen being strong is half the fantasy. Icon-driven UI, huge buttons, minimal reading, monetized through gamepasses rather than randomized eggs.
 
 Game Type:
 Simulator / RNG
@@ -70,9 +70,12 @@ Specific Elements NOT To Copy:
 Step #1: Train to build strength (idle allowed).
 Step #2: Walk to a boulder.
 Step #3: Hold to wind up the chop; release as the meter passes through the power band.
-Step #4: If too weak → the rock cracks, no reward.
-Step #5: If strong enough → the rock shatters. Timing sets payout:
-         sloppy = small payout, good = full payout, perfect = bonus multiplier + bigger shatter + louder crunch.
+Step #4: If too weak → the rock cracks, no reward, session ends.
+Step #5: If strong enough → each chop deals damage to the rock's health bar and pays its share of the rock's payout.
+         The player stays in the chop stance; the meter resets with a new band position for the next chop,
+         until the rock breaks or the player leaves. Timing sets damage and payout:
+         sloppy = small, good = full, perfect = bonus multiplier. The breaking chop gets the full shatter for its quality
+         (perfect = bigger shatter + louder crunch).
 Step #6: Earn money. Chance to drop a gem.
 Step #7: Spend money on the next arm upgrade (strict upgrade → more strength per training action).
 Step #8: Place gems on base pedestals (more luck → rarer future drops; gems also earn money offline).
@@ -82,7 +85,17 @@ Step #11: Repeat.
 
 Loop details:
 - Rock respawn: instant after breaking.
-- One chop (approach, wind-up, impact) takes about 5 seconds (~12 chops per minute).
+- One chop (wind-up, impact) takes about 2 seconds; one rock takes several chops, fewer the stronger the player is.
+- Rock health: MaxHealth = StrengthRequired × HitsAtMinStrength. Damage per chop = Strength × quality damage multiplier.
+  The health bar is mostly an indicator of player strength: a player far above the requirement one-shots the rock.
+  [PLAYTEST] HitsAtMinStrength (draft 4), damage multipliers (draft Bad 0.4 / Mid 0.7 / Good 1 / Great 1.3 / Perfect 1.75).
+- Payout per chop = BasePayout × quality payout multiplier × (damage dealt ÷ MaxHealth), capped at remaining health.
+  BasePayout is per whole rock and was raised by HitsAtMinStrength so money per minute holds. [PLAYTEST]
+- Health is per player, per session; it resets when the player leaves the rock.
+- Moving power band: every chop, the server picks a random band center in [0.2, 0.8]. Bands nest around the center,
+  shifting inward rather than clipping at the bar's ends. The meter shows the full band layout faintly behind the fill.
+  Because a centered band is crossed twice per cycle (two half-length windows instead of one), all non-Bad bands are
+  widened by a zone width multiplier. [PLAYTEST] center range, multiplier (draft 1.5).
 - Players move on when they have earned enough to do what's required to try the next rock.
 - Players need a periodic indication of what to do next.
 
@@ -576,3 +589,13 @@ DECISION LOG
   - Knock-on effects to resolve once the collection form is chosen: the LUCK axis (was gem-based), base pedestals, offline gem income, and the rock/gem index all assumed gem drops from rocks.
   - Arm visuals: different textures plus effects applied over the player's base arms (no separate accessory models).
   - Next-goal bar (strength toward the next rock's requirement) built in the HUD.
+2026-09-30 — Chop minigame was too short; rocks now take multiple chops:
+  - Rocks have health bars (boss-style bar at top of screen, bar only). Health mostly signals player strength (§02).
+  - Multiple chops per rock in one session; the player stays in stance until the rock breaks or they leave (Leave button / Q / gamepad B).
+  - Power band moves every chop: random center in [0.2, 0.8], same relative band order, bands widened by a
+    configurable multiplier to offset the harder split windows. A cheese hit at an easy position is accepted.
+  - Payouts raised (BasePayout × HitsAtMinStrength) and split per chop by damage dealt.
+  - Collection form chosen: PET ROCKS (RNG collectible). Not being built yet; replaces "gems" in the collection/luck/base
+    plans once designed. Details [TBD].
+  - Known issue, out of scope for now: the code shares one rock per tier across the server (prompt locked while one player
+    chops), which conflicts with §06 "rocks are per-player" and gets worse with longer sessions.

@@ -2,7 +2,8 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local TweenService = game:GetService("TweenService")
+local ChopZones = require(ReplicatedStorage.ChopZones)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -11,7 +12,7 @@ local Types = require(script.Parent.Parent.Types)
 
 local ChopMeter = {}
 
-local MIN_LEVEL = 0.001
+local HEALTH_TWEEN_SECONDS = 0.2
 
 local function findFrame(root: Instance, name: string): Frame?
 	local found = root:FindFirstChild(name, true)
@@ -35,48 +36,49 @@ local function qualityColor(quality: number): Color3
 	return ChopStyleConfig.Qualities[quality].Color
 end
 
-local function sampleSequence(sequence: ColorSequence, t: number): Color3
-	local keypoints = sequence.Keypoints
-	local clamped = math.clamp(t, 0, 1)
-	for index = 1, #keypoints - 1 do
-		local first = keypoints[index]
-		local second = keypoints[index + 1]
-		if clamped <= second.Time then
-			local span = second.Time - first.Time
-			local alpha = if span > 0 then (clamped - first.Time) / span else 0
-			return first.Value:Lerp(second.Value, alpha)
+type Stop = { Level: number, Color: Color3 }
+
+local MIN_PIECE = 0.0001
+
+local function buildRamp(center: number): ColorSequence
+	local bands = ChopZones.Bands(center)
+	local stops: { Stop } = {}
+	local function addPiece(low: number, high: number, quality: number)
+		if high - low > MIN_PIECE then
+			table.insert(stops, { Level = (low + high) / 2, Color = qualityColor(quality) })
 		end
 	end
-	return keypoints[#keypoints].Value
-end
-
-local function buildRamp(): ColorSequence
-	local stops = {
-		{ Level = 0, Color = qualityColor(ChopQuality.Bad) },
-		{ Level = ChopConfig.MidThreshold / 2, Color = qualityColor(ChopQuality.Bad) },
-		{
-			Level = (ChopConfig.MidThreshold + ChopConfig.GoodThreshold) / 2,
-			Color = qualityColor(ChopQuality.Mid),
-		},
-		{
-			Level = (ChopConfig.GoodThreshold + ChopConfig.GreatThreshold) / 2,
-			Color = qualityColor(ChopQuality.Good),
-		},
-		{
-			Level = (ChopConfig.GreatThreshold + ChopConfig.PerfectThreshold) / 2,
-			Color = qualityColor(ChopQuality.Great),
-		},
-		{
-			Level = (ChopConfig.PerfectThreshold + 1) / 2,
-			Color = qualityColor(ChopQuality.Perfect),
-		},
-		{ Level = 1, Color = qualityColor(ChopQuality.Perfect) },
-	}
+	for index, band in bands do
+		local inner = bands[index - 1]
+		if inner then
+			addPiece(band.Low, inner.Low, band.Quality)
+			addPiece(inner.High, band.High, band.Quality)
+		else
+			addPiece(band.Low, band.High, band.Quality)
+		end
+	end
+	local outer = bands[#bands]
+	addPiece(0, outer.Low, ChopQuality.Bad)
+	addPiece(outer.High, 1, ChopQuality.Bad)
+	table.sort(stops, function(first: Stop, second: Stop)
+		return first.Level < second.Level
+	end)
+	local spaced: { Stop } = {}
+	for _, stop in stops do
+		local previous = spaced[#spaced]
+		if not previous or stop.Level - previous.Level > MIN_PIECE then
+			table.insert(spaced, stop)
+		end
+	end
 	local keypoints: { ColorSequenceKeypoint } = {}
-	for index = #stops, 1, -1 do
-		local stop = stops[index]
+	local last = spaced[#spaced]
+	table.insert(keypoints, ColorSequenceKeypoint.new(0, last.Color))
+	for index = #spaced, 1, -1 do
+		local stop = spaced[index]
 		table.insert(keypoints, ColorSequenceKeypoint.new(1 - stop.Level, stop.Color))
 	end
+	local first = spaced[1]
+	table.insert(keypoints, ColorSequenceKeypoint.new(1, first.Color))
 	return ColorSequence.new(keypoints)
 end
 
@@ -101,42 +103,67 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		else ColorSequence.new(Color3.new(1, 1, 1))
 	local rainbowRotation = if resultGradient then resultGradient.Rotation else 0
 
-	local rampColor = buildRamp()
-	local crackColor = ColorSequence.new(qualityColor(ChopQuality.Crack))
-
-	local activeRamp = rampColor
-
-	local function applyRamp(canBreak: boolean)
-		activeRamp = if canBreak then rampColor else crackColor
+	local cursor = findFrame(gui, "Cursor")
+	local healthBar = findFrame(gui, "HealthBar")
+	local healthFillInstance = if healthBar then healthBar:FindFirstChild("HealthFill") else nil
+	local healthFill: Frame? = if healthFillInstance and healthFillInstance:IsA("Frame")
+		then healthFillInstance
+		else nil
+	if healthBar and not healthFill then
+		warn(`[ChopMeter] Missing Frame "HealthFill" in {healthBar:GetFullName()}`)
+	end
+	local leaveInstance = gui:FindFirstChild("LeaveButton", true)
+	local leaveButton: GuiButton? = if leaveInstance and leaveInstance:IsA("GuiButton")
+		then leaveInstance
+		else nil
+	if not leaveButton then
+		warn(`[ChopMeter] Missing GuiButton "LeaveButton" in {gui:GetFullName()}`)
 	end
 
-	local function updateRamp(level: number)
-		if not rampGradient then
+	local crackColor = ColorSequence.new(qualityColor(ChopQuality.Crack))
+	local activeRamp = crackColor
+	local activeCanBreak = true
+	local healthTween: Tween? = nil
+
+	local function applyRamp()
+		activeCanBreak = if chopController then chopController:CanBreakRock() else true
+		activeRamp = if activeCanBreak
+			then buildRamp(if chopController then chopController:GetZoneCenter() else 0.5)
+			else crackColor
+		if fill then
+			fill.Size = UDim2.new(1, 0, 1, 0)
+			fill.Visible = true
+		end
+		if rampGradient then
+			rampGradient.Color = activeRamp
+		end
+	end
+
+	local function setHealth(health: number, maxHealth: number, animate: boolean)
+		if not healthFill then
 			return
 		end
-		local keypoints: { ColorSequenceKeypoint } = {
-			ColorSequenceKeypoint.new(0, sampleSequence(activeRamp, 1 - level)),
-		}
-		for _, keypoint in activeRamp.Keypoints do
-			local position = 1 - (1 - keypoint.Time) / level
-			if position > 0.001 and position < 0.999 then
-				table.insert(keypoints, ColorSequenceKeypoint.new(position, keypoint.Value))
-			end
+		if healthTween then
+			healthTween:Cancel()
+			healthTween = nil
 		end
-		table.insert(keypoints, ColorSequenceKeypoint.new(1, sampleSequence(activeRamp, 1)))
-		rampGradient.Color = ColorSequence.new(keypoints)
+		local ratio = if maxHealth > 0 then math.clamp(health / maxHealth, 0, 1) else 0
+		local size = UDim2.new(ratio, 0, 1, 0)
+		if animate then
+			local tween =
+				TweenService:Create(healthFill, TweenInfo.new(HEALTH_TWEEN_SECONDS), { Size = size })
+			healthTween = tween
+			tween:Play()
+		else
+			healthFill.Size = size
+		end
 	end
 
 	local function setLevel(level: number)
-		if not fill then
+		if not cursor then
 			return
 		end
-		local clamped = math.clamp(level, 0, 1)
-		fill.Size = UDim2.new(1, 0, clamped, 0)
-		fill.Visible = clamped > MIN_LEVEL
-		if fill.Visible then
-			updateRamp(clamped)
-		end
+		cursor.Position = UDim2.new(0.5, 0, 1 - math.clamp(level, 0, 1), 0)
 	end
 
 	local function resetResult()
@@ -171,6 +198,19 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	if chopController then
 		trove:Add(chopController.ResultShown:Connect(showResult))
+		trove:Add(chopController.HealthChanged:Connect(function(health: number, maxHealth: number)
+			setHealth(health, maxHealth, true)
+		end))
+		trove:Add(chopController.RoundStarted:Connect(function()
+			applyRamp()
+			resetResult()
+			setLevel(0)
+		end))
+		if leaveButton then
+			trove:Add(leaveButton.Activated:Connect(function()
+				chopController:Leave()
+			end))
+		end
 	else
 		warn("[ChopMeter] ChopController is not registered; the meter will not animate")
 	end
@@ -180,10 +220,11 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		StartsOpen = false,
 		Open = function(_self: Types.Screen)
 			gui.Enabled = true
+			applyRamp()
 			resetResult()
 			setLevel(0)
-			applyRamp(if chopController then chopController:CanBreakRock() else true)
 			if chopController then
+				setHealth(chopController:GetHealth(), chopController:GetMaxHealth(), false)
 				openTrove:Add(RunService.RenderStepped:Connect(function()
 					setLevel(chopController:GetCursorPosition())
 				end))

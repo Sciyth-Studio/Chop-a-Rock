@@ -9,6 +9,7 @@ local TweenService = game:GetService("TweenService")
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local ChopZones = require(ReplicatedStorage.ChopZones)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -17,6 +18,7 @@ local Trove = require(ReplicatedStorage.Packages.Trove)
 type TroveInstance = typeof(Trove.new())
 
 local RELEASE_ACTION = "ChopRelease"
+local LEAVE_ACTION = "ChopLeave"
 local METER_SCREEN = "ChopMeter"
 local RESULT_DISPLAY_SECONDS = 0.7
 
@@ -37,12 +39,10 @@ local function qualityShakeIntensity(quality: number): number
 	return ChopConfig.BadShakeIntensity
 end
 
-local function computePosition(elapsed: number): number
-	local phase = (elapsed / ChopConfig.CycleSeconds) % 1
-	return 1 - math.abs(2 * phase - 1)
-end
-
 local uiController: any = nil
+local zoneCenter = 0.5
+local currentHealth = 0
+local currentMaxHealth = 0
 local minigameActive = false
 local activeTrove: TroveInstance? = nil
 local frozenPosition: number? = nil
@@ -87,6 +87,7 @@ local function endMinigame()
 	end
 	minigameActive = false
 	ContextActionService:UnbindAction(RELEASE_ACTION)
+	ContextActionService:UnbindAction(LEAVE_ACTION)
 	if activeTrove then
 		activeTrove:Destroy()
 		activeTrove = nil
@@ -98,13 +99,42 @@ local function endMinigame()
 	end
 end
 
-local function beginMinigame(rock: BasePart, canBreak: boolean)
+local function bindRelease()
+	ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
+		if inputState == Enum.UserInputState.Begin then
+			frozenPosition = ChopZones.Position(os.clock() - minigameStartTime)
+			Packets.ChopRelease:Fire()
+			ContextActionService:UnbindAction(RELEASE_ACTION)
+			return Enum.ContextActionResult.Sink
+		end
+		return Enum.ContextActionResult.Pass
+	end, false, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
+end
+
+local function leaveMinigame()
+	if not minigameActive then
+		return
+	end
+	Packets.ChopLeave:Fire()
+	endMinigame()
+end
+
+local function beginMinigame(
+	rock: BasePart,
+	canBreak: boolean,
+	center: number,
+	health: number,
+	maxHealth: number
+)
 	if minigameActive then
 		return
 	end
 	minigameActive = true
 	frozenPosition = nil
 	activeCanBreak = canBreak
+	zoneCenter = center
+	currentHealth = health
+	currentMaxHealth = maxHealth
 
 	local trove = Trove.new()
 	activeTrove = trove
@@ -173,22 +203,39 @@ local function beginMinigame(rock: BasePart, canBreak: boolean)
 		uiController:Close(METER_SCREEN)
 	end)
 
-	ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
+	bindRelease()
+	ContextActionService:BindAction(LEAVE_ACTION, function(_actionName, inputState)
 		if inputState == Enum.UserInputState.Begin then
-			frozenPosition = computePosition(os.clock() - minigameStartTime)
-			Packets.ChopRelease:Fire()
-			ContextActionService:UnbindAction(RELEASE_ACTION)
+			leaveMinigame()
 			return Enum.ContextActionResult.Sink
 		end
 		return Enum.ContextActionResult.Pass
-	end, false, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
+	end, false, Enum.KeyCode.Q, Enum.KeyCode.ButtonB)
 end
 
 local ChopController = {
 	Name = "ChopController",
 	_trove = nil :: TroveInstance?,
 	ResultShown = nil :: any,
+	HealthChanged = nil :: any,
+	RoundStarted = nil :: any,
 }
+
+function ChopController.GetZoneCenter(_self: any): number
+	return zoneCenter
+end
+
+function ChopController.GetHealth(_self: any): number
+	return currentHealth
+end
+
+function ChopController.GetMaxHealth(_self: any): number
+	return currentMaxHealth
+end
+
+function ChopController.Leave(_self: any)
+	leaveMinigame()
+end
 
 function ChopController.IsMinigameActive(_self: any): boolean
 	return minigameActive
@@ -206,52 +253,76 @@ function ChopController.GetCursorPosition(_self: any): number
 	if not minigameActive then
 		return 0
 	end
-	return frozenPosition or computePosition(os.clock() - minigameStartTime)
+	return frozenPosition or ChopZones.Position(os.clock() - minigameStartTime)
 end
 
 function ChopController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
 	self.ResultShown = Signal.new()
+	self.HealthChanged = Signal.new()
+	self.RoundStarted = Signal.new()
 	uiController = controllers.UIController
 end
 
 function ChopController.Start(self: any)
 	local trove = self._trove :: TroveInstance
-	trove:Add(Packets.ChopMinigameStart.OnClientEvent:Connect(function(rock: Instance, canBreak: boolean)
-		if rock:IsA("BasePart") then
-			beginMinigame(rock, canBreak)
-		end
-	end))
-	trove:Add(Packets.ChopResult.OnClientEvent:Connect(function(quality: number, payout: number)
-		print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
-		task.wait(ChopConfig.SlowMoPreImpactSeconds)
+	trove:Add(
+		Packets.ChopMinigameStart.OnClientEvent:Connect(
+			function(rock: Instance, canBreak: boolean, center: number, health: number, maxHealth: number)
+				if rock:IsA("BasePart") then
+					beginMinigame(rock, canBreak, center, health, maxHealth)
+				end
+			end
+		)
+	)
+	trove:Add(Packets.ChopRoundStart.OnClientEvent:Connect(function(center: number)
 		if not minigameActive then
 			return
 		end
-		self.ResultShown:Fire(quality)
-		if quality == ChopQuality.Perfect then
-			flashScreen()
-		end
-		local camera = workspace.CurrentCamera
-		if camera and camera.CameraType == Enum.CameraType.Scriptable then
-			shakeCamera(
-				camera,
-				camera.CFrame,
-				qualityShakeIntensity(quality),
-				if quality == ChopQuality.Perfect
-					then ChopConfig.PerfectShakeDurationSeconds
-					else ChopConfig.ShakeDurationSeconds
-			)
-		end
-		if payout > 0 then
-			task.delay(ChopConfig.MoneyEffectDelaySeconds, function()
-				LocalSound.Play("SFX_Money_Gain")
-			end)
-		end
-		task.delay(RESULT_DISPLAY_SECONDS, function()
-			endMinigame()
-		end)
+		zoneCenter = center
+		frozenPosition = nil
+		minigameStartTime = os.clock()
+		bindRelease()
+		self.RoundStarted:Fire()
 	end))
+	trove:Add(
+		Packets.ChopResult.OnClientEvent:Connect(
+			function(quality: number, payout: number, _damage: number, health: number)
+				print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
+				task.wait(ChopConfig.SlowMoPreImpactSeconds)
+				if not minigameActive then
+					return
+				end
+				self.ResultShown:Fire(quality)
+				currentHealth = math.max(health, 0)
+				self.HealthChanged:Fire(currentHealth, currentMaxHealth)
+				if quality == ChopQuality.Perfect then
+					flashScreen()
+				end
+				local camera = workspace.CurrentCamera
+				if camera and camera.CameraType == Enum.CameraType.Scriptable then
+					shakeCamera(
+						camera,
+						camera.CFrame,
+						qualityShakeIntensity(quality),
+						if quality == ChopQuality.Perfect
+							then ChopConfig.PerfectShakeDurationSeconds
+							else ChopConfig.ShakeDurationSeconds
+					)
+				end
+				if payout > 0 then
+					task.delay(ChopConfig.MoneyEffectDelaySeconds, function()
+						LocalSound.Play("SFX_Money_Gain")
+					end)
+				end
+				if quality == ChopQuality.Crack or health <= 1e-6 then
+					task.delay(RESULT_DISPLAY_SECONDS, function()
+						endMinigame()
+					end)
+				end
+			end
+		)
+	)
 end
 
 function ChopController.Destroy(self: any)
@@ -263,6 +334,14 @@ function ChopController.Destroy(self: any)
 	if self.ResultShown then
 		self.ResultShown:Destroy()
 		self.ResultShown = nil
+	end
+	if self.HealthChanged then
+		self.HealthChanged:Destroy()
+		self.HealthChanged = nil
+	end
+	if self.RoundStarted then
+		self.RoundStarted:Destroy()
+		self.RoundStarted = nil
 	end
 end
 
