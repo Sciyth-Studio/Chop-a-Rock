@@ -54,7 +54,7 @@ function MusicController.Start(self: any)
 		local index = pickTrack(lastIndex)
 		lastIndex = index
 		sound.Volume = 0
-		sound.SoundId = MusicConfig.Tracks[index]
+		sound.SoundId = `rbxassetid://{MusicConfig.Tracks[index]}`
 		sound:Play()
 		TweenService:Create(sound, TweenInfo.new(MusicConfig.FadeInSeconds), { Volume = MusicConfig.Volume })
 			:Play()

@@ -1,7 +1,7 @@
 --!strict
 
 export type MusicSettings = {
-	Tracks: { string },
+	Tracks: { number },
 	Volume: number,
 	FadeInSeconds: number,
 	LoadTimeoutSeconds: number,
