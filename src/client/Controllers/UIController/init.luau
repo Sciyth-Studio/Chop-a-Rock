@@ -8,6 +8,7 @@ local Types = require(script.Types)
 
 local modules: { [string]: Types.ScreenModule } = {
 	Hud = require(script.Screens.Hud),
+	MenuButtons = require(script.Screens.MenuButtons),
 	ChopMeter = require(script.Screens.ChopMeter),
 	TrainingHint = require(script.Screens.TrainingHint),
 	Shop = require(script.Screens.Shop),

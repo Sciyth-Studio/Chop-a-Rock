@@ -100,7 +100,7 @@ Loop details:
 - Players move on when they have earned enough to do what's required to try the next rock.
 - Players need a periodic indication of what to do next.
 
-[PROPOSED] Next-goal bar: a persistent bar showing "your strength → next rock's requirement," plus an arrow/pulse when it fills.
+[DECIDED] No next-goal bar. Cut by the user.
 [PROPOSED] ~0.5s reform animation on respawn instead of a true instant pop, so the break has a beat to land.
 (Resolved: arms are now strict upgrades bought with money, so money converts predictably into strength. Pity system no longer needed.)
 
@@ -451,7 +451,7 @@ ANIMATION DIRECTION:
 OTHER:
 
 Carried-over questions:
-[OPEN] Show required strength before the player swings (lock icon / red-green indicator), so failures are a choice, not a surprise.
+[DECIDED] Required strength is shown before the player swings by the text above each rock showing the force required. Already in game; no separate indicator.
 [OPEN] Big-number display (e.g., 1.2Qa) readable by young kids.
 
 ================================
