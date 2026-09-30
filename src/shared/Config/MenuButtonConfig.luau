@@ -16,6 +16,7 @@ local MenuButtonConfig: MenuButtonSettings = {
 	ClickButtonName = "Button",
 	Buttons = {
 		{ Name = "Shop", Screen = "Shop" },
+		{ Name = "Bag", Screen = "Bag" },
 		{ Name = "Rebirth", Screen = "Rebirth" },
 	},
 }
