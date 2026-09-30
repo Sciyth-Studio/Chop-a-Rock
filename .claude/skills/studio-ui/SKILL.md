@@ -33,3 +33,10 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 - Backgrounds behind HUD text are black gradients that fade out toward the end of the number.
 - The chop meter is an empty rounded bar whose fill uses a gradient anchored to the bar and fills through the five quality colors; Perfect result text keeps its rainbow.
 - Notifications are black gradient bars with `Chrome`-style text; kinds and timings are in `NotificationConfig`.
+
+## Menu buttons
+
+- Menu buttons live in `StarterGui.MenuButtons.Container`, a vertical list at left-center. The hidden frame `MenuButtonTemplate` holds the style: duplicate it, rename it `<Name>Button`, set `Visible = true` and a `LayoutOrder`, and add `{ Name, Screen }` to `MenuButtonConfig.Buttons`. `MenuButtons.luau` wires the click to `UIController`.
+- Style: 96x96 square, no corners or border, black background with a horizontal `UIGradient` (transparency 0.3 at both edges, 0.6 in the center). The icon is a 78px `ImageLabel` named `Icon`, centered in the upper part and allowed to overflow the box, with a black copy named `IconShadow` behind it (82px, offset 4px right and 6px down from the icon center, 40% transparent). Set the same `Image` on both.
+- The label is bottom-anchored, non-italic, `Chrome` text style (attribute `TextStyle`, gradient and grey stroke). The invisible `TextButton` named `Button` covers the frame and receives the click.
+- Icon asset ids live in `IconConfig`.
