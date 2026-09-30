@@ -1,7 +1,6 @@
 --!strict
 
 local Players = game:GetService("Players")
-local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ChopPoseConfig = require(ReplicatedStorage.Config.ChopPoseConfig)
@@ -25,7 +24,6 @@ type Rig = {
 	LeftAnkle: Joint,
 }
 
-local ROCK_ATTRIBUTE = "RockKey"
 local JOINT_PATHS: { { Field: string, Part: string, Joint: string } } = {
 	{ Field = "RightShoulder", Part = "RightUpperArm", Joint = "RightShoulder" },
 	{ Field = "RightElbow", Part = "RightLowerArm", Joint = "RightElbow" },
@@ -47,7 +45,6 @@ local ChopAnimationController = {
 
 local chopController: any = nil
 local rig: Rig? = nil
-local isHolding = false
 local stance = 0
 local crouchBoost = 1
 local armAngle = 0
@@ -89,9 +86,6 @@ local function targets(): (number, number, number, number, number)
 		local level = math.clamp(chopController:GetCursorPosition(), 0, 1)
 		local peak = math.rad(ChopPoseConfig.RightArmPeakDegrees)
 		return wait + (peak - wait) * level, waistStance, 1, 1, ChopPoseConfig.ArmFollowRate
-	end
-	if isHolding then
-		return wait, waistStance, 1, 1, ChopPoseConfig.ArmFollowRate
 	end
 	return 0, 0, 0, 1, ChopPoseConfig.RecoverRate
 end
@@ -167,7 +161,6 @@ local function step(dt: number)
 end
 
 local function onCharacter(character: Model)
-	isHolding = false
 	isHipHeightApplied = false
 	stance = 0
 	crouchBoost = 1
@@ -182,11 +175,6 @@ local function onCharacter(character: Model)
 	end)
 end
 
-local function isRockPrompt(prompt: ProximityPrompt): boolean
-	local parent = prompt.Parent
-	return parent ~= nil and parent:GetAttribute(ROCK_ATTRIBUTE) ~= nil
-end
-
 function ChopAnimationController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
 	chopController = controllers.ChopController
@@ -199,21 +187,6 @@ function ChopAnimationController.Start(self: any)
 	if player.Character then
 		onCharacter(player.Character)
 	end
-	trove:Connect(ProximityPromptService.PromptButtonHoldBegan, function(prompt: ProximityPrompt)
-		if isRockPrompt(prompt) then
-			isHolding = true
-		end
-	end)
-	trove:Connect(ProximityPromptService.PromptButtonHoldEnded, function(prompt: ProximityPrompt)
-		if isRockPrompt(prompt) then
-			isHolding = false
-		end
-	end)
-	trove:Connect(ProximityPromptService.PromptHidden, function(prompt: ProximityPrompt)
-		if isRockPrompt(prompt) then
-			isHolding = false
-		end
-	end)
 	trove:Connect(RunService.PreSimulation, step)
 	trove:Add(function()
 		local current = rig

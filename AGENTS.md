@@ -368,3 +368,14 @@ Promise, Symbol and Signal also arrive as dependencies of Component and WaitFor.
 - Prompt purchases from the client with `MarketplaceService:PromptProductPurchase(player, productId)`; never grant from a client request.
 - Game passes are not receipts: check ownership with `MarketplaceService:UserOwnsGamePassAsync` on the server (and on `PromptGamePassPurchaseFinished`), not in `Products`.
 - The last 100 receipt IDs are kept per player.
+
+## Project rules (Chop a Rock)
+
+- Before committing, run `./scripts/check.ps1` and fix everything it reports. Commit only when the user asks. End every commit message with the co-author line the session provides.
+- `origin` is the boilerplate repository, not this game's repository. Never push to it. Ask the user for their own remote before any push.
+- Player-facing changes (prices, rates, thresholds, visuals, wording) are proposed to the user before they are committed as final; drafted numbers are flagged as drafts.
+- UI text follows the `studio-ui` skill: colored stroke and gradient text by default, named styles from `TextStyleConfig`, black or white only when the user explicitly asks.
+- Studio edits (UI, rocks, assets) are not in git. Stop Play before editing Studio, wait for Rojo to sync before playing, and remind the user to save the place file.
+- Verify changes with a playtest following the `studio-playtest` skill, and report what was checked by value versus seen on screen.
+- Rocks are parts in `Workspace.Rocks` tagged `ChopRock` with a `RockKey` attribute matching an entry in `RockConfig`. The config holds gameplay values; position, size and color come from the part.
+- Tunable constants go in `src/shared/Config`; add a config entry instead of hardcoding a number.
