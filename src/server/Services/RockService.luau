@@ -126,11 +126,16 @@ local function breakRockWithDebris(rock: RockState, chunkCount: number)
 
 	local chunks: { BasePart } = {}
 	local scale = ChopConfig.ChunkSpawnVelocityScale
-	for _ = 1, chunkCount do
+	local sizeScale = math.max(1, part.Size.X / ChopConfig.ReferenceRockSize)
+	local scaledCount = math.floor(chunkCount * sizeScale + 0.5)
+	for _ = 1, scaledCount do
 		local chunk = Instance.new("Part")
 		chunk.Name = "Rock_Chunk"
-		chunk.Size =
-			Vector3.new(0.7 + math.random() * 0.8, 0.7 + math.random() * 0.8, 0.7 + math.random() * 0.8)
+		chunk.Size = Vector3.new(
+			0.7 + math.random() * 0.8,
+			0.7 + math.random() * 0.8,
+			0.7 + math.random() * 0.8
+		) * sizeScale
 		chunk.Position = basePos
 			+ Vector3.new(
 				(math.random() * 2 - 1) * halfSize.X * 0.5,
@@ -206,30 +211,49 @@ local function splitRock(rock: RockState)
 	end)
 end
 
+local function findAuthoredRock(key: string): BasePart?
+	for _, tagged in CollectionService:GetTagged(ROCK_TAG) do
+		if
+			tagged:IsA("BasePart")
+			and tagged:GetAttribute("RockKey") == key
+			and tagged:IsDescendantOf(workspace)
+		then
+			return tagged
+		end
+	end
+	return nil
+end
+
 local function spawnRock(key: string, config: RockConfig.Rock): RockState
-	local part = Instance.new("Part")
-	part.Name = `Rock_{key}`
-	part.Size = config.PlaceholderSize
-	part.Position = config.PlaceholderPosition
-	part.Anchored = true
-	part.CanCollide = true
-	part.Color = config.PlaceholderColor
-	part.Material = Enum.Material.Slate
-	part.Parent = workspace
-	trove:Add(part)
-	CollectionService:AddTag(part, ROCK_TAG)
-	part:SetAttribute("RockKey", key)
+	local part = findAuthoredRock(key)
+	if not part then
+		local created = Instance.new("Part")
+		created.Name = `Rock_{key}`
+		created.Size = config.PlaceholderSize
+		created.Position = config.PlaceholderPosition
+		created.Color = config.PlaceholderColor
+		created.Material = Enum.Material.Slate
+		created.Parent = workspace
+		trove:Add(created)
+		CollectionService:AddTag(created, ROCK_TAG)
+		created:SetAttribute("RockKey", key)
+		part = created
+	end
+	local rockPart = part :: BasePart
+	rockPart.Anchored = true
+	rockPart.CanCollide = true
 
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = "Chop"
 	prompt.ObjectText = config.DisplayName
 	prompt.HoldDuration = ChopConfig.PromptHoldSeconds
 	prompt.Style = Enum.ProximityPromptStyle.Custom
-	prompt.MaxActivationDistance = ChopConfig.PromptRangeStuds + config.PlaceholderSize.X / 2
+	prompt.MaxActivationDistance = ChopConfig.PromptRangeStuds + rockPart.Size.X / 2
 	prompt.RequiresLineOfSight = false
-	prompt.Parent = part
+	prompt.Parent = rockPart
+	trove:Add(prompt)
 
-	return { Key = key, Config = config, Part = part, Prompt = prompt }
+	return { Key = key, Config = config, Part = rockPart, Prompt = prompt }
 end
 
 local function onTriggered(rock: RockState, player: Player)

@@ -13,6 +13,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.NotificationController),
 	require(script.Parent.Controllers.DevController),
 	require(script.Parent.Controllers.PromptController),
+	require(script.Parent.Controllers.MusicController),
 }
 
 return controllers

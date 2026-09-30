@@ -12,6 +12,10 @@ local Types = require(script.Parent.Parent.Types)
 local COLOR_AFFORDABLE = Color3.fromRGB(0, 255, 0)
 local COLOR_UNAFFORDABLE = Color3.fromRGB(255, 0, 0)
 local COLOR_INACTIVE = Color3.fromRGB(150, 150, 150)
+local STROKE_AFFORDABLE = Color3.fromRGB(0, 90, 20)
+local STROKE_UNAFFORDABLE = Color3.fromRGB(110, 0, 0)
+local STROKE_INACTIVE = Color3.fromRGB(60, 60, 60)
+local TEXT_STROKE_NAME = "TextStroke"
 
 local Shop = {}
 
@@ -75,21 +79,31 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		return if type(value) == "number" then value else fallback
 	end
 
+	local function paint(button: TextButton, color: Color3, strokeColor: Color3)
+		button.BackgroundColor3 = color
+		local stroke = button:FindFirstChild(TEXT_STROKE_NAME)
+		if stroke and stroke:IsA("UIStroke") then
+			stroke.Color = strokeColor
+		end
+	end
+
 	local function refresh()
 		local ownedTier = readNumber("ArmTier", 1)
 		local cash = readNumber("Cash", 0)
 		for _, row in rows do
 			if row.Index <= ownedTier then
 				row.Button.Text = "OWNED"
-				row.Button.BackgroundColor3 = COLOR_INACTIVE
+				paint(row.Button, COLOR_INACTIVE, STROKE_INACTIVE)
 			elseif row.Index == ownedTier + 1 then
 				row.Button.Text = `${NumberFormat.Commas(row.Price)}`
-				row.Button.BackgroundColor3 = if cash >= row.Price
-					then COLOR_AFFORDABLE
-					else COLOR_UNAFFORDABLE
+				if cash >= row.Price then
+					paint(row.Button, COLOR_AFFORDABLE, STROKE_AFFORDABLE)
+				else
+					paint(row.Button, COLOR_UNAFFORDABLE, STROKE_UNAFFORDABLE)
+				end
 			else
 				row.Button.Text = "LOCKED"
-				row.Button.BackgroundColor3 = COLOR_INACTIVE
+				paint(row.Button, COLOR_INACTIVE, STROKE_INACTIVE)
 			end
 		end
 	end

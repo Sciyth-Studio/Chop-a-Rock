@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
@@ -146,7 +147,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 
 	bindMoney()
 	bind("Strength", "Strength", function(value: number): string
-		return NumberFormat.Compact(value)
+		return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
 	end)
 	trackBackdrop("Strength")
 	trackBackdrop("Money")

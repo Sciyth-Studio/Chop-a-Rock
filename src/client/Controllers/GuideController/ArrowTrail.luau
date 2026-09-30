@@ -53,12 +53,17 @@ local function findRockPart(key: string): BasePart?
 	return nil
 end
 
+local function rockPosition(key: string, rock: RockConfig.Rock): Vector3
+	local part = findRockPart(key)
+	return if part then part.Position else rock.PlaceholderPosition
+end
+
 local function isNearWorseRock(position: Vector3, best: RockConfig.Rock): boolean
 	local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
-	for _, rock in rocks do
+	for key, rock in rocks do
 		if
 			rock.StrengthRequired < best.StrengthRequired
-			and flatDistance(position, rock.PlaceholderPosition) <= GuideConfig.GrindDistance
+			and flatDistance(position, rockPosition(key, rock)) <= GuideConfig.GrindDistance
 		then
 			return true
 		end
@@ -220,7 +225,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 			isGuidingRock = false
 			return nil
 		end
-		local target = best.PlaceholderPosition
+		local target = rockPosition(bestKey or "", best)
 		if isGuidingRock then
 			if flatDistance(position, target) <= GuideConfig.ArrivalDistance then
 				isGuidingRock = false

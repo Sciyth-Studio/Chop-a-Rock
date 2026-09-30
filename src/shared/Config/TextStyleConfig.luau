@@ -23,6 +23,20 @@ local TextStyleConfig: TextStyleSettings = {
 			StrokeThickness = nil,
 			GradientRotation = 90,
 		},
+		Gold = {
+			EdgeColor = Color3.fromRGB(255, 170, 0),
+			CenterColor = Color3.fromRGB(255, 245, 130),
+			StrokeColor = Color3.fromRGB(140, 70, 0),
+			StrokeThickness = nil,
+			GradientRotation = 90,
+		},
+		Sky = {
+			EdgeColor = Color3.fromRGB(0, 110, 255),
+			CenterColor = Color3.fromRGB(130, 205, 255),
+			StrokeColor = Color3.fromRGB(0, 40, 130),
+			StrokeThickness = nil,
+			GradientRotation = 90,
+		},
 	},
 }
 

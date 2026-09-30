@@ -1,6 +1,7 @@
 --!strict
 
 export type TrainingSettings = {
+	StrengthUnit: string,
 	StrengthPerChop: number,
 	ChopIntervalSeconds: number,
 	MaxLingerStuds: number,
@@ -8,6 +9,7 @@ export type TrainingSettings = {
 }
 
 local TrainingConfig: TrainingSettings = {
+	StrengthUnit = "N",
 	StrengthPerChop = 1,
 	ChopIntervalSeconds = 1.2,
 	MaxLingerStuds = 15,
