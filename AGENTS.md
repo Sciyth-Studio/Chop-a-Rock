@@ -378,4 +378,5 @@ Promise, Symbol and Signal also arrive as dependencies of Component and WaitFor.
 - Studio edits (UI, rocks, assets) are not in git. Stop Play before editing Studio, wait for Rojo to sync before playing, and remind the user to save the place file.
 - Verify changes with a playtest following the `studio-playtest` skill, and report what was checked by value versus seen on screen.
 - Rocks are parts in `Workspace.Rocks` tagged `ChopRock` with a `RockKey` attribute matching an entry in `RockConfig`. The config holds gameplay values; position, size and color come from the part.
+- A rock part may have a `SplitModel` attribute naming an `AssetRegistry` key of a Model in `Assets/Models` holding its pre-split pieces. Perfect breaks clone, scale and place it on the rock; without it they spawn box halves. Rock meshes and splits are made with the `rock-model` skill.
 - Tunable constants go in `src/shared/Config`; add a config entry instead of hardcoding a number.

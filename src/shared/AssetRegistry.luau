@@ -23,6 +23,7 @@ local map: { [string]: AssetEntry } = {
 	UI_RockLabel = { Category = "VFX", InstanceName = "RockLabel" },
 	UI_ChopPrompt = { Category = "VFX", InstanceName = "ChopPrompt" },
 	Image_GuideArrow = { Category = "Images", InstanceName = "GuideArrow" },
+	Model_RockSplit_Block = { Category = "Models", InstanceName = "Model_RockSplit_Block" },
 }
 
 local warned: { [string]: true } = {}

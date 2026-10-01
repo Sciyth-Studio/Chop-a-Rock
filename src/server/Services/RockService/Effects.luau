@@ -10,6 +10,7 @@ local Effects = {}
 
 local shakeSteps = 4
 local shakeStuds = 0.3
+local splitModelAttribute = "SplitModel"
 
 local function playSound(key: string, part: BasePart)
 	local asset = AssetRegistry.get(key)
@@ -144,15 +145,68 @@ function Effects.Hit(rock: Types.Rock, quality: number)
 	spawnChunks(rock.Part, ChopConfig.BadChunkCount, true)
 end
 
+local function spawnSplitModel(part: BasePart): Model?
+	local key = part:GetAttribute(splitModelAttribute)
+	if type(key) ~= "string" then
+		return nil
+	end
+	local asset = AssetRegistry.get(key)
+	if not asset:IsA("Model") then
+		asset:Destroy()
+		return nil
+	end
+	local model = asset :: Model
+	local boxCFrame, boxSize = model:GetBoundingBox()
+	model.WorldPivot = boxCFrame
+	model:ScaleTo(model:GetScale() * part.Size.X / boxSize.X)
+	model:PivotTo(part.CFrame)
+
+	local pieces: { BasePart } = {}
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.Anchored = false
+			descendant.CanCollide = true
+			descendant.CanQuery = false
+			descendant.Color = part.Color
+			descendant.Material = part.Material
+			table.insert(pieces, descendant)
+		end
+	end
+	model.Parent = workspace
+
+	local up = part.CFrame.UpVector
+	for _, piece in pieces do
+		local offset = piece.Position - part.Position
+		local outward = offset - up * offset:Dot(up)
+		local direction = if outward.Magnitude > 1e-3 then outward.Unit else part.CFrame.RightVector
+		piece.AssemblyLinearVelocity = direction * ChopConfig.SplitPushXStuds
+			+ up * ChopConfig.SplitPushYStuds
+		piece.AssemblyAngularVelocity = up:Cross(direction) * ChopConfig.SplitTorqueRadPerSec
+	end
+	return model
+end
+
 local function splitRock(rock: Types.Rock)
 	local part = rock.Part
+	Effects.Hide(rock)
+
+	local model = spawnSplitModel(part)
+	if model then
+		task.delay(rock.Config.RespawnSeconds, function()
+			if model.Parent then
+				model:Destroy()
+			end
+			Effects.Restore(rock)
+		end)
+		return
+	end
+
 	local basePos = part.Position
 	local originalSize = part.Size
 	local halfSize = Vector3.new(originalSize.X / 2, originalSize.Y, originalSize.Z)
 	local halfOffsetX = originalSize.X / 4
 	local color = part.Color
 	local material = part.Material
-	Effects.Hide(rock)
 
 	local halves: { BasePart } = {}
 	for _, offsetX in { -halfOffsetX, halfOffsetX } do
