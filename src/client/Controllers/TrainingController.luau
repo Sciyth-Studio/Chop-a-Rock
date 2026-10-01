@@ -11,8 +11,14 @@ local STOP_ACTION = "TrainingStop"
 local HINT_SCREEN = "TrainingHint"
 
 local uiController: any = nil
+local isTraining = false
+local hasChopped = false
+local lastChopClock = 0
 
 local function beginTraining()
+	isTraining = true
+	hasChopped = false
+	lastChopClock = os.clock()
 	uiController:Open(HINT_SCREEN)
 	ContextActionService:BindAction(STOP_ACTION, function(_actionName, inputState)
 		if inputState == Enum.UserInputState.Begin then
@@ -25,6 +31,7 @@ local function beginTraining()
 end
 
 local function endTraining()
+	isTraining = false
 	ContextActionService:UnbindAction(STOP_ACTION)
 	uiController:Close(HINT_SCREEN)
 end
@@ -33,6 +40,18 @@ local TrainingController = {
 	Name = "TrainingController",
 	_trove = nil :: TroveInstance?,
 }
+
+function TrainingController.IsTraining(_self: any): boolean
+	return isTraining
+end
+
+function TrainingController.HasChopped(_self: any): boolean
+	return hasChopped
+end
+
+function TrainingController.GetSecondsSinceChop(_self: any): number
+	return os.clock() - lastChopClock
+end
 
 function TrainingController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
@@ -43,6 +62,10 @@ function TrainingController.Start(self: any)
 	local trove = self._trove :: TroveInstance
 	trove:Add(Packets.TrainingStarted.OnClientEvent:Connect(beginTraining))
 	trove:Add(Packets.TrainingStopped.OnClientEvent:Connect(endTraining))
+	trove:Add(Packets.TrainingChop.OnClientEvent:Connect(function()
+		hasChopped = true
+		lastChopClock = os.clock()
+	end))
 end
 
 function TrainingController.Destroy(self: any)

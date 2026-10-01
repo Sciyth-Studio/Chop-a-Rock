@@ -104,7 +104,7 @@ local function startTraining(player: Player, board: BasePart)
 
 	trainings[player] = {
 		Board = board,
-		LastChopClock = 0,
+		LastChopClock = os.clock(),
 		SavedWalkSpeed = humanoid.WalkSpeed,
 		SavedJumpPower = humanoid.JumpPower,
 		SavedJumpHeight = humanoid.JumpHeight,
@@ -136,6 +136,7 @@ local function tick()
 			)
 			local newStrength = StatsService:AddStrength(player, gain)
 			playSoundOnPart("SFX_Train_Chop", training.Board)
+			Packets.TrainingChop:FireClient(player)
 			print(`[TrainingService] {player.Name} trained: strength={newStrength}`)
 		end
 	end

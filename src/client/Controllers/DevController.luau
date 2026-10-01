@@ -9,6 +9,7 @@ local Trove = require(ReplicatedStorage.Packages.Trove)
 type TroveInstance = typeof(Trove.new())
 
 local RESET_KEY = Enum.KeyCode.Backspace
+local FORCE_MASTER_KEY = Enum.KeyCode.M
 
 local DevController = {
 	Name = "DevController",
@@ -25,12 +26,15 @@ function DevController.Start(self: any)
 	end
 	local trove = self._trove :: TroveInstance
 	trove:Connect(UserInputService.InputBegan, function(input: InputObject, _processed: boolean)
-		if
-			input.KeyCode == RESET_KEY
-			and UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
+		local isChord = UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
 			and UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
-		then
+		if not isChord then
+			return
+		end
+		if input.KeyCode == RESET_KEY then
 			Packets.DevResetData:Fire()
+		elseif input.KeyCode == FORCE_MASTER_KEY then
+			Packets.DevForceMaster:Fire()
 		end
 	end)
 end

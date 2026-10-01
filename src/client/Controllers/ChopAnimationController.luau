@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ChopPoseConfig = require(ReplicatedStorage.Config.ChopPoseConfig)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
 type TroveInstance = typeof(Trove.new())
@@ -44,11 +45,13 @@ local ChopAnimationController = {
 }
 
 local chopController: any = nil
+local trainingController: any = nil
 local rig: Rig? = nil
 local stance = 0
 local crouchBoost = 1
 local armAngle = 0
 local waistLean = 0
+local leftArmBlend = 0
 local isHipHeightApplied = false
 
 local function setTransform(joint: Joint, value: CFrame)
@@ -74,8 +77,21 @@ end
 
 local function targets(): (number, number, number, number, number)
 	local wait = math.rad(ChopPoseConfig.RightArmWaitDegrees)
+	local peak = math.rad(ChopPoseConfig.RightArmPeakDegrees)
+	local strike = math.rad(ChopPoseConfig.RightArmStrikeDegrees)
 	local waistStance = math.rad(ChopPoseConfig.WaistLeanDegrees)
+	local waistStrike = math.rad(ChopPoseConfig.WaistStrikeLeanDegrees)
 	if chopController and chopController:IsMinigameActive() then
+		local masterPhase = chopController:GetMasterPhase()
+		if masterPhase == "WindUp" then
+			return peak,
+				math.rad(ChopPoseConfig.MasterWindUpWaistDegrees),
+				1,
+				ChopPoseConfig.MasterCrouchBoost,
+				ChopPoseConfig.ArmFollowRate
+		elseif masterPhase == "Strike" then
+			return strike, waistStrike, 1, ChopPoseConfig.MasterCrouchBoost, ChopPoseConfig.StrikeRate
+		end
 		if chopController:IsReleased() then
 			return math.rad(ChopPoseConfig.RightArmStrikeDegrees),
 				math.rad(ChopPoseConfig.WaistStrikeLeanDegrees),
@@ -84,7 +100,18 @@ local function targets(): (number, number, number, number, number)
 				ChopPoseConfig.StrikeRate
 		end
 		local level = math.clamp(chopController:GetCursorPosition(), 0, 1)
-		local peak = math.rad(ChopPoseConfig.RightArmPeakDegrees)
+		return wait + (peak - wait) * level, waistStance, 1, 1, ChopPoseConfig.ArmFollowRate
+	end
+	if trainingController and trainingController:IsTraining() then
+		local since = trainingController:GetSecondsSinceChop()
+		local hold = ChopPoseConfig.TrainingStrikeHoldSeconds
+		local hasChopped = trainingController:HasChopped()
+		if hasChopped and since < hold then
+			return strike, waistStrike, 1, ChopPoseConfig.StrikeCrouchBoost, ChopPoseConfig.StrikeRate
+		end
+		local windStart = if hasChopped then hold else 0
+		local windSeconds = math.max(TrainingConfig.ChopIntervalSeconds - windStart, 1e-3)
+		local level = math.clamp((since - windStart) / windSeconds, 0, 1)
 		return wait + (peak - wait) * level, waistStance, 1, 1, ChopPoseConfig.ArmFollowRate
 	end
 	return 0, 0, 0, 1, ChopPoseConfig.RecoverRate
@@ -111,12 +138,15 @@ local function step(dt: number)
 	waistLean = approach(waistLean, targetWaist, rate, dt)
 	stance = approach(stance, targetStance, ChopPoseConfig.StanceRate, dt)
 	crouchBoost = approach(crouchBoost, targetBoost, ChopPoseConfig.StrikeRate, dt)
+	local isMaster = chopController ~= nil and chopController:GetMasterPhase() ~= nil
+	leftArmBlend = approach(leftArmBlend, if isMaster then 1 else 0, ChopPoseConfig.MasterArmBlendRate, dt)
 
 	local threshold = ChopPoseConfig.SettleThresholdRadians
 	if targetStance == 0 and stance < threshold and math.abs(armAngle) < threshold then
 		stance = 0
 		armAngle = 0
 		waistLean = 0
+		leftArmBlend = 0
 		releaseHipHeight(current)
 		return
 	end
@@ -137,15 +167,16 @@ local function step(dt: number)
 	setTransform(current.RightAnkle, CFrame.Angles(ankleAngle, 0, 0))
 	setTransform(current.LeftAnkle, CFrame.Angles(ankleAngle, 0, 0))
 
-	setTransform(
-		current.LeftShoulder,
-		CFrame.Angles(
-			math.rad(pose.LeftShoulderGuardDegrees) * stance,
-			math.rad(pose.LeftShoulderYawDegrees) * stance,
-			math.rad(pose.LeftShoulderInwardDegrees) * stance
-		)
+	local guard = CFrame.Angles(
+		math.rad(pose.LeftShoulderGuardDegrees) * stance,
+		math.rad(pose.LeftShoulderYawDegrees) * stance,
+		math.rad(pose.LeftShoulderInwardDegrees) * stance
 	)
-	setTransform(current.LeftElbow, CFrame.Angles(math.rad(pose.LeftElbowGuardDegrees) * stance, 0, 0))
+	setTransform(current.LeftShoulder, guard:Lerp(CFrame.Angles(armAngle, 0, 0), leftArmBlend))
+	setTransform(
+		current.LeftElbow,
+		CFrame.Angles(math.rad(pose.LeftElbowGuardDegrees) * stance * (1 - leftArmBlend), 0, 0)
+	)
 
 	local wait = math.rad(pose.RightArmWaitDegrees)
 	local peak = math.rad(pose.RightArmPeakDegrees)
@@ -178,6 +209,7 @@ end
 function ChopAnimationController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
 	chopController = controllers.ChopController
+	trainingController = controllers.TrainingController
 end
 
 function ChopAnimationController.Start(self: any)

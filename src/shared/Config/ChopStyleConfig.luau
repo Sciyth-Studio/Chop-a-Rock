@@ -56,6 +56,12 @@ local ChopStyleConfig: ChopStyleSettings = {
 			Color = Color3.fromRGB(170, 0, 255),
 			IsRainbow = true,
 		},
+		[ChopQuality.Master] = {
+			Name = "Master",
+			DisplayText = "MASTER!!",
+			Color = Color3.fromRGB(255, 0, 170),
+			IsRainbow = true,
+		},
 	},
 	Fallback = crack,
 	ResultTextStyle = "Chrome",

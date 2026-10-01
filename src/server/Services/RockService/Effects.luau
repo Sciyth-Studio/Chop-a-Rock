@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Types = require(script.Parent.Types)
 
 local Effects = {}
@@ -21,6 +22,26 @@ local function playSound(key: string, part: BasePart)
 	asset.Parent = part
 	asset:Play()
 	task.delay(5, function()
+		if asset.Parent then
+			asset:Destroy()
+		end
+	end)
+end
+
+local function playBurst(part: BasePart)
+	local asset = AssetRegistry.get(MasterChopConfig.BurstKey)
+	if not asset:IsA("Attachment") then
+		asset:Destroy()
+		return
+	end
+	asset.Parent = part
+	for _, descendant in asset:GetDescendants() do
+		if descendant:IsA("ParticleEmitter") then
+			local count = descendant:GetAttribute("EmitCount")
+			descendant:Emit(if type(count) == "number" then count else MasterChopConfig.BurstEmitCount)
+		end
+	end
+	task.delay(MasterChopConfig.BurstLifetimeSeconds, function()
 		if asset.Parent then
 			asset:Destroy()
 		end
@@ -238,9 +259,20 @@ local function splitRock(rock: Types.Rock)
 	end)
 end
 
+function Effects.MasterStart(rock: Types.Rock)
+	playSound(MasterChopConfig.SoundKey, rock.Part)
+end
+
 function Effects.Break(rock: Types.Rock, quality: number)
-	playSound(qualitySoundKey(quality), rock.Part)
+	if quality ~= ChopQuality.Master then
+		playSound(qualitySoundKey(quality), rock.Part)
+	end
 	playSound("SFX_Rock_Break", rock.Part)
+	if quality == ChopQuality.Master then
+		playBurst(rock.Part)
+		splitRock(rock)
+		return
+	end
 	if quality == ChopQuality.Perfect then
 		splitRock(rock)
 		return

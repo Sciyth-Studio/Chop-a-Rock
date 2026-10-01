@@ -7,4 +7,5 @@ return table.freeze({
 	Good = 3,
 	Great = 4,
 	Perfect = 5,
+	Master = 6,
 })

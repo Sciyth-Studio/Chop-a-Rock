@@ -11,6 +11,7 @@ local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
+local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -27,7 +28,9 @@ local function styleFor(quality: number): ChopStyleConfig.QualityStyle
 end
 
 local function qualityShakeIntensity(quality: number): number
-	if quality == ChopQuality.Perfect then
+	if quality == ChopQuality.Master then
+		return MasterChopConfig.ShakeIntensity
+	elseif quality == ChopQuality.Perfect then
 		return ChopConfig.PerfectShakeIntensity
 	elseif quality == ChopQuality.Great then
 		return ChopConfig.GreatShakeIntensity
@@ -48,6 +51,121 @@ local activeTrove: TroveInstance? = nil
 local frozenPosition: number? = nil
 local minigameStartTime = 0
 local activeCanBreak = true
+local masterStartClock: number? = nil
+local chopCamera: CFrame? = nil
+
+local function smooth(alpha: number): number
+	local clamped = math.clamp(alpha, 0, 1)
+	return clamped * clamped * (3 - 2 * clamped)
+end
+
+local function masterShots(): (CFrame?, CFrame?, CFrame?)
+	local character = Players.LocalPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	local head = if character then character:FindFirstChild("Head") else nil
+	if not (root and root:IsA("BasePart") and head and head:IsA("BasePart")) then
+		return nil, nil, nil
+	end
+	local sidePosition = (root.CFrame * CFrame.new(MasterChopConfig.CinematicSideOffset)).Position
+	local halfPan = MasterChopConfig.CinematicFacePanStuds / 2
+	local function faceShot(offsetX: number): CFrame
+		local position = (head.CFrame * CFrame.new(
+			offsetX,
+			MasterChopConfig.CinematicFaceHeightStuds,
+			-MasterChopConfig.CinematicFaceDistanceStuds
+		)).Position
+		return CFrame.lookAt(position, head.Position)
+	end
+	return CFrame.lookAt(sidePosition, root.Position), faceShot(-halfPan), faceShot(halfPan)
+end
+
+local function playMasterCinematic(trove: TroveInstance, camera: Camera)
+	local base = chopCamera or camera.CFrame
+	local side, faceStart, faceEnd = masterShots()
+	if not (side and faceStart and faceEnd) then
+		return
+	end
+	local sideEnd = MasterChopConfig.CinematicSideSeconds
+	local faceSeconds = MasterChopConfig.CinematicFaceSeconds
+	local faceEndTime = sideEnd + faceSeconds
+	local total = MasterChopConfig.ImpactDelaySeconds
+	local blend = MasterChopConfig.CinematicFaceBlendFraction
+	local startClock = os.clock()
+	local connection: RBXScriptConnection
+	connection = RunService.RenderStepped:Connect(function()
+		local elapsed = os.clock() - startClock
+		if elapsed >= total then
+			camera.CFrame = base
+			connection:Disconnect()
+			return
+		end
+		if elapsed < sideEnd then
+			camera.CFrame = base:Lerp(side, smooth(elapsed / sideEnd))
+		elseif elapsed < faceEndTime then
+			local progress = (elapsed - sideEnd) / faceSeconds
+			if progress < blend then
+				camera.CFrame = side:Lerp(faceStart, smooth(progress / blend))
+			else
+				camera.CFrame = faceStart:Lerp(faceEnd, (progress - blend) / (1 - blend))
+			end
+		else
+			camera.CFrame = faceEnd:Lerp(base, smooth((elapsed - faceEndTime) / (total - faceEndTime)))
+		end
+	end)
+	trove:Add(connection)
+end
+
+local function startMasterWindUp(trove: TroveInstance)
+	local info =
+		TweenInfo.new(MasterChopConfig.ImpactDelaySeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	local effect = Instance.new("ColorCorrectionEffect")
+	effect.Name = "MasterWindUp"
+	effect.Parent = Lighting
+	trove:Add(effect)
+	TweenService:Create(effect, info, {
+		Brightness = MasterChopConfig.WindUpDarkenBrightness,
+		Saturation = MasterChopConfig.WindUpSaturation,
+	}):Play()
+	local camera = workspace.CurrentCamera
+	local baseFieldOfView = if camera then camera.FieldOfView else 70
+	if camera then
+		playMasterCinematic(trove, camera)
+		trove:Add(function()
+			camera.FieldOfView = baseFieldOfView
+		end)
+	end
+	task.delay(MasterChopConfig.ImpactDelaySeconds, function()
+		if effect.Parent then
+			effect:Destroy()
+		end
+		if camera then
+			camera.FieldOfView = MasterChopConfig.PunchFieldOfView
+			TweenService:Create(
+				camera,
+				TweenInfo.new(
+					MasterChopConfig.PunchOutSeconds,
+					Enum.EasingStyle.Back,
+					Enum.EasingDirection.Out
+				),
+				{ FieldOfView = baseFieldOfView }
+			):Play()
+		end
+	end)
+end
+
+local function flashMaster()
+	local effect = Instance.new("ColorCorrectionEffect")
+	effect.Name = "MasterFlash"
+	effect.Brightness = MasterChopConfig.FlashBrightness
+	effect.Contrast = MasterChopConfig.FlashContrast
+	effect.Parent = Lighting
+	local info = TweenInfo.new(MasterChopConfig.FlashSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(effect, info, { Brightness = 0, Contrast = 0 })
+	tween.Completed:Once(function()
+		effect:Destroy()
+	end)
+	tween:Play()
+end
 
 local function shakeCamera(camera: Camera, baseCFrame: CFrame, intensity: number, duration: number)
 	local startTime = os.clock()
@@ -93,6 +211,8 @@ local function endMinigame()
 		activeTrove = nil
 	end
 	frozenPosition = nil
+	masterStartClock = nil
+	chopCamera = nil
 	local camera = workspace.CurrentCamera
 	if camera then
 		camera.CameraType = Enum.CameraType.Custom
@@ -161,6 +281,7 @@ local function beginMinigame(
 		cameraStart = camera.CFrame
 		local cameraPos = rock.Position + ChopConfig.CameraOffsetFromRock * rockScale
 		cameraTarget = CFrame.new(cameraPos, rock.Position + ChopConfig.CameraLookOffset)
+		chopCamera = cameraTarget
 	end
 
 	local transitionStart = os.clock()
@@ -242,6 +363,17 @@ function ChopController.IsMinigameActive(_self: any): boolean
 	return minigameActive
 end
 
+function ChopController.GetMasterPhase(_self: any): string?
+	local started = masterStartClock
+	if not started then
+		return nil
+	end
+	if os.clock() - started < MasterChopConfig.ImpactDelaySeconds then
+		return "WindUp"
+	end
+	return "Strike"
+end
+
 function ChopController.IsReleased(_self: any): boolean
 	return frozenPosition ~= nil
 end
@@ -290,24 +422,34 @@ function ChopController.Start(self: any)
 		Packets.ChopResult.OnClientEvent:Connect(
 			function(quality: number, payout: number, _damage: number, health: number)
 				print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
-				task.wait(ChopConfig.SlowMoPreImpactSeconds)
+				local isMaster = quality == ChopQuality.Master
+				if isMaster and activeTrove then
+					masterStartClock = os.clock()
+					startMasterWindUp(activeTrove)
+					task.wait(MasterChopConfig.ImpactDelaySeconds)
+				else
+					task.wait(ChopConfig.SlowMoPreImpactSeconds)
+				end
 				if not minigameActive then
 					return
 				end
 				self.ResultShown:Fire(quality)
 				currentHealth = math.max(health, 0)
 				self.HealthChanged:Fire(currentHealth, currentMaxHealth)
-				if quality == ChopQuality.Perfect then
+				if isMaster then
+					flashMaster()
+				elseif quality == ChopQuality.Perfect then
 					flashScreen()
 				end
 				local camera = workspace.CurrentCamera
 				if camera and camera.CameraType == Enum.CameraType.Scriptable then
 					shakeCamera(
 						camera,
-						camera.CFrame,
+						if isMaster and chopCamera then chopCamera else camera.CFrame,
 						qualityShakeIntensity(quality),
-						if quality == ChopQuality.Perfect
-							then ChopConfig.PerfectShakeDurationSeconds
+						if isMaster
+							then MasterChopConfig.ShakeDurationSeconds
+							elseif quality == ChopQuality.Perfect then ChopConfig.PerfectShakeDurationSeconds
 							else ChopConfig.ShakeDurationSeconds
 					)
 				end
@@ -317,7 +459,10 @@ function ChopController.Start(self: any)
 					end)
 				end
 				if quality == ChopQuality.Crack or health <= 1e-6 then
-					task.delay(RESULT_DISPLAY_SECONDS, function()
+					local holdSeconds = if isMaster
+						then RESULT_DISPLAY_SECONDS + MasterChopConfig.StrikeHoldSeconds
+						else RESULT_DISPLAY_SECONDS
+					task.delay(holdSeconds, function()
 						endMinigame()
 					end)
 				end

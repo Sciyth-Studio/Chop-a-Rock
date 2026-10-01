@@ -24,6 +24,10 @@ export type ChopPoseSettings = {
 	StrikeRate: number,
 	RecoverRate: number,
 	SettleThresholdRadians: number,
+	TrainingStrikeHoldSeconds: number,
+	MasterCrouchBoost: number,
+	MasterWindUpWaistDegrees: number,
+	MasterArmBlendRate: number,
 }
 
 local ChopPoseConfig: ChopPoseSettings = {
@@ -50,6 +54,10 @@ local ChopPoseConfig: ChopPoseSettings = {
 	StrikeRate = 40,
 	RecoverRate = 9,
 	SettleThresholdRadians = 0.003,
+	TrainingStrikeHoldSeconds = 0.25,
+	MasterCrouchBoost = 1.6,
+	MasterWindUpWaistDegrees = 15,
+	MasterArmBlendRate = 12,
 }
 
 return table.freeze(ChopPoseConfig)

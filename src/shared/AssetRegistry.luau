@@ -15,6 +15,8 @@ local map: { [string]: AssetEntry } = {
 	SFX_Chop_Good = { Category = "Sounds", InstanceName = "SFX_Chop_Good" },
 	SFX_Chop_Great = { Category = "Sounds", InstanceName = "SFX_Chop_Great" },
 	SFX_Chop_Perfect = { Category = "Sounds", InstanceName = "SFX_Chop_Perfect" },
+	SFX_Chop_Master = { Category = "Sounds", InstanceName = "SFX_Chop_Master" },
+	VFX_Master_Burst = { Category = "VFX", InstanceName = "VFX_Master_Burst" },
 	SFX_Rock_Break = { Category = "Sounds", InstanceName = "SFX_Rock_Break" },
 	SFX_Rock_Crack = { Category = "Sounds", InstanceName = "SFX_Rock_Crack" },
 	SFX_Money_Gain = { Category = "Sounds", InstanceName = "SFX_Money_Gain" },

@@ -1,0 +1,67 @@
+--!strict
+
+local ChopQuality = require(script.Parent.Parent.ChopQuality)
+
+export type MasterChopSettings = {
+	ChanceByQuality: { [number]: number },
+	PayoutMultiplier: number,
+	ImpactDelaySeconds: number,
+	StrikeHoldSeconds: number,
+	CinematicSideSeconds: number,
+	CinematicFaceSeconds: number,
+	CinematicFaceBlendFraction: number,
+	CinematicSideOffset: Vector3,
+	CinematicFaceDistanceStuds: number,
+	CinematicFaceHeightStuds: number,
+	CinematicFacePanStuds: number,
+	WindUpDarkenBrightness: number,
+	WindUpSaturation: number,
+	FlashBrightness: number,
+	FlashSeconds: number,
+	FlashContrast: number,
+	ShakeIntensity: number,
+	ShakeDurationSeconds: number,
+	PunchFieldOfView: number,
+	PunchOutSeconds: number,
+	AnnouncementKind: string,
+	SoundKey: string,
+	BurstKey: string,
+	BurstEmitCount: number,
+	BurstLifetimeSeconds: number,
+}
+
+local MasterChopConfig: MasterChopSettings = {
+	ChanceByQuality = {
+		[ChopQuality.Bad] = 0.005,
+		[ChopQuality.Mid] = 0.0075,
+		[ChopQuality.Good] = 0.01,
+		[ChopQuality.Great] = 0.015,
+		[ChopQuality.Perfect] = 0.025,
+	},
+	PayoutMultiplier = 3,
+	ImpactDelaySeconds = 3,
+	StrikeHoldSeconds = 0.6,
+	CinematicSideSeconds = 0.8,
+	CinematicFaceSeconds = 1.6,
+	CinematicFaceBlendFraction = 0.3,
+	CinematicSideOffset = Vector3.new(7, 1.5, 0),
+	CinematicFaceDistanceStuds = 3.5,
+	CinematicFaceHeightStuds = 0.2,
+	CinematicFacePanStuds = 2.5,
+	WindUpDarkenBrightness = -0.25,
+	WindUpSaturation = 0.6,
+	FlashBrightness = 0.9,
+	FlashSeconds = 1.1,
+	FlashContrast = 0.4,
+	ShakeIntensity = 4,
+	ShakeDurationSeconds = 0.8,
+	PunchFieldOfView = 45,
+	PunchOutSeconds = 0.6,
+	AnnouncementKind = "Event",
+	SoundKey = "SFX_Chop_Master",
+	BurstKey = "VFX_Master_Burst",
+	BurstEmitCount = 60,
+	BurstLifetimeSeconds = 4,
+}
+
+return table.freeze(MasterChopConfig)

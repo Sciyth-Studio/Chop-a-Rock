@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Types = require(script.Parent.Types)
 
 local Session = {}
@@ -58,6 +59,22 @@ function Session.Apply(session: Types.Session, strength: number, quality: number
 	)
 	session.Health -= applied
 	return applied, payout
+end
+
+function Session.ApplyMaster(session: Types.Session): (number, number)
+	local applied = session.Health
+	local share = applied / session.MaxHealth
+	local payout = math.max(
+		0,
+		math.floor(session.Rock.Config.BasePayout * MasterChopConfig.PayoutMultiplier * share + 0.5)
+	)
+	session.Health = 0
+	return applied, payout
+end
+
+function Session.IsMaster(random: Random, quality: number): boolean
+	local chance = MasterChopConfig.ChanceByQuality[quality]
+	return chance ~= nil and random:NextNumber() < chance
 end
 
 function Session.IsBroken(session: Types.Session): boolean

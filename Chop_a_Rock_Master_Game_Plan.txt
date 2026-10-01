@@ -97,6 +97,14 @@ Loop details:
   Chrome-style line moves along it to show where the hit will land.
   Because a centered band is crossed twice per cycle (two half-length windows instead of one), all non-Bad bands are
   widened by a zone width multiplier. [PLAYTEST] center range, multiplier (draft 1.5).
+- MASTER CHOP (secret): any chop on a rock the player can break has a small chance to become a master chop, with better
+  odds on better timing. It one-shots the rock, pays the remaining share at a Master multiplier, and gets its own
+  over-the-top presentation: the ~3s kabuki "YOOO" SFX (drums first) starts immediately while the camera pans to the
+  player's side, then slowly across their face, then back to the normal chop view; the two-handed overhead strike, huge
+  flash/shake, impact FOV punch, rainbow "MASTER!!" text and rock split land when the SFX ends.
+  The whole server gets an announcement. Never on a Crack. Studio dev shortcut: Ctrl+Shift+M forces the next chop.
+  [PLAYTEST] Odds (draft Bad 0.5% / Mid 0.75% / Good 1% / Great 1.5% / Perfect 2.5% ≈ 1 in 100), Master payout
+  multiplier (draft 3x). User-made SFX_Chop_Master and VFX_Master_Burst slot in through AssetRegistry when ready.
 - Players move on when they have earned enough to do what's required to try the next rock.
 - Players need a periodic indication of what to do next.
 
@@ -248,6 +256,7 @@ Two axes:
   - Idle (AFK) training is allowed.
   - Better training methods are unlocked by rebirthing.
   Training method: karate-themed board/brick breaking stacks (1 board → 5 boards → bricks → ice → steel), using the same timing meter as rock chops. Bench pressing rejected (signature mechanic of the lifting-simulator genre this redesign differentiates from); pushups rejected (no clean upgrade path).
+  Training uses the same chop animation as rocks: the arm winds up between training chops and strikes on each one.
   Idle/AFK training happens only while in-server. Money still earns offline via pet rocks displayed at the base; strength does not.
   [PROPOSED] Active timed training (good/perfect releases) trains faster than idle, so skill still pays.
 - LUCK: improves the rarity of pet rocks hatched from geodes.
@@ -291,11 +300,19 @@ UNLOCK REQUIREMENTS:
 - Rocks/zones: strength.
 - Base floors: rebirth.
 
-PLAYER LEVELS:
-Cosmetic only (no gameplay effect). Resets to 1 on rebirth.
+PLAYER LEVELS (revised 2026-10-01):
+- Level is derived from strength (EXP is literally strength; nothing else grants EXP). Not saved separately.
+- Purpose: (1) gates rebirth, (2) a concrete, kid-readable strength indicator ("Level 12" instead of "1,901 strength").
+- Resets to 1 on rebirth, because strength resets.
+- Curve: strength needed for level L = LevelBaseStrength × LevelGrowth^(L-1). Strength grows ~5x per rock tier, so a
+  geometric curve gives a steady number of levels per tier instead of hundreds early and few late.
+  [PLAYTEST] Draft base 1, growth 1.5: roughly 4 levels per rock tier (Pebble L1, Boulder ~L6, Slab ~L10, Monolith ~L14,
+  Mountain ~L18).
+- Level-up notification ("Level 7!") using the existing notification system.
 
 XP SYSTEM:
-EXP bar is filled by strength. Level is effectively a display of strength progress.
+EXP bar shows progress from the current level's strength threshold to the next level's, with the level number on it.
+Placement: HUD, always visible, center bottom of the screen. A rectangle styled like the HUD menu buttons.
 
 REWARDS:
 What activities give rewards? Breaking rocks (money); hatching geodes (pet rocks); pet rocks at base (offline money).
@@ -304,6 +321,8 @@ What determines reward amount? Rock size/tier, timing quality, equipped pet boos
 How does risk affect reward? Attempting a rock that's too strong = crack, no reward.
 
 REBIRTH:
+- Requires reaching a minimum level, which rises with each rebirth. [PLAYTEST] Draft level 20 for the first rebirth;
+  how much it rises per rebirth (additive or multiplicative) is config-driven.
 - Resets strength and level to 1.
 - Unlocks a new base floor (more pedestal space).
 - Grants multipliers to money gain and strength gain.
@@ -368,7 +387,7 @@ INTERACTION SYSTEM:
 Chop (hold/release timing meter). Geode hatching. Pet equip / pedestal placement at base.
 
 QUEST / OBJECTIVE SYSTEM:
-Tutorial. [PROPOSED] Next-goal bar.
+Tutorial. (Next-goal bar was scrapped; the EXP bar/level is the persistent progress indicator.)
 
 SHOP / SELLING SYSTEM:
 Arm upgrade shop. Geode shop. Pedestal slot purchases.
@@ -619,3 +638,13 @@ DECISION LOG
   - Index now tracks rocks broken and pet rocks hatched.
   - Still open: what equipped pets boost (money / strength / both), luck source, rarity count + odds table, duplicates,
     Robux geodes / luck gamepasses. [PROPOSED] geodes cracked with the chop meter (timing affects odds), geode tiers per zone.
+2026-10-01 — EXP bar and levels added (§07):
+  - EXP is strength; level is derived from strength on a geometric curve (config-driven, [PLAYTEST]).
+  - Levels are no longer cosmetic: they gate rebirth and act as the kid-readable strength indicator.
+  - Draft: base 1, growth 1.5 (~4 levels per rock tier); rebirth at level 20. Both [PLAYTEST].
+  - Follow-up: rebirth level requirement rises with each rebirth (amount [PLAYTEST]). EXP bar sits at the center bottom of the
+    screen as a rectangle styled like the HUD menu buttons. Level-up notifications approved. Next-goal bar scrapped.
+2026-10-01 — Training animation and master chop:
+  - Training plays the chop animation (wind-up between training chops, strike on each).
+  - Secret MASTER CHOP added (§02): ~1 in 100 chops, odds scale with timing quality, one-shots the rock, pays the remaining
+    share at a Master multiplier, unique FX/pose scripted now (user assets slot in later), server-wide announcement.
