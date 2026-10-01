@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MenuButtonConfig = require(ReplicatedStorage.Config.MenuButtonConfig)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
+local Input = require(ReplicatedStorage.Packages.Input)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
@@ -45,8 +46,10 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		and phoneLayout:IsA("UIGridLayout")
 	then
 		local desktopSize = container.Size
+		local desktopPosition = container.Position
 
 		local isPhoneLayout = false
+		local isTouch = false
 
 		local function applyLayout()
 			local camera = workspace.CurrentCamera
@@ -58,7 +61,7 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if shortSide <= 0 then
 				return
 			end
-			local isPhone = shortSide < MenuButtonConfig.PhoneMaxShortSidePixels
+			local isPhone = isTouch or shortSide < MenuButtonConfig.PhoneMaxShortSidePixels
 			if isPhone == isPhoneLayout then
 				return
 			end
@@ -68,14 +71,22 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				local rows = math.ceil(#MenuButtonConfig.Buttons / columns)
 				local cell = MenuButtonConfig.ButtonSizePixels
 				local gap = MenuButtonConfig.ButtonGapPixels
+				phoneLayout.FillDirectionMaxCells = columns
 				listLayout.Parent = layoutStore
 				phoneLayout.Parent = container
 				container.Size =
 					UDim2.fromOffset(columns * cell + (columns - 1) * gap, rows * cell + (rows - 1) * gap)
+				container.Position = UDim2.new(
+					desktopPosition.X.Scale,
+					desktopPosition.X.Offset,
+					desktopPosition.Y.Scale,
+					MenuButtonConfig.PhoneTopPixels
+				)
 			else
 				phoneLayout.Parent = layoutStore
 				listLayout.Parent = container
 				container.Size = desktopSize
+				container.Position = desktopPosition
 			end
 		end
 
@@ -87,6 +98,11 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			applyLayout()
 		end
 
+		trove:Add(Input.PreferredInput.observe(function(preferred: Enum.PreferredInput)
+			isTouch = preferred == Enum.PreferredInput.Touch
+			applyLayout()
+			return nil
+		end))
 		trove:Connect(workspace:GetPropertyChangedSignal("CurrentCamera"), watchCamera)
 		watchCamera()
 	else

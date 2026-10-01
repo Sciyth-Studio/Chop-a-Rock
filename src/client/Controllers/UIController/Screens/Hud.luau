@@ -2,12 +2,15 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SocialService = game:GetService("SocialService")
 local TweenService = game:GetService("TweenService")
 local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
+local ScaleConfig = require(ReplicatedStorage.Config.ScaleConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
+local Input = require(ReplicatedStorage.Packages.Input)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
@@ -24,6 +27,16 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	local trove = Trove.new()
 	local isDestroyed = false
 	ViewportScale.Bind(gui, trove)
+
+	local scaleInstance = gui:FindFirstChild(ScaleConfig.ScaleName, true)
+	local screenScale: UIScale? = if scaleInstance and scaleInstance:IsA("UIScale")
+		then scaleInstance
+		else nil
+
+	local function textWidth(label: TextLabel): number
+		local scale = if screenScale and screenScale.Scale > 0 then screenScale.Scale else 1
+		return label.TextBounds.X / scale
+	end
 
 	local function readAttribute(attribute: string): number
 		local value = player:GetAttribute(attribute)
@@ -95,7 +108,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			if floatingStroke then
 				floatingStroke.Color = style.StrokeColor
 			end
-			local startX = label.TextBounds.X + EconomyConfig.MoneyDeltaGapPixels
+			local startX = textWidth(label) + EconomyConfig.MoneyDeltaGapPixels
 			floating.Position = UDim2.new(0, startX, 0, 0)
 			floating.Visible = true
 			floating.Parent = label
@@ -106,7 +119,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 				Enum.EasingDirection.In
 			)
 			local slide = TweenService:Create(floating, info, {
-				Position = UDim2.new(0, label.TextBounds.X / 2, 0, 0),
+				Position = UDim2.new(0, textWidth(label) / 2, 0, 0),
 				TextTransparency = 1,
 			})
 			local stroke = floating:FindFirstChildWhichIsA("UIStroke")
@@ -137,7 +150,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
-	local function trackBackdrop(labelName: string)
+	local function trackBackdrop(labelName: string, extraPadding: number)
 		local label = findLabel(labelName)
 		local row = if label then label.Parent else nil
 		local backdrop = if row then row:FindFirstChild(HudConfig.BackdropName) else nil
@@ -148,7 +161,11 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			local bleed = HudConfig.BackdropScreenBleedPixels
 			local width = math.max(
 				HudConfig.BackdropMinWidthPixels + bleed,
-				bleed + label.Position.X.Offset + label.TextBounds.X + HudConfig.BackdropPaddingPixels
+				bleed
+					+ label.Position.X.Offset
+					+ textWidth(label)
+					+ HudConfig.BackdropPaddingPixels
+					+ extraPadding
 			)
 			backdrop.Position = UDim2.new(0, -bleed, 0, 0)
 			backdrop.Size = UDim2.new(0, width, 1, 0)
@@ -157,16 +174,89 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		resize()
 	end
 
+	local function bindInvite()
+		local label = findLabel("FriendBoost")
+		local found = if label and label.Parent
+			then label.Parent:FindFirstChild(HudConfig.InviteButtonName)
+			else nil
+		if not label or not found or not found:IsA("GuiButton") then
+			warn(
+				`[Hud] Missing GuiButton "{HudConfig.InviteButtonName}" next to FriendBoost in {gui:GetFullName()}`
+			)
+			return
+		end
+		local button = found
+		local function place()
+			local x = label.Position.X.Offset + textWidth(label) + HudConfig.InviteGapPixels
+			button.Position = UDim2.new(0, x, 0.5, 0)
+		end
+		trove:Connect(label:GetPropertyChangedSignal("TextBounds"), place)
+		place()
+		trove:Connect(button.Activated, function()
+			local ok, canInvite = pcall(function()
+				return SocialService:CanSendGameInviteAsync(player)
+			end)
+			if ok and canInvite then
+				pcall(function()
+					SocialService:PromptGameInvite(player)
+				end)
+			end
+		end)
+	end
+
+	local function bindTouchLift()
+		local container = gui:FindFirstChild(HudConfig.ContainerName)
+		if not container or not container:IsA("GuiObject") then
+			warn(
+				`[Hud] Missing Frame "{HudConfig.ContainerName}" in {gui:GetFullName()}; touch lift disabled`
+			)
+			return
+		end
+		local basePosition = container.Position
+		local isTouch = false
+
+		local function apply()
+			local lift = 0
+			local camera = workspace.CurrentCamera
+			if isTouch and camera then
+				local viewport = camera.ViewportSize
+				local shortSide = math.min(viewport.X, viewport.Y)
+				lift = if shortSide <= HudConfig.TouchSmallScreenMaxShortSidePixels
+					then HudConfig.TouchLiftSmallPixels
+					else HudConfig.TouchLiftLargePixels
+			end
+			container.Position = basePosition - UDim2.fromOffset(0, lift)
+		end
+
+		local function watchCamera()
+			local camera = workspace.CurrentCamera
+			if camera then
+				trove:Connect(camera:GetPropertyChangedSignal("ViewportSize"), apply)
+			end
+			apply()
+		end
+
+		trove:Add(Input.PreferredInput.observe(function(preferred: Enum.PreferredInput)
+			isTouch = preferred == Enum.PreferredInput.Touch
+			apply()
+			return nil
+		end))
+		trove:Connect(workspace:GetPropertyChangedSignal("CurrentCamera"), watchCamera)
+		watchCamera()
+	end
+
 	bindMoney()
+	bindTouchLift()
 	bind("Strength", "Strength", function(value: number): string
 		return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
 	end)
 	bind("FriendBoost", "FriendBoost", function(value: number): string
 		return `+{NumberFormat.Compact(value)}% [Friends]`
 	end)
-	trackBackdrop("Strength")
-	trackBackdrop("Money")
-	trackBackdrop("FriendBoost")
+	bindInvite()
+	trackBackdrop("Strength", 0)
+	trackBackdrop("Money", 0)
+	trackBackdrop("FriendBoost", HudConfig.InviteExtraPaddingPixels)
 
 	return {
 		Modal = false,

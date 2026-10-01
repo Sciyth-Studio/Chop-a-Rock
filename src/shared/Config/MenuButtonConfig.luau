@@ -13,6 +13,7 @@ export type MenuButtonSettings = {
 	PhoneLayoutName: string,
 	PhoneMaxShortSidePixels: number,
 	PhoneColumns: number,
+	PhoneTopPixels: number,
 	ButtonSizePixels: number,
 	ButtonGapPixels: number,
 	Buttons: { MenuButton },
@@ -25,7 +26,8 @@ local MenuButtonConfig: MenuButtonSettings = {
 	LayoutStoreName = "LayoutStore",
 	PhoneLayoutName = "PhoneLayout",
 	PhoneMaxShortSidePixels = 600,
-	PhoneColumns = 2,
+	PhoneColumns = 4,
+	PhoneTopPixels = 8,
 	ButtonSizePixels = 96,
 	ButtonGapPixels = 12,
 	Buttons = {

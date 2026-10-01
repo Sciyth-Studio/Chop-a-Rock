@@ -13,6 +13,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	TrainingHint = require(script.Screens.TrainingHint),
 	Shop = require(script.Screens.Shop),
 	Notifications = require(script.Screens.Notifications),
+	ExpBar = require(script.Screens.ExpBar),
 }
 
 local UIController = { Name = "UIController" }
