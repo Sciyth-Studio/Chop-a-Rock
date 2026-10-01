@@ -21,6 +21,7 @@ type TroveInstance = typeof(Trove.new())
 local RELEASE_ACTION = "ChopRelease"
 local LEAVE_ACTION = "ChopLeave"
 local METER_SCREEN = "ChopMeter"
+local LETTERBOX_SCREEN = "Letterbox"
 local RESULT_DISPLAY_SECONDS = 0.7
 
 local function styleFor(quality: number): ChopStyleConfig.QualityStyle
@@ -116,6 +117,10 @@ local function playMasterCinematic(trove: TroveInstance, camera: Camera)
 end
 
 local function startMasterWindUp(trove: TroveInstance)
+	uiController:Open(LETTERBOX_SCREEN)
+	trove:Add(function()
+		uiController:Close(LETTERBOX_SCREEN)
+	end)
 	local info =
 		TweenInfo.new(MasterChopConfig.ImpactDelaySeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 	local effect = Instance.new("ColorCorrectionEffect")
