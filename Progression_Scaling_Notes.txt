@@ -1,4 +1,4 @@
-CHOP A ROCK - PROGRESSION SCALING NOTES [DRAFT, NOT APPROVED]
+CHOP A ROCK - PROGRESSION SCALING NOTES [APPROVED FOR NOW - RATIOS ADOPTED, NUMBERS LIKELY TO CHANGE]
 
 Basis: incremental-game math (cost = base x rate^n, costs outgrow income, ~5-10x jumps between tiers,
 staggered tiers so older content stays useful). Current config: training = 1 strength per 1.2s x arm

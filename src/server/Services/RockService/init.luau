@@ -86,6 +86,7 @@ local function onRelease(player: Player)
 		damage, payout = Session.Apply(session, services.StatsService:GetStrength(player), quality)
 	end
 	if payout > 0 then
+		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		services.DataService:AdjustCash(player, payout)
 	end
 	local isBroken = Session.IsBroken(session)

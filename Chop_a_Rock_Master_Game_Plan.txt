@@ -24,8 +24,8 @@ Game Name:
 Chop a Rock
 
 1 DETAILED Paragraph Description of Game:
-(Revised 2026-09-26 to reflect the two-axis progression change — see Decision Log.)
-Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up karate chops that whittle down a giant rock's health bar until it shatters (revised 2026-09-30: multi-chop rocks, see Decision Log). Players approach a boulder — a scaled cube part that grows through color and material tiers (gray → mossy → obsidian → glowing → crystalline → cosmic) — hold to wind up, and release as a meter passes through a power band. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are strong enough, the release timing scales the reward rather than gating it, so a sloppy release still breaks the rock for a small payout while a good one pays full and a perfect one triggers a bonus multiplier, a bigger shatter, and a louder crunch. Breaking rocks earns money, and money buys geodes that crack open to hatch cute PET ROCKS (revised 2026-09-30: pet rocks replace gems, see Decision Log). Progression runs on two axes: STRENGTH, raised by buying strict arm upgrades with money, which unlocks heavier rocks further out; and LUCK, which improves the rarity of hatched pet rocks. A few pet rocks can be equipped to follow the player and boost their gains; the rest are displayed on pedestals at the player's base, where they earn money while offline, and money buys more pedestal slots. Rebirthing resets strength and level to one and unlocks a new base floor. An index tracks every kind of rock broken and every pet rock hatched. Impact gets all the polish: screen shake, a slow-mo frame before contact, a giant damage number, and pre-fractured debris, with the player character held at fixed size so the boulder visibly dwarfs them. NPC crowds cheer and server-wide announcements fire on milestone breaks, because being seen being strong is half the fantasy. Icon-driven UI, huge buttons, minimal reading, monetized through gamepasses rather than randomized eggs.
+(Rewritten 2026-10-01 to match the current design — see Decision Log.)
+Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up karate chops that whittle down a giant rock's health bar until it splits apart. Players walk up to a blocky, stud-textured rock, hold to wind up, and release as a cursor crosses a power band that moves to a new spot every chop. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are, timing scales the damage and payout of each chop, from sloppy to perfect, and very rarely a secret MASTER CHOP one-shots the rock with an over-the-top cinematic and a server-wide announcement. Each zone has its own material (the first is a forest of mossy rocks) with rocks of increasing size. Players build strength by training with the same chop, and money from rocks buys strict arm upgrades that multiply training gains and visibly change the player's arms. A level, derived from strength, is the kid-readable measure of how strong you are and gates rebirth. Later, money buys geodes that crack open to hatch cute PET ROCKS: a few follow the player and boost their gains, the rest sit on pedestals at the player's base earning money offline, and LUCK improves hatch rarity. Playing with friends boosts your gains, because Roblox rewards co-play. Icon-driven UI, huge buttons, minimal reading. Geodes are bought with in-game money only, never with Robux.
 
 Game Type:
 Simulator / RNG
@@ -47,7 +47,9 @@ Money printer.
 Measurable target: 1,000 concurrent players (CCU).
 
 MONETIZATION NOTE — must be resolved by Section 10:
-Randomness now comes from hatching pet rocks out of geodes bought with in-game money (arms are strict upgrades). Remaining questions: may geodes be bought with Robux, and may Robux affect hatch luck (e.g., a "2x luck" gamepass)? Audience is 6–12; paid random items on Roblox require disclosed odds.
+Randomness comes from hatching pet rocks out of geodes bought with in-game money (arms are strict upgrades).
+[DECIDED] Geodes are never sold for Robux.
+Remaining question: may Robux affect hatch luck (e.g., a "2x luck" gamepass)? Audience is 6–12; paid random items on Roblox require disclosed odds.
 
 ================================
 01. REFERENCES
@@ -106,7 +108,8 @@ Loop details:
   [PLAYTEST] Odds (draft Bad 0.5% / Mid 0.75% / Good 1% / Great 1.5% / Perfect 2.5% ≈ 1 in 100), Master payout
   multiplier (draft 3x). User-made SFX_Chop_Master and VFX_Master_Burst slot in through AssetRegistry when ready.
 - Players move on when they have earned enough to do what's required to try the next rock.
-- Players need a periodic indication of what to do next.
+- What to do next is shown in the world: a label above each rock shows its name and required strength, and a scrolling
+  arrow trail with a highlight guides the player to the rock they should grind (or to the shop). Values in GuideConfig.
 
 [DECIDED] No next-goal bar. Cut by the user.
 [PROPOSED] ~0.5s reform animation on respawn instead of a true instant pop, so the break has a beat to land.
@@ -120,19 +123,25 @@ Art style: Smooth cartoon, minimal textures. UI keeps textures minimal too. User
 Character:
 - Default Roblox avatars.
 - Equipped arm tier is visible on the player. Arms are strict upgrades; each tier has its own look.
-- Method: leaning toward a glove/gauntlet accessory; direct arm material change is also viable.
-- Each arm tier has its own aura effect (keeps the arm readable even under clothing).
+- Method: the player's own arms change material/color/texture per tier, with effects layered on top. No separate
+  accessory models (decided 2026-09-28; staying this way for the foreseeable future).
+- Effects ramp up with tier; low tiers may have none. Visuals live in ArmConfig.
   Rig: R15 for everything.
 
 Impact / anime language:
-- Screen shake, slow-mo frame before contact, giant damage number, pre-fractured debris.
+- Screen shake, slow-mo frame before contact, giant damage number, pre-split rock pieces on breaks.
 - Player character held at fixed size so the boulder visibly dwarfs them.
-- Japanese "yoo" sound effect on perfect breaks (signature sound; source royalty-free or record original — do not rip).
+- The Japanese kabuki "YOOO" is the MASTER CHOP's signature sound only (§02). Normal perfect breaks do not get a yoo.
+  Source royalty-free or record original — do not rip.
   Additional anime elements (speed lines, impact flash, etc.): closed — decided through playtesting, not planning.
 
-Rock tiers:
-gray → mossy → obsidian → glowing → crystalline → cosmic
-- Each tier also changes the environment (sky, atmosphere, particles), not just the rock. This implies a zone-based world (see Section 06).
+Rocks and zones:
+[TBD] Final zone list and rock lineup.
+- Leaning: each zone has one rock material and 3 rocks of that material at increasing sizes.
+- First zone: forest, with mossy rocks of three sizes.
+- Each zone's environment (sky, atmosphere, particles) matches its material, not just the rock.
+- Rocks are blocky, stud-textured models. AI builds them in Blender (rock-model skill) with pre-split pieces for breaks.
+- Earlier idea, not committed: gray → mossy → obsidian → glowing → crystalline → cosmic material progression.
 
 Pet rocks:
 - Cute collectible rocks (easy to model, original). Hatched from geodes; equipped ones follow the player, the rest sit on base pedestals.
@@ -147,7 +156,8 @@ Overall mood: Bright.
 ================================
 DIVISION OF LABOR:
 - AI writes scripts.
-- User does everything else (building, models, VFX, sounds, animations) until otherwise decided.
+- AI models rocks (and their pre-split pieces) in Blender through the Blender MCP.
+- User does everything else (building, other models, VFX, sounds, animations) until otherwise decided.
 - UI: follows the boilerplate's AGENTS.md convention. ScreenGuis are authored in Studio's StarterGui and live in the place file (Rojo does not sync StarterGui). Screen modules under src/client/Controllers/UIController/Screens/ find elements by name inside the ScreenGui and drive them. If a Roblox Studio MCP is available, AI creates/edits ScreenGuis through it; otherwise AI writes the screen module and asks the user to author the ScreenGui in Studio. User must save the place after UI changes.
 
 WORKFLOW:
@@ -233,7 +243,8 @@ WORLD DESCRIPTION:
 - Training hub: where the intro cutscene and tutorial happen, and where all strength training takes place (including idle training).
   Hub aesthetic: mountain training grounds with sakura trees around (anime training-arc feel; bright, outdoor). Not a dojo.
 - Base plots: fixed-pedestal bases arranged around the hub. Other players can walk in and view your pet rocks. A Home button teleports the player back to their base.
-- Zones: a straight line leading out from the hub, one zone per rock tier. Each zone's environment matches its tier.
+- Zones: a straight line leading out from the hub, one zone per rock material (3 rocks each, see §03). Each zone's
+  environment matches its material. First zone: forest.
 [PROPOSED] Zones separated by gates showing the required strength; breaking through fires a server announcement.
 [PROPOSED] Teleport pad unlocks when a player first reaches a zone; players can jump to their highest zone from the hub.
 [PROPOSED] Handcrafted tiers (gray → cosmic) form the line. Anything beyond cosmic uses teleports into reused/generated zones rather than extending the line (Roblox physics/rendering degrade far from the world origin).
@@ -265,6 +276,18 @@ Two axes:
   - Equipped: a limited number follow the player and boost gains. [OPEN] Money, strength gain, or both. [PLAYTEST] Slot count, boost sizes.
   - Displayed: the rest sit on base pedestals and earn offline money.
 Plus: base expansion (pedestal slots, floors) and rebirth.
+
+SCALING (approved for now; actual numbers are very likely to change):
+Progression_Scaling_Notes.txt sets the ratios: rock strength requirement ~5x per rock, payout ~4x per rock,
+arm gain multiplier 2x per tier, arm price ~8x per tier. Tune the ratios through playtesting, not individual numbers.
+All values live in RockConfig / ArmConfig / TrainingConfig.
+
+CO-PLAY:
+Roblox rewards co-play, so playing with friends is boosted.
+- Friend boost: boosts MONEY gain. The first friend in the same server gives +15%; each additional friend gives +5%
+  (1 friend = 15%, 2 = 20%, 3 = 25% ...; max 45% with 7 friends in an 8-player server). Shown in the HUD as "+X% [Friends]".
+  [PLAYTEST] percentages; config-driven.
+- Invite button next to the friend boost row opens Roblox's game-invite prompt.
 
 PRIMARY CURRENCY: Money
 How is it earned?
@@ -316,7 +339,7 @@ Placement: HUD, always visible, center bottom of the screen. A rectangle styled 
 
 REWARDS:
 What activities give rewards? Breaking rocks (money); hatching geodes (pet rocks); pet rocks at base (offline money).
-What determines reward amount? Rock size/tier, timing quality, equipped pet boosts; luck (for hatch rarity).
+What determines reward amount? Rock size/tier, timing quality, equipped pet boosts, friend boost; luck (for hatch rarity).
 [PROPOSED] Geodes are cracked with the chop meter; timing quality improves hatch odds.
 How does risk affect reward? Attempting a rock that's too strong = crack, no reward.
 
@@ -333,7 +356,7 @@ REBIRTH:
 
 OFFLINE INCOME:
 - Pet rocks displayed at the base earn money while the player is offline.
-[OPEN] Offline cap (e.g., max hours accrued) — without one, offline income can outpace active play.
+- Offline cap: 4 hours (EconomyConfig.OfflineCapSeconds). [PLAYTEST]
 [PROPOSED] Active chopping should always earn clearly more per minute than offline income, so playing beats idling.
 
 COLLECTION / INDEX:
@@ -408,7 +431,7 @@ TRADING SYSTEM:
 Not defined.
 
 PARTY / TEAM / MATCHMAKING SYSTEM:
-Not defined.
+Co-play (§07): friend boost per friend in the server, and an in-HUD invite button.
 
 LEADERBOARD / ACHIEVEMENT SYSTEM:
 Rock/pet rock index. Server-wide announcements on rare hatches. Server-wide announcements on milestone breaks.
@@ -443,8 +466,10 @@ UI Style:
 Known: icon-driven, huge buttons, minimal reading.
 
 Important UI:
-HUD:
-Menus:
+HUD: money, strength, friend boost + invite button, EXP bar with level (center bottom), menu buttons, rock health bar
+(top of screen) and chop meter while chopping.
+Menus: Shop, Bag, Index and Rebirth buttons exist in the HUD. They were added early to settle the layout; only the
+shop does anything so far.
 Inventory:
 Shop:
 Other:
@@ -460,10 +485,11 @@ Completes an objective:
 Hatches a rare pet rock:
 
 MUSIC / AUDIO DIRECTION:
-Known: "yoo" sound on perfect breaks.
+Known: kabuki "YOOO" on master chops only (normal perfect breaks have no yoo).
 
 VFX DIRECTION:
-Known: per-arm-tier aura effects; shatter scales with timing quality.
+Known: per-arm-tier effects that ramp up by tier; break presentation scales with timing quality; master chop has its own
+over-the-top presentation (§02).
 
 ANIMATION DIRECTION:
 
@@ -481,20 +507,22 @@ EXPECTED PROJECT SCALE:
 Small / Medium / Large
 Explain what the user realistically expects one person + AI to achieve:
 
-MVP:
-What is the SMALLEST version of the game that proves the main gameplay idea is fun?
-1 zone, timing meter, rock breaking, basic training, money, 2 arm tiers.
-Purpose: prove the chop (timing meter + break) feels good and the train → chop → upgrade loop works.
+MVP (re-scoped 2026-10-01):
+The forest zone, fully built, with every chop feature the game has now.
+Purpose: prove the chop feels good and the train → chop → upgrade loop holds a player in one finished-looking zone.
+The first MVP (1 zone, 2 rocks, 2 arm tiers) was re-scoped partway through, so the existing build has rough edges to
+fix while reaching this version.
 
 MVP MUST HAVE:
-1. One zone.
-2. Timing meter (hold to wind up, release in power band; sloppy/good/perfect).
-3. Rock breaking, including full impact polish (screen shake, slow-mo frame, damage number, shatter debris, "yoo" SFX on perfect).
-4. Basic training (strength).
-5. Money.
-6. Two arm tiers.
-7. Two rock strengths in the one zone (tests "too weak → crack" and "train to break the next rock").
-Training method for MVP: karate board breaks (start with a single stack tier; more tiers unlock via rebirth post-MVP).
+1. The forest zone, fully built (environment matching the mossy material).
+2. Three mossy rocks of different sizes, modeled blocky with stud textures, each with pre-split break pieces.
+3. Everything chop-related already in the game: multi-chop rocks with a health bar, moving power band and cursor,
+   five timing qualities, "too weak → crack", break presentation, and the secret master chop.
+4. Training with the chop animation (karate board breaks, single stack tier).
+5. Money, arm upgrades with arm visuals, and the shop.
+6. Strength, levels and the EXP bar.
+7. Guidance (rock labels, arrow trail).
+8. Co-play: friend boost and invite button.
 MVP success criteria: the developer finds themselves playing instead of developing for more than 10 continuous minutes.
 
 MVP MUST NOT HAVE:
@@ -504,6 +532,7 @@ MVP MUST NOT HAVE:
 3. Rebirth, floors, multipliers.
 4. Monetization.
 5. Additional zones, teleports, gates.
+(The Bag, Index and Rebirth HUD buttons can stay as placeholders; their screens are post-MVP.)
 
 FEATURES FOR LATER UPDATES:
 1. Pet rocks + geodes + luck + base pedestals (second progression axis).
@@ -648,3 +677,16 @@ DECISION LOG
   - Training plays the chop animation (wind-up between training chops, strike on each).
   - Secret MASTER CHOP added (§02): ~1 in 100 chops, odds scale with timing quality, one-shots the rock, pays the remaining
     share at a Master multiplier, unique FX/pose scripted now (user assets slot in later), server-wide announcement.
+2026-10-01 — Plan review against the current build:
+  - Rocks and zones are [TBD]. Leaning: 3 rocks per zone, same material, different sizes. First zone is a forest with
+    mossy rocks. AI will remodel rocks in Blender, blocky with stud textures (§03, §04, §06).
+  - Arm visuals stay as material/texture changes on the player's own arms for the foreseeable future; no accessories.
+  - Normal perfect breaks no longer get a "yoo"; the kabuki YOOO belongs to the master chop only.
+  - Co-play added to the plan: friend boost per friend in server + HUD invite button (§07, §08).
+  - Friend boost: money gain only, +15% for the first friend in the server, +5% for each additional friend ([PLAYTEST]).
+  - "What to do next" is handled by rock labels and the guide arrow trail (§02).
+  - Progression_Scaling_Notes ratios approved for now; actual numbers expected to change.
+  - MVP re-scoped: the forest zone fully built with 3 mossy rocks and all current chop features (§10).
+  - Offline income cap set at 4 hours in config ([PLAYTEST]).
+  - Bag/Index/Rebirth HUD buttons are intentional placeholders.
+  - Geodes are never sold for Robux. §00 description rewritten to match the current design.
