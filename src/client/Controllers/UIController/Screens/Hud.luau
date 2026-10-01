@@ -146,10 +146,10 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 		local function resize()
 			local bleed = HudConfig.BackdropScreenBleedPixels
-			local width = bleed
-				+ label.Position.X.Offset
-				+ label.TextBounds.X
-				+ HudConfig.BackdropPaddingPixels
+			local width = math.max(
+				HudConfig.BackdropMinWidthPixels + bleed,
+				bleed + label.Position.X.Offset + label.TextBounds.X + HudConfig.BackdropPaddingPixels
+			)
 			backdrop.Position = UDim2.new(0, -bleed, 0, 0)
 			backdrop.Size = UDim2.new(0, width, 1, 0)
 		end
@@ -161,8 +161,12 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	bind("Strength", "Strength", function(value: number): string
 		return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
 	end)
+	bind("FriendBoost", "FriendBoost", function(value: number): string
+		return `+{NumberFormat.Compact(value)}% [Friends]`
+	end)
 	trackBackdrop("Strength")
 	trackBackdrop("Money")
+	trackBackdrop("FriendBoost")
 
 	return {
 		Modal = false,
