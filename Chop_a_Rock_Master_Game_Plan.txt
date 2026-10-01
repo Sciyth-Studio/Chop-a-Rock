@@ -101,7 +101,7 @@ Loop details:
   widened by a zone width multiplier. [PLAYTEST] center range, multiplier (draft 1.5).
 - MASTER CHOP (secret): any chop on a rock the player can break has a small chance to become a master chop, with better
   odds on better timing. It one-shots the rock, pays the remaining share at a Master multiplier, and gets its own
-  over-the-top presentation: the ~3s kabuki "YOOO" SFX (drums first) starts immediately while the camera pans to the
+  over-the-top presentation: letterbox bars slide in, and the ~3s kabuki "YOOO" SFX (drums first) starts immediately while the camera pans to the
   player's side, then slowly across their face, then back to the normal chop view; the two-handed overhead strike, huge
   flash/shake, impact FOV punch, rainbow "MASTER!!" text and rock split land when the SFX ends.
   The whole server gets an announcement. Never on a Crack. Studio dev shortcut: Ctrl+Shift+M forces the next chop.
