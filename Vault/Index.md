@@ -1,0 +1,37 @@
+---
+description: Entry point to the Chop a Rock knowledge vault. Claude reads this at the start of every task.
+---
+# Chop a Rock Vault
+
+What Claude has learned while working on the game: preferences, references, gotchas and decisions. Keep this page short; detail lives in the linked notes.
+
+## How Claude uses this vault
+- Read this page before starting a task, then open the notes relevant to it.
+- When you learn a preference, gotcha or decision, write a note in the right folder (or `Inbox/` if unsure), add it below, and tell the user.
+- One idea per note. Frontmatter carries a one-line `description` and a `type`. Link related notes with `[[Note Name]]`.
+- Update an existing note rather than adding a duplicate. Delete notes that turn out to be wrong.
+- Procedures belong in skills (`.claude/skills/`), not here: `rock-model`, `studio-ui`, `studio-playtest`.
+
+## Project
+- [[Chop a Rock]] — what the game is, repos, design source of truth
+
+## Preferences
+- [[Code Output Rules]] — whole files, no comments, no scope creep, propose-and-wait on player-facing changes
+- [[Only Surface Blocking Opens]] — on status questions, name only items that gate current work
+- [[High Saturation Colors]] — max-saturation by default; chop-quality palette
+- [[UI Text Style]] — colored stroke + gradient fill; black/white only when asked
+- [[UI Built In Studio]] — ScreenGuis authored in Studio, driven by UIController screens
+- [[Stage Only Own Files]] — parallel sessions; `git add` by explicit path
+
+## Reference
+- [[Master Game Plan]] — design source-of-truth doc and its tags
+- [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
+
+## Systems
+_One note per game system as they're worked on._
+
+## Decisions
+_Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
+
+## Inbox
+_Unsorted learnings for the user to review._

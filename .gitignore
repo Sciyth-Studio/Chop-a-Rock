@@ -9,3 +9,5 @@
 *.rbxl.lock
 *.rbxlx.lock
 .DS_Store
+
+/Vault/.obsidian/workspace*.json
