@@ -18,6 +18,7 @@ local TrainingService = {
 }
 
 local trove = Trove.new()
+local services: { [string]: any } = {}
 
 type Training = {
 	Board: BasePart,
@@ -88,7 +89,7 @@ local function stopTraining(player: Player)
 end
 
 local function startTraining(player: Player, board: BasePart)
-	if player:GetAttribute("DataLoaded") ~= true then
+	if not services.DataService:GetData(player) then
 		return
 	end
 	if trainings[player] then
@@ -171,7 +172,9 @@ local function setupBoard(instance: Instance)
 	end)
 end
 
-function TrainingService.Init(_self: any, _services: { [string]: any }) end
+function TrainingService.Init(_self: any, registry: { [string]: any })
+	services = registry
+end
 
 function TrainingService.Start(_self: any)
 	for _, tagged in CollectionService:GetTagged(TRAINING_TAG) do

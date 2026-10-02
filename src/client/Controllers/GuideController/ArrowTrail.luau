@@ -19,8 +19,8 @@ local ROCK_TAG = "ChopRock"
 
 local ArrowTrail = {}
 
-local function readAttribute(name: string): number
-	local value = Players.LocalPlayer:GetAttribute(name)
+local function readData(dataController: any, key: string): number
+	local value = dataController:Get({ key })
 	return if type(value) == "number" then value else 0
 end
 
@@ -71,9 +71,9 @@ local function isNearWorseRock(position: Vector3, best: RockConfig.Rock): boolea
 	return false
 end
 
-local function isReadyToUpgrade(): boolean
-	local nextTier = ArmConfig.Tiers[math.max(1, readAttribute("ArmTier")) + 1]
-	return nextTier ~= nil and readAttribute("Cash") >= nextTier.Price
+local function isReadyToUpgrade(dataController: any): boolean
+	local nextTier = ArmConfig.Tiers[math.max(1, readData(dataController, "ArmTier")) + 1]
+	return nextTier ~= nil and readData(dataController, "Cash") >= nextTier.Price
 end
 
 local function findShopPosition(): Vector3?
@@ -125,7 +125,7 @@ local function makeArrow(): Arrow
 	}
 end
 
-function ArrowTrail.Start(trove: TroveInstance)
+function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 	local arrows: { Arrow } = {}
 	local isGuidingRock = false
 	local isShopDismissed = false
@@ -207,7 +207,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 
 	local function chooseTarget(position: Vector3): Vector3?
 		guidedKey = nil
-		local isReady = isReadyToUpgrade()
+		local isReady = isReadyToUpgrade(dataController)
 		if not isReady then
 			isShopDismissed = false
 		end
@@ -220,7 +220,7 @@ function ArrowTrail.Start(trove: TroveInstance)
 				return shopPosition
 			end
 		end
-		local bestKey, best = bestBreakable(readAttribute("Strength"))
+		local bestKey, best = bestBreakable(readData(dataController, "Strength"))
 		if not best then
 			isGuidingRock = false
 			return nil

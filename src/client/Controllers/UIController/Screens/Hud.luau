@@ -22,8 +22,9 @@ local function formatMoney(value: number): string
 	return `${NumberFormat.Compact(value)}`
 end
 
-function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
+function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local player = Players.LocalPlayer
+	local dataController = context.Controllers.DataController
 	local trove = Trove.new()
 	local isDestroyed = false
 	ViewportScale.Bind(gui, trove)
@@ -40,6 +41,10 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local function readAttribute(attribute: string): number
 		local value = player:GetAttribute(attribute)
+		return if type(value) == "number" then value else 0
+	end
+
+	local function readNumber(value: any): number
 		return if type(value) == "number" then value else 0
 	end
 
@@ -74,6 +79,17 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		refresh()
 	end
 
+	local function bindData(labelName: string, path: { string }, format: (number) -> string)
+		local label = findLabel(labelName)
+		if not label then
+			return
+		end
+		setText(label, format(0))
+		trove:Add(dataController:Observe(path, function(value: any)
+			setText(label, format(readNumber(value)))
+		end))
+	end
+
 	local function bindMoney()
 		local label = findLabel("Money")
 		if not label then
@@ -87,7 +103,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			warn(`[Hud] Missing TextLabel "{DELTA_TEMPLATE}" under Money; wallet changes will not animate`)
 		end
 
-		local lastTarget = readAttribute("Cash")
+		local lastTarget = readNumber(dataController:Get({ "Cash" }))
 		setText(label, formatMoney(lastTarget))
 
 		local function playDelta(delta: number, target: number)
@@ -135,8 +151,8 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			slide:Play()
 		end
 
-		trove:Connect(player:GetAttributeChangedSignal("Cash"), function()
-			local target = readAttribute("Cash")
+		trove:Add(dataController:Observe({ "Cash" }, function(value: any)
+			local target = readNumber(value)
 			local delta = target - lastTarget
 			lastTarget = target
 			if delta == 0 then
@@ -147,7 +163,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			else
 				setText(label, formatMoney(target))
 			end
-		end)
+		end))
 	end
 
 	local function trackBackdrop(labelName: string, extraPadding: number)
@@ -247,7 +263,7 @@ function Hud.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 
 	bindMoney()
 	bindTouchLift()
-	bind("Strength", "Strength", function(value: number): string
+	bindData("Strength", { "Strength" }, function(value: number): string
 		return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
 	end)
 	bind("FriendBoost", "FriendBoost", function(value: number): string

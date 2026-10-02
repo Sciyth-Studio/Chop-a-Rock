@@ -41,7 +41,7 @@ local function scheduleNextRound(player: Player, session: Types.Session)
 end
 
 local function onTriggered(rock: Types.Rock, player: Player)
-	if not rock.Prompt.Enabled or sessions[player] or player:GetAttribute("DataLoaded") ~= true then
+	if not rock.Prompt.Enabled or sessions[player] or not services.DataService:GetData(player) then
 		return
 	end
 	local canBreak = services.StatsService:GetStrength(player) >= rock.Config.StrengthRequired

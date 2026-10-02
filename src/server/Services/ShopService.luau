@@ -8,6 +8,7 @@ local Trove = require(ReplicatedStorage.Packages.Trove)
 local SHOP_TAG = "ShopKiosk"
 
 local trove = Trove.new()
+local services: { [string]: any } = {}
 
 local ShopService = {
 	Name = "ShopService",
@@ -49,14 +50,16 @@ local function setupKiosk(instance: Instance)
 	prompt.Parent = part
 
 	trove:Add(prompt.Triggered:Connect(function(player: Player)
-		if player:GetAttribute("DataLoaded") ~= true then
+		if not services.DataService:GetData(player) then
 			return
 		end
 		Packets.ShopOpen:FireClient(player)
 	end))
 end
 
-function ShopService.Init(_self: any, _services: { [string]: any }) end
+function ShopService.Init(_self: any, registry: { [string]: any })
+	services = registry
+end
 
 function ShopService.Start(_self: any)
 	for _, tagged in CollectionService:GetTagged(SHOP_TAG) do

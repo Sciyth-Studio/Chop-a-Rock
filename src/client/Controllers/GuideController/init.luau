@@ -10,16 +10,18 @@ type TroveInstance = typeof(Trove.new())
 local GuideController = {
 	Name = "GuideController",
 	_trove = nil :: TroveInstance?,
+	_controllers = {} :: { [string]: any },
 }
 
-function GuideController.Init(self: any, _controllers: { [string]: any })
+function GuideController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
+	self._controllers = controllers
 end
 
 function GuideController.Start(self: any)
 	local trove = self._trove :: TroveInstance
 	RockLabels.Start(trove)
-	ArrowTrail.Start(trove)
+	ArrowTrail.Start(trove, self._controllers.DataController)
 end
 
 function GuideController.Destroy(self: any)

@@ -1,6 +1,5 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
@@ -63,7 +62,7 @@ local function findButton(root: Instance, name: string): TextButton?
 end
 
 function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
-	local player = Players.LocalPlayer
+	local dataController = context.Controllers.DataController
 	local trove = Trove.new()
 	ViewportScale.Bind(gui, trove)
 	local rows: { Row } = {}
@@ -76,8 +75,8 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		template.Visible = false
 	end
 
-	local function readNumber(attribute: string, fallback: number): number
-		local value = player:GetAttribute(attribute)
+	local function readNumber(key: string, fallback: number): number
+		local value = dataController:Get({ key })
 		return if type(value) == "number" then value else fallback
 	end
 
@@ -147,8 +146,8 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end))
 	end
 
-	trove:Connect(player:GetAttributeChangedSignal("ArmTier"), refresh)
-	trove:Connect(player:GetAttributeChangedSignal("Cash"), refresh)
+	trove:Add(dataController:Observe({ "ArmTier" }, refresh))
+	trove:Add(dataController:Observe({ "Cash" }, refresh))
 	trove:Add(Packets.ShopOpen.OnClientEvent:Connect(function()
 		context.Open("Shop")
 	end))

@@ -1,6 +1,5 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
@@ -13,8 +12,8 @@ local Types = require(script.Parent.Parent.Types)
 
 local ExpBar = {}
 
-function ExpBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
-	local player = Players.LocalPlayer
+function ExpBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
+	local dataController = context.Controllers.DataController
 	local trove = Trove.new()
 	ViewportScale.Bind(gui, trove)
 
@@ -51,8 +50,7 @@ function ExpBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	local lastLevel = 0
 	local tween: Tween? = nil
 
-	local function refresh()
-		local value = player:GetAttribute("Strength")
+	local function refresh(value: any)
 		local progress = Level.FromStrength(if type(value) == "number" then value else 0)
 		setPair(levelLabel, levelShadow, `{LevelConfig.LevelWord} {progress.Level}`)
 		setPair(
@@ -80,8 +78,8 @@ function ExpBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 		lastLevel = progress.Level
 	end
 
-	trove:Connect(player:GetAttributeChangedSignal("Strength"), refresh)
-	refresh()
+	refresh(dataController:Get({ "Strength" }))
+	trove:Add(dataController:Observe({ "Strength" }, refresh))
 
 	return {
 		Modal = false,

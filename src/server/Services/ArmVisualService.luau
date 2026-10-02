@@ -14,6 +14,7 @@ local EFFECT_NAME = "ArmEffect"
 local SPARK_TEXTURE = "rbxasset://textures/particles/sparkles_main.dds"
 
 local trove = Trove.new()
+local services: { [string]: any } = {}
 local playerTroves: { [Player]: any } = {}
 local originals: { [BasePart]: Original } = setmetatable({}, { __mode = "k" }) :: any
 
@@ -43,8 +44,7 @@ local function apply(player: Player)
 	if not character then
 		return
 	end
-	local tierValue = player:GetAttribute("ArmTier")
-	local tier = ArmConfig.Tiers[if type(tierValue) == "number" then tierValue else 1] or ArmConfig.Tiers[1]
+	local tier = ArmConfig.Tiers[services.ArmService:GetTier(player)] or ArmConfig.Tiers[1]
 	local visual = tier.Visual
 
 	for _, partName in ARM_PARTS do
@@ -85,17 +85,19 @@ local function track(player: Player)
 	end
 
 	playerTrove:Connect(player.CharacterAdded, applyWhenReady)
-	playerTrove:Connect(player:GetAttributeChangedSignal("ArmTier"), function()
-		apply(player)
-	end)
 	if player.Character then
 		applyWhenReady(player.Character)
 	end
 end
 
-function ArmVisualService.Init(_self: any, _services: { [string]: any }) end
+function ArmVisualService.Init(_self: any, registry: { [string]: any })
+	services = registry
+end
 
 function ArmVisualService.Start(_self: any)
+	trove:Add(services.ArmService.TierChanged:Connect(function(player: Player)
+		apply(player)
+	end))
 	trove:Add(Players.PlayerAdded:Connect(track))
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		local playerTrove = playerTroves[player]

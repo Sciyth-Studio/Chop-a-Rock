@@ -1,9 +1,9 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
 local Packets = require(ReplicatedStorage.Packets)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local DataService = require(script.Parent.DataService)
 local NotificationService = require(script.Parent.NotificationService)
@@ -12,14 +12,8 @@ local trove = Trove.new()
 
 local ArmService = {
 	Name = "ArmService",
+	TierChanged = Signal.new() :: Signal.Signal<(Player, number)>,
 }
-
-local function publish(player: Player)
-	local data = DataService:GetData(player)
-	if data then
-		player:SetAttribute("ArmTier", data.ArmTier)
-	end
-end
 
 function ArmService.GetTier(_self: any, player: Player): number
 	local data = DataService:GetData(player)
@@ -43,9 +37,9 @@ function ArmService.BuyTier(_self: any, player: Player, tierIndex: number): bool
 	if not DataService:AdjustCash(player, -tier.Price) then
 		return false
 	end
-	data.ArmTier = tierIndex
+	DataService:Set(player, { "ArmTier" }, tierIndex)
 	NotificationService:Notify(player, "Purchase", `Bought {tier.DisplayName}!`)
-	publish(player)
+	ArmService.TierChanged:Fire(player, tierIndex)
 	DataService:RequestSave(player)
 	return true
 end
@@ -53,12 +47,9 @@ end
 function ArmService.Init(_self: any, _services: { [string]: any }) end
 
 function ArmService.Start(_self: any)
-	trove:Add(DataService.PlayerLoaded:Connect(function(player: Player)
-		publish(player)
+	trove:Add(DataService.PlayerLoaded:Connect(function(player: Player, data)
+		ArmService.TierChanged:Fire(player, data.ArmTier)
 	end))
-	for _, player in Players:GetPlayers() do
-		publish(player)
-	end
 	Packets.BuyArm.OnServerInvoke = function(player: Player, tierIndex: number): boolean
 		return ArmService:BuyTier(player, tierIndex)
 	end

@@ -173,13 +173,16 @@ end
 
 function DataService.ResetData(_self: any, player: Player): boolean
 	local data = DataService:GetData(player)
-	if not data then
+	local replica = DataService:GetReplica(player)
+	if not data or not replica then
 		return false
 	end
 	local template = PlayerData.Template
-	data.Cash = template.Cash
-	data.Strength = template.Strength
-	data.ArmTier = template.ArmTier
+	replica:SetValues({}, {
+		Cash = template.Cash,
+		Strength = template.Strength,
+		ArmTier = template.ArmTier,
+	})
 	table.clear(data.Receipts)
 	DataService.PlayerLoaded:Fire(player, data)
 	DataService:RequestSave(player)
