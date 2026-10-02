@@ -373,7 +373,7 @@ Promise, Symbol and Signal also arrive as dependencies of Component and WaitFor.
 ## Project rules (Chop a Rock)
 
 - Before committing, run `./scripts/check.ps1` and fix everything it reports. Commit only when the user asks. End every commit message with the co-author line the session provides.
-- `origin` is the boilerplate repository, not this game's repository. Never push to it. Ask the user for their own remote before any push.
+- `origin` is this game's repository (`Sciyth-Studio/Chop-a-Rock`). `upstream` is the boilerplate repository; never push to it. Push to `origin` only when the user asks.
 - Player-facing changes (prices, rates, thresholds, visuals, wording) are proposed to the user before they are committed as final; drafted numbers are flagged as drafts.
 - UI text follows the `studio-ui` skill: colored stroke and gradient text by default, named styles from `TextStyleConfig`, black or white only when the user explicitly asks.
 - Studio edits (UI, rocks, assets) are not in git. Stop Play before editing Studio, wait for Rojo to sync before playing, and remind the user to save the place file.
