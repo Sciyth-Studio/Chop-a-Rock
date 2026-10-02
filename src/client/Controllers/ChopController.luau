@@ -54,6 +54,7 @@ local minigameStartTime = 0
 local activeCanBreak = true
 local masterStartClock: number? = nil
 local chopCamera: CFrame? = nil
+local releaseToken = 0
 
 local function smooth(alpha: number): number
 	local clamped = math.clamp(alpha, 0, 1)
@@ -209,6 +210,7 @@ local function endMinigame()
 		return
 	end
 	minigameActive = false
+	releaseToken += 1
 	ContextActionService:UnbindAction(RELEASE_ACTION)
 	ContextActionService:UnbindAction(LEAVE_ACTION)
 	if activeTrove then
@@ -225,16 +227,23 @@ local function endMinigame()
 end
 
 local function bindRelease()
-	ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
-		if inputState == Enum.UserInputState.Begin then
-			frozenPosition = ChopZones.Position(os.clock() - minigameStartTime)
-			Packets.ChopRelease:Fire()
-			ContextActionService:UnbindAction(RELEASE_ACTION)
-			return Enum.ContextActionResult.Sink
+	releaseToken += 1
+	local token = releaseToken
+	task.delay(ChopConfig.RoundInputDelaySeconds, function()
+		if token ~= releaseToken or not minigameActive or frozenPosition ~= nil then
+			return
 		end
-		return Enum.ContextActionResult.Pass
-	end, true, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
-	ContextActionService:SetTitle(RELEASE_ACTION, "CHOP")
+		ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
+			if inputState == Enum.UserInputState.Begin then
+				frozenPosition = ChopZones.Position(os.clock() - minigameStartTime)
+				Packets.ChopRelease:Fire()
+				ContextActionService:UnbindAction(RELEASE_ACTION)
+				return Enum.ContextActionResult.Sink
+			end
+			return Enum.ContextActionResult.Pass
+		end, true, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
+		ContextActionService:SetTitle(RELEASE_ACTION, "CHOP")
+	end)
 end
 
 local function leaveMinigame()

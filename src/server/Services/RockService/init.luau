@@ -63,6 +63,9 @@ local function onRelease(player: Player)
 	if not session or not session.StartTime then
 		return
 	end
+	if os.clock() - session.StartTime < ChopConfig.RoundInputDelaySeconds then
+		return
+	end
 	local rock = session.Rock
 
 	if not session.CanBreak then
