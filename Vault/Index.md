@@ -10,6 +10,8 @@ What Claude has learned while working on the game: preferences, references, gotc
 - When you learn a preference, gotcha or decision, write a note in the right folder (or `Inbox/` if unsure), add it below, and tell the user.
 - One idea per note. Frontmatter carries a one-line `description` and a `type`. Link related notes with `[[Note Name]]`.
 - Update an existing note rather than adding a duplicate. Delete notes that turn out to be wrong.
+- Images the user pastes into chat arrive as files Claude can open and copy into `Attachments/`.
+- Images live in `Attachments/`. Every image is embedded in a note that says what to take from it; open images only through those notes.
 - Procedures belong in skills (`.claude/skills/`), not here: `rock-model`, `studio-ui`, `studio-playtest`.
 
 ## Project
@@ -22,10 +24,13 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[UI Text Style]] — colored stroke + gradient fill; black/white only when asked
 - [[UI Built In Studio]] — ScreenGuis authored in Studio, driven by UIController screens
 - [[Stage Only Own Files]] — parallel sessions; `git add` by explicit path
+- [[Menu Panel Style]] — panels look like the HUD buttons: layered gradients, sharp corners, Chrome headers, roomy
 
 ## Reference
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
+- [[UI Style References]] — screenshots of panel UI the user likes; open before building or restyling menus
+- [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 
 ## Systems
 _One note per game system as they're worked on._
