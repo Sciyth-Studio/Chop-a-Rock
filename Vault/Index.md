@@ -12,7 +12,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - Update an existing note rather than adding a duplicate. Delete notes that turn out to be wrong.
 - Images the user pastes into chat arrive as files Claude can open and copy into `Attachments/`.
 - Images live in `Attachments/`. Every image is embedded in a note that says what to take from it; open images only through those notes.
-- Procedures belong in skills (`.claude/skills/`), not here: `rock-model`, `studio-ui`, `studio-playtest`.
+- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `rock-model`, `studio-ui`, `studio-playtest`.
 
 ## Project
 - [[Chop a Rock]] — what the game is, repos, design source of truth
