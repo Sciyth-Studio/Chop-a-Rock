@@ -11,6 +11,8 @@ export type TrainingSettings = {
 	BoardSplitOutwardStuds: number,
 	BoardSplitUpStuds: number,
 	BoardSplitTorqueRadPerSec: number,
+	BoardBurstEmitCount: number,
+	BoardBurstLifetimeSeconds: number,
 }
 
 local TrainingConfig: TrainingSettings = {
@@ -24,6 +26,8 @@ local TrainingConfig: TrainingSettings = {
 	BoardSplitOutwardStuds = 6,
 	BoardSplitUpStuds = 6,
 	BoardSplitTorqueRadPerSec = 5,
+	BoardBurstEmitCount = 24,
+	BoardBurstLifetimeSeconds = 1.5,
 }
 
 return table.freeze(TrainingConfig)

@@ -4,6 +4,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local Packets = require(ReplicatedStorage.Packets)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
@@ -69,6 +70,40 @@ local function playSoundOnPart(key: string, part: BasePart)
 	end)
 end
 
+local function playBoardBurst(board: BasePart)
+	local asset = AssetRegistry.get("VFX_Board_Break")
+	if not asset:IsA("Attachment") then
+		asset:Destroy()
+		return
+	end
+	asset.Parent = board
+	for _, descendant in asset:GetDescendants() do
+		if descendant:IsA("ParticleEmitter") then
+			descendant.Color = ColorSequence.new(board.Color)
+			local count = descendant:GetAttribute("EmitCount")
+			descendant:Emit(if type(count) == "number" then count else TrainingConfig.BoardBurstEmitCount)
+		end
+	end
+	task.delay(TrainingConfig.BoardBurstLifetimeSeconds, function()
+		if asset.Parent then
+			asset:Destroy()
+		end
+	end)
+end
+
+local function fadePieces(model: Model)
+	local fade = TweenInfo.new(
+		TrainingConfig.BoardPieceLifetimeSeconds,
+		Enum.EasingStyle.Quad,
+		Enum.EasingDirection.Out
+	)
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			TweenService:Create(descendant, fade, { Transparency = 1 }):Play()
+		end
+	end
+end
+
 local function breakBoard(board: BasePart)
 	if brokenBoards[board] then
 		return
@@ -80,6 +115,8 @@ local function breakBoard(board: BasePart)
 	brokenBoards[board] = true
 	board.Transparency = 1
 	board.CanCollide = false
+	playBoardBurst(board)
+	fadePieces(model)
 	task.delay(TrainingConfig.BoardPieceLifetimeSeconds, function()
 		if model.Parent then
 			model:Destroy()
