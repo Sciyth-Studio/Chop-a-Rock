@@ -6,7 +6,7 @@ type: decision
 
 **2026-10-02.** Forest zone rocks, in tier order:
 
-- **First (`Basic`)**: a plain stone (a tree stump was dropped because it doesn't fit Chop a Rock), not made yet; `DisplayName` is "Stone". Until it is authored in Workspace.Rocks, `Rocks.Spawn` makes a grey placeholder Part at the config position.
+- **First (`Basic`)**: a plain stone (a tree stump was dropped because it doesn't fit Chop a Rock); `DisplayName` is "Stone". The user authored it by hand (confirmed 2026-10-03), so all three forest rocks exist in the place file. The repo can't show this; check Studio, not the code, before calling a rock missing.
 - **Second**: the boulder (`Rock_Second`, was `Rock_Basic`), `SplitModel` Model_RockSplit_Boulder.
 - **Third**: the mossy boulder (`Rock_Third`), about 19 x 12 x 16.5 studs, `SplitModel` Model_RockSplit_MossyBoulder. It replaced the old Third placeholder, and `DisplayName` is now "Mossy Boulder".
 
