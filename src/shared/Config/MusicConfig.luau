@@ -1,15 +1,13 @@
 --!strict
 
 export type MusicSettings = {
-	Tracks: { number },
-	Volume: number,
+	FolderName: string,
 	FadeInSeconds: number,
 	LoadTimeoutSeconds: number,
 }
 
 local MusicConfig: MusicSettings = {
-	Tracks = {},
-	Volume = 0.4,
+	FolderName = "Music",
 	FadeInSeconds = 1.5,
 	LoadTimeoutSeconds = 10,
 }

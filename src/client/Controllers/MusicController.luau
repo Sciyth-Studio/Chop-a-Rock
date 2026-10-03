@@ -13,16 +13,27 @@ local MusicController = {
 	_trove = nil :: TroveInstance?,
 }
 
-local function pickTrack(lastIndex: number?): number
-	local count = #MusicConfig.Tracks
-	if count <= 1 then
-		return 1
+local function getTracks(folder: Instance): { Sound }
+	local tracks: { Sound } = {}
+	for _, child in folder:GetChildren() do
+		if child:IsA("Sound") then
+			table.insert(tracks, child)
+		end
 	end
-	local index = math.random(1, count - 1)
-	if lastIndex and index >= lastIndex then
-		index += 1
+	return tracks
+end
+
+local function pickTrack(tracks: { Sound }, last: Sound?): Sound
+	if #tracks == 1 then
+		return tracks[1]
 	end
-	return index
+	local choices: { Sound } = {}
+	for _, track in tracks do
+		if track ~= last then
+			table.insert(choices, track)
+		end
+	end
+	return choices[math.random(1, #choices)]
 end
 
 function MusicController.Init(self: any, _controllers: { [string]: any })
@@ -30,45 +41,79 @@ function MusicController.Init(self: any, _controllers: { [string]: any })
 end
 
 function MusicController.Start(self: any)
-	if #MusicConfig.Tracks == 0 then
-		return
-	end
 	local trove = self._trove :: TroveInstance
-	local sound = Instance.new("Sound")
-	sound.Name = "MusicPlaylist"
-	sound.Looped = false
-	sound.Volume = 0
-	sound.Parent = SoundService
-	trove:Add(sound)
+	local folder = ReplicatedStorage:WaitForChild("Assets"):WaitForChild(MusicConfig.FolderName)
 
-	local lastIndex: number? = nil
+	local current: Sound? = nil
+	local last: Sound? = nil
 	local token = 0
 	local isStopped = false
+	local isWaiting = false
 
-	local function playNext()
+	local function stopCurrent()
+		if current then
+			current:Destroy()
+			current = nil
+		end
+	end
+
+	local playNext: () -> ()
+
+	local function waitForTrack()
+		if isWaiting then
+			return
+		end
+		isWaiting = true
+		local connection: RBXScriptConnection
+		connection = folder.ChildAdded:Connect(function(child)
+			if child:IsA("Sound") then
+				connection:Disconnect()
+				isWaiting = false
+				playNext()
+			end
+		end)
+		trove:Add(connection)
+	end
+
+	function playNext()
 		if isStopped then
 			return
 		end
+		stopCurrent()
+		local tracks = getTracks(folder)
+		if #tracks == 0 then
+			waitForTrack()
+			return
+		end
 		token += 1
-		local current = token
-		local index = pickTrack(lastIndex)
-		lastIndex = index
+		local playing = token
+		local track = pickTrack(tracks, last)
+		last = track
+
+		local sound = track:Clone()
+		sound.Name = "MusicPlaylist"
+		sound.Looped = false
 		sound.Volume = 0
-		sound.SoundId = `rbxassetid://{MusicConfig.Tracks[index]}`
+		sound.Parent = SoundService
+		current = sound
+		sound.Ended:Connect(function()
+			if playing == token then
+				playNext()
+			end
+		end)
 		sound:Play()
-		TweenService:Create(sound, TweenInfo.new(MusicConfig.FadeInSeconds), { Volume = MusicConfig.Volume })
-			:Play()
+		TweenService:Create(sound, TweenInfo.new(MusicConfig.FadeInSeconds), { Volume = track.Volume }):Play()
 		task.delay(MusicConfig.LoadTimeoutSeconds, function()
-			if current == token and not sound.IsLoaded then
-				warn(`[MusicController] Track {index} failed to load; skipping`)
+			if playing == token and not sound.IsLoaded then
+				warn(`[MusicController] Track "{track.Name}" failed to load; skipping`)
 				playNext()
 			end
 		end)
 	end
 
-	trove:Connect(sound.Ended, playNext)
 	trove:Add(function()
 		isStopped = true
+		stopCurrent()
 	end)
 	playNext()
 end

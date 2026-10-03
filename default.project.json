@@ -15,6 +15,7 @@
         "$ignoreUnknownInstances": true,
         "VFX": { "$className": "Folder", "$ignoreUnknownInstances": true },
         "Sounds": { "$className": "Folder", "$ignoreUnknownInstances": true },
+        "Music": { "$className": "Folder", "$ignoreUnknownInstances": true },
         "Animations": { "$className": "Folder", "$ignoreUnknownInstances": true },
         "Models": { "$className": "Folder", "$ignoreUnknownInstances": true },
         "Images": { "$className": "Folder", "$ignoreUnknownInstances": true }

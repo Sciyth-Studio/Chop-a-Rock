@@ -24,6 +24,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[UI Text Style]] — colored stroke + gradient fill; black/white only when asked
 - [[UI Built In Studio]] — ScreenGuis authored in Studio, driven by UIController screens
 - [[Stage Only Own Files]] — parallel sessions; `git add` by explicit path
+- [[Drop In Assets Over Ids In Code]] — asset lists (music etc.) read a Studio folder, not ids in config
 - [[Menu Panel Style]] — panels look like the HUD buttons: layered gradients, sharp corners, Chrome headers, roomy
 
 ## Reference
