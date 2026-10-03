@@ -37,6 +37,20 @@ local TextStyleConfig: TextStyleSettings = {
 			StrokeThickness = nil,
 			GradientRotation = 90,
 		},
+		Strength = {
+			EdgeColor = Color3.fromRGB(255, 110, 0),
+			CenterColor = Color3.fromRGB(255, 200, 110),
+			StrokeColor = Color3.fromRGB(140, 45, 0),
+			StrokeThickness = nil,
+			GradientRotation = 90,
+		},
+		Green = {
+			EdgeColor = Color3.fromRGB(0, 190, 40),
+			CenterColor = Color3.fromRGB(150, 255, 120),
+			StrokeColor = Color3.fromRGB(0, 90, 20),
+			StrokeThickness = nil,
+			GradientRotation = 90,
+		},
 	},
 }
 

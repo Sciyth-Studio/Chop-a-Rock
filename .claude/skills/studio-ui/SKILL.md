@@ -23,7 +23,7 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 
 ## Named text styles
 
-- Named styles live in `src/shared/Config/TextStyleConfig.luau`: `Chrome` (light grey to white, grey stroke; used above rocks, prompt rock name and key, training hint, non-Perfect meter results), `Gold` (orange to light yellow, brown stroke; titles) and `Sky` (blue to light blue, navy stroke; shop names and info).
+- Named styles live in `src/shared/Config/TextStyleConfig.luau`: `Chrome` (light grey to white, grey stroke; used above rocks, prompt rock name and key, training hint, non-Perfect meter results), `Gold` (orange to light yellow, brown stroke; titles), `Sky` (blue to light blue, navy stroke; shop names and info), `Strength` (orange; all strength text) and `Green` (money green).
 - To use one: give the label a `UIGradient` and a `UIStroke`, then set the string attribute `TextStyle` to the style name. `Typography.Apply` applies the colors on load; `Typography.ApplyTextStyle(label, name)` applies one at runtime.
 - To add a style, add an entry to `TextStyleConfig.Styles`; do not hardcode gradient colors on individual labels.
 - Do not put a gradient on a TextButton whose background is visible; the gradient also tints the background. Use a colored text stroke instead.
