@@ -39,24 +39,6 @@ local RockConfig = {
 			PlaceholderSize = Vector3.new(14, 14, 14),
 			PlaceholderColor = Color3.fromRGB(100, 100, 120),
 		} :: Rock,
-		Fourth = {
-			DisplayName = "Monolith",
-			StrengthRequired = 250,
-			BasePayout = 3200,
-			RespawnSeconds = 0.8,
-			PlaceholderPosition = Vector3.new(105, 9, 0),
-			PlaceholderSize = Vector3.new(18, 18, 18),
-			PlaceholderColor = Color3.fromRGB(90, 60, 120),
-		} :: Rock,
-		Fifth = {
-			DisplayName = "Mountain",
-			StrengthRequired = 1250,
-			BasePayout = 12800,
-			RespawnSeconds = 0.8,
-			PlaceholderPosition = Vector3.new(155, 12, 0),
-			PlaceholderSize = Vector3.new(24, 24, 24),
-			PlaceholderColor = Color3.fromRGB(120, 60, 60),
-		} :: Rock,
 	},
 }
 
