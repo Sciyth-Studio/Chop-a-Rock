@@ -30,6 +30,8 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
 - [[UI Style References]] — screenshots of panel UI the user likes; open before building or restyling menus
+- [[Tintable Mesh Textures]] — transparent TextureID renders black on MeshParts; use SurfaceAppearance Overlay (stud texture id inside)
+- [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 
 ## Systems
@@ -37,6 +39,8 @@ _One note per game system as they're worked on._
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
+- [[Rocks Look Like Boulders]] — 2026-10-02: boulder look, user remodels by hand; what a hand-made rock must keep
+- [[Forest Rock Tiers]] — 2026-10-02: stone First, boulder Second, mossy boulder Third; moss is vertex colour; export scale gotcha
 
 ## Inbox
 _Unsorted learnings for the user to review._

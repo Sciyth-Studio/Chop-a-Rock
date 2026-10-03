@@ -24,3 +24,16 @@ pieces, split_report = rb.split_rock(rock, [(None, None, 0.04)], 0)
 Split: one straight vertical cut along the chop direction, 0.08 studs off centre, 51/49 by volume, pieces 152 and 110 tris, clearance 0.26.
 
 History: the two front blocks (indices 2 and 3) were at x = -0.9 and 1.0, crowding the centre line so no clean centred cut existed; they were moved apart for the chop-aligned split. Earlier splits (a stepped crack, then a 27-degree diagonal) were rejected because they did not follow the chop.
+
+## BoulderRock (boulder-style chop rock, proposed 2026-10-02)
+
+About 11.6 x 7 x 10 studs, 108 tris, faceted boulder with inlet studs as a see-through overlay (`assets/Textures/Studs/SingleInletStud.png`), grey (120, 120, 120). Files in `assets/Rocks/BoulderRock/`.
+
+```python
+rock, report = rb.build_boulder("BoulderRock", width=6.0, depth=5.0, height=3.5, facets=30,
+    cut_depth=(0.02, 0.2), min_nz=-0.5, center_height=0.3, lean=(0.12, 0.08), seed=4)
+chosen, tried = rb.find_mesh_split(rock, merges=(0.0,))
+pieces, split_report = rb.split_rock(rock, chosen["steps"], 0, chosen["merge"])
+```
+
+Split: straight cut along the chop direction at x = 0.06 (0.12 studs off centre), 50.5/49.5 by volume, pieces 72 tris each.

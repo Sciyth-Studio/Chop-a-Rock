@@ -26,6 +26,8 @@ local map: { [string]: AssetEntry } = {
 	UI_ChopPrompt = { Category = "VFX", InstanceName = "ChopPrompt" },
 	Image_GuideArrow = { Category = "Images", InstanceName = "GuideArrow" },
 	Model_RockSplit_Block = { Category = "Models", InstanceName = "Model_RockSplit_Block" },
+	Model_RockSplit_Boulder = { Category = "Models", InstanceName = "Model_RockSplit_Boulder" },
+	Model_RockSplit_MossyBoulder = { Category = "Models", InstanceName = "Model_RockSplit_MossyBoulder" },
 }
 
 local warned: { [string]: true } = {}

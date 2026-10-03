@@ -1,4 +1,5 @@
 import math
+import random
 
 import bmesh
 import bpy
@@ -114,7 +115,14 @@ def stats(me):
         if a < b and not set(bm.faces[a].verts) & set(bm.faces[b].verts)
     )
     angles = [math.degrees(min(l.calc_angle() for l in f.loops)) for f in bm.faces]
-    visible_slivers = sum(1 for f, a in zip(bm.faces, angles) if a < 4 and f.normal.z > -0.99)
+    def is_hidden_sliver(face):
+        longest = max(face.edges, key=lambda e: e.calc_length())
+        others = [o for o in longest.link_faces if o is not face]
+        return bool(others) and others[0].normal.dot(face.normal) > 0.9999
+
+    visible_slivers = sum(
+        1 for f, a in zip(bm.faces, angles) if a < 4 and f.normal.z > -0.99 and not is_hidden_sliver(f)
+    )
     islands = 0
     seen = set()
     for f in bm.faces:
@@ -542,23 +550,35 @@ def split_rock(rock, steps, angle=0.0, merge=0.0):
     }
 
 
-def export_fbx(objects, path):
-    bpy.ops.object.select_all(action="DESELECT")
+def export_fbx(objects, path, studs_per_unit=2.0):
+    from mathutils import Matrix
+
+    up = Matrix.Scale(studs_per_unit, 4)
+    down = Matrix.Scale(1.0 / studs_per_unit, 4)
     for obj in objects:
-        obj.hide_set(False)
-        obj.select_set(True)
-    bpy.context.view_layer.objects.active = objects[0]
-    bpy.ops.export_scene.fbx(
-        filepath=path,
-        use_selection=True,
-        object_types={"MESH"},
-        apply_scale_options="FBX_SCALE_UNITS",
-        axis_forward="-Z",
-        axis_up="Y",
-        mesh_smooth_type="FACE",
-        path_mode="STRIP",
-        bake_space_transform=True,
-    )
+        obj.data.transform(up)
+        obj.location *= studs_per_unit
+    try:
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in objects:
+            obj.hide_set(False)
+            obj.select_set(True)
+        bpy.context.view_layer.objects.active = objects[0]
+        bpy.ops.export_scene.fbx(
+            filepath=path,
+            use_selection=True,
+            object_types={"MESH"},
+            apply_scale_options="FBX_SCALE_UNITS",
+            axis_forward="-Z",
+            axis_up="Y",
+            mesh_smooth_type="FACE",
+            path_mode="STRIP",
+            bake_space_transform=True,
+        )
+    finally:
+        for obj in objects:
+            obj.data.transform(down)
+            obj.location /= studs_per_unit
 
 
 def setup_preview_scene():
@@ -606,3 +626,144 @@ def render_preview(visible, path, camera_location, target=(0, 0, 1.2)):
     bpy.ops.render.render(write_still=True)
     for obj in hidden:
         obj.hide_render = False
+
+
+def build_boulder(
+    name,
+    width=6.0,
+    depth=5.0,
+    height=3.5,
+    facets=24,
+    cut_depth=(0.0, 0.18),
+    min_nz=-0.25,
+    center_height=0.45,
+    lean=(0.0, 0.0),
+    seed=1,
+    color=(120, 120, 120),
+):
+    rng = random.Random(seed)
+    a, b = width / 2, depth / 2
+    c = height / (1 + center_height)
+    center = Vector((0, 0, c * center_height))
+
+    _remove_object(name)
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    for v in bm.verts:
+        v.co = Vector((v.co.x * 2 * a * 1.2, v.co.y * 2 * b * 1.2, (v.co.z + 0.5) * (center.z + c) * 1.2))
+
+    golden = math.pi * (3 - math.sqrt(5))
+    planes = []
+    i = 0
+    while len(planes) < facets and i < facets * 4:
+        t = (i + 0.5) / (facets * 1.3)
+        nz = 1 - 2 * t
+        i += 1
+        if nz < min_nz:
+            continue
+        r = math.sqrt(max(0.0, 1 - nz * nz))
+        ang = i * golden + rng.uniform(-0.35, 0.35)
+        n = Vector((math.cos(ang) * r, math.sin(ang) * r, nz))
+        n += Vector((rng.uniform(-0.12, 0.12), rng.uniform(-0.12, 0.12), rng.uniform(-0.08, 0.08)))
+        n.normalize()
+        support = math.sqrt((a * n.x) ** 2 + (b * n.y) ** 2 + (c * n.z) ** 2)
+        d = support * (1 - rng.uniform(*cut_depth))
+        shift = Vector((lean[0] * max(n.z, 0) * a, lean[1] * max(n.z, 0) * b, 0))
+        planes.append((center + shift + n * d, n))
+
+    for co, no in planes:
+        res = bmesh.ops.bisect_plane(
+            bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=co, plane_no=no, clear_outer=True
+        )
+        cut_edges = [e for e in res["geom_cut"] if isinstance(e, bmesh.types.BMEdge)]
+        if cut_edges:
+            bmesh.ops.edgeloop_fill(bm, edges=cut_edges)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-4)
+    bmesh.ops.dissolve_degenerate(bm, dist=1e-4, edges=bm.edges)
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(0.5), verts=bm.verts, edges=bm.edges)
+    bmesh.ops.triangulate(bm, faces=bm.faces, quad_method="BEAUTY", ngon_method="BEAUTY")
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    xs = [v.co.x for v in bm.verts]
+    ys = [v.co.y for v in bm.verts]
+    shift = Vector(((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, min(v.co.z for v in bm.verts)))
+    for v in bm.verts:
+        v.co -= shift
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    obj = bpy.data.objects.new(name, me)
+    _collection().objects.link(obj)
+    planar_stud_uvs(me)
+    _finish(obj, plain_material(f"{name}_Mat", color))
+    return obj, stats(me)
+
+
+def planar_stud_uvs(me, tile_studs=1):
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    uv = bm.loops.layers.uv.active or bm.loops.layers.uv.new("UVMap")
+    up_axis = Vector((0, 0, 1))
+    for face in bm.faces:
+        n = face.normal
+        if abs(n.z) > 0.95:
+            right = Vector((1, 0, 0))
+            up = n.cross(right).normalized()
+        else:
+            right = up_axis.cross(n).normalized()
+            up = n.cross(right).normalized()
+        for loop in face.loops:
+            p = loop.vert.co
+            loop[uv].uv = (p.dot(right) / (STUD * tile_studs), p.dot(up) / (STUD * tile_studs))
+    bm.to_mesh(me)
+    bm.free()
+
+
+def stud_overlay_material(name, rgb, image_path):
+    mat = plain_material(name, rgb)
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    bsdf = next(n for n in nodes if n.type == "BSDF_PRINCIPLED")
+    base = tuple(bsdf.inputs["Base Color"].default_value)
+    img = bpy.data.images.load(image_path, check_existing=True)
+    tex = nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    tex.interpolation = "Linear"
+    tex.extension = "REPEAT"
+    rgb_node = nodes.new("ShaderNodeRGB")
+    rgb_node.outputs[0].default_value = base
+    mix = nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    links.new(tex.outputs["Alpha"], mix.inputs["Factor"])
+    links.new(rgb_node.outputs[0], mix.inputs[6])
+    links.new(tex.outputs["Color"], mix.inputs[7])
+    links.new(mix.outputs[2], bsdf.inputs["Base Color"])
+    return mat
+
+
+def find_mesh_split(obj, max_offset=0.3, step=0.02, merges=(0.0, 0.05, 0.08, 0.12)):
+    xs = [v.co.x for v in obj.data.vertices]
+    tried = []
+    n = int(round(max_offset / step))
+    offsets = sorted((i * step for i in range(-n, n + 1)), key=abs)
+    best = None
+    for b in offsets:
+        clearance = min(abs(x - b) for x in xs)
+        for merge in merges:
+            pieces, report = split_rock(obj, [(None, None, b)], 0, merge)
+            ps = list(report["pieces"].values())
+            ok = report["volume_matches_rock"] and all(
+                p["nonmanifold"] == 0
+                and p["self_intersections"] == 0
+                and p["islands"] == 1
+                and p["visible_slivers"] == 0
+                and abs(p["min_z"]) < 1e-4
+                for p in ps
+            )
+            share = report["volume_split"][0]
+            entry = {"steps": [(None, None, b)], "angle": 0, "merge": merge, "clearance": round(clearance, 3), "share": share, "clean": ok}
+            tried.append(entry)
+            if ok and 0.44 <= share <= 0.56:
+                return entry, tried
+            if ok and (best is None or abs(share - 0.5) < abs(best["share"] - 0.5)):
+                best = entry
+    return best, tried

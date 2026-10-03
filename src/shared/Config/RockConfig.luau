@@ -13,7 +13,7 @@ export type Rock = {
 local RockConfig = {
 	Rocks = {
 		Basic = {
-			DisplayName = "Pebble",
+			DisplayName = "Stone",
 			StrengthRequired = 1,
 			BasePayout = 40,
 			RespawnSeconds = 0.8,
@@ -31,7 +31,7 @@ local RockConfig = {
 			PlaceholderColor = Color3.fromRGB(70, 70, 100),
 		} :: Rock,
 		Third = {
-			DisplayName = "Slab",
+			DisplayName = "Mossy Boulder",
 			StrengthRequired = 50,
 			BasePayout = 800,
 			RespawnSeconds = 0.8,

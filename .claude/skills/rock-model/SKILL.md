@@ -58,6 +58,28 @@ What makes it read as a boulder rather than crates (lessons from BlockRock, see 
 - The front of the rock is -Y: that side faces the player during the chop.
 - `height_scale` stretches every block's `z0` and `h`; use it for "a bit taller/shorter" requests instead of editing each block.
 
+### Boulder style (current look for chop rocks)
+
+Since 2026-10-02 chop rocks are faceted boulders (Vault: `Reference/Boulder Reference`, `Decisions/Rocks Look Like Boulders`) rather than stacked blocks. `build_boulder` carves a box with flat planes around an ellipsoid, so every facet is one truly flat face and the stud grid runs unbroken across it:
+
+```python
+rock, report = rb.build_boulder("BoulderRock", width=6.0, depth=5.0, height=3.5, facets=30,
+    cut_depth=(0.02, 0.2), min_nz=-0.5, center_height=0.3, lean=(0.12, 0.08), seed=4)
+```
+
+`width`, `depth`, `height` are the target size in Blender units (studs / 2); `facets` sets how many flat faces; `min_nz` below 0 lets lower facets tuck in at the base; `center_height` lower means a rounder bottom bulge; `seed` picks the variant. Render four seeds side by side, pick with the user, then apply the stud overlay material and split it with `find_mesh_split` (step 5) instead of `find_straight_split`:
+
+```python
+mat = rb.stud_overlay_material("BoulderRock_Mat", (120, 120, 120), r"C:\Users\Admin\Documents\RobloxDev\assets\Textures\Studs\SingleInletStud.png")
+chosen, tried = rb.find_mesh_split(rock, merges=(0.0,))
+pieces, split_report = rb.split_rock(rock, chosen["steps"], 0, chosen["merge"])
+for p in pieces:
+    rb.planar_stud_uvs(p.data)
+    p.data.materials.clear(); p.data.materials.append(mat)
+```
+
+Studs come from a see-through stud PNG applied as a `SurfaceAppearance` with `AlphaMode` Overlay (step 7), so the MeshPart's `Color` still sets the rock's colour. Keep all facets one colour.
+
 ## 4. Build and check
 
 ```python
@@ -112,13 +134,14 @@ Also save previews (`<Name>_preview.png`, `<Name>_Split_preview.png` with the pi
 
 The user imports; you cannot run the 3D Importer. Tell them:
 
-1. Import 3D, pick `assets/Rocks/<Name>/<Name>.fbx`, keep File Dimensions as for earlier rocks (BlockRock came in at 2 studs per Blender unit), Anchored on, then Import.
+1. Import 3D, pick `assets/Rocks/<Name>/<Name>.fbx`, keep File Dimensions at the default and do not rescale (`export_fbx` scales the vertices 2x on export, so 1 Blender unit imports as 2 studs; the FBX unit-scale option is ignored by Roblox's importer, and before 2026-10-02 rocks exported at 1:1 so the user had to scale every import 2x), Anchored on, then Import.
 2. Import 3D again with `<Name>_Split.fbx`. It arrives as one Model holding both pieces.
 3. Tell you when both are in Workspace.
 
 Then, with Play stopped, do the wiring through the Studio MCP (`execute_luau`, Edit):
 
 - **Split model**: rename it `Model_RockSplit_<Shape>` (one per mesh shape, not per tier: pieces take the rock's color and material at break time), move it to `ReplicatedStorage.Assets.Models`, and set each piece to `CollisionFidelity` Hull. Add `Model_RockSplit_<Shape> = { Category = "Models", InstanceName = "Model_RockSplit_<Shape>" }` to `src/shared/AssetRegistry.luau` and run `./scripts/check.ps1`.
+- **Studs**: if the rock is studded, the user uploads the stud PNG from `assets/Textures/Studs/` once (Asset Manager, same owner as the game) and gives you its id (the inlet stud is `rbxassetid://138660298161877`). On the rock and on every split piece, leave `TextureID` empty and add a `SurfaceAppearance` named `Studs` with `AlphaMode` Overlay and `ColorMap` set to that id (creating it from `execute_luau` works; set `ColorMap` before parenting, and to change the image destroy and recreate the SurfaceAppearance, because changing `ColorMap` on an existing one doesn't redraw in Studio); set `Color` to the rock colour. The split pieces keep their SurfaceAppearance when the break code clones them.
 - **Rock**: take the MeshPart out of its import Model, name it `Rock_<RockKey>`, parent it to `Workspace.Rocks`, tag `ChopRock`, set attributes `RockKey` (a key in `RockConfig`) and `SplitModel` (the registry key), set `Color`, `Material` SmoothPlastic, `TextureID` empty, `CollisionFidelity` Hull, `Anchored` true, `Archivable` true, and place it so its bottom sits on the ground where the old rock was (Position.Y = ground + Size.Y / 2). When replacing an existing rock, copy its position and attributes first, then delete the old part and the empty import Models.
 - `CollisionFidelity` cannot be changed from `execute_luau` (the write is silently ignored), so ask the user to set it to Hull in Properties on the rock and on each split piece. The 3D Importer brings meshes in as default-grey Plastic with fidelity Default; everything else above is set by script.
 - Verify by values (tag, attributes, size, position, registry lookup), then playtest a perfect break following the `studio-playtest` skill and report what was seen versus checked by value.
@@ -126,7 +149,7 @@ Then, with Play stopped, do the wiring through the Studio MCP (`execute_luau`, E
 
 ## Gotchas
 
-- A MeshPart's `TextureID` overrides `Color` entirely except where the texture is transparent. For tintable patterns (studs), use a transparent overlay PNG, never one with the color baked in.
+- A MeshPart's `TextureID` overrides `Color` entirely, and its transparent pixels render black, not the part colour (seen on BoulderRock, 2026-10-02). For tintable patterns (studs), put a transparent PNG in a `SurfaceAppearance` with `AlphaMode` Overlay instead; never bake the colour into the image.
 - The exported FBX carries no texture path (`path_mode="STRIP"`), so imports come in untextured.
 - Exact booleans need watertight inputs; the builder's blocks always are. If you add custom geometry, run `rb.stats(obj.data)` on it before combining.
 - Axes (measured on BlockRock's import): Blender X becomes Roblox -X, Blender Y becomes Roblox +Z, Blender Z becomes Roblox Y (up). So Blender's -Y side faces the player.
