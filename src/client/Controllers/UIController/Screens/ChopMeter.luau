@@ -41,8 +41,8 @@ type Stop = { Level: number, Color: Color3 }
 
 local MIN_PIECE = 0.0001
 
-local function buildRamp(center: number): ColorSequence
-	local bands = ChopZones.Bands(center)
+local function buildRamp(center: number, strengthRatio: number): ColorSequence
+	local bands = ChopZones.Bands(center, strengthRatio)
 	local stops: { Stop } = {}
 	local function addPiece(low: number, high: number, quality: number)
 		if high - low > MIN_PIECE then
@@ -130,7 +130,10 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local function applyRamp()
 		activeCanBreak = if chopController then chopController:CanBreakRock() else true
 		activeRamp = if activeCanBreak
-			then buildRamp(if chopController then chopController:GetZoneCenter() else 0.5)
+			then buildRamp(
+				if chopController then chopController:GetZoneCenter() else 0.5,
+				if chopController then chopController:GetStrengthRatio() else 1
+			)
 			else crackColor
 		if fill then
 			fill.Size = UDim2.new(1, 0, 1, 0)

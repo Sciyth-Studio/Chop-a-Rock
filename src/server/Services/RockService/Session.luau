@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local ChopZones = require(ReplicatedStorage.ChopZones)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Types = require(script.Parent.Types)
 
@@ -10,11 +11,18 @@ local Session = {}
 
 local brokenEpsilon = 1e-6
 
-function Session.New(rock: Types.Rock, canBreak: boolean, center: number, startTime: number): Types.Session
+function Session.New(
+	rock: Types.Rock,
+	canBreak: boolean,
+	strengthRatio: number,
+	center: number,
+	startTime: number
+): Types.Session
 	local maxHealth = rock.Config.StrengthRequired * ChopConfig.HitsAtMinStrength
 	return {
 		Rock = rock,
 		CanBreak = canBreak,
+		StrengthRatio = strengthRatio,
 		Health = maxHealth,
 		MaxHealth = maxHealth,
 		Center = center,
@@ -72,9 +80,14 @@ function Session.ApplyMaster(session: Types.Session): (number, number)
 	return applied, payout
 end
 
-function Session.IsMaster(random: Random, quality: number): boolean
+function Session.IsMaster(random: Random, quality: number, strengthRatio: number): boolean
 	local chance = MasterChopConfig.ChanceByQuality[quality]
-	return chance ~= nil and random:NextNumber() < chance
+	if chance == nil then
+		return false
+	end
+	local progress = ChopZones.StrengthProgress(strengthRatio)
+	local scale = 1 + (MasterChopConfig.ChanceScaleAtPerfectOnly - 1) * progress
+	return random:NextNumber() < chance * scale
 end
 
 function Session.IsBroken(session: Types.Session): boolean

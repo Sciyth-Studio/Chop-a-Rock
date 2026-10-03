@@ -10,6 +10,7 @@ local Packets = {
 		Packet.Boolean8,
 		Packet.NumberF64,
 		Packet.NumberF64,
+		Packet.NumberF64,
 		Packet.NumberF64
 	):RateLimit(3, 1),
 	ChopRoundStart = Packet("ChopRoundStart", Packet.NumberF64):RateLimit(5, 1),

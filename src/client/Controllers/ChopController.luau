@@ -45,6 +45,7 @@ end
 
 local uiController: any = nil
 local zoneCenter = 0.5
+local strengthRatio = 1
 local currentHealth = 0
 local currentMaxHealth = 0
 local minigameActive = false
@@ -257,6 +258,7 @@ end
 local function beginMinigame(
 	rock: BasePart,
 	canBreak: boolean,
+	ratio: number,
 	center: number,
 	health: number,
 	maxHealth: number
@@ -268,6 +270,7 @@ local function beginMinigame(
 	frozenPosition = nil
 	activeCanBreak = canBreak
 	zoneCenter = center
+	strengthRatio = ratio
 	currentHealth = health
 	currentMaxHealth = maxHealth
 
@@ -361,6 +364,10 @@ function ChopController.GetZoneCenter(_self: any): number
 	return zoneCenter
 end
 
+function ChopController.GetStrengthRatio(_self: any): number
+	return strengthRatio
+end
+
 function ChopController.GetHealth(_self: any): number
 	return currentHealth
 end
@@ -415,9 +422,16 @@ function ChopController.Start(self: any)
 	local trove = self._trove :: TroveInstance
 	trove:Add(
 		Packets.ChopMinigameStart.OnClientEvent:Connect(
-			function(rock: Instance, canBreak: boolean, center: number, health: number, maxHealth: number)
+			function(
+				rock: Instance,
+				canBreak: boolean,
+				ratio: number,
+				center: number,
+				health: number,
+				maxHealth: number
+			)
 				if rock:IsA("BasePart") then
-					beginMinigame(rock, canBreak, center, health, maxHealth)
+					beginMinigame(rock, canBreak, ratio, center, health, maxHealth)
 				end
 			end
 		)

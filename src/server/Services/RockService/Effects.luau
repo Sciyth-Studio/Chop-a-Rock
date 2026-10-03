@@ -9,8 +9,10 @@ local Types = require(script.Parent.Types)
 
 local Effects = {}
 
-local shakeSteps = 4
-local shakeStuds = 0.3
+local shakeSteps = 10
+local shakeStepSeconds = 0.03
+local shakeStuds = 0.5
+local shakeDegrees = 3
 local splitModelAttribute = "SplitModel"
 
 local function playSound(key: string, part: BasePart)
@@ -72,25 +74,46 @@ local function chunkCountFor(quality: number): number
 	return ChopConfig.BadChunkCount
 end
 
+local shakeOrigins: { [BasePart]: CFrame } = {}
+local shakeIds: { [BasePart]: number } = {}
+
 local function shake(part: BasePart)
-	local origin = part.CFrame
+	local origin = shakeOrigins[part] or part.CFrame
+	shakeOrigins[part] = origin
+	local id = (shakeIds[part] or 0) + 1
+	shakeIds[part] = id
+	local sizeScale = math.max(1, part.Size.X / ChopConfig.ReferenceRockSize)
 	task.spawn(function()
-		for _ = 1, shakeSteps do
-			if not part.Parent then
+		for step = 1, shakeSteps do
+			if shakeIds[part] ~= id then
 				return
 			end
+			if not part.Parent then
+				shakeOrigins[part] = nil
+				shakeIds[part] = nil
+				return
+			end
+			local strength = 1 - (step - 1) / shakeSteps
+			local studs = shakeStuds * sizeScale * strength
+			local radians = math.rad(shakeDegrees) * strength
 			part.CFrame = origin
-				* CFrame.new((math.random() * 2 - 1) * shakeStuds, 0, (math.random() * 2 - 1) * shakeStuds)
-			task.wait(0.04)
+				* CFrame.new((math.random() * 2 - 1) * studs, 0, (math.random() * 2 - 1) * studs)
+				* CFrame.Angles((math.random() * 2 - 1) * radians, 0, (math.random() * 2 - 1) * radians)
+			task.wait(shakeStepSeconds)
 		end
+		if shakeIds[part] ~= id then
+			return
+		end
+		shakeOrigins[part] = nil
+		shakeIds[part] = nil
 		if part.Parent then
 			part.CFrame = origin
 		end
 	end)
 end
 
-local function spawnChunks(part: BasePart, chunkCount: number, isOnSurface: boolean)
-	local basePos = if isOnSurface then part.Position + Vector3.new(0, part.Size.Y, 0) else part.Position
+local function spawnChunks(part: BasePart, chunkCount: number)
+	local basePos = part.Position
 	local halfSize = part.Size / 2
 	local color = part.Color
 	local material = part.Material
@@ -163,7 +186,6 @@ end
 function Effects.Hit(rock: Types.Rock, quality: number)
 	playSound(qualitySoundKey(quality), rock.Part)
 	shake(rock.Part)
-	spawnChunks(rock.Part, ChopConfig.BadChunkCount, true)
 end
 
 local function spawnSplitModel(part: BasePart): Model?
@@ -278,7 +300,7 @@ function Effects.Break(rock: Types.Rock, quality: number)
 		return
 	end
 	Effects.Hide(rock)
-	spawnChunks(rock.Part, chunkCountFor(quality), false)
+	spawnChunks(rock.Part, chunkCountFor(quality))
 	task.delay(rock.Config.RespawnSeconds, function()
 		Effects.Restore(rock)
 	end)

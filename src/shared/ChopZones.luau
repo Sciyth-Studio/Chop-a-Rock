@@ -18,19 +18,29 @@ local bandOrder: { { Quality: number, Width: number } } = {
 	{ Quality = ChopQuality.Mid, Width = ChopConfig.MidZoneWidth },
 }
 
-function ChopZones.Bands(center: number): { Band }
+function ChopZones.StrengthProgress(strengthRatio: number): number
+	return math.clamp(
+		math.log(math.max(strengthRatio, 1)) / math.log(ChopConfig.PerfectOnlyStrengthRatio),
+		0,
+		1
+	)
+end
+
+function ChopZones.Bands(center: number, strengthRatio: number): { Band }
 	local bands: { Band } = {}
-	local cumulative = 0
+	local progress = ChopZones.StrengthProgress(strengthRatio)
+	local baseCumulative = 0
 	for _, entry in bandOrder do
-		cumulative = math.min(1, cumulative + entry.Width * ChopConfig.ZoneWidthMultiplier)
+		baseCumulative = math.min(1, baseCumulative + entry.Width * ChopConfig.ZoneWidthMultiplier)
+		local cumulative = baseCumulative + (1 - baseCumulative) * progress
 		local low = math.clamp(center - cumulative / 2, 0, 1 - cumulative)
 		table.insert(bands, { Quality = entry.Quality, Low = low, High = low + cumulative })
 	end
 	return bands
 end
 
-function ChopZones.Classify(position: number, center: number): number
-	for _, band in ChopZones.Bands(center) do
+function ChopZones.Classify(position: number, center: number, strengthRatio: number): number
+	for _, band in ChopZones.Bands(center, strengthRatio) do
 		if position >= band.Low and position <= band.High then
 			return band.Quality
 		end

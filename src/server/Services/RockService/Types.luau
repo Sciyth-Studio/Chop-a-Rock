@@ -13,6 +13,7 @@ export type Rock = {
 export type Session = {
 	Rock: Rock,
 	CanBreak: boolean,
+	StrengthRatio: number,
 	Health: number,
 	MaxHealth: number,
 	Center: number,

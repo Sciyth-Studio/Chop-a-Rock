@@ -17,7 +17,7 @@ export type RebirthSettings = {
 local RebirthConfig: RebirthSettings = {
 	Rebirths = {
 		{
-			LevelRequired = 20,
+			LevelRequired = 12,
 			CashMultiplier = 2,
 			StrengthMultiplier = 2,
 		},

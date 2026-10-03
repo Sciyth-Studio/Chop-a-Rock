@@ -4,6 +4,7 @@ local ChopQuality = require(script.Parent.Parent.ChopQuality)
 
 export type MasterChopSettings = {
 	ChanceByQuality: { [number]: number },
+	ChanceScaleAtPerfectOnly: number,
 	PayoutMultiplier: number,
 	ImpactDelaySeconds: number,
 	StrikeHoldSeconds: number,
@@ -40,6 +41,7 @@ local MasterChopConfig: MasterChopSettings = {
 		[ChopQuality.Great] = 0.015,
 		[ChopQuality.Perfect] = 0.025,
 	},
+	ChanceScaleAtPerfectOnly = 0.2,
 	PayoutMultiplier = 3,
 	ImpactDelaySeconds = 3,
 	StrikeHoldSeconds = 0.6,

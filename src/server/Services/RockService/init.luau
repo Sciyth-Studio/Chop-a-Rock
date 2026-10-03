@@ -44,14 +44,17 @@ local function onTriggered(rock: Types.Rock, player: Player)
 	if not rock.Prompt.Enabled or sessions[player] or not services.DataService:GetData(player) then
 		return
 	end
-	local canBreak = services.StatsService:GetStrength(player) >= rock.Config.StrengthRequired
-	local session = Session.New(rock, canBreak, ChopZones.RandomCenter(random), os.clock())
+	local strength = services.StatsService:GetStrength(player)
+	local canBreak = strength >= rock.Config.StrengthRequired
+	local strengthRatio = strength / math.max(rock.Config.StrengthRequired, 1)
+	local session = Session.New(rock, canBreak, strengthRatio, ChopZones.RandomCenter(random), os.clock())
 	sessions[player] = session
 	rock.Prompt.Enabled = false
 	Packets.ChopMinigameStart:FireClient(
 		player,
 		rock.Part,
 		canBreak,
+		strengthRatio,
 		session.Center,
 		session.Health,
 		session.MaxHealth
@@ -78,10 +81,10 @@ local function onRelease(player: Player)
 
 	local elapsed = math.max(0, os.clock() - session.StartTime - ChopConfig.LatencyCompensationSeconds)
 	local position = ChopZones.Position(elapsed)
-	local quality = ChopZones.Classify(position, session.Center)
+	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio)
 	local damage: number, payout: number
 	local isForced = forcedMasters[player] == true
-	if isForced or Session.IsMaster(random, quality) then
+	if isForced or Session.IsMaster(random, quality, session.StrengthRatio) then
 		forcedMasters[player] = nil
 		quality = ChopQuality.Master
 		damage, payout = Session.ApplyMaster(session)
