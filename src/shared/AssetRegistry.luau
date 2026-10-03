@@ -30,6 +30,7 @@ local map: { [string]: AssetEntry } = {
 	Model_RockSplit_Boulder = { Category = "Models", InstanceName = "Model_RockSplit_Boulder" },
 	Model_RockSplit_MossyBoulder = { Category = "Models", InstanceName = "Model_RockSplit_MossyBoulder" },
 	Model_TrainingBoardSplit = { Category = "Models", InstanceName = "Model_TrainingBoardSplit" },
+	Model_ArmPreview = { Category = "Models", InstanceName = "Model_ArmPreview" },
 }
 
 local warned: { [string]: true } = {}

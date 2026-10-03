@@ -19,6 +19,8 @@ Every menu panel follows the HUD menu-button look, not the look of whatever refe
 - **Value boxes**: colored by what they show (cash = green, strength = orange).
 - **Progress bars** tracking level use the EXP bar's own gold/yellow, filled to the ratio.
 
+**Panel colors:** Rebirth = red, Arm Shop = orange (2026-10-03). Arm Shop buy buttons: green affordable, grey too expensive, orange owned.
+
 Colors (edge / center / studs): Gold 255,170,0 / 255,245,130 / 190,100,0 · Red 230,0,0 / 255,130,120 / 140,0,0 · Green 0,190,40 / 150,255,120 / 0,120,20 · Orange 255,110,0 / 255,205,120 / 170,60,0 · Grey 120,120,120 / 215,215,215 / 70,70,70 · Purple 150,0,255 / 220,150,255 / 90,0,160.
 
 **Header text layout**: put the title and value in a horizontal `UIListLayout` with fixed `TextSize` and `AutomaticSize` X. Side-by-side `TextScaled` boxes overlapped at runtime.

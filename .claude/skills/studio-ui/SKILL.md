@@ -50,3 +50,9 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 - Text widths inside a scaled container: `TextBounds` is in on-screen pixels, so divide it by the `ScreenScale` value before using it in an `Offset` (as `Hud.luau` does for backdrops, the invite button and money deltas).
 - Touch: ContextActionService bindings for the minigame chop release (`CHOP`) and training stop (`STOP`) create on-screen touch buttons (`createTouchButton` true plus `SetTitle`); keyboard-only bindings leave phones without a way to play.
 - HUD rows have shadows: `IconShadow` (black icon copy, 68px, about 3px right and 4px down) and `<Label>Shadow` (black label copy next to the real label, offset 2px right and 3px down). `Hud.luau` keeps the shadow text in sync through `setText` and `HudConfig.ShadowSuffix`; a missing shadow is skipped. The HUD `ZIndex` order is backdrop 1, shadows 2, outlines and labels 3, icon 4.
+
+## Arm Shop
+
+- `StarterGui.Shop.Panel` copies Rebirth's header, close button, box and glow recoloured orange (760x560; about 3.2 cards visible so players see there is more to scroll). `List` is a horizontal ScrollingFrame (X scrolling, horizontal `UIListLayout`, scrollbar along the bottom); `RowTemplate` (hidden) is a 200px-wide vertical card holding `ColorGlow` (shown on the equipped tier), `Preview` (168px ViewportFrame on top), `TierName`, `TierInfo` and `BuyButton` (bottom) (`Track.Fill` with gradient and `StudTexture`, child `Label`, `PriceIcon` group with outlines and shadow).
+- `Shop.luau` clones a row per `ArmConfig` tier, builds each arm preview from `Model_ArmPreview` (material and colour from `tier.Visual`, runtime camera), and recolours `Fill` from `ShopConfig.Palette` (Green affordable, Grey too expensive or locked, Orange owned and equipped). The price icon hides on non-price states and the label layout swaps through `ShopConfig.PriceLabel`.
+- Gotchas: [[ViewportFrame Gotchas]] in the vault.

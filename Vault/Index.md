@@ -36,6 +36,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
+- [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
 
 ## Systems
 _One note per game system as they're worked on._
