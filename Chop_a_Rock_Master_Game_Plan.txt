@@ -346,7 +346,7 @@ PLAYER LEVELS (revised 2026-10-01):
 - Resets to 1 on rebirth, because strength resets.
 - Curve: strength needed for level L = LevelBaseStrength × LevelGrowth^(L-1). Strength grows ~5x per rock tier, so a
   geometric curve gives a steady number of levels per tier instead of hundreds early and few late.
-  [PLAYTEST] Draft base 1, growth 1.5: roughly 4 levels per rock tier (Pebble L1, Boulder ~L6, Slab ~L10, Monolith ~L14,
+  [PLAYTEST] Draft base 2 (was 1; 2026-10-03 pacing), growth 1.5: roughly 4 levels per rock tier (Pebble L1, Boulder ~L6, Slab ~L10, Monolith ~L14,
   Mountain ~L18).
 - Level-up notification ("Level 7!") using the existing notification system.
 
@@ -758,3 +758,16 @@ DECISION LOG
   - Walk speed: a permanent step per zone unlocked, capped ([PLAYTEST]); not tied to strength or level.
   - VFX priority list written into §09.
   - Still [OPEN]: whether zone unlocks persist through rebirth; what equipped pets boost (must include money).
+2026-10-03 — Zone 1 pacing: first zone takes ~7 minutes, arms are the slowest upgrade (§07):
+  - Problem: perfect play reached the level 12 rebirth in ~1 minute (~3 minutes real); Wood arms cost ~20s of chopping.
+  - Arms are now the gate: training alone can't finish the zone in reasonable time, and arm prices doubled.
+  - Rock strength requirements 1/10/50 → 2/20/100; LevelBaseStrength 1 → 2 (level 12 = 173 strength).
+  - Training ChopIntervalSeconds 1.2 → 1.6. Arm prices 100/800/6,400/51,200 → 200/1,600/12,800/102,400.
+    Rock payouts unchanged. Ratios (5x / 4x / 8x / 2x) unchanged.
+  - Simulated perfect play: Wood ~0.5 min, Stone ~1.9 min, level 12 ~2.5 min (≈7.5 min real). Iron is the
+    zone 2 goal.
+  - Pets: money boosts shorten zone 1 by ~18% (2x) / ~29% (4x), bounded by the 8x-price / 2x-gain arm curve.
+    Price the zone 1 geode near the Wood arm price so pets compete with arms for money. Keep the Epic+ training
+    speed trait small and capped; pets never get a strength stat.
+  - Per-hit payout was checked: hits pay shares of the same per-rock total, so pay-on-break would not change pacing.
+  [PLAYTEST] all values.

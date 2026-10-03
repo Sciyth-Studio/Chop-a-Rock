@@ -31,7 +31,7 @@ local ArmConfig = {
 		{
 			Key = "Wood",
 			DisplayName = "Wood Arms",
-			Price = 100,
+			Price = 200,
 			TrainingGainMultiplier = 2.0,
 			Visual = {
 				Material = Enum.Material.Wood,
@@ -42,7 +42,7 @@ local ArmConfig = {
 		{
 			Key = "Stone",
 			DisplayName = "Stone Arms",
-			Price = 800,
+			Price = 1600,
 			TrainingGainMultiplier = 4.0,
 			Visual = {
 				Material = Enum.Material.Granite,
@@ -54,7 +54,7 @@ local ArmConfig = {
 		{
 			Key = "Iron",
 			DisplayName = "Iron Arms",
-			Price = 6400,
+			Price = 12800,
 			TrainingGainMultiplier = 8.0,
 			Visual = {
 				Material = Enum.Material.Metal,
@@ -66,7 +66,7 @@ local ArmConfig = {
 		{
 			Key = "Crystal",
 			DisplayName = "Crystal Arms",
-			Price = 51200,
+			Price = 102400,
 			TrainingGainMultiplier = 16.0,
 			Visual = {
 				Material = Enum.Material.Glass,

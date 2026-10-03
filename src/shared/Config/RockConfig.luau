@@ -14,7 +14,7 @@ local RockConfig = {
 	Rocks = {
 		Basic = {
 			DisplayName = "Stone",
-			StrengthRequired = 1,
+			StrengthRequired = 2,
 			BasePayout = 40,
 			RespawnSeconds = 0.8,
 			PlaceholderPosition = Vector3.new(0, 3, 0),
@@ -23,7 +23,7 @@ local RockConfig = {
 		} :: Rock,
 		Second = {
 			DisplayName = "Boulder",
-			StrengthRequired = 10,
+			StrengthRequired = 20,
 			BasePayout = 200,
 			RespawnSeconds = 0.8,
 			PlaceholderPosition = Vector3.new(30, 5, 0),
@@ -32,7 +32,7 @@ local RockConfig = {
 		} :: Rock,
 		Third = {
 			DisplayName = "Mossy Boulder",
-			StrengthRequired = 50,
+			StrengthRequired = 100,
 			BasePayout = 800,
 			RespawnSeconds = 0.8,
 			PlaceholderPosition = Vector3.new(65, 7, 0),

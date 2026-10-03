@@ -8,7 +8,7 @@ export type LevelSettings = {
 }
 
 local LevelConfig: LevelSettings = {
-	LevelBaseStrength = 1,
+	LevelBaseStrength = 2,
 	LevelGrowth = 1.5,
 	LevelWord = "LVL",
 	FillTweenSeconds = 0.25,
