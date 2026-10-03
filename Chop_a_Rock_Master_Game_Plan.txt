@@ -40,7 +40,7 @@ Ages 6–12.
 Main Selling Point:
 You get to chop a really big rock and it is incredibly satisfying.
 [PROPOSED] Sharper version: "The only simulator where every hit is a skill moment — built to look insane in a clip." (One skill-based, anime-impact action vs. the click-spam/auto-swing typical of the genre.)
-[PROPOSED] Differentiating link: geodes are cracked with the chop timing meter, and timing quality affects hatch rarity (perfect crack = better odds), so skill feeds both progression axes.
+[DECIDED 2026-10-03] Differentiating link: geodes are cracked with the chop timing meter, and timing quality affects hatch rarity (perfect crack = better odds), so skill feeds both progression axes.
 
 Expectations:
 Money printer.
@@ -228,7 +228,9 @@ Reasons to come back:
 4. Index — every kind of rock broken and every pet rock hatched.
 5. Offline income from pet rocks displayed at the base.
 [OPEN] Weekly is a long gap for 6–12; consider daily login streaks instead of or in addition.
-[OPEN] Define what random events are.
+[DECIDED 2026-10-03] Random events are server-wide weather/events. They modify everyone's per-player rocks at once,
+  can spawn shared special rocks (§06), and can add limited event geodes to the stands (e.g. a meteor shower adds
+  meteorite geodes). Specific events [TBD].
 [OPEN] PvP arena is large scope — MVP or later update? (Decide in Section 10.)
 
 ================================
@@ -245,14 +247,23 @@ WORLD DESCRIPTION:
 - Base plots: fixed-pedestal bases arranged around the hub. Other players can walk in and view your pet rocks. A Home button teleports the player back to their base.
 - Zones: a straight line leading out from the hub, one zone per rock material (3 rocks each, see §03). Each zone's
   environment matches its material. First zone: forest.
-[PROPOSED] Zones separated by gates showing the required strength; breaking through fires a server announcement.
-[PROPOSED] Teleport pad unlocks when a player first reaches a zone; players can jump to their highest zone from the hub.
+[DECIDED 2026-10-03] Zones are separated by gates. A gate needs the zone's required strength plus a one-time money
+  price ([PLAYTEST]); unlocking fires a server announcement. [OPEN] Whether zone unlocks persist through rebirth
+  (leaning: yes, they are one-time purchases).
+[DECIDED 2026-10-03] Each zone has a teleport pad, free, unlocked when the zone is unlocked. Players walk to a zone the
+  first time and teleport afterwards; they can jump to any unlocked zone from the hub.
+[DECIDED 2026-10-03] Movement speed: a permanent walk speed step per zone unlocked (draft: base 16, +2 per zone,
+  cap ~28-30, [PLAYTEST]). Not tied to strength or level, which reset on rebirth and grow geometrically. Later
+  speed sources (pet speed trait, speed gamepass) share the same cap. Zone spacing is designed for the capped speed.
 [PROPOSED] Handcrafted tiers (gray → cosmic) form the line. Anything beyond cosmic uses teleports into reused/generated zones rather than extending the line (Roblox physics/rendering degrade far from the world origin).
 Note: with training and bases at the hub, the server naturally gathers in one visible place; the zones are where players go to chop.
 
 MAIN LOCATION / STARTING AREA:
 The training hub in the spawn area. New players see the cutscene and tutorial there, then walk out into zone 1.
 Rocks are per-player: each player sees and chops their own copy of each rock.
+[DECIDED 2026-10-03] Scarcity lives in shared SPECIAL rocks layered on top: rare rocks (e.g. golden/crystal, or
+  event rocks) spawn server-wide at spots in a zone with a server announcement. Anyone can chop them, and payout is
+  split by each player's share of damage dealt (co-op, not last-hit-wins). Regular rocks are never contested.
 Base plots per server: 8 (this effectively sets max server size).
 
 ================================
@@ -297,6 +308,7 @@ What is it spent on?
 - Arm upgrades (strength).
 - Geodes (pet rocks).
 - Additional pedestal slots at the base.
+- One-time zone unlocks at the zone gates (§06).
 
 SECONDARY CURRENCY:
 None defined.
@@ -315,12 +327,17 @@ ITEM / EQUIPMENT TIERS:
 
 RARITIES:
 Pet rocks have rarities. Luck changes the odds.
-[PROPOSED] Geode tiers per zone (pricier geodes further out have better odds), replacing "bigger rocks drop rarer gems."
+[DECIDED 2026-10-03] Geode tiers per zone: each zone has a geode stand, priced against that zone's payouts, and
+  geodes further out have better odds. Each geode tier has a strength requirement like rocks. Being far stronger than a
+  geode maxes its timing bonus (all-Perfect meter), but that geode's own odds table still caps its rarity, which pushes
+  players to the next zone's geodes.
 [OPEN] Number of rarities and their names.
 [OPEN] Odds table (must be displayable to players).
 
 UNLOCK REQUIREMENTS:
-- Rocks/zones: strength.
+- Rocks: strength.
+- Zones: strength plus a one-time money price at the gate (§06).
+- Geodes: strength (per geode tier) plus money per geode.
 - Base floors: rebirth.
 
 PLAYER LEVELS (revised 2026-10-01):
@@ -340,11 +357,13 @@ Placement: HUD, always visible, center bottom of the screen. A rectangle styled 
 REWARDS:
 What activities give rewards? Breaking rocks (money); hatching geodes (pet rocks); pet rocks at base (offline money).
 What determines reward amount? Rock size/tier, timing quality, equipped pet boosts, friend boost; luck (for hatch rarity).
-[PROPOSED] Geodes are cracked with the chop meter; timing quality improves hatch odds.
+[DECIDED 2026-10-03] Geodes are cracked with the chop meter; timing quality gives a modest luck bonus to the hatch
+  roll. Loop: chop rocks → money → buy and crack a geode → pet boosts money → next geode sooner; spare pets go on
+  pedestals (offline money) and fill the index. Pets must boost money (at least) for this loop to close.
 How does risk affect reward? Attempting a rock that's too strong = crack, no reward.
 
 REBIRTH:
-- Requires reaching a minimum level, which rises with each rebirth. [PLAYTEST] Draft level 20 for the first rebirth;
+- Requires reaching a minimum level, which rises with each rebirth. [PLAYTEST] Level 12 for the first rebirth;
   how much it rises per rebirth (additive or multiplicative) is config-driven.
 - Resets strength and level to 1, and resets cash to 0 (no fixed cash price).
 - Arm tier is kept ([PLAYTEST]; RebirthConfig.ResetArmTier).
@@ -408,19 +427,21 @@ COMBAT SYSTEM:
 Not applicable (unless PvP arena is added).
 
 INTERACTION SYSTEM:
-Chop (hold/release timing meter). Geode hatching. Pet equip / pedestal placement at base.
+Chop (hold/release timing meter). Geode hatching (cracked with the same chop meter). Pet equip / pedestal placement
+at base. Zone gate unlocks and teleport pads.
 
 QUEST / OBJECTIVE SYSTEM:
 Tutorial. (Next-goal bar was scrapped; the EXP bar/level is the persistent progress indicator.)
 
 SHOP / SELLING SYSTEM:
-Arm upgrade shop. Geode shop. Pedestal slot purchases.
+Arm upgrade shop. Geode stand per zone. Pedestal slot purchases. Zone gate unlocks.
 
 NPC / ENEMY SYSTEM:
 Sensei (cutscene/tutorial). Bacon hair (cutscene). Cheering NPC crowds.
 
 RESOURCE / SPAWNING SYSTEM:
-Rocks per zone, instant respawn. Hatch rolls when a geode is cracked.
+Rocks per zone, instant respawn. Hatch rolls when a geode is cracked. Shared special rocks spawn server-wide
+(rare, and during events); payout split by damage share. Server-wide weather/events modify rocks and geode stands.
 
 VEHICLE SYSTEM:
 Not applicable.
@@ -442,7 +463,7 @@ Rebirth. Offline income.
 
 IMPORTANT TECHNICAL REQUIREMENTS:
 What player data must save between sessions?
-Money, strength, arm tier, level, rebirth count, pet rocks owned, equipped pets, pedestal placements, slots, floors, index, last-online time (for offline income).
+Money, strength, arm tier, level, rebirth count, pet rocks owned, equipped pets, pedestal placements, slots, floors, index, zones unlocked, last-online time (for offline income).
 Does the game require multiplayer interaction? If so, explain the important interactions.
 Are there valuable or exploitable systems that must be secure/server-controlled?
 Chop timing, payouts, hatch rolls, pet boosts, offline income calculation, purchases — all server-authoritative.
@@ -454,6 +475,8 @@ Other important technical requirements:
 
 Carried-over questions:
 Rocks are per-player (see Section 06). Rock visuals may be client-side, but the server tracks each player's rock state and validates every break (strength check, timing result, payout).
+Moving to per-player rocks means rock visuals and break effects (shake, rubble, split) move to each player's client,
+and the current "one rock per tier, locked while someone chops" behaviour goes away. Special rocks stay server-owned.
 Rock size: boulders stay well within Roblox's 2048-stud per-axis part cap; not a concern.
 [PLAYTEST] Timing meter tuning (power-band width, sloppy/good/perfect thresholds, mobile touch-latency compensation, young-kid motor-control margins). All values live in config; no hardcoded thresholds.
 [OPEN] DataStore save-schema versioning/migration plan.
@@ -491,6 +514,17 @@ Known: kabuki "YOOO" on master chops only (normal perfect breaks have no yoo).
 VFX DIRECTION:
 Known: per-arm-tier effects that ramp up by tier; break presentation scales with timing quality; master chop has its own
 over-the-top presentation (§02).
+[DECIDED 2026-10-03] VFX to add, by priority. Each is a swappable AssetRegistry effect like VFX_Master_Burst, so
+user-made effects can replace the first pass:
+  1. Chop hit impact at the hit point, scaled by quality (Bad/Mid dust puff, Good/Great sparks, Perfect shockwave
+     ring + star flash).
+  2. Wind-up charge: energy gathering on the hand while holding.
+  3. Rock break: dust cloud and ground shockwave ring under the rubble/split pieces.
+  4. Money: coins flying from the rock into the cash counter.
+  5. Level up and rebirth: light pillar/ring around the player (rebirth is the bigger version).
+  6. Too weak: "clink" spark bounce-off on a crack.
+  7. Training: splinters when the board snaps.
+  8. Arm tiers: faint aura/particles on higher tiers.
 
 ANIMATION DIRECTION:
 
@@ -524,7 +558,7 @@ MVP MUST HAVE:
 6. Strength, levels and the EXP bar.
 7. Guidance (rock labels, arrow trail).
 8. Co-play: friend boost and invite button.
-9. Rebirth #1: level 20 gate, resets strength/level/cash, keeps arms, grants x2 cash and x2 strength. Rebirth
+9. Rebirth #1: level 12 gate, resets strength/level/cash, keeps arms, grants x2 cash and x2 strength. Rebirth
    screen recreated from the reference; Skip Rebirth (Robux) button shown but inactive.
 MVP success criteria: the developer finds themselves playing instead of developing for more than 10 continuous minutes.
 
@@ -707,3 +741,20 @@ DECISION LOG
   - Only Rebirth #1 is configured; afterwards the screen says more rebirths are coming soon.
   - Rebirth screen recreated faithfully from the user's reference screenshot; restyling comes later.
   - Skip Rebirth (25 Robux, draft) is shown but inactive until monetization.
+2026-10-03 — Rebirth #1 gate lowered to level 12 ([PLAYTEST]):
+  - Level 20 needed ~2,200 strength while the forest tops out at the Mossy Boulder (50). Level 12 lands shortly after
+    the Mossy Boulder becomes breakable, so the forest alone carries a player to Rebirth #1.
+  - Monolith and Mountain placeholder rocks are being removed; the MVP forest has three rocks (Stone, Boulder, Mossy Boulder).
+  - Chop zones scale with strength over the rock's requirement (log scale, all-Perfect at 100x); Master chance scales
+    down with it to 20% of normal at 100x.
+2026-10-03 — World, scarcity, geodes and VFX direction (§00, §05, §06, §07, §08, §09):
+  - Rocks stay per-player; scarcity comes from shared special rocks (rare/event spawns, payout split by damage share).
+    Contesting the core rocks was rejected: for ages 6-12 "someone took my rock" is a reason to quit, and strong players
+    would win every race.
+  - Random events defined as server-wide weather/events that modify rocks, spawn special rocks and add limited event geodes.
+  - Geodes: one stand per zone, cracked with the chop meter (timing = modest luck bonus), each tier gated by strength;
+    better odds further out. Nothing drops from rocks (2026-09-28 stands).
+  - Zone gates: required strength plus a one-time money price. Teleport pads are free and unlock with the zone.
+  - Walk speed: a permanent step per zone unlocked, capped ([PLAYTEST]); not tied to strength or level.
+  - VFX priority list written into §09.
+  - Still [OPEN]: whether zone unlocks persist through rebirth; what equipped pets boost (must include money).
