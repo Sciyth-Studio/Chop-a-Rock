@@ -52,6 +52,7 @@ export type ChopSettings = {
 	SplitTorqueRadPerSec: number,
 	SlowMoPreImpactSeconds: number,
 	MoneyEffectDelaySeconds: number,
+	HitSoundVolumeMultiplier: number,
 }
 
 local ChopConfig: ChopSettings = {
@@ -106,6 +107,7 @@ local ChopConfig: ChopSettings = {
 	SplitTorqueRadPerSec = 6,
 	SlowMoPreImpactSeconds = 0.12,
 	MoneyEffectDelaySeconds = 0.5,
+	HitSoundVolumeMultiplier = 0.4,
 }
 
 return table.freeze(ChopConfig)

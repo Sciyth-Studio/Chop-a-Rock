@@ -15,11 +15,14 @@ local shakeStepSeconds = 0.03
 local shakeStuds = 0.5
 local shakeDegrees = 3
 
-local function playSound(key: string, part: BasePart)
+local function playSound(key: string, part: BasePart, volumeMultiplier: number?)
 	local asset = AssetRegistry.get(key)
 	if not asset:IsA("Sound") then
 		asset:Destroy()
 		return
+	end
+	if volumeMultiplier then
+		asset.Volume *= volumeMultiplier
 	end
 	asset.Parent = part
 	asset:Play()
@@ -185,6 +188,7 @@ end
 
 function Effects.Hit(rock: Types.Rock, quality: number)
 	playSound(qualitySoundKey(quality), rock.Part)
+	playSound("SFX_Rock_Break", rock.Part, ChopConfig.HitSoundVolumeMultiplier)
 	shake(rock.Part)
 end
 
