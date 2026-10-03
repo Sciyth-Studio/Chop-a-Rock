@@ -9,6 +9,7 @@ local Packets = require(ReplicatedStorage.Packets)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local ArmService = require(script.Parent.ArmService)
+local SplitModel = require(script.Parent.Parent.Utils.SplitModel)
 local StatsService = require(script.Parent.StatsService)
 
 local TRAINING_TAG = "TrainingBoard"
@@ -28,6 +29,13 @@ type Training = {
 	SavedJumpHeight: number,
 }
 local trainings: { [Player]: Training } = {}
+local brokenBoards: { [BasePart]: true } = {}
+
+local boardPush: SplitModel.Push = {
+	OutwardStuds = TrainingConfig.BoardSplitOutwardStuds,
+	UpStuds = TrainingConfig.BoardSplitUpStuds,
+	TorqueRadPerSec = TrainingConfig.BoardSplitTorqueRadPerSec,
+}
 
 local function resolveBoardPart(instance: Instance): BasePart?
 	if instance:IsA("BasePart") then
@@ -57,6 +65,31 @@ local function playSoundOnPart(key: string, part: BasePart)
 	task.delay(5, function()
 		if asset.Parent then
 			asset:Destroy()
+		end
+	end)
+end
+
+local function breakBoard(board: BasePart)
+	if brokenBoards[board] then
+		return
+	end
+	local model = SplitModel.Spawn(board, boardPush)
+	if not model then
+		return
+	end
+	brokenBoards[board] = true
+	board.Transparency = 1
+	board.CanCollide = false
+	task.delay(TrainingConfig.BoardPieceLifetimeSeconds, function()
+		if model.Parent then
+			model:Destroy()
+		end
+	end)
+	task.delay(TrainingConfig.BoardRespawnSeconds, function()
+		brokenBoards[board] = nil
+		if board.Parent then
+			board.Transparency = 0
+			board.CanCollide = true
 		end
 	end)
 end
@@ -142,6 +175,7 @@ local function tick()
 			)
 			local newStrength = StatsService:AddStrength(player, gain)
 			playSoundOnPart("SFX_Train_Chop", training.Board)
+			breakBoard(training.Board)
 			Packets.TrainingChop:FireClient(player)
 			print(`[TrainingService] {player.Name} trained: strength={newStrength}`)
 		end
@@ -204,6 +238,7 @@ function TrainingService.Destroy(_self: any)
 	end
 	trove:Clean()
 	table.clear(trainings)
+	table.clear(brokenBoards)
 end
 
 return TrainingService

@@ -6,6 +6,11 @@ export type TrainingSettings = {
 	ChopIntervalSeconds: number,
 	MaxLingerStuds: number,
 	SnapDistanceStuds: number,
+	BoardRespawnSeconds: number,
+	BoardPieceLifetimeSeconds: number,
+	BoardSplitOutwardStuds: number,
+	BoardSplitUpStuds: number,
+	BoardSplitTorqueRadPerSec: number,
 }
 
 local TrainingConfig: TrainingSettings = {
@@ -14,6 +19,11 @@ local TrainingConfig: TrainingSettings = {
 	ChopIntervalSeconds = 1.2,
 	MaxLingerStuds = 15,
 	SnapDistanceStuds = 4,
+	BoardRespawnSeconds = 0.8,
+	BoardPieceLifetimeSeconds = 2,
+	BoardSplitOutwardStuds = 6,
+	BoardSplitUpStuds = 6,
+	BoardSplitTorqueRadPerSec = 5,
 }
 
 return table.freeze(TrainingConfig)

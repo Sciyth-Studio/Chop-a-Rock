@@ -35,6 +35,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
+- [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 
 ## Systems
 _One note per game system as they're worked on._
