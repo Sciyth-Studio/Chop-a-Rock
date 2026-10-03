@@ -34,6 +34,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Tintable Mesh Textures]] — transparent TextureID renders black on MeshParts; use SurfaceAppearance Overlay (stud texture id inside)
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
+- [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 
 ## Systems
 _One note per game system as they're worked on._
