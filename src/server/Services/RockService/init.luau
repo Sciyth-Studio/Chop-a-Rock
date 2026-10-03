@@ -90,6 +90,7 @@ local function onRelease(player: Player)
 	end
 	if payout > 0 then
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
+		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		services.DataService:AdjustCash(player, payout)
 	end
 	local isBroken = Session.IsBroken(session)

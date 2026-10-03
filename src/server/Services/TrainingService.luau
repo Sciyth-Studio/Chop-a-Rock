@@ -133,7 +133,12 @@ local function tick()
 			training.LastChopClock = now
 			local gain = math.max(
 				1,
-				math.floor(TrainingConfig.StrengthPerChop * ArmService:GetTrainingMultiplier(player) + 0.5)
+				math.floor(
+					TrainingConfig.StrengthPerChop
+							* ArmService:GetTrainingMultiplier(player)
+							* services.RebirthService:GetStrengthMultiplier(player)
+						+ 0.5
+				)
 			)
 			local newStrength = StatsService:AddStrength(player, gain)
 			playSoundOnPart("SFX_Train_Chop", training.Board)

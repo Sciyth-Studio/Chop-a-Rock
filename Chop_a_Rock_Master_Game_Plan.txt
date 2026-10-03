@@ -346,10 +346,11 @@ How does risk affect reward? Attempting a rock that's too strong = crack, no rew
 REBIRTH:
 - Requires reaching a minimum level, which rises with each rebirth. [PLAYTEST] Draft level 20 for the first rebirth;
   how much it rises per rebirth (additive or multiplicative) is config-driven.
-- Resets strength and level to 1.
-- Unlocks a new base floor (more pedestal space).
-- Grants multipliers to money gain and strength gain.
-[OPEN] What else resets? Money? Arm tier (since arms = strength)? Pedestal slots?
+- Resets strength and level to 1, and resets cash to 0 (no fixed cash price).
+- Arm tier is kept ([PLAYTEST]; RebirthConfig.ResetArmTier).
+- Unlocks a new base floor (more pedestal space). (Post-MVP: bases are not in the MVP.)
+- Grants multipliers to money gain and strength gain. Rebirth #1: x2 cash, x2 strength. [PLAYTEST]
+[OPEN] What else resets? Pedestal slots?
        → [PLAYTEST] User will decide through playtesting. Code must support either choice via config.
 [OPEN] What persists? Presumably pet rocks, index, and floors — confirm.
 [PLAYTEST] Do rebirth multipliers stack per rebirth (additive/multiplicative), and by how much?
@@ -523,20 +524,22 @@ MVP MUST HAVE:
 6. Strength, levels and the EXP bar.
 7. Guidance (rock labels, arrow trail).
 8. Co-play: friend boost and invite button.
+9. Rebirth #1: level 20 gate, resets strength/level/cash, keeps arms, grants x2 cash and x2 strength. Rebirth
+   screen recreated from the reference; Skip Rebirth (Robux) button shown but inactive.
 MVP success criteria: the developer finds themselves playing instead of developing for more than 10 continuous minutes.
 
 MVP MUST NOT HAVE:
 (Everything not listed above is out of the MVP, including:)
 1. Pet rocks, geodes, luck, index.
 2. Player bases, pedestals, offline income.
-3. Rebirth, floors, multipliers.
-4. Monetization.
+3. Rebirths past #1, floors.
+4. Monetization (including a working Skip Rebirth button).
 5. Additional zones, teleports, gates.
-(The Bag, Index and Rebirth HUD buttons can stay as placeholders; their screens are post-MVP.)
+(The Bag and Index HUD buttons can stay as placeholders; their screens are post-MVP.)
 
 FEATURES FOR LATER UPDATES:
 1. Pet rocks + geodes + luck + base pedestals (second progression axis).
-2. Rebirth, floors, better training methods.
+2. Rebirths past #1, floors, better training methods.
 3. Offline income, rock/pet rock index.
 4. More zones, teleport pads, strength gates.
 5. Tutorial cutscene, random events, weekly rewards, potential PvP arena.
@@ -690,3 +693,17 @@ DECISION LOG
   - Offline income cap set at 4 hours in config ([PLAYTEST]).
   - Bag/Index/Rebirth HUD buttons are intentional placeholders.
   - Geodes are never sold for Robux. §00 description rewritten to match the current design.
+2026-10-02 — Rebirth cost and resets (partial resolution of §07 [OPEN]s):
+  - Rebirth consumes cash: rebirthing wipes the player's cash to 0 (no fixed price; level is the only gate). Chosen because cash
+    is the least-valuable progression asset (a flow, not a stock) — it regenerates quickly once strength and arms
+    are in place, so burning it on rebirth stings briefly without erasing real progress.
+  - Level resets on rebirth (reconfirmed; follows from strength → 1 since level is derived from strength).
+  - Still [OPEN]: whether arm tier, pedestal slots, and other stocks also reset; multiplier stacking math; Skip
+    Rebirth Robux price. Code stays config-driven so these slot in after playtesting.
+2026-10-02 — Rebirth #1 moved into the MVP (§10):
+  - Gate: level 20 only ([PLAYTEST]); no cash price. Clarifies the entry above: cash is wiped, not charged.
+  - Resets strength, level and cash; arm tier is kept ([PLAYTEST], config-driven).
+  - Grants x2 cash (rock payouts) and x2 strength (training) ([PLAYTEST]).
+  - Only Rebirth #1 is configured; afterwards the screen says more rebirths are coming soon.
+  - Rebirth screen recreated faithfully from the user's reference screenshot; restyling comes later.
+  - Skip Rebirth (25 Robux, draft) is shown but inactive until monetization.

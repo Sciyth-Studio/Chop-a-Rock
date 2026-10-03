@@ -182,6 +182,7 @@ function DataService.ResetData(_self: any, player: Player): boolean
 		Cash = template.Cash,
 		Strength = template.Strength,
 		ArmTier = template.ArmTier,
+		Rebirths = template.Rebirths,
 	})
 	table.clear(data.Receipts)
 	DataService.PlayerLoaded:Fire(player, data)
