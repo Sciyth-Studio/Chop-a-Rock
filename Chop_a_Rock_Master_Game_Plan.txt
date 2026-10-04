@@ -146,6 +146,10 @@ Rocks and zones:
 Pet rocks:
 - Cute collectible rocks (easy to model, original). Hatched from geodes; equipped ones follow the player, the rest sit on base pedestals.
 - Geodes: the "egg" of this game — a rock-shell container that cracks open to reveal a pet rock.
+[DECIDED 2026-10-03] Geodes are inventory items. The player places one in a crack area at their base and chops it on
+  the ground with the chop meter. It splits into two halves, the pet rock is shown on screen, then goes to the
+  inventory to equip or place on a pedestal. The inside is lined with crystals that change with the geode's rarity.
+  The geode must be big enough to hold the pet model. Leaning: random size variation on geodes and pets, for fun.
 [OPEN] Rarity presentation (label only, as gems were, or color/aura per rarity).
 
 Overall mood: Bright.
@@ -771,3 +775,7 @@ DECISION LOG
     speed trait small and capped; pets never get a strength stat.
   - Per-hit payout was checked: hits pay shares of the same per-rock total, so pay-on-break would not change pacing.
   [PLAYTEST] all values.
+2026-10-03 — Geode model and cracking (§03):
+  - Geodes are inventory items, placed and cracked in a crack area at the player's base (chopped on the ground),
+    not at the stand. Two halves split open; the pet is shown on screen, then goes to the inventory.
+  - Inside crystals change with the geode's rarity. Random size variation on geodes and pets is a leaning only.
