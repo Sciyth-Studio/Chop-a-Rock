@@ -38,6 +38,11 @@ local map: { [string]: AssetEntry } = {
 	Model_BasePlot = { Category = "Models", InstanceName = "Model_BasePlot" },
 	Model_BasePedestal = { Category = "Models", InstanceName = "Model_BasePedestal" },
 	Model_Rok_Bloky = { Category = "Models", InstanceName = "Model_Rok_Bloky" },
+	Model_Rok_Sprout = { Category = "Models", InstanceName = "Model_Rok_Sprout" },
+	Model_Rok_Shroomy = { Category = "Models", InstanceName = "Model_Rok_Shroomy" },
+	Model_Rok_Nesty = { Category = "Models", InstanceName = "Model_Rok_Nesty" },
+	Model_Rok_Berry = { Category = "Models", InstanceName = "Model_Rok_Berry" },
+	Model_Rok_Treebo = { Category = "Models", InstanceName = "Model_Rok_Treebo" },
 }
 
 local soundGroupName = "SoundEffects"

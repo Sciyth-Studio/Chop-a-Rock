@@ -25,6 +25,8 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[UI Built In Studio]] — ScreenGuis authored in Studio, driven by UIController screens
 - [[Stage Only Own Files]] — parallel sessions; `git add` by explicit path
 - [[Drop In Assets Over Ids In Code]] — asset lists (music etc.) read a Studio folder, not ids in config
+- [[Roks Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
+- [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
 - [[Menu Panel Style]] — panels look like the HUD buttons: layered gradients, sharp corners, Chrome headers, roomy
 
 ## Reference
@@ -36,6 +38,11 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Bloky Reference]] — first Rok (pet rock): chamfered cube, chamfered-square eyes as separate meshes
+- [[Sprout Reference]] — Uncommon forest Rok: Bloky's body and eyes plus a two-leaf seedling mesh on top
+- [[Shroomy Reference]] — Rare forest Rok: taller Bloky body, red-spotted mushrooms on top and the left side
+- [[Nesty Reference]] — Epic forest Rok: Bloky body, low-poly twig nest with three pebble eggs on top (~480 tris for nest + eggs)
+- [[Berry Reference]] — Legendary forest Rok: Bloky body, faceted leaf crown with four glowing magenta berries
+- [[Treebo Reference]] — Secret forest Rok: Bloky body, three-blob faceted tree from the back right, glowing firefly cubes
 - [[Geode Reference]] — closed + split geode sheets; flat chipped faces, no bumps, crystals are a separate rarity-coloured part
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 - [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
