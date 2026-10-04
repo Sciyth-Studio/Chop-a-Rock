@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
 
 export type AssetCategory = "VFX" | "Sounds" | "Animations" | "Models" | "Images"
 
@@ -31,10 +32,15 @@ local map: { [string]: AssetEntry } = {
 	Model_RockSplit_MossyBoulder = { Category = "Models", InstanceName = "Model_RockSplit_MossyBoulder" },
 	Model_TrainingBoardSplit = { Category = "Models", InstanceName = "Model_TrainingBoardSplit" },
 	Model_ArmPreview = { Category = "Models", InstanceName = "Model_ArmPreview" },
+	Model_Geode_Basic = { Category = "Models", InstanceName = "Model_Geode_Basic" },
+	Model_GeodeSplit_Basic = { Category = "Models", InstanceName = "Model_GeodeSplit_Basic" },
+	Model_GeodeStand = { Category = "Models", InstanceName = "Model_GeodeStand" },
 	Model_BasePlot = { Category = "Models", InstanceName = "Model_BasePlot" },
 	Model_BasePedestal = { Category = "Models", InstanceName = "Model_BasePedestal" },
 	Model_Rok_Bloky = { Category = "Models", InstanceName = "Model_Rok_Bloky" },
 }
+
+local soundGroupName = "SoundEffects"
 
 local warned: { [string]: true } = {}
 
@@ -71,6 +77,16 @@ local function makePlaceholder(key: string, category: AssetCategory?): Instance
 	return part
 end
 
+local function joinSoundGroup(asset: Instance): Instance
+	if asset:IsA("Sound") then
+		local group = SoundService:FindFirstChild(soundGroupName)
+		if group and group:IsA("SoundGroup") then
+			asset.SoundGroup = group
+		end
+	end
+	return asset
+end
+
 local AssetRegistry = {}
 
 function AssetRegistry.get(key: string): Instance
@@ -86,7 +102,7 @@ function AssetRegistry.get(key: string): Instance
 		if category then
 			local asset = category:FindFirstChild(entry.InstanceName)
 			if asset then
-				return asset:Clone()
+				return joinSoundGroup(asset:Clone())
 			end
 		end
 	end
