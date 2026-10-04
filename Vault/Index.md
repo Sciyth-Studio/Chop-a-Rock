@@ -31,12 +31,14 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
 - [[UI Style References]] — screenshots of panel UI the user likes; open before building or restyling menus
-- [[Tintable Mesh Textures]] — transparent TextureID renders black on MeshParts; use SurfaceAppearance Overlay (stud texture id inside)
+- [[Tintable Mesh Textures]] — studs are the 2022 MaterialVariants in MaterialService (`2022 Inlet`, `2022 Stud` = outlet); copy MaterialVariant with Material
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Bloky Reference]] — first Rok (pet rock): chamfered cube, chamfered-square eyes as separate meshes
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
+- [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
+- [[Why The Game Looks Blue]] — skybox env lighting + blue OutdoorAmbient + ColorCorrection saturation; tested one at a time
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
 
 ## Systems

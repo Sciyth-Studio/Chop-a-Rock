@@ -37,6 +37,7 @@ function SplitModel.Spawn(part: BasePart, push: Push): Model?
 			descendant.CanQuery = false
 			descendant.Color = part.Color
 			descendant.Material = part.Material
+			descendant.MaterialVariant = part.MaterialVariant
 			table.insert(pieces, descendant)
 		end
 	end

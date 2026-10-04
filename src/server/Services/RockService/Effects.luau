@@ -120,6 +120,7 @@ local function spawnChunks(part: BasePart, chunkCount: number)
 	local halfSize = part.Size / 2
 	local color = part.Color
 	local material = part.Material
+	local materialVariant = part.MaterialVariant
 	local chunks: { BasePart } = {}
 	local scale = ChopConfig.ChunkSpawnVelocityScale
 	local sizeScale = math.max(1, part.Size.X / ChopConfig.ReferenceRockSize)
@@ -143,6 +144,7 @@ local function spawnChunks(part: BasePart, chunkCount: number)
 		chunk.CanQuery = false
 		chunk.Color = color
 		chunk.Material = material
+		chunk.MaterialVariant = materialVariant
 		chunk.Parent = workspace
 		chunk.AssemblyLinearVelocity = Vector3.new(
 			(math.random() * 2 - 1) * scale,
@@ -219,6 +221,7 @@ local function splitRock(rock: Types.Rock)
 	local halfOffsetX = originalSize.X / 4
 	local color = part.Color
 	local material = part.Material
+	local materialVariant = part.MaterialVariant
 
 	local halves: { BasePart } = {}
 	for _, offsetX in { -halfOffsetX, halfOffsetX } do
@@ -231,6 +234,7 @@ local function splitRock(rock: Types.Rock)
 		half.CanQuery = false
 		half.Color = color
 		half.Material = material
+		half.MaterialVariant = materialVariant
 		half.Parent = workspace
 		table.insert(halves, half)
 
