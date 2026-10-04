@@ -6,6 +6,7 @@ export type Data = {
 	Strength: number,
 	ArmTier: number,
 	Rebirths: number,
+	Settings: { [string]: boolean },
 	LastSeenAt: number,
 	Receipts: { [string]: number },
 }
@@ -18,6 +19,10 @@ PlayerData.Template = {
 	Strength = 0,
 	ArmTier = 1,
 	Rebirths = 0,
+	Settings = {
+		Music = true,
+		SoundEffects = true,
+	},
 	LastSeenAt = 0,
 	Receipts = {},
 } :: Data
@@ -41,6 +46,16 @@ function PlayerData.Validate(data: any): boolean
 	end
 	if data.ArmTier ~= nil and (not natural(data.ArmTier) or data.ArmTier < 1) then
 		return false
+	end
+	if data.Settings ~= nil then
+		if type(data.Settings) ~= "table" then
+			return false
+		end
+		for name, value in data.Settings do
+			if type(name) ~= "string" or type(value) ~= "boolean" then
+				return false
+			end
+		end
 	end
 	if data.Receipts ~= nil then
 		if type(data.Receipts) ~= "table" then

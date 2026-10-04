@@ -27,6 +27,11 @@
       "ServerPackages": { "$path": "ServerPackages" },
       "ReplicaServer": { "$path": "vendor/Replica/src/ServerScriptService/ReplicaServer.luau" }
     },
+    "SoundService": {
+      "$ignoreUnknownInstances": true,
+      "Music": { "$className": "SoundGroup", "$properties": { "Volume": 1 } },
+      "SoundEffects": { "$className": "SoundGroup", "$properties": { "Volume": 1 } }
+    },
     "StarterPlayer": {
       "$ignoreUnknownInstances": true,
       "StarterPlayerScripts": {

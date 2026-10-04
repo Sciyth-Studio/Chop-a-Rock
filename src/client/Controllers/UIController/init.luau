@@ -16,6 +16,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	Notifications = require(script.Screens.Notifications),
 	ExpBar = require(script.Screens.ExpBar),
 	Letterbox = require(script.Screens.Letterbox),
+	Settings = require(script.Screens.Settings),
 }
 
 local UIController = { Name = "UIController" }

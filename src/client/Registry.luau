@@ -16,6 +16,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.DevController),
 	require(script.Parent.Controllers.PromptController),
 	require(script.Parent.Controllers.MusicController),
+	require(script.Parent.Controllers.SettingsController),
 }
 
 return controllers

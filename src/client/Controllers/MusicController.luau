@@ -8,6 +8,8 @@ local Trove = require(ReplicatedStorage.Packages.Trove)
 
 type TroveInstance = typeof(Trove.new())
 
+local soundGroupName = "Music"
+
 local MusicController = {
 	Name = "MusicController",
 	_trove = nil :: TroveInstance?,
@@ -94,6 +96,10 @@ function MusicController.Start(self: any)
 		sound.Name = "MusicPlaylist"
 		sound.Looped = false
 		sound.Volume = 0
+		local group = SoundService:FindFirstChild(soundGroupName)
+		if group and group:IsA("SoundGroup") then
+			sound.SoundGroup = group
+		end
 		sound.Parent = SoundService
 		current = sound
 		sound.Ended:Connect(function()

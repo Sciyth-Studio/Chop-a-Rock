@@ -17,6 +17,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.RockService),
 	require(script.Parent.Services.TrainingService),
 	require(script.Parent.Services.ShopService),
+	require(script.Parent.Services.SettingsService),
 }
 
 return services
