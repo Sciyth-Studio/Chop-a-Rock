@@ -48,6 +48,8 @@ function ExpBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local strengthLabel, strengthShadow = findPair("StrengthLabel")
 
 	local lastLevel = 0
+	local filling = false
+	local target = UDim2.fromScale(0, 1)
 	local tween: Tween? = nil
 
 	local function refresh(value: any)
@@ -61,18 +63,39 @@ function ExpBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			)}`
 		)
 		if fill then
-			local size = UDim2.fromScale(progress.Ratio, 1)
-			if tween then
-				tween:Cancel()
-				tween = nil
-			end
-			if progress.Level ~= lastLevel then
-				fill.Size = size
-			else
+			local bar = fill
+			target = UDim2.fromScale(progress.Ratio, 1)
+			local function play(size: UDim2): Tween
+				if tween then
+					tween:Cancel()
+				end
 				local created =
-					TweenService:Create(fill, TweenInfo.new(LevelConfig.FillTweenSeconds), { Size = size })
+					TweenService:Create(bar, TweenInfo.new(LevelConfig.FillTweenSeconds), { Size = size })
 				tween = created
 				created:Play()
+				return created
+			end
+			if lastLevel == 0 or progress.Level < lastLevel then
+				filling = false
+				if tween then
+					tween:Cancel()
+					tween = nil
+				end
+				bar.Size = target
+			elseif progress.Level > lastLevel then
+				if not filling then
+					filling = true
+					play(UDim2.fromScale(1, 1)).Completed:Once(function(state: Enum.PlaybackState)
+						if state ~= Enum.PlaybackState.Completed or not filling then
+							return
+						end
+						filling = false
+						bar.Size = UDim2.fromScale(0, 1)
+						play(target)
+					end)
+				end
+			elseif not filling then
+				play(target)
 			end
 		end
 		lastLevel = progress.Level

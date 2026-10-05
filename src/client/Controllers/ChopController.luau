@@ -288,6 +288,7 @@ local function beginMinigame(
 		local snapPos = rock.Position + ChopConfig.PlayerSnapOffsetFromRock * rockScale
 		snapPos = Vector3.new(snapPos.X, groundY, snapPos.Z)
 		rootTarget = CFrame.lookAt(snapPos, rock.Position)
+			* CFrame.new(-ChopConfig.PlayerSnapLeftShiftStuds, 0, 0)
 	end
 
 	local camera = workspace.CurrentCamera

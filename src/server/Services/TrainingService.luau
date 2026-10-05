@@ -113,6 +113,7 @@ local function breakBoard(board: BasePart)
 		return
 	end
 	brokenBoards[board] = true
+	services.CollisionService:MarkDebris(model)
 	board.Transparency = 1
 	board.CanCollide = false
 	playBoardBurst(board)
@@ -172,6 +173,7 @@ local function startTraining(player: Player, board: BasePart)
 	local snapPos = board.Position + board.CFrame.LookVector * TrainingConfig.SnapDistanceStuds
 	snapPos = Vector3.new(snapPos.X, root.Position.Y, snapPos.Z)
 	root.CFrame = CFrame.lookAt(snapPos, board.Position)
+		* CFrame.new(-TrainingConfig.SnapLeftShiftStuds, 0, 0)
 
 	trainings[player] = {
 		Board = board,

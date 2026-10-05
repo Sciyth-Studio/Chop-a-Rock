@@ -12,28 +12,35 @@ export type Progress = {
 
 local Level = {}
 
+function Level.NeededFor(level: number): number
+	return math.round(LevelConfig.LevelBaseStrength * LevelConfig.LevelGrowth ^ (level - 1))
+end
+
 function Level.StrengthFor(level: number): number
-	return LevelConfig.LevelBaseStrength * LevelConfig.LevelGrowth ^ (level - 1)
+	local total = 0
+	for previous = 1, level - 1 do
+		total += Level.NeededFor(previous)
+	end
+	return total
 end
 
 function Level.FromStrength(strength: number): Progress
-	local level = 1
-	if strength >= LevelConfig.LevelBaseStrength then
-		level = math.floor(math.log(strength / LevelConfig.LevelBaseStrength, LevelConfig.LevelGrowth)) + 1
-		while Level.StrengthFor(level + 1) <= strength do
-			level += 1
-		end
-		while level > 1 and Level.StrengthFor(level) > strength do
-			level -= 1
-		end
+	if strength ~= strength or strength == math.huge then
+		strength = 0
 	end
-	local lower = if level == 1 then 0 else Level.StrengthFor(level)
-	local upper = Level.StrengthFor(level + 1)
+	local level = 1
+	local lower = 0
+	local needed = Level.NeededFor(level)
+	while strength >= lower + needed do
+		lower += needed
+		level += 1
+		needed = Level.NeededFor(level)
+	end
 	return {
 		Level = level,
-		Ratio = math.clamp((strength - lower) / (upper - lower), 0, 1),
+		Ratio = math.clamp((strength - lower) / needed, 0, 1),
 		Current = strength - lower,
-		Needed = upper - lower,
+		Needed = needed,
 	}
 end
 
