@@ -52,13 +52,13 @@ local ChopStyleConfig: ChopStyleSettings = {
 		},
 		[ChopQuality.Perfect] = {
 			Name = "Perfect",
-			DisplayText = "PERFECT!",
+			DisplayText = "Perfect!",
 			Color = Color3.fromRGB(170, 0, 255),
 			IsRainbow = true,
 		},
 		[ChopQuality.Master] = {
 			Name = "Master",
-			DisplayText = "MASTER!!",
+			DisplayText = "Master!!",
 			Color = Color3.fromRGB(255, 0, 170),
 			IsRainbow = true,
 		},

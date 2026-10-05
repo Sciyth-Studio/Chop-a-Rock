@@ -19,7 +19,7 @@ local TextStyleConfig: TextStyleSettings = {
 		Chrome = {
 			EdgeColor = Color3.fromRGB(190, 190, 190),
 			CenterColor = Color3.fromRGB(255, 255, 255),
-			StrokeColor = Color3.fromRGB(110, 110, 110),
+			StrokeColor = Color3.fromRGB(0, 0, 0),
 			StrokeThickness = nil,
 			GradientRotation = 90,
 		},

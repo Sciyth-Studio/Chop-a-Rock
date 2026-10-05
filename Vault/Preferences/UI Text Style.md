@@ -10,3 +10,7 @@ Use a **colored** stroke and **gradient** text fill on player-facing UI text whe
 **How to apply:** for new or restyled text, add a UIGradient (rotation 90: darker top and bottom, lighter middle) on a white-based TextLabel and a darker-shade UIStroke of the same hue. Italic text is applied through the "Italic" attribute read by Typography. The `studio-ui` skill has the full TextStyle system. Pairs with [[High Saturation Colors]] and [[UI Built In Studio]].
 
 **Named styles for common colors (2026-10-03):** `Strength` (orange, all strength text) and `Green` (money green) were added to `TextStyleConfig`. `Typography` only runs on screens and billboards the client clones, so text on a SurfaceGui placed in Workspace gets the `TextStyle` attribute but needs the gradient, stroke and font baked in when authored. TextSize caps at 100, so size world signs by shrinking the SurfaceGui `CanvasSize` (about 7 px per stud), not by raising the size.
+
+**Headers are Chrome (2026-10-05):** every UI header title uses the `Chrome` style, from now on. The user saw it on the restyled Rebirth panel and said it "looks better than I was anticipating".
+
+**Chrome stroke is black (2026-10-05):** the user switched `Chrome` from a grey stroke to black to match [[Studded Panel Style Reference]]. Baked Chrome strokes in Studio (the RockLabel and ChopPrompt templates, menu buttons, the ExpBar, panel titles, the training stand sign) were also set to black.

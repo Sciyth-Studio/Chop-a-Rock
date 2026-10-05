@@ -27,7 +27,7 @@ local function beginTraining()
 		end
 		return Enum.ContextActionResult.Pass
 	end, true, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
-	ContextActionService:SetTitle(STOP_ACTION, "STOP")
+	ContextActionService:SetTitle(STOP_ACTION, "Stop")
 end
 
 local function endTraining()

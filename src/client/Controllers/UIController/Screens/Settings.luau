@@ -71,7 +71,7 @@ function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			isOn = value ~= false
 			paint(button, if isOn then ON_COLORS else OFF_COLORS)
 			if label and label:IsA("TextLabel") then
-				label.Text = if isOn then "ON" else "OFF"
+				label.Text = if isOn then "On" else "Off"
 			end
 		end))
 		trove:Add(button.Activated:Connect(function()

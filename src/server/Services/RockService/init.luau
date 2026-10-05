@@ -117,7 +117,7 @@ local function onRelease(player: Player)
 			services.NotificationService:Notify(
 				other,
 				MasterChopConfig.AnnouncementKind,
-				`{player.DisplayName} landed a MASTER CHOP!`
+				`{player.DisplayName} landed a Master Chop!`
 			)
 		end
 		return

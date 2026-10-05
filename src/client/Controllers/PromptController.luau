@@ -65,7 +65,7 @@ local function keyString(prompt: ProximityPrompt, inputType: Enum.ProximityPromp
 	if inputType == Enum.ProximityPromptInputType.Gamepad then
 		return UserInputService:GetStringForKeyCode(prompt.GamepadKeyCode)
 	elseif inputType == Enum.ProximityPromptInputType.Touch then
-		return "TAP"
+		return "Tap"
 	end
 	return UserInputService:GetStringForKeyCode(prompt.KeyboardKeyCode)
 end

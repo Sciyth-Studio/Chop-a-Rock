@@ -59,7 +59,6 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local trove = Trove.new()
 	ViewportScale.Bind(gui, trove)
 
-	local count: TextLabel? = find(gui, "Count", "TextLabel")
 	local beforeTitle: TextLabel? = find(gui, "BeforeTitle", "TextLabel")
 	local afterTitle: TextLabel? = find(gui, "AfterTitle", "TextLabel")
 	local cashBefore: TextLabel? = find(gui, "CashBefore", "TextLabel")
@@ -115,7 +114,6 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local level = Level.FromStrength(readNumber("Strength", 0)).Level
 		local currentRebirth = RebirthConfig.Rebirths[rebirths]
 		local nextRebirth = RebirthConfig.Rebirths[rebirths + 1]
-		setText(count, tostring(rebirths))
 		for _, object in hiddenWhenMaxed do
 			object.Visible = nextRebirth ~= nil
 		end

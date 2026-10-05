@@ -3,6 +3,7 @@ description: House style for menu panels/screens (Rebirth, Shop, etc.) — HUD-b
 type: preference
 updated: 2026-10-02
 ---
+> **Being replaced (2026-10-05):** the whole UI is moving to [[Studded Panel Style Reference]]. The restyled Rebirth panel is the pilot; this note gets rewritten to that recipe once the user approves it. Until then, trust the Rebirth panel in Studio over the recipe below.
 Every menu panel follows the HUD menu-button look, not the look of whatever reference screenshot it was based on. "Copy everything" from a reference means copy its **layout and content**; the **style** is always this house style.
 
 **Panel / box recipe** (same as `MenuButtons` buttons):

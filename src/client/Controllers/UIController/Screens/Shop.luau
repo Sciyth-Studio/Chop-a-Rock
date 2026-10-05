@@ -141,14 +141,14 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				row.Glow.Visible = row.Index == ownedTier
 			end
 			if row.Index < ownedTier then
-				present(row, "OWNED", ShopConfig.Palette.Orange, false)
+				present(row, "Owned", ShopConfig.Palette.Orange, false)
 			elseif row.Index == ownedTier then
-				present(row, "EQUIPPED", ShopConfig.Palette.Orange, false)
+				present(row, "Equipped", ShopConfig.Palette.Orange, false)
 			elseif row.Index == ownedTier + 1 then
 				local colors = if cash >= row.Price then ShopConfig.Palette.Green else ShopConfig.Palette.Grey
 				present(row, NumberFormat.Commas(row.Price), colors, true)
 			else
-				present(row, "LOCKED", ShopConfig.Palette.Grey, false)
+				present(row, "Locked", ShopConfig.Palette.Grey, false)
 			end
 		end
 	end

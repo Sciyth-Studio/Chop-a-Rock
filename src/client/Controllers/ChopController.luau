@@ -243,7 +243,7 @@ local function bindRelease()
 			end
 			return Enum.ContextActionResult.Pass
 		end, true, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
-		ContextActionService:SetTitle(RELEASE_ACTION, "CHOP")
+		ContextActionService:SetTitle(RELEASE_ACTION, "Chop")
 	end)
 end
 
