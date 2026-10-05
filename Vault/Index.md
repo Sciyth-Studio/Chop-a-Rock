@@ -28,7 +28,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Drop In Assets Over Ids In Code]] — asset lists (music etc.) read a Studio folder, not ids in config
 - [[Roks Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
 - [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
-- [[Menu Panel Style]] — panels look like the HUD buttons: layered gradients, sharp corners, Chrome headers, roomy
+- [[Menu Panel Style]] — dark grey stud body, striped gradient header, Chrome title, black outlines, sharp corners
 
 ## Reference
 - [[Master Game Plan]] — design source-of-truth doc and its tags
