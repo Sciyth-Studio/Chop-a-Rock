@@ -30,7 +30,7 @@ function UIController.Init(_self: any, controllers: { [string]: any })
 	registry = controllers
 end
 
-function UIController.Open(_self: any, name: string)
+function UIController.Open(_self: any, name: string, argument: any?)
 	local screen = screens[name]
 	if not screen or opened[name] then
 		return
@@ -43,7 +43,7 @@ function UIController.Open(_self: any, name: string)
 		end
 	end
 	opened[name] = true
-	screen:Open()
+	screen:Open(argument)
 end
 
 function UIController.Close(_self: any, name: string)
@@ -62,8 +62,8 @@ end
 function UIController.Start(_self: any)
 	local context: Types.Context = {
 		Controllers = registry,
-		Open = function(name: string)
-			UIController:Open(name)
+		Open = function(name: string, argument: any?)
+			UIController:Open(name, argument)
 		end,
 		Close = function(name: string)
 			UIController:Close(name)

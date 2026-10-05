@@ -53,6 +53,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 
 ## Systems
 _One note per game system as they're worked on._
+- [[Shop Pads]] — neon floor rectangles open the Arm Shop / Geode shop on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._

@@ -24,7 +24,6 @@ local Packets = {
 	TrainingStopped = Packet("TrainingStopped"):RateLimit(5, 1),
 	TrainingChop = Packet("TrainingChop"):RateLimit(5, 1),
 	TrainingStopRequest = Packet("TrainingStopRequest"):RateLimit(5, 1),
-	ShopOpen = Packet("ShopOpen"):RateLimit(5, 1),
 	BuyArm = Packet("BuyArm", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	Rebirth = Packet("Rebirth"):Response(Packet.Boolean8):RateLimit(2, 1),
 	SetSetting = Packet("SetSetting", Packet.String, Packet.Boolean8):RateLimit(5, 1),

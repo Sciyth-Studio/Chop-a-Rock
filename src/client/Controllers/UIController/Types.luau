@@ -2,14 +2,14 @@
 
 export type Context = {
 	Controllers: { [string]: any },
-	Open: (name: string) -> (),
+	Open: (name: string, argument: any?) -> (),
 	Close: (name: string) -> (),
 }
 
 export type Screen = {
 	Modal: boolean,
 	StartsOpen: boolean,
-	Open: (self: Screen) -> (),
+	Open: (self: Screen, argument: any?) -> (),
 	Close: (self: Screen) -> (),
 	Destroy: (self: Screen) -> (),
 }

@@ -202,9 +202,6 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	trove:Add(dataController:Observe({ "ArmTier" }, refresh))
 	trove:Add(dataController:Observe({ "Cash" }, refresh))
-	trove:Add(Packets.ShopOpen.OnClientEvent:Connect(function()
-		context.Open("Shop")
-	end))
 	refresh()
 
 	return {
