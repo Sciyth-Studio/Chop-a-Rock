@@ -27,6 +27,7 @@ local Packets = {
 	BuyArm = Packet("BuyArm", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	Rebirth = Packet("Rebirth"):Response(Packet.Boolean8):RateLimit(2, 1),
 	SetSetting = Packet("SetSetting", Packet.String, Packet.Boolean8):RateLimit(5, 1),
+	SetVolume = Packet("SetVolume", Packet.String, Packet.NumberU8):RateLimit(20, 1),
 	Notify = Packet("Notify", Packet.String, Packet.String),
 	DevResetData = Packet("DevResetData"):RateLimit(1, 2),
 	DevForceMaster = Packet("DevForceMaster"):RateLimit(1, 1),

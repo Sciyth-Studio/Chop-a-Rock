@@ -20,6 +20,13 @@ function SettingsService.Start(_self: any)
 		end
 		services.DataService:Set(player, { "Settings", name }, value)
 	end))
+	trove:Add(Packets.SetVolume.OnServerEvent:Connect(function(player: Player, name: string, percent: number)
+		if type(percent) ~= "number" or not table.find(SettingsConfig.Sliders, name) then
+			return
+		end
+		local clamped = math.clamp(math.round(percent), 0, SettingsConfig.MaxVolumePercent)
+		services.DataService:Set(player, { "Settings", name }, clamped / 100)
+	end))
 end
 
 function SettingsService.Destroy(_self: any)

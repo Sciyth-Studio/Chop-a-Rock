@@ -6,7 +6,7 @@ export type Data = {
 	Strength: number,
 	ArmTier: number,
 	Rebirths: number,
-	Settings: { [string]: boolean },
+	Settings: { [string]: boolean | number },
 	LastSeenAt: number,
 	Receipts: { [string]: number },
 }
@@ -20,7 +20,7 @@ PlayerData.Template = {
 	ArmTier = 1,
 	Rebirths = 0,
 	Settings = {
-		Music = true,
+		Music = 1,
 		SoundEffects = true,
 	},
 	LastSeenAt = 0,
@@ -52,7 +52,8 @@ function PlayerData.Validate(data: any): boolean
 			return false
 		end
 		for name, value in data.Settings do
-			if type(name) ~= "string" or type(value) ~= "boolean" then
+			local isVolume = type(value) == "number" and value == value and value >= 0 and value <= 1
+			if type(name) ~= "string" or (type(value) ~= "boolean" and not isVolume) then
 				return false
 			end
 		end
