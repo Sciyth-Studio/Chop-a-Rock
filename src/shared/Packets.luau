@@ -37,6 +37,10 @@ local Packets = {
 		Packet.Boolean8,
 		Packet.String
 	),
+	UnequipPet = Packet("UnequipPet", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(10, 1),
+	EquipBestPets = Packet("EquipBestPets"):Response(Packet.Boolean8):RateLimit(2, 1),
+	BuyPedestalSlot = Packet("BuyPedestalSlot"):Response(Packet.Boolean8):RateLimit(3, 1),
+	SellPets = Packet("SellPets", { Packet.String }):Response(Packet.NumberF64):RateLimit(3, 1),
 	ClaimIndex = Packet("ClaimIndex", Packet.String, Packet.String)
 		:Response(Packet.Boolean8)
 		:RateLimit(10, 1),

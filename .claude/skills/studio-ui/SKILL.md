@@ -40,8 +40,9 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 
 - Menu buttons live in `StarterGui.MenuButtons.Container`, a vertical list pinned to the left edge at 45% of the screen height (anchor 0,0.5). The hidden frame `MenuButtonTemplate` holds the style: duplicate it, rename it `<Name>Button`, set `Visible = true` and a `LayoutOrder`, and add `{ Name, Screen }` to `MenuButtonConfig.Buttons`. `MenuButtons.luau` wires the click to `UIController`.
 - Style (2026-10-05): 96x96 square with sharp corners, `ZIndex` 0, background 44,44,46 with a `StudTexture` child (`rbxassetid://73393331823706`, tiled 23px, black, 55% transparent, `ZIndex` 0) and a 3px black `UIStroke` named `OuterStroke` (`Border`, Miter). Its old `UIGradient` is disabled and `ColorGlow` hidden. `InnerBorder` (size 1,-6 by 1,-6, `ZIndex` 0) has an opaque 3px 88,88,94 stroke. The icon is an 88px `ImageLabel` named `Icon` at 0.5,0 / 0.4,0, allowed to overflow the box, with a black copy named `IconShadow` behind it (92px, offset 4px right and 6px down, 40% transparent). Set the same `Image` on both.
-- The label is bottom-anchored, non-italic, `Chrome` text style (attribute `TextStyle`, gradient and black stroke, 3px thick). Short words such as Shop, Bag and Index use a 0.4 label height so the text is larger; long words are limited by the width. A copy named `LabelShadow` sits behind it (black, 40% transparent, offset 2px right and 3px down, own 3px black stroke, no gradient or `TextStyle`); set the text on both. The invisible `TextButton` named `Button` covers the frame and receives the click.
-- Current buttons, in order: `ShopButton`, `BagButton`, `IndexButton`, `RebirthButton`. Icon asset ids live in `IconConfig`. To upload an icon, copy the PNG to a scratch folder, serve it over a temporary local HTTP server (`upload_image` only accepts http(s) URLs), upload, then stop the server. Python may be only a Store stub, so use Node.
+- The label is bottom-anchored, non-italic, `Chrome` text style (attribute `TextStyle`, gradient and black stroke, 3px thick). Short words such as Shop, Roks and Index use a 0.4 label height so the text is larger; long words are limited by the width. A copy named `LabelShadow` sits behind it (black, 40% transparent, offset 2px right and 3px down, own 3px black stroke, no gradient or `TextStyle`); set the text on both. The invisible `TextButton` named `Button` covers the frame and receives the click.
+- Current buttons, in order: `ShopButton`, `RoksButton` (opens the Roks pedestal panel; was `BagButton`), `IndexButton`, `RebirthButton`. Icon asset ids live in `IconConfig`. `IndexButton` has a red `Badge` (count of waiting index rewards, driven by `MenuButtonConfig.IndexBadge`).
+- New icons: `upload_image` uploads to the user's personal account, and those images do not load in the group-owned game. Ask the user to import the PNG through Studio (it lands in the group) and give you the id. Check it loads with `ContentProvider:PreloadAsync` (status `Success`).
 - Compact layout: when the preferred input is touch or the screen's short side is under `PhoneMaxShortSidePixels`, `MenuButtons.luau` swaps the container's `UIListLayout` for the `UIGridLayout` named `PhoneLayout`, sets its `FillDirectionMaxCells` to `PhoneColumns` (4, one row), moves the container to `PhoneTopPixels` from the top and resizes it. Both layouts are parked in the `LayoutStore` folder. Never park a layout object directly in a ScreenGui: it lays out that ScreenGui's children and collapses the container. The layout swap and scaling run only while the game is playing, not in Edit mode or the Edit-mode device emulator.
 
 ## Scaling and shadows
@@ -58,3 +59,35 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 - `StarterGui.Shop.Panel` uses the vault's Menu Panel Style recipe with an orange header (760x560; about 3.2 cards visible so players see there is more to scroll). `List` is a horizontal ScrollingFrame (X scrolling, horizontal `UIListLayout`, scrollbar along the bottom); `RowTemplate` (hidden) is a 200px-wide vertical card holding `ColorGlow` (shown on the equipped tier), `Preview` (168px ViewportFrame on top), `TierName`, `TierInfo` and `BuyButton` (bottom) (`Track.Fill` with gradient and `StudTexture`, child `Label`, `PriceIcon` group with outlines and shadow).
 - `Shop.luau` clones a row per `ArmConfig` tier, builds each arm preview from `Model_ArmPreview` (material and colour from `tier.Visual`, runtime camera), and recolours `Fill` from `ShopConfig.Palette` (Green affordable, Grey too expensive or locked, Orange owned and equipped). The price icon hides on non-price states and the label layout swaps through `ShopConfig.PriceLabel`.
 - Gotchas: [[ViewportFrame Gotchas]] in the vault.
+
+## Geode Stand
+
+- `StarterGui.GeodeStand.Panel` is a copy of the Arm Shop panel recoloured Sky blue (header fill edge 0,110,255 / centre 130,205,255 / studs 0,60,170), 760x660. Children:
+  - `Grid`: `UIGridLayout`, 3 columns, 228x189 cells, holding the hidden `CardTemplate`. Each card has `ColorGlow` (code sets the rarity colour), `WeldTexture` (black weld texture over the glow), `Preview` (ViewportFrame), `Odds` (top-left) and `PetName` (bottom).
+  - `LuckToggle`: top-right of the body.
+  - `BuyOne` / `BuyThree`: 300x76 at the bottom, each with an `Amount` label, a `PriceIcon` and a price `Label`.
+  - `Blocker`: a full-width grey bar for "NEED X STRENGTH" / "BAG FULL!".
+- `GeodeStand.luau` builds one card per `GeodeConfig` pet when `GeodeStandOpen` arrives. Colours and preview camera settings are in `GeodeStandConfig`. A pet whose rarity is `HiddenUntilFound` and isn't in the player's index shows as a black silhouette (ViewportFrame `ImageColor3` black) named "???". `BuyThree` hides unless affordable, and `BuyOne` then moves to the centre.
+
+## Index
+
+- `StarterGui.Index.Panel` is the house panel with a purple header (edge 120,0,220 / centre 200,120,255 / studs 70,0,140), 1000x700. Left: `Tabs` (`TabTemplate` buttons with `Label` and `Count`). Middle: `HeaderBar` (`PageName`, `Count`), `Sections` scroll of `SectionTemplate` (`ZoneName`, `Grid` of 136px `CardTemplate`, `ProgressRow` with an EXP-bar-style `Progress` and a `ZoneReward` button), and `ClaimAll` at the bottom. Right: `Detail` card (`Preview`, `EntryName` Chrome, `Rarity` with a disabled rainbow `UIGradient`, `Odds`, `Stat`, `Count`, `RewardsTitle`, `Rewards` with a hidden `RewardTemplate` tile, `ClaimButton`).
+- Cards are the Geode card minus `Odds`, plus `Alert` (red "!" square, top-right) and a full-card invisible `Select` TextButton. The selected card's `OuterStroke` turns white.
+- `Index.luau` builds tabs, sections and cards from `IndexConfig`. Colours, texts and preview camera are in `IndexConfig`. See the vault note [[Index]].
+
+## Hatch reveal screen
+
+- Layout follows the vault note [[Hatch Reveal Reference]]. `StarterGui.HatchReveal` (DisplayOrder 9, IgnoreGuiInset, non-modal) holds:
+  - `Shade`: full-screen black at 0.3 transparency.
+  - `Content` (640x760 at 0.45 height, `ScreenScale`) → `Body` (with a `PopScale` UIScale for the pop-in). `Body` holds:
+    - `PetName` (Chrome, 88)
+    - `RarityLabel` (automatic X width; a disabled `UIGradient` for the Secret rainbow)
+    - `Odds` (Gold)
+    - `Rays` (ImageLabel; the sunburst id comes from `HatchRevealConfig.RaysImage`; spun and tinted by code)
+    - `Preview` (ViewportFrame, 420)
+    - `NewBadge` (Green, rotated 14)
+    - `Stat` (horizontal list: `StatIcon` money image + `StatValue` Green)
+    - `Trait` (Gold)
+    - `Continue` (Chrome)
+  - `Dismiss`: full screen, ZIndex 50.
+- `HatchReveal.luau` fills it from `HatchController.Revealed`. On open it adds a `BlurEffect`, pops in, spins the rays, and closes `Hud`, `ExpBar` and `MenuButtons` (`HatchRevealConfig.HiddenScreens`). On close it reopens whichever of those were open.

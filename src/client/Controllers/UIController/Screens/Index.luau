@@ -261,7 +261,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local pet = PetConfig.Pets[key]
 			local oneIn = if zone and zone.GeodeKey then IndexRewards.OneIn(zone.GeodeKey, key) else nil
 			setText(detailOdds, if oneIn then `1 in {NumberFormat.Commas(oneIn)}` else "")
-			setText(detailStat, if pet then `{NumberFormat.Multiplier(pet.MoneyMultiplier)} Money` else "")
+			setText(detailStat, if pet then `${NumberFormat.Commas(pet.MoneyPerSecond)}/s` else "")
 			setText(detailCount, `Hatched {NumberFormat.Commas(count)}`)
 		end
 		if shownKey ~= key then

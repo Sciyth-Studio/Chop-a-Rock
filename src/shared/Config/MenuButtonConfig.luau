@@ -38,7 +38,7 @@ local MenuButtonConfig: MenuButtonSettings = {
 	ButtonGapPixels = 12,
 	Buttons = {
 		{ Name = "Shop", Screen = "Shop" },
-		{ Name = "Bag", Screen = "Bag" },
+		{ Name = "Roks", Screen = "Roks" },
 		{ Name = "Index", Screen = "Index" },
 		{ Name = "Rebirth", Screen = "Rebirth" },
 	},

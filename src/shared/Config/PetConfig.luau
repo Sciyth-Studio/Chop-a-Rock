@@ -4,7 +4,7 @@ export type Pet = {
 	DisplayName: string,
 	Rarity: string,
 	ModelKey: string,
-	MoneyMultiplier: number,
+	MoneyPerSecond: number,
 }
 
 export type Trait = {
@@ -16,6 +16,9 @@ export type Trait = {
 export type PetSettings = {
 	Pets: { [string]: Pet },
 	MaxPets: number,
+	SellValueSeconds: number,
+	ToolScale: number,
+	ToolGrip: CFrame,
 	TraitChance: number,
 	TraitRarities: { [string]: boolean },
 	Traits: { [string]: Trait },
@@ -27,40 +30,43 @@ local PetConfig: PetSettings = {
 			DisplayName = "Bloky",
 			Rarity = "Common",
 			ModelKey = "Model_Rok_Bloky",
-			MoneyMultiplier = 1.1,
+			MoneyPerSecond = 1,
 		},
 		Sprout = {
 			DisplayName = "Sprout",
 			Rarity = "Uncommon",
 			ModelKey = "Model_Rok_Sprout",
-			MoneyMultiplier = 1.25,
+			MoneyPerSecond = 2,
 		},
 		Shroomy = {
 			DisplayName = "Shroomy",
 			Rarity = "Rare",
 			ModelKey = "Model_Rok_Shroomy",
-			MoneyMultiplier = 1.5,
+			MoneyPerSecond = 5,
 		},
 		Nesty = {
 			DisplayName = "Nesty",
 			Rarity = "Epic",
 			ModelKey = "Model_Rok_Nesty",
-			MoneyMultiplier = 2,
+			MoneyPerSecond = 12,
 		},
 		Berry = {
 			DisplayName = "Berry",
 			Rarity = "Legendary",
 			ModelKey = "Model_Rok_Berry",
-			MoneyMultiplier = 3,
+			MoneyPerSecond = 30,
 		},
 		Treebo = {
 			DisplayName = "Treebo",
 			Rarity = "Secret",
 			ModelKey = "Model_Rok_Treebo",
-			MoneyMultiplier = 5,
+			MoneyPerSecond = 150,
 		},
 	},
 	MaxPets = 100,
+	SellValueSeconds = 100,
+	ToolScale = 0.6,
+	ToolGrip = CFrame.new(0, -0.3, 0.6),
 	TraitChance = 0.25,
 	TraitRarities = {
 		Epic = true,

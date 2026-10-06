@@ -44,7 +44,7 @@ function Cracking.Begin(
 		return nil
 	end
 	if not context.Services.PetService:CanAdd(player, 1) then
-		context.Services.NotificationService:Notify(player, "Error", "Bag full! Delete some Roks")
+		context.Services.NotificationService:Notify(player, "Error", "Bag full! Sell some Roks")
 		return nil
 	end
 	Effects.Show(pit.Model)
@@ -59,6 +59,7 @@ function Cracking.Begin(
 		Center = ChopZones.RandomCenter(random),
 		StartTime = os.clock(),
 	}
+	context.Services.PetService:PutAway(player)
 	Packets.ChopMinigameStart:FireClient(
 		player,
 		part,

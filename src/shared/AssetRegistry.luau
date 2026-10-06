@@ -26,6 +26,8 @@ local map: { [string]: AssetEntry } = {
 	SFX_Notification = { Category = "Sounds", InstanceName = "SFX_Notification" },
 	UI_RockLabel = { Category = "VFX", InstanceName = "RockLabel" },
 	UI_ChopPrompt = { Category = "VFX", InstanceName = "ChopPrompt" },
+	UI_PedestalPad = { Category = "VFX", InstanceName = "PedestalPad" },
+	UI_PedestalInfo = { Category = "VFX", InstanceName = "PedestalInfo" },
 	Image_GuideArrow = { Category = "Images", InstanceName = "GuideArrow" },
 	Model_RockSplit_Block = { Category = "Models", InstanceName = "Model_RockSplit_Block" },
 	Model_RockSplit_Boulder = { Category = "Models", InstanceName = "Model_RockSplit_Boulder" },

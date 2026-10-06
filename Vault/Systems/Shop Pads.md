@@ -10,6 +10,7 @@ The user asked (2026-10-05) for both shops to open by proximity using a neon pad
 - Tag `ShopPad`. Attributes: `Screen` (UIController screen name: `Shop`, `GeodeStand`) and optional `ScreenKey` passed to the screen's `Open` (the geode key, `Forest`).
 - `src/client/Components/ShopPad.luau` builds the glow wall client-side (one Beam per side, fading upward with bands that rise), and opens the screen when the character's root enters the rectangle (checked in the pad's local space) and closes it on leaving (1 stud of exit padding). Tunables in `ShopPadConfig`. Draft values, not yet approved.
 - Reopening: if the player closes the shop while still standing on the pad, an "Open <ShopName>" prompt (the game's custom prompt style, E / tap) appears at the pad centre and reopens it. It is hidden while the shop is open or the player is off the pad. The user asked for this so they don't have to walk out and back in. The pad's `ShopName` attribute ("Arm Shop", "Geode Shop") is the prompt's object text.
+- Pads so far: Arm Shop (orange, `Shop`), Geode Shop (blue, `GeodeStand`), Sell Shop (green, `SellShop`, added 2026-10-06, see [[Sell Shop]]).
 - To add a shop: put a tagged pad part in front of it with `Screen` and `ShopName` set; the colour comes from the part.
 - `UIController:Open(name, argument)` passes `argument` to the screen's `Open`. `GeodeStand` reads its geode key from it.
 - The Arm Shop model still carries the `ShopKiosk` tag and its invisible `ShopKiosk` part: the guide arrow (`GuideController/ArrowTrail`) points at it. The Geode shop doesn't have them.

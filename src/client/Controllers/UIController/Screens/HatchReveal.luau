@@ -111,7 +111,7 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if newBadge then
 			newBadge.Visible = hatch.IsNew == true
 		end
-		setText(statValue, NumberFormat.Multiplier(pet.MoneyMultiplier))
+		setText(statValue, `{NumberFormat.Commas(pet.MoneyPerSecond)}/s`)
 		local traitConfig = if hatch.Trait then PetConfig.Traits[hatch.Trait] else nil
 		if trait then
 			trait.Visible = traitConfig ~= nil

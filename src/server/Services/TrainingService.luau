@@ -185,6 +185,7 @@ local function startTraining(player: Player, board: BasePart)
 	humanoid.WalkSpeed = 0
 	humanoid.JumpPower = 0
 	humanoid.JumpHeight = 0
+	services.PetService:PutAway(player)
 	Packets.TrainingStarted:FireClient(player)
 end
 

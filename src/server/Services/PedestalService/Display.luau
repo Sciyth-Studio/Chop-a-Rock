@@ -1,0 +1,152 @@
+--!strict
+
+local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
+local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local Types = require(script.Parent.Types)
+
+local PROMPT_NAME = "PedestalPrompt"
+local OWNED_PROMPT_TAG = "OwnedPrompt"
+
+export type SlotView = {
+	State: "Locked" | "Empty" | "Placed",
+	PetKey: string?,
+	Price: number?,
+	Earnings: Types.SlotEarnings?,
+	CanPlace: boolean,
+}
+
+local Display = {}
+
+function Display.Pedestals(plot: Model): { [number]: Model }
+	local pedestals: { [number]: Model } = {}
+	local folder = plot:FindFirstChild(PedestalConfig.FolderName)
+	if not folder then
+		return pedestals
+	end
+	for _, child in folder:GetChildren() do
+		local slot = child:GetAttribute("SlotIndex")
+		if child:IsA("Model") and type(slot) == "number" then
+			pedestals[slot] = child
+		end
+	end
+	return pedestals
+end
+
+function Display.PedestalPart(pedestal: Model): BasePart?
+	local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
+	return if part and part:IsA("BasePart") then part else nil
+end
+
+function Display.Pad(pedestal: Model): BasePart?
+	local pad = pedestal:FindFirstChild(PedestalConfig.PadPartName)
+	return if pad and pad:IsA("BasePart") then pad else nil
+end
+
+function Display.EnsurePrompt(pedestal: Model): ProximityPrompt?
+	local part = Display.PedestalPart(pedestal)
+	if not part then
+		warn(`[PedestalService] {pedestal:GetFullName()} has no "{PedestalConfig.PedestalPartName}" part`)
+		return nil
+	end
+	local existing = part:FindFirstChild(PROMPT_NAME)
+	if existing and existing:IsA("ProximityPrompt") then
+		return existing
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = PROMPT_NAME
+	prompt.HoldDuration = PedestalConfig.PromptHoldSeconds
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	prompt.MaxActivationDistance = PedestalConfig.PromptRangeStuds
+	prompt.RequiresLineOfSight = false
+	prompt:SetAttribute("Active", false)
+	CollectionService:AddTag(prompt, OWNED_PROMPT_TAG)
+	prompt.Parent = part
+	CollectionService:AddTag(pedestal, PedestalConfig.PedestalTag)
+	return prompt
+end
+
+local function setRok(pedestal: Model, petKey: string?)
+	local current = pedestal:FindFirstChild(PedestalConfig.DisplayName)
+	if current and current:GetAttribute("PetKey") == petKey then
+		return
+	end
+	if current then
+		current:Destroy()
+	end
+	local pet = if petKey then PetConfig.Pets[petKey] else nil
+	local part = Display.PedestalPart(pedestal)
+	if not pet or not part then
+		return
+	end
+	local asset = AssetRegistry.get(pet.ModelKey)
+	if not asset:IsA("Model") then
+		asset:Destroy()
+		return
+	end
+	local model = asset :: Model
+	model.Name = PedestalConfig.DisplayName
+	model:SetAttribute("PetKey", petKey)
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.Anchored = true
+			descendant.CanCollide = false
+			descendant.CanQuery = false
+			descendant.CanTouch = false
+		end
+	end
+	model:ScaleTo(PedestalConfig.RokScale)
+	local top = part.CFrame * CFrame.new(0, part.Size.Y / 2, 0)
+	model:PivotTo(CFrame.new(top.Position) * pedestal:GetPivot().Rotation)
+	model.Parent = pedestal
+end
+
+function Display.Render(pedestal: Model, owner: Player, view: SlotView)
+	local pet = if view.PetKey then PetConfig.Pets[view.PetKey] else nil
+	pedestal:SetAttribute("OwnerUserId", owner.UserId)
+	pedestal:SetAttribute("State", view.State)
+	pedestal:SetAttribute("PetKey", if pet then view.PetKey else nil)
+	pedestal:SetAttribute("Price", view.Price)
+	local earnings = view.Earnings
+	pedestal:SetAttribute("Rate", if earnings then earnings.Rate else 0)
+	pedestal:SetAttribute("Banked", if earnings then earnings.Banked else 0)
+	pedestal:SetAttribute("BankedAt", if earnings then earnings.BankedAt else 0)
+	setRok(pedestal, if pet then view.PetKey else nil)
+
+	local prompt = Display.EnsurePrompt(pedestal)
+	if not prompt then
+		return
+	end
+	prompt:SetAttribute("OwnerUserId", owner.UserId)
+	if view.State == "Locked" then
+		prompt.ActionText = "Unlock"
+		prompt.ObjectText = if view.Price then `${NumberFormat.Compact(view.Price)}` else ""
+		prompt:SetAttribute("Active", view.Price ~= nil)
+	elseif view.State == "Placed" then
+		prompt.ActionText = "Pick up"
+		prompt.ObjectText = if pet then pet.DisplayName else ""
+		prompt:SetAttribute("Active", true)
+	else
+		prompt.ActionText = "Place"
+		prompt.ObjectText = ""
+		prompt:SetAttribute("Active", view.CanPlace)
+	end
+end
+
+function Display.Clear(pedestal: Model)
+	for _, name in { "OwnerUserId", "State", "PetKey", "Price", "Rate", "Banked", "BankedAt" } do
+		pedestal:SetAttribute(name, nil)
+	end
+	setRok(pedestal, nil)
+	local part = Display.PedestalPart(pedestal)
+	local prompt = if part then part:FindFirstChild(PROMPT_NAME) else nil
+	if prompt and prompt:IsA("ProximityPrompt") then
+		prompt:SetAttribute("OwnerUserId", nil)
+		prompt:SetAttribute("Active", false)
+	end
+end
+
+return Display

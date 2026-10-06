@@ -48,6 +48,7 @@ local function onTriggered(rock: Types.Rock, player: Player)
 	local session = Session.New(rock, canBreak, strengthRatio, ChopZones.RandomCenter(random), os.clock())
 	sessions[player] = session
 	rock.Prompt.Enabled = false
+	services.PetService:PutAway(player)
 	Packets.ChopMinigameStart:FireClient(
 		player,
 		rock.Part,

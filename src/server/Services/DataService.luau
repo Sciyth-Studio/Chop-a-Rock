@@ -176,6 +176,8 @@ function DataService.ResetData(_self: any, player: Player): boolean
 		Geodes = {},
 		Pets = {},
 		NextPetId = template.NextPetId,
+		PedestalSlots = template.PedestalSlots,
+		PedestalEarnings = {},
 		Index = { Pets = {}, Rocks = {}, Claimed = { Pets = {}, Rocks = {}, Zones = {} } },
 	})
 	table.clear(data.Receipts)

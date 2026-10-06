@@ -1,11 +1,15 @@
 --!strict
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
+
 export type Pet = {
 	Key: string,
 	HatchedAt: number,
 	Trait: string?,
 	TraitValue: number?,
 	Modifier: string?,
+	Slot: number?,
 }
 
 export type Data = {
@@ -17,6 +21,8 @@ export type Data = {
 	Geodes: { [string]: number },
 	Pets: { [string]: Pet },
 	NextPetId: number,
+	PedestalSlots: number,
+	PedestalEarnings: { [string]: number },
 	Index: {
 		Pets: { [string]: number },
 		Rocks: { [string]: number },
@@ -42,6 +48,8 @@ PlayerData.Template = {
 	Geodes = {},
 	Pets = {},
 	NextPetId = 1,
+	PedestalSlots = PedestalConfig.StartingSlots,
+	PedestalEarnings = {},
 	Index = {
 		Pets = {},
 		Rocks = {},
@@ -103,6 +111,7 @@ local function validPet(pet: any): boolean
 		and (pet.Trait == nil or type(pet.Trait) == "string")
 		and (pet.TraitValue == nil or finite(pet.TraitValue))
 		and (pet.Modifier == nil or type(pet.Modifier) == "string")
+		and (pet.Slot == nil or (natural(pet.Slot) and pet.Slot >= 1))
 end
 
 function PlayerData.Validate(data: any): boolean
@@ -132,6 +141,19 @@ function PlayerData.Validate(data: any): boolean
 	end
 	if data.NextPetId ~= nil and (not natural(data.NextPetId) or data.NextPetId < 1) then
 		return false
+	end
+	if data.PedestalSlots ~= nil and (not natural(data.PedestalSlots) or data.PedestalSlots < 1) then
+		return false
+	end
+	if data.PedestalEarnings ~= nil then
+		if type(data.PedestalEarnings) ~= "table" then
+			return false
+		end
+		for slot, amount in data.PedestalEarnings do
+			if type(slot) ~= "string" or #slot == 0 or not finite(amount) or amount < 0 then
+				return false
+			end
+		end
 	end
 	if data.Index ~= nil then
 		local index = data.Index
