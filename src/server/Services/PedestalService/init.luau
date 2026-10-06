@@ -101,6 +101,7 @@ local function collect(player: Player, slot: number)
 		return
 	end
 	services.DataService:Set(player, { "PedestalEarnings", slotKey(slot) }, earnings.Banked)
+	Packets.PadCollected:FireClient(player)
 	refresh(player)
 end
 

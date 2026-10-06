@@ -50,6 +50,7 @@ local Packets = {
 	ClaimAllIndex = Packet("ClaimAllIndex"):Response(Packet.NumberU8):RateLimit(2, 1),
 	SetSetting = Packet("SetSetting", Packet.String, Packet.Boolean8):RateLimit(5, 1),
 	SetVolume = Packet("SetVolume", Packet.String, Packet.NumberU8):RateLimit(20, 1),
+	PadCollected = Packet("PadCollected"),
 	Notify = Packet("Notify", Packet.String, Packet.String),
 	AdminRun = Packet("AdminRun", Packet.String):RateLimit(5, 1),
 }
