@@ -5,7 +5,7 @@ local IconConfig = {
 	Money = "rbxassetid://120312068437386",
 	Shop = "rbxassetid://137511164992804",
 	Rebirth = "rbxassetid://110491182765186",
-	Bag = "rbxassetid://84447532013990",
+	Bag = "rbxassetid://126551755246168",
 	Index = "rbxassetid://112601574342617",
 }
 
