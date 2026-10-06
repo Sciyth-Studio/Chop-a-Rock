@@ -6,7 +6,7 @@ type: reference
 
 `StandSign` BillboardGuis hang above the two lobby stands, parented to a mesh and adorned to an Attachment named `SignAnchor`, so they move with the model. Non-italic, BuilderSans ExtraBold, colors baked into the label (plus the `TextStyle` attribute):
 - "Arm Shop" (14 x 4 studs, 4.9px stroke, `Strength` style) on `Workspace.ArmShop.ShopStall.ShopStall_Wood`, anchor about 3.5 studs above the awning.
-- "Wood Training" (6 x 1.5 studs, 2.5px stroke, `Chrome` style, small on purpose) on `Workspace.TrainingStand.TrainingBoard`, anchor about 4 studs above the board stack.
+- "Wood Training" (6 x 1.5 studs, 2.5px stroke, `Chrome` style, small on purpose) on `TrainingStand.TrainingBoard`, anchor about 4 studs above the board stack. Since 2026-10-06 the stand lives in the `Model_BasePlot` template (one per base, see [[Bases]]), not in Workspace.
 
 - "Geode Shop" (14 x 4 studs and 4.9px stroke, same as Arm Shop; `Sky` blue style) on `Workspace.GeodeShop.ShopStall.ShopStall_Wood`. Until 2026-10-05 it read "Geode" and sat over a lone geode on the forest `GeodeStand` pedestal.
 - "Sell Shop" (2026-10-06, `Green` style colours) on `Workspace.SellShop.ShopStall.ShopStall_Wood`, cloned with the Geode Shop. See [[Sell Shop]].

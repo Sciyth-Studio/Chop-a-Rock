@@ -14,6 +14,8 @@ local SplitModel = require(script.Parent.Parent.Utils.SplitModel)
 local StatsService = require(script.Parent.StatsService)
 
 local TRAINING_TAG = "TrainingBoard"
+local PLOT_TAG = "BasePlot"
+local OWNER_ATTRIBUTE = "OwnerUserId"
 
 local TrainingService = {
 	Name = "TrainingService",
@@ -24,6 +26,7 @@ local services: { [string]: any } = {}
 
 type Training = {
 	Board: BasePart,
+	Plot: Model?,
 	LastChopClock: number,
 	SavedWalkSpeed: number,
 	SavedJumpPower: number,
@@ -53,6 +56,21 @@ local function resolveBoardPart(instance: Instance): BasePart?
 		end
 	end
 	return nil
+end
+
+local function findPlot(part: BasePart): Model?
+	local ancestor = part.Parent
+	while ancestor and ancestor ~= workspace do
+		if ancestor:IsA("Model") and CollectionService:HasTag(ancestor, PLOT_TAG) then
+			return ancestor
+		end
+		ancestor = ancestor.Parent
+	end
+	return nil
+end
+
+local function canUse(player: Player, plot: Model?): boolean
+	return plot == nil or services.BaseService:GetOwner(plot) == player
 end
 
 local function playSoundOnPart(key: string, part: BasePart)
@@ -159,8 +177,8 @@ local function stopTraining(player: Player)
 	end
 end
 
-local function startTraining(player: Player, board: BasePart)
-	if not services.DataService:GetData(player) then
+local function startTraining(player: Player, board: BasePart, plot: Model?)
+	if not services.DataService:GetData(player) or not canUse(player, plot) then
 		return
 	end
 	if trainings[player] then
@@ -177,6 +195,7 @@ local function startTraining(player: Player, board: BasePart)
 
 	trainings[player] = {
 		Board = board,
+		Plot = plot,
 		LastChopClock = os.clock(),
 		SavedWalkSpeed = humanoid.WalkSpeed,
 		SavedJumpPower = humanoid.JumpPower,
@@ -193,7 +212,7 @@ local function tick()
 	local now = os.clock()
 	for player, training in trainings do
 		local root, _ = playerRootAndHumanoid(player)
-		if not root or not training.Board.Parent then
+		if not root or not training.Board.Parent or not canUse(player, training.Plot) then
 			stopTraining(player)
 			continue
 		end
@@ -228,9 +247,10 @@ local function setupBoard(instance: Instance)
 		warn(`[TrainingService] TrainingBoard tag on unsupported instance: {instance:GetFullName()}`)
 		return
 	end
-	if part:FindFirstChild("TrainingPrompt") then
+	if not part:IsDescendantOf(workspace) or part:FindFirstChild("TrainingPrompt") then
 		return
 	end
+	local plot = findPlot(part)
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "TrainingPrompt"
 	prompt.ActionText = "Train"
@@ -239,6 +259,15 @@ local function setupBoard(instance: Instance)
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.MaxActivationDistance = 10
 	prompt.RequiresLineOfSight = false
+	if plot then
+		local ownedPlot = plot
+		prompt:SetAttribute("Active", true)
+		prompt:SetAttribute(OWNER_ATTRIBUTE, ownedPlot:GetAttribute(OWNER_ATTRIBUTE))
+		ownedPlot:GetAttributeChangedSignal(OWNER_ATTRIBUTE):Connect(function()
+			prompt:SetAttribute(OWNER_ATTRIBUTE, ownedPlot:GetAttribute(OWNER_ATTRIBUTE))
+		end)
+		CollectionService:AddTag(prompt, "OwnedPrompt")
+	end
 	prompt.Parent = part
 
 	prompt.Triggered:Connect(function(player: Player)
@@ -247,7 +276,7 @@ local function setupBoard(instance: Instance)
 			stopTraining(player)
 			return
 		end
-		startTraining(player, part)
+		startTraining(player, part, plot)
 	end)
 end
 
