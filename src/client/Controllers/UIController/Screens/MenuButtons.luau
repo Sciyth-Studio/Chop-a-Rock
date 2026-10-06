@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local IndexRewards = require(ReplicatedStorage.IndexRewards)
 local MenuButtonConfig = require(ReplicatedStorage.Config.MenuButtonConfig)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Input = require(ReplicatedStorage.Packages.Input)
@@ -29,6 +30,23 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				context.Open(entry.Screen)
 			end
 		end)
+	end
+
+	local badgeSettings = MenuButtonConfig.IndexBadge
+	local badgeButton = gui:FindFirstChild(badgeSettings.Button .. MenuButtonConfig.ButtonSuffix, true)
+	local badge = if badgeButton then badgeButton:FindFirstChild(badgeSettings.BadgeName) else nil
+	local badgeLabel = if badge then badge:FindFirstChild(badgeSettings.LabelName, true) else nil
+	if badge and badge:IsA("GuiObject") and badgeLabel and badgeLabel:IsA("TextLabel") then
+		badge.Visible = false
+		trove:Add(context.Controllers.DataController:Observe({ "Index" }, function(index: any)
+			local count = #IndexRewards.Claimable(index)
+			badge.Visible = count > 0
+			badgeLabel.Text = if count > badgeSettings.MaxShown
+				then `{badgeSettings.MaxShown}+`
+				else tostring(count)
+		end))
+	else
+		warn(`[MenuButtons] Missing index badge in {gui:GetFullName()}`)
 	end
 
 	local container = gui:FindFirstChild(MenuButtonConfig.ContainerName)

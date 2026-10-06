@@ -17,5 +17,6 @@ Build (Blender, `GeodeStand` collection, `assets/Geodes/GeodeStand/stand_builder
 - Forest copy: `Workspace.GeodeStand` (placed by the user on `Forest Zone.Floor`), template `ReplicatedStorage.Assets.Models.Model_GeodeStand` (AssetRegistry key of the same name). PrimaryPart `GeodeStand`, pivot at bottom centre, so new zones can `PivotTo` a floor point.
 - Stone: SmoothPlastic, `Color` 163,158,148, `Studs` SurfaceAppearance, Hull collision. Crystals: SmoothPlastic, `Color` 50,110,255, CanCollide/CanTouch/CanQuery off.
 - The import came in unanchored; check Anchored after every 3D Importer import.
+- 2026-10-04: stone and crystals got [[Baked Face Shading]] with the edge glow (calls are in `stand_builder.py`). The same stone mesh is used by `Workspace.Geode Stand.GeodeStand`, `Model_GeodeStand`, `Model_BasePedestal` and every `Pedestal` in `BasePlot` and `Model_BasePlot`. All carry the same `RBX_ReimportId`, but only the forest copy keeps the original part names. Reimport that one, then `ApplyMesh` onto the rest. The pedestals stay squashed because `ApplyMesh` keeps `Size`.
 
 Related: [[Geode Reference]], [[Shop Stall Reference]], [[Studs On Models By Default]]

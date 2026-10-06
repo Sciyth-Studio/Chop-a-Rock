@@ -6,7 +6,7 @@ local IconConfig = {
 	Shop = "rbxassetid://137511164992804",
 	Rebirth = "rbxassetid://110491182765186",
 	Bag = "rbxassetid://126551755246168",
-	Index = "rbxassetid://112601574342617",
+	Index = "rbxassetid://80371787143053",
 }
 
 return IconConfig

@@ -2,11 +2,9 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
-local Lifecycle = require(ReplicatedStorage.Lifecycle)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
@@ -16,7 +14,7 @@ local Rocks = require(script.Rocks)
 local Session = require(script.Session)
 local Types = require(script.Types)
 
-local RockService: Lifecycle.System = { Name = "RockService" }
+local RockService = { Name = "RockService" }
 
 local trove = Trove.new()
 local random = Random.new()
@@ -94,9 +92,13 @@ local function onRelease(player: Player)
 	if payout > 0 then
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
+		payout = services.IndexService:ApplyCashMultiplier(player, payout)
 		services.DataService:AdjustCash(player, payout)
 	end
 	local isBroken = Session.IsBroken(session)
+	if isBroken or quality == ChopQuality.Master then
+		services.IndexService:RecordRock(player, rock.Key)
+	end
 	local health = if isBroken then 0 else session.Health
 	Packets.ChopResult:FireClient(player, quality, payout, damage, health)
 	print(
@@ -166,13 +168,24 @@ function RockService.Start(_self: any)
 	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(onRelease))
 	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(onLeave))
 	trove:Add(Players.PlayerRemoving:Connect(onPlayerRemoving))
+end
 
-	if RunService:IsStudio() then
-		trove:Add(Packets.DevForceMaster.OnServerEvent:Connect(function(player: Player)
-			forcedMasters[player] = true
-			services.NotificationService:Notify(player, "Info", "Next chop: MASTER")
-		end))
-	end
+function RockService.ForceNextMaster(_self: any, player: Player)
+	forcedMasters[player] = true
+end
+
+function RockService.ConsumeForcedMaster(_self: any, player: Player): boolean
+	local isForced = forcedMasters[player] == true
+	forcedMasters[player] = nil
+	return isForced
+end
+
+function RockService.RollMaster(_self: any, quality: number, strengthRatio: number): boolean
+	return Session.IsMaster(random, quality, strengthRatio)
+end
+
+function RockService.HasSession(_self: any, player: Player): boolean
+	return sessions[player] ~= nil
 end
 
 function RockService.Destroy(_self: any)

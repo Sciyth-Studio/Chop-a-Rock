@@ -31,6 +31,7 @@ Every menu panel uses this recipe, taken from [[Studded Panel Style Reference]].
 **Cards** (Shop rows, Geode cards: `InnerBorder` plus `ColorGlow`, no `Track`)
 - Background 58,58,62, 3px black `OuterStroke`. `InnerBorder` (1,-6) has a 3px opaque 100,100,106 stroke.
 - `ColorGlow` has the card's own ZIndex, so it draws over the grey. It shows the equipped arm or the rarity colour.
+- Geode cards (2026-10-06) add `WeldTexture` over the glow: the weld texture `rbxassetid://129370550834255`, tiled 128px, black, 40% transparent, same ZIndex as the card and ordered after `ColorGlow`. The user asked for it instead of the glow being only a gradient. The Index cards reuse this card.
 - Arm previews sit in a dark inset slot: 32,32,34 with a 3px 100,100,106 stroke. Geode pet previews have no slot (transparent), so black "???" silhouettes stay readable.
 - Scrollbars: 8px, 120,120,126.
 

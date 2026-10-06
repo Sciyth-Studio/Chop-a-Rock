@@ -1,3 +1,5 @@
+Created by archrono_ on discord, ask if you have any questions
+
 Set up an Obsidian vault in this repo as the project's knowledge base for agentic Roblox development. You (the agent) will read it at the start of every task and write to it whenever you learn something worth keeping. It replaces your built-in auto-memory for this project.
 
 ## 1. Create the vault

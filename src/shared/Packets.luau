@@ -26,11 +26,28 @@ local Packets = {
 	TrainingStopRequest = Packet("TrainingStopRequest"):RateLimit(5, 1),
 	BuyArm = Packet("BuyArm", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	Rebirth = Packet("Rebirth"):Response(Packet.Boolean8):RateLimit(2, 1),
+	BuyGeode = Packet("BuyGeode", Packet.String, Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
+	GeodeHatched = Packet(
+		"GeodeHatched",
+		Packet.Instance,
+		Packet.Instance,
+		Packet.String,
+		Packet.String,
+		Packet.NumberU8,
+		Packet.Boolean8,
+		Packet.String
+	),
+	ClaimIndex = Packet("ClaimIndex", Packet.String, Packet.String)
+		:Response(Packet.Boolean8)
+		:RateLimit(10, 1),
+	ClaimIndexZone = Packet("ClaimIndexZone", Packet.String, Packet.String)
+		:Response(Packet.Boolean8)
+		:RateLimit(5, 1),
+	ClaimAllIndex = Packet("ClaimAllIndex"):Response(Packet.NumberU8):RateLimit(2, 1),
 	SetSetting = Packet("SetSetting", Packet.String, Packet.Boolean8):RateLimit(5, 1),
 	SetVolume = Packet("SetVolume", Packet.String, Packet.NumberU8):RateLimit(20, 1),
 	Notify = Packet("Notify", Packet.String, Packet.String),
-	DevResetData = Packet("DevResetData"):RateLimit(1, 2),
-	DevForceMaster = Packet("DevForceMaster"):RateLimit(1, 1),
+	AdminRun = Packet("AdminRun", Packet.String):RateLimit(5, 1),
 }
 
 return Packets

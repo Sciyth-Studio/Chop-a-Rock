@@ -37,12 +37,23 @@ local map: { [string]: AssetEntry } = {
 	Model_GeodeStand = { Category = "Models", InstanceName = "Model_GeodeStand" },
 	Model_BasePlot = { Category = "Models", InstanceName = "Model_BasePlot" },
 	Model_BasePedestal = { Category = "Models", InstanceName = "Model_BasePedestal" },
+	Model_RockPreview_Basic = { Category = "Models", InstanceName = "Model_RockPreview_Basic" },
+	Model_RockPreview_Second = { Category = "Models", InstanceName = "Model_RockPreview_Second" },
+	Model_RockPreview_Third = { Category = "Models", InstanceName = "Model_RockPreview_Third" },
 	Model_Rok_Bloky = { Category = "Models", InstanceName = "Model_Rok_Bloky" },
 	Model_Rok_Sprout = { Category = "Models", InstanceName = "Model_Rok_Sprout" },
 	Model_Rok_Shroomy = { Category = "Models", InstanceName = "Model_Rok_Shroomy" },
 	Model_Rok_Nesty = { Category = "Models", InstanceName = "Model_Rok_Nesty" },
 	Model_Rok_Berry = { Category = "Models", InstanceName = "Model_Rok_Berry" },
 	Model_Rok_Treebo = { Category = "Models", InstanceName = "Model_Rok_Treebo" },
+	SFX_Hatch_Step = { Category = "Sounds", InstanceName = "SFX_Hatch_Step" },
+	SFX_Hatch_Common = { Category = "Sounds", InstanceName = "SFX_Hatch_Common" },
+	SFX_Hatch_Uncommon = { Category = "Sounds", InstanceName = "SFX_Hatch_Uncommon" },
+	SFX_Hatch_Rare = { Category = "Sounds", InstanceName = "SFX_Hatch_Rare" },
+	SFX_Hatch_Epic = { Category = "Sounds", InstanceName = "SFX_Hatch_Epic" },
+	SFX_Hatch_Legendary = { Category = "Sounds", InstanceName = "SFX_Hatch_Legendary" },
+	SFX_Hatch_Secret = { Category = "Sounds", InstanceName = "SFX_Hatch_Secret" },
+	VFX_Hatch_Burst = { Category = "VFX", InstanceName = "VFX_Hatch_Burst" },
 }
 
 local soundGroupName = "SoundEffects"

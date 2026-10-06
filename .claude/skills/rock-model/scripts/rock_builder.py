@@ -718,6 +718,76 @@ def planar_stud_uvs(me, tile_studs=1):
     bm.free()
 
 
+FACE_SHADES = {"up": 1.0, "down": 0.55, "+x": 0.88, "-x": 0.78, "+y": 0.92, "-y": 0.72}
+
+
+def _face_shade(n, shades):
+    return (
+        n.x * n.x * shades["+x" if n.x > 0 else "-x"]
+        + n.y * n.y * shades["+y" if n.y > 0 else "-y"]
+        + n.z * n.z * shades["up" if n.z > 0 else "down"]
+    )
+
+
+def edge_glow_inset(me, width):
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bmesh.ops.dissolve_degenerate(bm, dist=1e-4, edges=bm.edges)
+    bmesh.ops.dissolve_limit(bm, angle_limit=0.001, verts=bm.verts, edges=bm.edges)
+
+    def flat(edge):
+        return len(edge.link_faces) == 2 and edge.calc_face_angle(1.0) < 0.001
+
+    regions = []
+    seen = set()
+    for face in bm.faces:
+        if face in seen:
+            continue
+        region, stack = [], [face]
+        seen.add(face)
+        while stack:
+            f = stack.pop()
+            region.append(f)
+            for e in f.edges:
+                if flat(e):
+                    for g in e.link_faces:
+                        if g not in seen:
+                            seen.add(g)
+                            stack.append(g)
+        regions.append(region)
+    for region in regions:
+        members = set(region)
+        boundary = [e for f in region for e in f.edges if not (flat(e) and all(g in members for g in e.link_faces))]
+        area = sum(f.calc_area() for f in region)
+        perimeter = sum(e.calc_length() for e in set(boundary))
+        thickness = min(width, 0.4 * 2 * area / perimeter) if perimeter > 0 else 0
+        if thickness > 1e-4:
+            bmesh.ops.inset_region(bm, faces=region, thickness=thickness, use_even_offset=True, use_boundary=True)
+    outer = {v for e in bm.edges if not flat(e) for v in e.verts}
+    bmesh.ops.triangulate(bm, faces=bm.faces)
+    bm.verts.index_update()
+    outer_ids = {v.index for v in outer}
+    bm.to_mesh(me)
+    bm.free()
+    return outer_ids
+
+
+def face_shade_colors(me, shades=FACE_SHADES, name="FaceShade", edge_width=0.0, edge_shade=0.7):
+    outer = edge_glow_inset(me, edge_width) if edge_width > 0 else set()
+    old = me.color_attributes.get(name)
+    if old:
+        me.color_attributes.remove(old)
+    attr = me.color_attributes.new(name, "BYTE_COLOR", "CORNER")
+    me.color_attributes.active_color = attr
+    me.color_attributes.render_color_index = me.color_attributes.active_color_index
+    for poly in me.polygons:
+        value = _face_shade(poly.normal, shades)
+        for li in poly.loop_indices:
+            v = value * (edge_shade if me.loops[li].vertex_index in outer else 1.0)
+            attr.data[li].color_srgb = (v, v, v, 1.0)
+    return attr
+
+
 def stud_overlay_material(name, rgb, image_path):
     mat = plain_material(name, rgb)
     nodes = mat.node_tree.nodes

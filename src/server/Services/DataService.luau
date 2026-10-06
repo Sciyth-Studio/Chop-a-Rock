@@ -9,8 +9,6 @@ local ReplicaServer = require(ServerScriptService.ReplicaServer)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local PlayerData = require(script.Parent.Parent.Data.PlayerData)
 local DataSessions = require(script.Parent.Parent.Data.DataSessions)
-local Packets = require(ReplicatedStorage.Packets)
-local NotificationService = require(script.Parent.NotificationService)
 
 type Path = { string | number }
 
@@ -23,7 +21,6 @@ local sessions: DataSessions.DataSessions? = nil
 local token: any = nil
 local replicas: { [Player]: ReplicaServer.Replica } = {}
 local connections: { { Disconnect: (self: any) -> () } } = {}
-local devResetConnection: any = nil
 local stopped = false
 local warnedMock = false
 
@@ -134,13 +131,6 @@ function DataService.Start(_self: any)
 	for _, player in Players:GetPlayers() do
 		task.defer(load, player)
 	end
-	if RunService:IsStudio() then
-		devResetConnection = Packets.DevResetData.OnServerEvent:Connect(function(player: Player)
-			if DataService:ResetData(player) then
-				NotificationService:Notify(player, "Info", "Data reset")
-			end
-		end)
-	end
 end
 
 function DataService.RequestSave(_self: any, player: Player): boolean
@@ -183,6 +173,10 @@ function DataService.ResetData(_self: any, player: Player): boolean
 		Strength = template.Strength,
 		ArmTier = template.ArmTier,
 		Rebirths = template.Rebirths,
+		Geodes = {},
+		Pets = {},
+		NextPetId = template.NextPetId,
+		Index = { Pets = {}, Rocks = {}, Claimed = { Pets = {}, Rocks = {}, Zones = {} } },
 	})
 	table.clear(data.Receipts)
 	DataService.PlayerLoaded:Fire(player, data)
@@ -196,10 +190,6 @@ function DataService.Destroy(_self: any)
 		connection:Disconnect()
 	end
 	table.clear(connections)
-	if devResetConnection then
-		devResetConnection:Disconnect()
-		devResetConnection = nil
-	end
 	local activeSessions = sessions
 	if activeSessions then
 		for _, player in Players:GetPlayers() do

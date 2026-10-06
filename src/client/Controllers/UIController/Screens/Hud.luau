@@ -106,7 +106,7 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local lastTarget = readNumber(dataController:Get({ "Cash" }))
 		setText(label, formatMoney(lastTarget))
 
-		local function playDelta(delta: number, target: number)
+		local function playDelta(delta: number)
 			local source = template :: TextLabel
 			local floating = source:Clone()
 			floating.Text = if delta > 0 then `+{formatMoney(delta)}` else `-{formatMoney(-delta)}`
@@ -145,7 +145,7 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			slide.Completed:Once(function()
 				floating:Destroy()
 				if not isDestroyed then
-					setText(label, formatMoney(target))
+					setText(label, formatMoney(lastTarget))
 				end
 			end)
 			slide:Play()
@@ -159,7 +159,7 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				return
 			end
 			if template then
-				playDelta(delta, target)
+				playDelta(delta)
 			else
 				setText(label, formatMoney(target))
 			end

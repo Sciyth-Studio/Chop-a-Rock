@@ -3,6 +3,7 @@
 local ComponentController = { Name = "ComponentController" }
 local factories: { (controllers: { [string]: any }) -> any } = {
 	require(script.Parent.Parent.Components.Spinner),
+	require(script.Parent.Parent.Components.OwnedPrompt),
 	require(script.Parent.Parent.Components.ShopPad),
 }
 local registry: { [string]: any } = {}

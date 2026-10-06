@@ -17,6 +17,12 @@ export type MenuButtonSettings = {
 	ButtonSizePixels: number,
 	ButtonGapPixels: number,
 	Buttons: { MenuButton },
+	IndexBadge: {
+		Button: string,
+		BadgeName: string,
+		LabelName: string,
+		MaxShown: number,
+	},
 }
 
 local MenuButtonConfig: MenuButtonSettings = {
@@ -35,6 +41,12 @@ local MenuButtonConfig: MenuButtonSettings = {
 		{ Name = "Bag", Screen = "Bag" },
 		{ Name = "Index", Screen = "Index" },
 		{ Name = "Rebirth", Screen = "Rebirth" },
+	},
+	IndexBadge = {
+		Button = "Index",
+		BadgeName = "Badge",
+		LabelName = "Mark",
+		MaxShown = 9,
 	},
 }
 

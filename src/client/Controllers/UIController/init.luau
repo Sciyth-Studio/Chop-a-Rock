@@ -12,11 +12,15 @@ local modules: { [string]: Types.ScreenModule } = {
 	ChopMeter = require(script.Screens.ChopMeter),
 	TrainingHint = require(script.Screens.TrainingHint),
 	Shop = require(script.Screens.Shop),
+	GeodeStand = require(script.Screens.GeodeStand),
+	Index = require(script.Screens.Index),
+	HatchReveal = require(script.Screens.HatchReveal),
 	Rebirth = require(script.Screens.Rebirth),
 	Notifications = require(script.Screens.Notifications),
 	ExpBar = require(script.Screens.ExpBar),
 	Letterbox = require(script.Screens.Letterbox),
 	Settings = require(script.Screens.Settings),
+	AdminPanel = require(script.Screens.AdminPanel),
 }
 
 local UIController = { Name = "UIController" }

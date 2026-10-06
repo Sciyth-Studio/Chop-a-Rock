@@ -281,11 +281,15 @@ local function beginMinigame(
 
 	local rootPart = if character then character:FindFirstChild("HumanoidRootPart") :: BasePart? else nil
 	local rockScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
+	local isRelative = rock:GetAttribute(ChopConfig.RelativeOffsetAttribute) == true
+	local function offset(vector: Vector3): Vector3
+		return if isRelative then rock.CFrame:VectorToWorldSpace(vector) else vector
+	end
 	local rootStart: CFrame? = if rootPart then rootPart.CFrame else nil
 	local rootTarget: CFrame? = nil
 	if rootPart then
 		local groundY = rock.Position.Y - rock.Size.Y / 2 + rootPart.Size.Y * 1.5
-		local snapPos = rock.Position + ChopConfig.PlayerSnapOffsetFromRock * rockScale
+		local snapPos = rock.Position + offset(ChopConfig.PlayerSnapOffsetFromRock) * rockScale
 		snapPos = Vector3.new(snapPos.X, groundY, snapPos.Z)
 		rootTarget = CFrame.lookAt(snapPos, rock.Position)
 			* CFrame.new(-ChopConfig.PlayerSnapLeftShiftStuds, 0, 0)
@@ -297,8 +301,8 @@ local function beginMinigame(
 	if camera then
 		camera.CameraType = Enum.CameraType.Scriptable
 		cameraStart = camera.CFrame
-		local cameraPos = rock.Position + ChopConfig.CameraOffsetFromRock * rockScale
-		cameraTarget = CFrame.new(cameraPos, rock.Position + ChopConfig.CameraLookOffset)
+		local cameraPos = rock.Position + offset(ChopConfig.CameraOffsetFromRock) * rockScale
+		cameraTarget = CFrame.new(cameraPos, rock.Position + offset(ChopConfig.CameraLookOffset))
 		chopCamera = cameraTarget
 	end
 
@@ -424,15 +428,17 @@ function ChopController.Start(self: any)
 	trove:Add(
 		Packets.ChopMinigameStart.OnClientEvent:Connect(
 			function(
-				rock: Instance,
+				rock: Instance?,
 				canBreak: boolean,
 				ratio: number,
 				center: number,
 				health: number,
 				maxHealth: number
 			)
-				if rock:IsA("BasePart") then
+				if rock and rock:IsA("BasePart") then
 					beginMinigame(rock, canBreak, ratio, center, health, maxHealth)
+				elseif not minigameActive then
+					Packets.ChopLeave:Fire()
 				end
 			end
 		)

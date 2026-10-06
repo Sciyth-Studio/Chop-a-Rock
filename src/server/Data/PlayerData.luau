@@ -1,11 +1,31 @@
 --!strict
 
+export type Pet = {
+	Key: string,
+	HatchedAt: number,
+	Trait: string?,
+	TraitValue: number?,
+	Modifier: string?,
+}
+
 export type Data = {
 	SchemaVersion: number,
 	Cash: number,
 	Strength: number,
 	ArmTier: number,
 	Rebirths: number,
+	Geodes: { [string]: number },
+	Pets: { [string]: Pet },
+	NextPetId: number,
+	Index: {
+		Pets: { [string]: number },
+		Rocks: { [string]: number },
+		Claimed: {
+			Pets: { [string]: boolean },
+			Rocks: { [string]: boolean },
+			Zones: { [string]: boolean },
+		},
+	},
 	Settings: { [string]: boolean | number },
 	LastSeenAt: number,
 	Receipts: { [string]: number },
@@ -19,6 +39,18 @@ PlayerData.Template = {
 	Strength = 0,
 	ArmTier = 1,
 	Rebirths = 0,
+	Geodes = {},
+	Pets = {},
+	NextPetId = 1,
+	Index = {
+		Pets = {},
+		Rocks = {},
+		Claimed = {
+			Pets = {},
+			Rocks = {},
+			Zones = {},
+		},
+	},
 	Settings = {
 		Music = 1,
 		SoundEffects = true,
@@ -35,6 +67,44 @@ local function natural(value: any): boolean
 		and value % 1 == 0
 end
 
+local function finite(value: any): boolean
+	return type(value) == "number" and value == value and math.abs(value) < math.huge
+end
+
+local function counts(value: any): boolean
+	if type(value) ~= "table" then
+		return false
+	end
+	for key, count in value do
+		if type(key) ~= "string" or #key == 0 or not natural(count) then
+			return false
+		end
+	end
+	return true
+end
+
+local function flags(value: any): boolean
+	if type(value) ~= "table" then
+		return false
+	end
+	for key, flag in value do
+		if type(key) ~= "string" or #key == 0 or flag ~= true then
+			return false
+		end
+	end
+	return true
+end
+
+local function validPet(pet: any): boolean
+	return type(pet) == "table"
+		and type(pet.Key) == "string"
+		and #pet.Key > 0
+		and natural(pet.HatchedAt)
+		and (pet.Trait == nil or type(pet.Trait) == "string")
+		and (pet.TraitValue == nil or finite(pet.TraitValue))
+		and (pet.Modifier == nil or type(pet.Modifier) == "string")
+end
+
 function PlayerData.Validate(data: any): boolean
 	if type(data) ~= "table" or (data.SchemaVersion ~= nil and data.SchemaVersion ~= 1) then
 		return false
@@ -47,12 +117,49 @@ function PlayerData.Validate(data: any): boolean
 	if data.ArmTier ~= nil and (not natural(data.ArmTier) or data.ArmTier < 1) then
 		return false
 	end
+	if data.Geodes ~= nil and not counts(data.Geodes) then
+		return false
+	end
+	if data.Pets ~= nil then
+		if type(data.Pets) ~= "table" then
+			return false
+		end
+		for id, pet in data.Pets do
+			if type(id) ~= "string" or #id == 0 or not validPet(pet) then
+				return false
+			end
+		end
+	end
+	if data.NextPetId ~= nil and (not natural(data.NextPetId) or data.NextPetId < 1) then
+		return false
+	end
+	if data.Index ~= nil then
+		local index = data.Index
+		if type(index) ~= "table" then
+			return false
+		end
+		for _, key in { "Pets", "Rocks" } do
+			if index[key] ~= nil and not counts(index[key]) then
+				return false
+			end
+		end
+		if index.Claimed ~= nil then
+			if type(index.Claimed) ~= "table" then
+				return false
+			end
+			for _, key in { "Pets", "Rocks", "Zones" } do
+				if index.Claimed[key] ~= nil and not flags(index.Claimed[key]) then
+					return false
+				end
+			end
+		end
+	end
 	if data.Settings ~= nil then
 		if type(data.Settings) ~= "table" then
 			return false
 		end
 		for name, value in data.Settings do
-			local isVolume = type(value) == "number" and value == value and value >= 0 and value <= 1
+			local isVolume = finite(value) and value >= 0 and value <= 1
 			if type(name) ~= "string" or (type(value) ~= "boolean" and not isVolume) then
 				return false
 			end

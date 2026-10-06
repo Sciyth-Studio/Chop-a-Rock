@@ -21,4 +21,18 @@ function NumberFormat.Compact(value: number): string
 	return `{text}{suffixes[index]}`
 end
 
+function NumberFormat.Percent(chance: number): string
+	local percent = chance * 100
+	local decimals = if percent < 1 then 2 else 1
+	local text = string.format(`%.{decimals}f`, percent)
+	text = string.gsub(text, "%.?0+$", "")
+	return `{text}%`
+end
+
+function NumberFormat.Multiplier(value: number): string
+	local text = string.format("%.2f", value)
+	text = string.gsub(text, "%.?0+$", "")
+	return `x{text}`
+end
+
 return NumberFormat
