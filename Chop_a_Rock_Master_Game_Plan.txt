@@ -86,7 +86,15 @@ Step #10: Buy more pedestal slots; eventually rebirth (strength + level reset to
 Step #11: Repeat.
 
 Loop details:
-- Rock respawn: instant after breaking.
+- [DECIDED 2026-10-06] Rocks spawn: each zone keeps a set number of rocks alive per player (draft 8-12), rising out of
+  the ground at a random clear spot inside the zone's spawn area: one or more rough, invisible boxes the user draws in
+  Studio (no need to be flat or cleared). At server start the system samples points inside the boxes, finds the ground
+  (terrain or parts), drops steep slopes and any spot where a tree, prop or building would overlap the rock at its
+  size, and keeps the rest as candidate spots. Spawns pick from those, keeping a minimum gap from the player's other
+  rocks and never rising under a player. An Admin panel toggle shows the candidate spots as dots. Each spawn rolls its type
+  from the zone's weighted table (e.g. mostly Stone, fewer Boulders, rare Mossy Boulders) and whether it is a modified
+  rock (Rush, weather). A broken rock is replaced at a new random spot after a short delay (draft 2s). The guide arrow points to the nearest rock of
+  the kind the player should grind. [PLAYTEST] counts, weights, delay.
 - One chop (wind-up, impact) takes about 2 seconds; one rock takes several chops, fewer the stronger the player is.
 - Rock health: MaxHealth = StrengthRequired × HitsAtMinStrength. Damage per chop = Strength × quality damage multiplier.
   The health bar is mostly an indicator of player strength: a player far above the requirement one-shots the rock.
@@ -110,9 +118,18 @@ Loop details:
 - Players move on when they have earned enough to do what's required to try the next rock.
 - What to do next is shown in the world: a label above each rock shows its name and required strength, and a scrolling
   arrow trail with a highlight guides the player to the rock they should grind (or to the shop). Values in GuideConfig.
+- [DECIDED 2026-10-06] In-session pressure rule: pressure only ever offers more, it never takes away what the player
+  already has. Nothing drains money, health or progress for being slow.
+- [DECIDED 2026-10-06] HOT STREAK: back-to-back Good-or-better chops on rocks build a streak that multiplies chop money
+  (draft x1.1 / x1.25 / x1.5 / x2 at 3 / 6 / 10 / 15 chops), shown as a flame on the arms. Mid holds the streak; Bad
+  drops it one step, never to zero. It fades if the player stops chopping for a few seconds (draft 4s), and carries
+  from one rock to the next. Money only; damage is unchanged. [PLAYTEST] all values.
+- [DECIDED 2026-10-06] RUSH ROCKS: every few minutes of chopping (draft 3 min), one of the player's spawns in their zone
+  rises gold, always a kind they can break, with a countdown above it (draft 20s). Breaking it in time pays x3 (draft)
+  for that rock. If time runs out it turns back into a normal rock. One at a time, per player. [PLAYTEST] all values.
 
 [DECIDED] No next-goal bar. Cut by the user.
-[PROPOSED] ~0.5s reform animation on respawn instead of a true instant pop, so the break has a beat to land.
+(Resolved 2026-10-06: the reform-animation proposal is covered by rocks rising out of the ground.)
 (Resolved: arms are now strict upgrades bought with money, so money converts predictably into strength. Pity system no longer needed.)
 
 ================================
@@ -264,10 +281,22 @@ Note: with training and bases at the hub, the server naturally gathers in one vi
 
 MAIN LOCATION / STARTING AREA:
 The training hub in the spawn area. New players see the cutscene and tutorial there, then walk out into zone 1.
-Rocks are per-player: each player sees and chops their own copy of each rock.
+Rocks are per-player: each player sees and chops their own spawned rocks (§02); other players' rocks are not shown.
+[DECIDED 2026-10-06] Other players' chops still show their animation and effects, so nobody looks like they are
+  hitting thin air. Exact look proposed before building.
 [DECIDED 2026-10-03] Scarcity lives in shared SPECIAL rocks layered on top: rare rocks (e.g. golden/crystal, or
   event rocks) spawn server-wide at spots in a zone with a server announcement. Anyone can chop them, and payout is
   split by each player's share of damage dealt (co-op, not last-hit-wins). Regular rocks are never contested.
+  [DECIDED 2026-10-06] Special rocks show a visible despawn countdown (draft 60s) next to their announcement, so the
+  server rushes to them together. [PLAYTEST] length.
+  [PROPOSED] Hits on a special rock pay as they land (like regular rocks), so a rock that times out still pays everyone
+  who chopped it.
+  [DECIDED 2026-10-06] DIAMOND ROCK: the first special rock. Every so often (draft 10-15 min) one rises at a dedicated
+  spot in a zone, visible to the whole server, with an announcement and a beacon visible across the map. Super high
+  value (draft ~50x that zone's top rock), big shared health, the 60s countdown, payout split by damage share.
+  Diamond is reserved for this rock: no zone, pet or modifier uses the name. [PLAYTEST] all values.
+  [PROPOSED] Anyone who has reached the zone can chop it (strength requirement = the zone's first rock), so every kid
+  can join in; weaker players simply earn a smaller share.
 Base plots per server: 8 (this effectively sets max server size).
 
 ================================
@@ -444,7 +473,7 @@ NPC / ENEMY SYSTEM:
 Sensei (cutscene/tutorial). Bacon hair (cutscene). Cheering NPC crowds.
 
 RESOURCE / SPAWNING SYSTEM:
-Rocks per zone, instant respawn. Hatch rolls when a geode is cracked. Shared special rocks spawn server-wide
+Per-player rocks rise at clear spots in each zone's spawn area, from a weighted table (§02). Hatch rolls when a geode is cracked. Shared special rocks spawn server-wide
 (rare, and during events); payout split by damage share. Server-wide weather/events modify rocks and geode stands.
 
 VEHICLE SYSTEM:
@@ -779,3 +808,20 @@ DECISION LOG
   - Geodes are inventory items, placed and cracked in a crack area at the player's base (chopped on the ground),
     not at the stand. Two halves split open; the pet is shown on screen, then goes to the inventory.
   - Inside crystals change with the geode's rarity. Random size variation on geodes and pets is a leaning only.
+2026-10-06 — In-session pressure (§02, §06):
+  - Added because progression had no urgency inside a session; it relied on events and the offline cap.
+  - Rule: pressure only offers more and never takes away what the player has (ages 6-12 quit over losses).
+  - Hot Streak: chaining Good+ chops multiplies chop money; Bad drops one step, idling fades it.
+  - Rush Rocks: a personal gold rock with a short countdown pays x3 if broken in time, otherwise turns normal.
+  - Shared special rocks get a visible despawn countdown.
+  - Considered and not adopted: a Frenzy meter (overlaps Hot Streak) and timed quest lists (too much reading).
+  - Visuals and UI for all three are proposed before they are built.
+2026-10-06 — Rocks spawn instead of being placed (§02, §06, §08):
+  - The forest MVP had one rock of each kind in a narrow zone. Rocks now rise from the ground at random spots in a
+    user-drawn spawn area, a set number per player per zone, types rolled from a weighted table. The system finds
+    clear, level ground inside the area by itself. Fully automatic zone-wide detection was rejected: it can't tell a
+    good spot from a clear one (paths, stands, hilltops) and would undo the tuned zone pacing. Rolling at spawn is what makes
+    Rush and weather-modified rocks easy to generate.
+  - Rocks are per-player and invisible to others (option 1). Rejected: shared spawns, which would bring back
+    contested rocks (2026-10-03). Also resolves the 2026-09-30 known issue of one shared rock per kind.
+  - Scarcity comes from the Diamond Rock: an occasional server-wide, super high-value shared rock players rush to.
