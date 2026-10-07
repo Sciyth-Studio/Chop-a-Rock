@@ -62,6 +62,12 @@ local map: { [string]: AssetEntry } = {
 	SFX_Hatch_Legendary = { Category = "Sounds", InstanceName = "SFX_Hatch_Legendary" },
 	SFX_Hatch_Secret = { Category = "Sounds", InstanceName = "SFX_Hatch_Secret" },
 	VFX_Hatch_Burst = { Category = "VFX", InstanceName = "VFX_Hatch_Burst" },
+	VFX_Chop_Hit = { Category = "VFX", InstanceName = "VFX_Chop_Hit" },
+	VFX_Chop_Crack = { Category = "VFX", InstanceName = "VFX_Chop_Crack" },
+	VFX_Chop_Break = { Category = "VFX", InstanceName = "VFX_Chop_Break" },
+	VFX_Perfect_Burst = { Category = "VFX", InstanceName = "VFX_Perfect_Burst" },
+	VFX_Master_WindUp = { Category = "VFX", InstanceName = "VFX_Master_WindUp" },
+	VFX_Cash_Pop = { Category = "VFX", InstanceName = "VFX_Cash_Pop" },
 }
 
 local soundGroupName = "SoundEffects"

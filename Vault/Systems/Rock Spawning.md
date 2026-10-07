@@ -9,7 +9,7 @@ Built 2026-10-06 from `RockSpawnSystemPlan.md` (all of D1–D10 approved as writ
 ## Studio
 - **Spawn area:** parts tagged `RockSpawnArea` with a `Zone` attribute (`"Forest"`), half-transparent blue in Studio, hidden by the server at start. The forest box is `Forest Zone.RockSpawnArea`, 216 x 30 x 116 at (42, 13, -135), covering the floor between the side terraces. To change where rocks go, move or resize it, or add more boxes with the same tag and attribute.
 - **Templates:** the three hand-placed rocks became `ReplicatedStorage.Assets.Models.Model_Rock_Basic/Second/Third` (MeshParts that keep their `RockKey`, `SplitModel`, MaterialVariant and rotation; no `ChopRock` tag on the template). `Workspace.Rocks` was removed. Rocks spawn with the template's rotation, so the chop camera framing stays as tuned.
-- **Dust:** `Assets.VFX.VFX_Rock_Dust` is a placeholder smoke burst (`EmitCount` attribute) for the rise and other players' hits. `SFX_Rock_Rise` (rumble) is still missing, so the rise is silent and the client warns once.
+- **Dust:** `Assets.VFX.VFX_Rock_Dust` is a placeholder smoke burst (`EmitCount` attribute) for the rise. Hit and break effects are in [[Chop Effects]]. `SFX_Rock_Rise` (rumble) is still missing, so the rise is silent and the client warns once.
 
 ## How it works
 - `RockService` samples the areas at server start (about 1,280 forest spots in ~100 ms). For each 4-stud column it raycasts down through everything collidable and takes the lowest surface, then steps up through anything stacked within 1.5 studs (`GroundStepStuds`). It then checks each rock kind's box and a 3 x 5 x 3 standing spot where the chop snaps the player. Only collidable parts block.

@@ -28,9 +28,6 @@ export type MasterChopSettings = {
 	PunchOutSeconds: number,
 	AnnouncementKind: string,
 	SoundKey: string,
-	BurstKey: string,
-	BurstEmitCount: number,
-	BurstLifetimeSeconds: number,
 }
 
 local MasterChopConfig: MasterChopSettings = {
@@ -65,9 +62,6 @@ local MasterChopConfig: MasterChopSettings = {
 	PunchOutSeconds = 0.6,
 	AnnouncementKind = "Event",
 	SoundKey = "SFX_Chop_Master",
-	BurstKey = "VFX_Master_Burst",
-	BurstEmitCount = 60,
-	BurstLifetimeSeconds = 4,
 }
 
 return table.freeze(MasterChopConfig)

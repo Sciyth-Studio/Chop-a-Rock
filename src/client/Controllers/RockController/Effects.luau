@@ -4,10 +4,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local ChopEffectConfig = require(ReplicatedStorage.Config.ChopEffectConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
+local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
 
 local Effects = {}
 
@@ -89,6 +92,145 @@ local function chunkCountFor(quality: number): number
 		return ChopConfig.MidChunkCount
 	end
 	return ChopConfig.BadChunkCount
+end
+
+type Tint = {
+	Quality: number,
+	Rock: Color3,
+}
+
+local white = Color3.new(1, 1, 1)
+local templates: { [string]: Model } = {}
+local missingTemplates: { [string]: true } = {}
+
+local function templateFor(key: string): Model?
+	local cached = templates[key]
+	if cached or missingTemplates[key] then
+		return cached
+	end
+	local asset = AssetRegistry.get(key)
+	if asset:IsA("Model") then
+		templates[key] = asset
+		return asset
+	end
+	asset:Destroy()
+	missingTemplates[key] = true
+	return nil
+end
+
+local function scaleSequence(sequence: NumberSequence, scale: number): NumberSequence
+	local keypoints = {}
+	for _, keypoint in sequence.Keypoints do
+		table.insert(
+			keypoints,
+			NumberSequenceKeypoint.new(keypoint.Time, keypoint.Value * scale, keypoint.Envelope * scale)
+		)
+	end
+	return NumberSequence.new(keypoints)
+end
+
+local function qualityColor(quality: number): Color3
+	return (ChopStyleConfig.Qualities[quality] or ChopStyleConfig.Fallback).Color
+end
+
+local function prepareEmitter(emitter: ParticleEmitter, scale: number, tint: Tint, countScale: number)
+	local minQuality = emitter:GetAttribute(ChopEffectConfig.MinQualityAttribute)
+	if type(minQuality) == "number" and tint.Quality < minQuality then
+		emitter:Destroy()
+		return
+	end
+	local kind = emitter:GetAttribute(ChopEffectConfig.TintAttribute)
+	if kind == "Quality" then
+		emitter.Color = ColorSequence.new(qualityColor(tint.Quality))
+	elseif kind == "QualityHot" then
+		local color = qualityColor(tint.Quality)
+		emitter.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, white),
+			ColorSequenceKeypoint.new(0.35, color),
+			ColorSequenceKeypoint.new(1, color),
+		})
+	elseif kind == "Rock" then
+		emitter.Color = ColorSequence.new(tint.Rock)
+	elseif kind == "Dust" then
+		emitter.Color = ColorSequence.new(tint.Rock:Lerp(white, ChopEffectConfig.DustLightenAmount))
+	end
+	local count = emitter:GetAttribute("EmitCount")
+	if type(count) == "number" and count > 1 and countScale ~= 1 then
+		emitter:SetAttribute("EmitCount", math.max(1, math.floor(count * countScale + 0.5)))
+	end
+	if scale ~= 1 then
+		emitter.Size = scaleSequence(emitter.Size, scale)
+		emitter.Speed = NumberRange.new(emitter.Speed.Min * scale, emitter.Speed.Max * scale)
+		emitter.Acceleration *= scale
+	end
+end
+
+local function playEffect(key: string, cframe: CFrame, scale: number, tint: Tint, countScale: number?)
+	local template = templateFor(key)
+	if not template then
+		return
+	end
+	local model = template:Clone()
+	local root = model.PrimaryPart
+	local origin = if root then root.CFrame else model:GetPivot()
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("ParticleEmitter") then
+			prepareEmitter(descendant, scale, tint, countScale or 1)
+		elseif scale == 1 then
+			continue
+		elseif descendant:IsA("Attachment") then
+			descendant.Position *= scale
+		elseif descendant:IsA("PointLight") then
+			descendant.Range *= scale
+		elseif descendant:IsA("BasePart") and descendant ~= root then
+			local offset = origin:ToObjectSpace(descendant.CFrame)
+			descendant.Size *= scale
+			descendant.CFrame = origin * (offset.Rotation + offset.Position * scale)
+		end
+	end
+	model:PivotTo(cframe)
+	model.Parent = workspace
+	VFXEmit.emit(model, {
+		onDone = function()
+			model:Destroy()
+		end,
+	})
+end
+
+local function scaleFor(sizeX: number): number
+	return math.max(ChopEffectConfig.MinScale, sizeX / ChopConfig.ReferenceRockSize)
+end
+
+local function impactCFrame(center: Vector3, sizeX: number): CFrame
+	local camera = workspace.CurrentCamera
+	local toward = if camera then camera.CFrame.Position - center else Vector3.zAxis
+	local flat = Vector3.new(toward.X, 0, toward.Z)
+	local direction = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zAxis
+	local point = center + direction * sizeX * ChopEffectConfig.ImpactInsetFraction
+	return CFrame.lookAt(point, point + direction)
+end
+
+local function baseCFrame(center: Vector3, sizeY: number): CFrame
+	return CFrame.new(center - Vector3.new(0, sizeY / 2, 0))
+end
+
+local function breakEffectKey(quality: number): string
+	if quality == ChopQuality.Master then
+		return ChopEffectConfig.MasterBurstKey
+	elseif quality == ChopQuality.Perfect then
+		return ChopEffectConfig.PerfectKey
+	end
+	return ChopEffectConfig.BreakKey
+end
+
+local function playBreakEffect(center: Vector3, size: Vector3, quality: number, rockColor: Color3)
+	playEffect(
+		breakEffectKey(quality),
+		baseCFrame(center, size.Y),
+		scaleFor(size.X),
+		{ Quality = quality, Rock = rockColor },
+		ChopEffectConfig.BreakCountScale[quality]
+	)
 end
 
 local shakeOrigins: { [BasePart]: CFrame } = {}
@@ -275,16 +417,34 @@ end
 function Effects.Crack(part: BasePart)
 	playSound("SFX_Rock_Crack", part)
 	shake(part)
+	playEffect(
+		ChopEffectConfig.CrackKey,
+		impactCFrame(part.Position, part.Size.X),
+		scaleFor(part.Size.X),
+		{ Quality = ChopQuality.Crack, Rock = part.Color }
+	)
 end
 
 function Effects.Hit(part: BasePart, quality: number)
 	playSound(qualitySoundKey(quality), part)
 	playSound("SFX_Rock_Break", part, ChopConfig.HitSoundVolumeMultiplier)
 	shake(part)
+	playEffect(
+		ChopEffectConfig.HitKey,
+		impactCFrame(part.Position, part.Size.X),
+		scaleFor(part.Size.X),
+		{ Quality = quality, Rock = part.Color }
+	)
 end
 
 function Effects.MasterStart(part: BasePart)
 	playSound(MasterChopConfig.SoundKey, part)
+	playEffect(
+		ChopEffectConfig.MasterWindUpKey,
+		baseCFrame(part.Position, part.Size.Y),
+		scaleFor(part.Size.X),
+		{ Quality = ChopQuality.Master, Rock = part.Color }
+	)
 end
 
 function Effects.Break(part: BasePart, quality: number, piecesSeconds: number)
@@ -292,17 +452,8 @@ function Effects.Break(part: BasePart, quality: number, piecesSeconds: number)
 		playSound(qualitySoundKey(quality), part)
 	end
 	playSound("SFX_Rock_Break", part)
-	if quality == ChopQuality.Master then
-		emit(
-			MasterChopConfig.BurstKey,
-			part,
-			MasterChopConfig.BurstEmitCount,
-			MasterChopConfig.BurstLifetimeSeconds
-		)
-		splitRock(part, piecesSeconds)
-		return
-	end
-	if quality == ChopQuality.Perfect then
+	playBreakEffect(part.Position, part.Size, quality, part.Color)
+	if quality == ChopQuality.Master or quality == ChopQuality.Perfect then
 		splitRock(part, piecesSeconds)
 		return
 	end
@@ -312,27 +463,33 @@ end
 
 function Effects.Shown(position: Vector3, sizeX: number, quality: number, isBroken: boolean)
 	local anchor = anchorAt(position, math.max(RockSpawnConfig.DustLifetimeSeconds, 5))
+	local size = Vector3.new(sizeX, sizeX, sizeX)
+	local rockColor = RockSpawnConfig.OthersChunkColor
+	local chunkLook: ChunkLook = { Color = rockColor, Material = Enum.Material.Slate, MaterialVariant = "" }
+	local tint: Tint = { Quality = quality, Rock = rockColor }
 	if quality == ChopQuality.Master then
 		playSound(MasterChopConfig.SoundKey, anchor)
+		playEffect(ChopEffectConfig.MasterWindUpKey, baseCFrame(position, sizeX), scaleFor(sizeX), tint)
 		task.delay(MasterChopConfig.ImpactDelaySeconds, function()
-			Effects.Shown(position, sizeX, ChopQuality.Perfect, true)
+			playSound("SFX_Rock_Break", anchor)
+			playBreakEffect(position, size, quality, rockColor)
+			spawnChunks(position, size, chunkLook, RockSpawnConfig.OthersChunkCount)
 		end)
 		return
 	end
-	emit(RockSpawnConfig.DustKey, anchor, RockSpawnConfig.DustEmitCount, RockSpawnConfig.DustLifetimeSeconds)
 	if quality == ChopQuality.Crack then
 		playSound("SFX_Rock_Crack", anchor)
+		playEffect(ChopEffectConfig.CrackKey, impactCFrame(position, sizeX), scaleFor(sizeX), tint)
 		return
 	end
 	playSound(qualitySoundKey(quality), anchor)
 	playSound("SFX_Rock_Break", anchor, if isBroken then nil else ChopConfig.HitSoundVolumeMultiplier)
-	if isBroken then
-		spawnChunks(position, Vector3.new(sizeX, sizeX, sizeX), {
-			Color = RockSpawnConfig.OthersChunkColor,
-			Material = Enum.Material.Slate,
-			MaterialVariant = "",
-		}, RockSpawnConfig.OthersChunkCount)
+	if not isBroken then
+		playEffect(ChopEffectConfig.HitKey, impactCFrame(position, sizeX), scaleFor(sizeX), tint)
+		return
 	end
+	playBreakEffect(position, size, quality, rockColor)
+	spawnChunks(position, size, chunkLook, RockSpawnConfig.OthersChunkCount)
 end
 
 return Effects

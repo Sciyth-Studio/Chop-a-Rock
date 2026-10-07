@@ -67,6 +67,8 @@ handle:freeze(0.05)
 
 Effects play in Edit mode, so tune there and playtest at the end. `require` caches a ModuleScript for the Studio session in Edit, so after changing a module an effect uses, delete and recreate it (or restart Play) before trusting what you see.
 
+In Play, `screen_capture` arrives too late for a 1 s effect and ignores a Scriptable camera set from the Client (2026-10-07). Judge looks in Edit; in Play, check physics pieces (coins, chunks) by sampling their positions over time with `execute_luau`.
+
 1. Put a transparent anchored marker part where the effect plays (`Workspace.VFXPreview`), and point a Scriptable camera at it, once close (side and slightly above) and once from where the player's camera would be. Put the camera back to Custom afterwards (vault [[Always Restore Camera Type]]).
 2. Hold the effect at chosen moments. One `execute_luau` call starts it slowed down and stops it at the first moment:
    ```lua

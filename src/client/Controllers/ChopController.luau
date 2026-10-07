@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
+local CashPopConfig = require(ReplicatedStorage.Config.CashPopConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
@@ -46,7 +47,9 @@ end
 
 local uiController: any = nil
 local rockController: any = nil
+local cashPopController: any = nil
 local activeChanged: any = nil
+local activeRock: BasePart? = nil
 local zoneCenter = 0.5
 local strengthRatio = 1
 local currentHealth = 0
@@ -225,6 +228,7 @@ local function endMinigame()
 	frozenPosition = nil
 	masterStartClock = nil
 	chopCamera = nil
+	activeRock = nil
 	local camera = workspace.CurrentCamera
 	if camera then
 		camera.CameraType = Enum.CameraType.Custom
@@ -273,6 +277,7 @@ local function beginMinigame(
 	minigameActive = true
 	activeChanged:Fire(true)
 	frozenPosition = nil
+	activeRock = rock
 	activeCanBreak = canBreak
 	zoneCenter = center
 	strengthRatio = ratio
@@ -432,6 +437,7 @@ function ChopController.Init(self: any, controllers: { [string]: any })
 	activeChanged = self.ActiveChanged
 	uiController = controllers.UIController
 	rockController = controllers.RockController
+	cashPopController = controllers.CashPopController
 end
 
 function ChopController.Start(self: any)
@@ -519,8 +525,13 @@ function ChopController.Start(self: any)
 					)
 				end
 				if payout > 0 then
+					local rock = activeRock
+					local popAt = if rock then rock.Position + Vector3.new(0, rock.Size.Y / 2, 0) else nil
 					task.delay(ChopConfig.MoneyEffectDelaySeconds, function()
 						LocalSound.Play("SFX_Money_Gain")
+						if popAt then
+							cashPopController:Play(popAt, CashPopConfig.Chop)
+						end
 					end)
 				end
 				if quality == ChopQuality.Crack or health <= 1e-6 then
