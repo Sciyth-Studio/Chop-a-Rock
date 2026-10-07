@@ -10,6 +10,7 @@
       "Packages": { "$path": "Packages" },
       "ReplicaClient": { "$path": "vendor/Replica/src/ReplicatedStorage/ReplicaClient.luau" },
       "ReplicaShared": { "$path": "vendor/Replica/src/ReplicatedStorage/ReplicaShared" },
+      "VFXEmit": { "$path": "vendor/VFXEmit/Emit.luau" },
       "Assets": {
         "$className": "Folder",
         "$ignoreUnknownInstances": true,

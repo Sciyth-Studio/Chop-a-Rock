@@ -12,7 +12,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - Update an existing note rather than adding a duplicate. Delete notes that turn out to be wrong.
 - Images the user pastes into chat arrive as files Claude can open and copy into `Attachments/`.
 - Images live in `Attachments/`. Every image is embedded in a note that says what to take from it; open images only through those notes.
-- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `rock-model`, `studio-ui`, `studio-playtest`.
+- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`.
 
 ## Project
 - [[Chop a Rock]] — what the game is, repos, design source of truth
@@ -79,6 +79,7 @@ _One note per game system as they're worked on._
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
 - [[Rocks Look Like Boulders]] — 2026-10-02: boulder look, user remodels by hand; what a hand-made rock must keep
 - [[Forest Rock Tiers]] — 2026-10-02: stone First, boulder Second, mossy boulder Third; moss is vertex colour; export scale gotcha
+- [[VFX From Roqer]] — 2026-10-07: vendored VFXEmit + derived Blender VFX helpers from Roqer with S4US's permission; `vfx` skill
 
 ## Inbox
 _Unsorted learnings for the user to review._

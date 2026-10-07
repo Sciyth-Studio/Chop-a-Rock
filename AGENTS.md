@@ -57,6 +57,7 @@ rojo serve default.project.json --address 127.0.0.1
 | `Packages` | `ReplicatedStorage.Packages` | Generated Wally dependencies |
 | `ServerPackages` | `ServerScriptService.ServerPackages` | Generated server-only Wally dependencies |
 | `vendor/Replica` | `ReplicatedStorage.ReplicaClient`, `ReplicatedStorage.ReplicaShared`, `ServerScriptService.ReplicaServer` | Vendored Replica (see Packages) |
+| `vendor/VFXEmit` | `ReplicatedStorage.VFXEmit` | Vendored VFX emit module from Roqer (see `vendor/VFXEmit/README.md` and the `vfx` skill) |
 
 - Edit code on disk; Rojo syncs it. Code lives directly in the service roots, with no Client/Server/Shared wrapper folders.
 - Rojo owns mapped folders. Unknown children at service roots are preserved. Workspace, lighting, GUI and other art are edited and saved in Studio, not on disk.
