@@ -4,7 +4,7 @@ type: system
 ---
 # Chop effects
 
-Blockout built 2026-10-07 with Roblox built-in textures; custom textures come once the user has judged the timing and size in play. Picked by the user: quality-coloured accents with rock-coloured matter, a coin fountain for cash, and a Master wind-up before the burst.
+Built 2026-10-07 as a blockout with Roblox built-in textures, then given custom textures (below) the same day once the user approved the timing and size. Picked by the user: quality-coloured accents with rock-coloured matter, a coin fountain for cash, and a Master wind-up before the burst.
 
 ## Templates (`ReplicatedStorage.Assets.VFX`, keys in `ChopEffectConfig` / `CashPopConfig`)
 | Template | When | Placed at |
@@ -16,6 +16,9 @@ Blockout built 2026-10-07 with Roblox built-in textures; custom textures come on
 | `VFX_Master_WindUp` | the 3 s Master lead-in (`EffectDuration` 3.3) | rock base |
 | `VFX_Master_Burst` | Master split; it was registered but missing from Studio until 2026-10-07 | rock base |
 | `VFX_Cash_Pop` | pedestal pad collect (player's feet), plus gold Neon coin parts spawned by `CashPopController`. Chop payouts (top of the rock) use the quieter `CashPopConfig.Chop` profile: 3 small coins, low arc, no glint burst. The user found the full pop on every chop too much (2026-10-07) | |
+
+## Textures
+Drawn 2026-10-07 with `vfx_draw` (sources in `assets/VFX/Chop/`), uploaded by GuiltyArcher with `upload_image` and shared with the experience: ImpactStar 108160687082964 (Grid4x4 OneShot), Flash 137739014780004, Shard 72115844556132 (two-tone), Puff 89842293218952 (Grid4x4 OneShot), Ring 86973755749304, Glint 75840693106402, Streak 83922731235972, Dollar 114639041914556, Glow 127509283933231. Layers map by name: Stars → ImpactStar, Chips/Confetti → Shard (Brightness 1.8, else they render near-black under the rock grey), Dust/DustColumn/Skirt/Puff/Swirl → Puff, Ring*/Collapse → Ring, Sparkles/Gather/Sparks/GoldGlints → Glint, Streaks → Streak, Cash Pop Glints → Dollar, Backing/Core → Glow. Master `Pillar` keeps the level-up pillar texture.
 
 Other players' chops (`RockChopShown`) play the same templates through `Effects.Shown`, using `OthersChunkColor` as the rock colour.
 
