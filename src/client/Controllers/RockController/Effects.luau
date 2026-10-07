@@ -33,7 +33,7 @@ local function anchorAt(position: Vector3, lifetimeSeconds: number): Attachment
 	return attachment
 end
 
-local function playSound(key: string, parent: Instance, volumeMultiplier: number?)
+local function playSound(key: string, parent: Instance, volumeMultiplier: number?, startSeconds: number?)
 	local asset = AssetRegistry.get(key)
 	if not asset:IsA("Sound") then
 		asset:Destroy()
@@ -43,6 +43,9 @@ local function playSound(key: string, parent: Instance, volumeMultiplier: number
 		asset.Volume *= volumeMultiplier
 	end
 	asset.Parent = parent
+	if startSeconds then
+		asset.TimePosition = startSeconds
+	end
 	asset:Play()
 	task.delay(5, function()
 		if asset.Parent then
@@ -403,7 +406,7 @@ function Effects.Rise(part: BasePart, target: CFrame, onRisen: () -> ())
 		RockSpawnConfig.DustEmitCount,
 		RockSpawnConfig.DustLifetimeSeconds
 	)
-	playSound(RockSpawnConfig.RiseSoundKey, anchor)
+	playSound(RockSpawnConfig.RiseSoundKey, anchor, nil, RockSpawnConfig.RiseSoundStartSeconds)
 	local info = TweenInfo.new(RockSpawnConfig.RiseSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local tween = TweenService:Create(part, info, { CFrame = target })
 	tween.Completed:Once(function()

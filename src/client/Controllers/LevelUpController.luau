@@ -6,6 +6,7 @@ local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local LevelConfig = require(ReplicatedStorage.Config.LevelConfig)
 local Level = require(ReplicatedStorage.Utils.Level)
+local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
 
@@ -85,6 +86,7 @@ function LevelUpController.Start(self: any)
 		local level = Level.FromStrength(if type(value) == "number" then value else 0).Level
 		if lastLevel and level > lastLevel then
 			play(template)
+			LocalSound.Play(LevelConfig.LevelUpSoundKey, LevelConfig.LevelUpSoundStartSeconds)
 		end
 		lastLevel = level
 	end))
