@@ -9,6 +9,7 @@ local HatchRevealConfig = require(ReplicatedStorage.Config.HatchRevealConfig)
 local HatchTiming = require(ReplicatedStorage.HatchTiming)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
+local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -77,12 +78,7 @@ local function holdOwner(scene: Types.Scene, reveal: Reveal): (() -> ())?
 	local camera = workspace.CurrentCamera
 	local character = Players.LocalPlayer.Character
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
-	local saved = if humanoid then { humanoid.WalkSpeed, humanoid.JumpPower, humanoid.JumpHeight } else nil
-	if humanoid then
-		humanoid.WalkSpeed = 0
-		humanoid.JumpPower = 0
-		humanoid.JumpHeight = 0
-	end
+	local unlockMovement = if humanoid then MovementLock.Acquire(humanoid) else nil
 	local function setHidden(isHidden: boolean)
 		if not character then
 			return
@@ -116,10 +112,8 @@ local function holdOwner(scene: Types.Scene, reveal: Reveal): (() -> ())?
 	return function()
 		hideConnection:Disconnect()
 		setHidden(false)
-		if humanoid and saved and humanoid.Parent then
-			humanoid.WalkSpeed = saved[1]
-			humanoid.JumpPower = saved[2]
-			humanoid.JumpHeight = saved[3]
+		if unlockMovement then
+			unlockMovement()
 		end
 		if camera and not chopController:IsMinigameActive() then
 			camera.CameraType = Enum.CameraType.Custom

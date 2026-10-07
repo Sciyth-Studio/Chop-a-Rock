@@ -64,6 +64,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Baked Face Shading]] — greyscale per-face vertex colours baked in Blender; recolourable via part Color
 - [[Studio Reimport]] — Alt+Shift+R updates an imported Model's meshes in place by mesh name; keeps colours, materials, children
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
+- [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
 
 ## Systems
 _One note per game system as they're worked on._

@@ -13,6 +13,7 @@ local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
+local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -336,19 +337,7 @@ local function beginMinigame(
 
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if humanoid then
-		local savedWalkSpeed = humanoid.WalkSpeed
-		local savedJumpPower = humanoid.JumpPower
-		local savedJumpHeight = humanoid.JumpHeight
-		humanoid.WalkSpeed = 0
-		humanoid.JumpPower = 0
-		humanoid.JumpHeight = 0
-		trove:Add(function()
-			if humanoid.Parent then
-				humanoid.WalkSpeed = savedWalkSpeed
-				humanoid.JumpPower = savedJumpPower
-				humanoid.JumpHeight = savedJumpHeight
-			end
-		end)
+		trove:Add(MovementLock.Acquire(humanoid))
 	end
 
 	minigameStartTime = os.clock()
