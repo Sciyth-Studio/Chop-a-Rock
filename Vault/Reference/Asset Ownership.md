@@ -16,4 +16,6 @@ As of 2026-10-03 the Chop a Rock experience is published under the user's person
 
 **Image uploads (2026-10-06):** the Studio MCP `upload_image` uploads to the user's personal account (GuiltyArcher), so the image fails to load in the group-owned game (`ContentProvider` reports `Failure`). Ask the user to import the PNG through Studio with the group place open and use the id they give back. The purple Index book went this way: the MCP upload `74222274385745` failed, and the user's import `80371787143053` works.
 
+**Again 2026-10-07 (VFX_LevelUp textures):** the four `upload_image` uploads (`122918034582236`, `87536004748908`, `98491112835796`, `130979523603366`) failed in play with "The experience doesn't have access permission to use asset id ... Click to share access". Clicking that link in Studio's Output should share the asset with the experience and keep the id, which is quicker than re-importing (unconfirmed until the user tries it).
+
 Related: [[Chop a Rock]], [[Tintable Mesh Textures]]
