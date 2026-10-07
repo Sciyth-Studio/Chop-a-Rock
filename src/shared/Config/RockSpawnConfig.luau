@@ -43,6 +43,10 @@ local RockSpawnConfig: RockSpawnSettings = {
 			RockCount = 10,
 			Weights = { Basic = 50, Second = 30, Third = 20 },
 		},
+		Desert = {
+			RockCount = 10,
+			Weights = { DesertFirst = 50, DesertSecond = 30, DesertThird = 20 },
+		},
 	},
 	SampleSpacingStuds = 4,
 	MaxSlopeDegrees = 25,
@@ -71,6 +75,9 @@ local RockSpawnConfig: RockSpawnSettings = {
 		Basic = Color3.fromRGB(160, 160, 160),
 		Second = Color3.fromRGB(0, 120, 255),
 		Third = Color3.fromRGB(0, 255, 0),
+		DesertFirst = Color3.fromRGB(255, 230, 0),
+		DesertSecond = Color3.fromRGB(255, 120, 0),
+		DesertThird = Color3.fromRGB(255, 0, 0),
 	},
 }
 

@@ -79,6 +79,11 @@ local IndexConfig: IndexSettings = {
 					DisplayName = "Forest",
 					Entries = { "Basic", "Second", "Third" },
 				},
+				{
+					Key = "Desert",
+					DisplayName = "Desert",
+					Entries = { "DesertFirst", "DesertSecond", "DesertThird" },
+				},
 			},
 		},
 	},
@@ -123,6 +128,9 @@ local IndexConfig: IndexSettings = {
 		Basic = "Model_RockPreview_Basic",
 		Second = "Model_RockPreview_Second",
 		Third = "Model_RockPreview_Third",
+		DesertFirst = "Model_RockPreview_DesertFirst",
+		DesertSecond = "Model_RockPreview_DesertSecond",
+		DesertThird = "Model_RockPreview_DesertThird",
 	},
 	Text = {
 		Claim = "Claim",
