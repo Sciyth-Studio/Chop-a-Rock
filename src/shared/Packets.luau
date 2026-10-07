@@ -13,6 +13,27 @@ local Packets = {
 		Packet.NumberF64,
 		Packet.NumberF64
 	):RateLimit(3, 1),
+	RockReady = Packet("RockReady"):RateLimit(2, 1),
+	RockSpawned = Packet("RockSpawned", Packet.NumberU32, Packet.String, Packet.Vector3F32, Packet.String),
+	RockChop = Packet("RockChop", Packet.NumberU32):RateLimit(3, 1),
+	RockMinigameStart = Packet(
+		"RockMinigameStart",
+		Packet.NumberU32,
+		Packet.Boolean8,
+		Packet.NumberF64,
+		Packet.NumberF64,
+		Packet.NumberF64,
+		Packet.NumberF64
+	),
+	RockChopped = Packet("RockChopped", Packet.NumberU32, Packet.NumberU8, Packet.Boolean8),
+	RockChopShown = Packet(
+		"RockChopShown",
+		Packet.Vector3F32,
+		Packet.NumberF32,
+		Packet.NumberU8,
+		Packet.Boolean8
+	),
+	RockSpawnSpots = Packet("RockSpawnSpots", { Packet.Vector3F32 }, { Packet.String }),
 	ChopRoundStart = Packet("ChopRoundStart", Packet.NumberF64):RateLimit(5, 1),
 	ChopRelease = Packet("ChopRelease"):RateLimit(3, 1),
 	ChopLeave = Packet("ChopLeave"):RateLimit(3, 1),

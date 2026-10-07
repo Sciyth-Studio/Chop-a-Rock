@@ -18,6 +18,8 @@ local REQUIREMENT_LABEL = "RequirementLabel"
 
 local RockLabels = {}
 
+local labels: { [Instance]: BillboardGui } = {}
+
 local function findLabel(root: Instance, name: string): TextLabel?
 	local found = root:FindFirstChild(name, true)
 	if found and found:IsA("TextLabel") then
@@ -26,8 +28,17 @@ local function findLabel(root: Instance, name: string): TextLabel?
 	return nil
 end
 
+local function detach(trove: TroveInstance, part: Instance)
+	local label = labels[part]
+	if not label then
+		return
+	end
+	labels[part] = nil
+	trove:Remove(label)
+end
+
 local function attach(trove: TroveInstance, part: Instance)
-	if not part:IsA("BasePart") then
+	if not part:IsA("BasePart") or labels[part] then
 		return
 	end
 	local key = part:GetAttribute("RockKey")
@@ -59,6 +70,7 @@ local function attach(trove: TroveInstance, part: Instance)
 		`Strength {NumberFormat.Commas(config.StrengthRequired)} {TrainingConfig.StrengthUnit}`
 
 	template.Parent = part
+	labels[part] = template
 	trove:Add(template)
 end
 
@@ -68,6 +80,12 @@ function RockLabels.Start(trove: TroveInstance)
 	end
 	trove:Connect(CollectionService:GetInstanceAddedSignal(ROCK_TAG), function(part: Instance)
 		attach(trove, part)
+	end)
+	trove:Connect(CollectionService:GetInstanceRemovedSignal(ROCK_TAG), function(part: Instance)
+		detach(trove, part)
+	end)
+	trove:Add(function()
+		table.clear(labels)
 	end)
 end
 

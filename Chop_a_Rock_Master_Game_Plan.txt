@@ -985,3 +985,15 @@ DECISION LOG
   - Only Roks in the Backpack can be sold; placed Roks have to be picked up first. Sell price is flat (no multipliers).
   - Draft sell price: 100 seconds of the Rok's money per second (Bloky $100, Treebo $15,000). [PLAYTEST]
   - The Delete button shown while holding a Rok was removed.
+2026-10-06 — Rock spawning details (§02, §06; plan: RockSpawnSystemPlan.md):
+  - The user approved every recommendation. Spawn areas are invisible boxes tagged RockSpawnArea with a Zone attribute.
+  - Forest: 10 rocks per player, weights Stone 50 / Boulder 30 / Mossy Boulder 20 (raised from "rare" so a player
+    grinding Mossy has about two on the map). The weights are a fixed mix, not independent rolls (the user
+    noticed rolls could make every rock the same kind): the map always holds 5 / 3 / 2, and a broken rock
+    returns as the same kind at a new spot. Only collidable parts block a spot; slopes over 25 degrees are dropped.
+  - 8-stud gap between a player's rocks, never within 6 studs of the player. Rocks rise over 0.6s with dust and a
+    rumble; the prompt and label appear once up. A broken rock is replaced at a new spot 2s later; a crack keeps it.
+  - Other players see your chop animation, a dust burst and the hit sound, and a small chunk spray on a break. No rock.
+  - The guide arrow points to the nearest rock of the kind to grind, else the nearest rock the player can break.
+  - Admin "Spawn Spots" toggle shows candidate spots as dots coloured by the biggest rock that fits.
+  - [PLAYTEST] count, weights, gap, clearance, slope, rise time, respawn delay.

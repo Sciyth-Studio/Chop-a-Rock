@@ -68,6 +68,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 ## Systems
 _One note per game system as they're worked on._
 - [[Bases]] — 6 plots cloned onto `BaseSpot` plates in a U around the centre shops; claim on join, per-base `BaseSpawn`, owner-only training stand
+- [[Rock Spawning]] — per-player rocks rise in `RockSpawnArea` boxes; server keeps data, client draws rocks and effects; forest floor is rotated and sits on the Baseplate
 - [[Admin Panel]] — top-bar "Admin" icon (Studio + `AdminConfig.UserIds`); add a command = config entry + `AdminService` handler
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads, slots, Equip Best, Roks panel; `PedestalService` + `PetService/Tools`

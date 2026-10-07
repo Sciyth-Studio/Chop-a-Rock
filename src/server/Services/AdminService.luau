@@ -52,6 +52,10 @@ local handlers: { [string]: (Player) -> () } = {
 		services.RockService:ForceNextMaster(player)
 		notify(player, "Admin: next chop is a Master")
 	end,
+	SpawnSpots = function(player: Player)
+		local isShown = services.RockService:ToggleSpawnSpots(player)
+		notify(player, if isShown then "Admin: spawn spots shown" else "Admin: spawn spots hidden")
+	end,
 	ResetData = function(player: Player)
 		if services.DataService:ResetData(player) then
 			notify(player, "Admin: data reset")

@@ -45,6 +45,8 @@ local function qualityShakeIntensity(quality: number): number
 end
 
 local uiController: any = nil
+local rockController: any = nil
+local activeChanged: any = nil
 local zoneCenter = 0.5
 local strengthRatio = 1
 local currentHealth = 0
@@ -213,6 +215,7 @@ local function endMinigame()
 	end
 	minigameActive = false
 	releaseToken += 1
+	activeChanged:Fire(false)
 	ContextActionService:UnbindAction(RELEASE_ACTION)
 	ContextActionService:UnbindAction(LEAVE_ACTION)
 	if activeTrove then
@@ -268,6 +271,7 @@ local function beginMinigame(
 		return
 	end
 	minigameActive = true
+	activeChanged:Fire(true)
 	frozenPosition = nil
 	activeCanBreak = canBreak
 	zoneCenter = center
@@ -366,6 +370,7 @@ local ChopController = {
 	ResultShown = nil :: any,
 	HealthChanged = nil :: any,
 	RoundStarted = nil :: any,
+	ActiveChanged = nil :: any,
 }
 
 function ChopController.GetZoneCenter(_self: any): number
@@ -423,7 +428,10 @@ function ChopController.Init(self: any, controllers: { [string]: any })
 	self.ResultShown = Signal.new()
 	self.HealthChanged = Signal.new()
 	self.RoundStarted = Signal.new()
+	self.ActiveChanged = Signal.new()
+	activeChanged = self.ActiveChanged
 	uiController = controllers.UIController
+	rockController = controllers.RockController
 end
 
 function ChopController.Start(self: any)
@@ -439,6 +447,25 @@ function ChopController.Start(self: any)
 				maxHealth: number
 			)
 				if rock and rock:IsA("BasePart") then
+					beginMinigame(rock, canBreak, ratio, center, health, maxHealth)
+				elseif not minigameActive then
+					Packets.ChopLeave:Fire()
+				end
+			end
+		)
+	)
+	trove:Add(
+		Packets.RockMinigameStart.OnClientEvent:Connect(
+			function(
+				id: number,
+				canBreak: boolean,
+				ratio: number,
+				center: number,
+				health: number,
+				maxHealth: number
+			)
+				local rock = rockController:GetPart(id)
+				if rock then
 					beginMinigame(rock, canBreak, ratio, center, health, maxHealth)
 				elseif not minigameActive then
 					Packets.ChopLeave:Fire()
@@ -526,6 +553,10 @@ function ChopController.Destroy(self: any)
 	if self.RoundStarted then
 		self.RoundStarted:Destroy()
 		self.RoundStarted = nil
+	end
+	if self.ActiveChanged then
+		self.ActiveChanged:Destroy()
+		self.ActiveChanged = nil
 	end
 end
 

@@ -1,12 +1,13 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
-local SplitModel = require(script.Parent.Parent.Parent.Utils.SplitModel)
-local Types = require(script.Parent.Types)
+local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
+local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 
 local Effects = {}
 
@@ -15,7 +16,20 @@ local shakeStepSeconds = 0.03
 local shakeStuds = 0.5
 local shakeDegrees = 3
 
-local function playSound(key: string, part: BasePart, volumeMultiplier: number?)
+local function anchorAt(position: Vector3, lifetimeSeconds: number): Attachment
+	local attachment = Instance.new("Attachment")
+	attachment.Name = "RockEffect"
+	attachment.WorldPosition = position
+	attachment.Parent = workspace.Terrain
+	task.delay(lifetimeSeconds, function()
+		if attachment.Parent then
+			attachment:Destroy()
+		end
+	end)
+	return attachment
+end
+
+local function playSound(key: string, parent: Instance, volumeMultiplier: number?)
 	local asset = AssetRegistry.get(key)
 	if not asset:IsA("Sound") then
 		asset:Destroy()
@@ -24,7 +38,7 @@ local function playSound(key: string, part: BasePart, volumeMultiplier: number?)
 	if volumeMultiplier then
 		asset.Volume *= volumeMultiplier
 	end
-	asset.Parent = part
+	asset.Parent = parent
 	asset:Play()
 	task.delay(5, function()
 		if asset.Parent then
@@ -33,20 +47,20 @@ local function playSound(key: string, part: BasePart, volumeMultiplier: number?)
 	end)
 end
 
-local function playBurst(part: BasePart)
-	local asset = AssetRegistry.get(MasterChopConfig.BurstKey)
+local function emit(key: string, parent: Instance, fallbackCount: number, lifetimeSeconds: number)
+	local asset = AssetRegistry.get(key)
 	if not asset:IsA("Attachment") then
 		asset:Destroy()
 		return
 	end
-	asset.Parent = part
+	asset.Parent = parent
 	for _, descendant in asset:GetDescendants() do
 		if descendant:IsA("ParticleEmitter") then
 			local count = descendant:GetAttribute("EmitCount")
-			descendant:Emit(if type(count) == "number" then count else MasterChopConfig.BurstEmitCount)
+			descendant:Emit(if type(count) == "number" then count else fallbackCount)
 		end
 	end
-	task.delay(MasterChopConfig.BurstLifetimeSeconds, function()
+	task.delay(lifetimeSeconds, function()
 		if asset.Parent then
 			asset:Destroy()
 		end
@@ -115,15 +129,17 @@ local function shake(part: BasePart)
 	end)
 end
 
-local function spawnChunks(part: BasePart, chunkCount: number)
-	local basePos = part.Position
-	local halfSize = part.Size / 2
-	local color = part.Color
-	local material = part.Material
-	local materialVariant = part.MaterialVariant
+type ChunkLook = {
+	Color: Color3,
+	Material: Enum.Material,
+	MaterialVariant: string,
+}
+
+local function spawnChunks(position: Vector3, size: Vector3, look: ChunkLook, chunkCount: number)
+	local halfSize = size / 2
 	local chunks: { BasePart } = {}
 	local scale = ChopConfig.ChunkSpawnVelocityScale
-	local sizeScale = math.max(1, part.Size.X / ChopConfig.ReferenceRockSize)
+	local sizeScale = math.max(1, size.X / ChopConfig.ReferenceRockSize)
 	local scaledCount = math.floor(chunkCount * sizeScale + 0.5)
 	for _ = 1, scaledCount do
 		local chunk = Instance.new("Part")
@@ -133,7 +149,7 @@ local function spawnChunks(part: BasePart, chunkCount: number)
 			0.7 + math.random() * 0.8,
 			0.7 + math.random() * 0.8
 		) * sizeScale
-		chunk.Position = basePos
+		chunk.Position = position
 			+ Vector3.new(
 				(math.random() * 2 - 1) * halfSize.X * 0.5,
 				(math.random() * 2 - 1) * halfSize.Y * 0.5,
@@ -142,9 +158,9 @@ local function spawnChunks(part: BasePart, chunkCount: number)
 		chunk.Anchored = false
 		chunk.CanCollide = true
 		chunk.CanQuery = false
-		chunk.Color = color
-		chunk.Material = material
-		chunk.MaterialVariant = materialVariant
+		chunk.Color = look.Color
+		chunk.Material = look.Material
+		chunk.MaterialVariant = look.MaterialVariant
 		chunk.Parent = workspace
 		chunk.AssemblyLinearVelocity = Vector3.new(
 			(math.random() * 2 - 1) * scale,
@@ -165,33 +181,20 @@ local function spawnChunks(part: BasePart, chunkCount: number)
 	end)
 end
 
-function Effects.Hide(rock: Types.Rock)
-	rock.Part.Transparency = 1
-	rock.Part.CanCollide = false
-	rock.Prompt.Enabled = false
+local function lookOf(part: BasePart): ChunkLook
+	return { Color = part.Color, Material = part.Material, MaterialVariant = part.MaterialVariant }
 end
 
-function Effects.Restore(rock: Types.Rock)
-	if rock.Part.Parent and rock.Prompt.Parent then
-		rock.Part.Transparency = 0
-		rock.Part.CanCollide = true
-		rock.Prompt.Enabled = true
+local function hide(part: BasePart)
+	part.Transparency = 1
+	part.CanCollide = false
+	for _, descendant in part:GetDescendants() do
+		if descendant:IsA("BillboardGui") then
+			descendant.Enabled = false
+		elseif descendant:IsA("Highlight") then
+			descendant.Enabled = false
+		end
 	end
-end
-
-function Effects.Crack(rock: Types.Rock)
-	rock.Prompt.Enabled = false
-	playSound("SFX_Rock_Crack", rock.Part)
-	shake(rock.Part)
-	task.delay(rock.Config.RespawnSeconds, function()
-		Effects.Restore(rock)
-	end)
-end
-
-function Effects.Hit(rock: Types.Rock, quality: number)
-	playSound(qualitySoundKey(quality), rock.Part)
-	playSound("SFX_Rock_Break", rock.Part, ChopConfig.HitSoundVolumeMultiplier)
-	shake(rock.Part)
 end
 
 local splitPush: SplitModel.Push = {
@@ -200,17 +203,15 @@ local splitPush: SplitModel.Push = {
 	TorqueRadPerSec = ChopConfig.SplitTorqueRadPerSec,
 }
 
-local function splitRock(rock: Types.Rock)
-	local part = rock.Part
-	Effects.Hide(rock)
+local function splitRock(part: BasePart, piecesSeconds: number)
+	hide(part)
 
 	local model = SplitModel.Spawn(part, splitPush)
 	if model then
-		task.delay(rock.Config.RespawnSeconds, function()
+		task.delay(piecesSeconds, function()
 			if model.Parent then
 				model:Destroy()
 			end
-			Effects.Restore(rock)
 		end)
 		return
 	end
@@ -219,22 +220,19 @@ local function splitRock(rock: Types.Rock)
 	local originalSize = part.Size
 	local halfSize = Vector3.new(originalSize.X / 2, originalSize.Y, originalSize.Z)
 	local halfOffsetX = originalSize.X / 4
-	local color = part.Color
-	local material = part.Material
-	local materialVariant = part.MaterialVariant
 
 	local halves: { BasePart } = {}
 	for _, offsetX in { -halfOffsetX, halfOffsetX } do
 		local half = Instance.new("Part")
-		half.Name = `Rock_{rock.Key}_Half`
+		half.Name = `{part.Name}_Half`
 		half.Size = halfSize
 		half.Position = basePos + Vector3.new(offsetX, 0, 0)
 		half.Anchored = false
 		half.CanCollide = true
 		half.CanQuery = false
-		half.Color = color
-		half.Material = material
-		half.MaterialVariant = materialVariant
+		half.Color = part.Color
+		half.Material = part.Material
+		half.MaterialVariant = part.MaterialVariant
 		half.Parent = workspace
 		table.insert(halves, half)
 
@@ -244,39 +242,97 @@ local function splitRock(rock: Types.Rock)
 		half.AssemblyAngularVelocity = Vector3.new(0, 0, -direction * ChopConfig.SplitTorqueRadPerSec)
 	end
 
-	task.delay(rock.Config.RespawnSeconds, function()
+	task.delay(piecesSeconds, function()
 		for _, half in halves do
 			if half.Parent then
 				half:Destroy()
 			end
 		end
-		Effects.Restore(rock)
 	end)
 end
 
-function Effects.MasterStart(rock: Types.Rock)
-	playSound(MasterChopConfig.SoundKey, rock.Part)
+function Effects.Rise(part: BasePart, target: CFrame, onRisen: () -> ())
+	local bottom = target.Position - Vector3.new(0, part.Size.Y / 2, 0)
+	local anchor = anchorAt(bottom, RockSpawnConfig.DustLifetimeSeconds)
+	emit(
+		RockSpawnConfig.RiseDustKey,
+		anchor,
+		RockSpawnConfig.DustEmitCount,
+		RockSpawnConfig.DustLifetimeSeconds
+	)
+	playSound(RockSpawnConfig.RiseSoundKey, anchor)
+	local info = TweenInfo.new(RockSpawnConfig.RiseSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(part, info, { CFrame = target })
+	tween.Completed:Once(function()
+		if part.Parent then
+			part.CFrame = target
+			onRisen()
+		end
+	end)
+	tween:Play()
 end
 
-function Effects.Break(rock: Types.Rock, quality: number)
+function Effects.Crack(part: BasePart)
+	playSound("SFX_Rock_Crack", part)
+	shake(part)
+end
+
+function Effects.Hit(part: BasePart, quality: number)
+	playSound(qualitySoundKey(quality), part)
+	playSound("SFX_Rock_Break", part, ChopConfig.HitSoundVolumeMultiplier)
+	shake(part)
+end
+
+function Effects.MasterStart(part: BasePart)
+	playSound(MasterChopConfig.SoundKey, part)
+end
+
+function Effects.Break(part: BasePart, quality: number, piecesSeconds: number)
 	if quality ~= ChopQuality.Master then
-		playSound(qualitySoundKey(quality), rock.Part)
+		playSound(qualitySoundKey(quality), part)
 	end
-	playSound("SFX_Rock_Break", rock.Part)
+	playSound("SFX_Rock_Break", part)
 	if quality == ChopQuality.Master then
-		playBurst(rock.Part)
-		splitRock(rock)
+		emit(
+			MasterChopConfig.BurstKey,
+			part,
+			MasterChopConfig.BurstEmitCount,
+			MasterChopConfig.BurstLifetimeSeconds
+		)
+		splitRock(part, piecesSeconds)
 		return
 	end
 	if quality == ChopQuality.Perfect then
-		splitRock(rock)
+		splitRock(part, piecesSeconds)
 		return
 	end
-	Effects.Hide(rock)
-	spawnChunks(rock.Part, chunkCountFor(quality))
-	task.delay(rock.Config.RespawnSeconds, function()
-		Effects.Restore(rock)
-	end)
+	hide(part)
+	spawnChunks(part.Position, part.Size, lookOf(part), chunkCountFor(quality))
+end
+
+function Effects.Shown(position: Vector3, sizeX: number, quality: number, isBroken: boolean)
+	local anchor = anchorAt(position, math.max(RockSpawnConfig.DustLifetimeSeconds, 5))
+	if quality == ChopQuality.Master then
+		playSound(MasterChopConfig.SoundKey, anchor)
+		task.delay(MasterChopConfig.ImpactDelaySeconds, function()
+			Effects.Shown(position, sizeX, ChopQuality.Perfect, true)
+		end)
+		return
+	end
+	emit(RockSpawnConfig.DustKey, anchor, RockSpawnConfig.DustEmitCount, RockSpawnConfig.DustLifetimeSeconds)
+	if quality == ChopQuality.Crack then
+		playSound("SFX_Rock_Crack", anchor)
+		return
+	end
+	playSound(qualitySoundKey(quality), anchor)
+	playSound("SFX_Rock_Break", anchor, if isBroken then nil else ChopConfig.HitSoundVolumeMultiplier)
+	if isBroken then
+		spawnChunks(position, Vector3.new(sizeX, sizeX, sizeX), {
+			Color = RockSpawnConfig.OthersChunkColor,
+			Material = Enum.Material.Slate,
+			MaterialVariant = "",
+		}, RockSpawnConfig.OthersChunkCount)
+	end
 end
 
 return Effects

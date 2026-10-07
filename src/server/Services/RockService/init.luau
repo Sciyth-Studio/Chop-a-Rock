@@ -8,10 +8,11 @@ local ChopZones = require(ReplicatedStorage.ChopZones)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
+local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local Effects = require(script.Effects)
-local Rocks = require(script.Rocks)
 local Session = require(script.Session)
+local SpawnPoints = require(script.SpawnPoints)
+local Spawner = require(script.Spawner)
 local Types = require(script.Types)
 
 local RockService = { Name = "RockService" }
@@ -20,9 +21,133 @@ local trove = Trove.new()
 local random = Random.new()
 local services: { [string]: any } = {}
 
-local rocks: { Types.Rock } = {}
+local shapes: { [string]: Types.Shape } = {}
+local spots: { [string]: { Types.Spot } } = {}
+local owned: { [Player]: { [number]: Types.Rock } } = {}
+local generations: { [Player]: number } = {}
 local sessions: { [Player]: Types.Session } = {}
 local forcedMasters: { [Player]: boolean } = {}
+local spotViewers: { [Player]: true } = {}
+local warned: { [string]: boolean } = {}
+local nextId = 0
+
+local function warnOnce(key: string, message: string)
+	if warned[key] then
+		return
+	end
+	warned[key] = true
+	warn(message)
+end
+
+local function rootPosition(player: Player): Vector3?
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	return if root and root:IsA("BasePart") then root.Position else nil
+end
+
+local function zoneRocks(rocks: { [number]: Types.Rock }, zone: string): { Types.Rock }
+	local list: { Types.Rock } = {}
+	for _, rock in rocks do
+		if rock.Zone == zone then
+			table.insert(list, rock)
+		end
+	end
+	return list
+end
+
+local function spawnRock(player: Player, zone: string): boolean
+	local rocks = owned[player]
+	local zoneConfig = RockSpawnConfig.Zones[zone]
+	if not rocks or not zoneConfig then
+		return true
+	end
+	local existing = zoneRocks(rocks, zone)
+	local key = Spawner.PickKey(random, zoneConfig.Weights, zoneConfig.RockCount, existing)
+	local shape = if key then shapes[key] else nil
+	local configs: { [string]: RockConfig.Rock } = RockConfig.Rocks
+	local config = if key then configs[key] else nil
+	if not key or not shape or not config then
+		return true
+	end
+	local spot = Spawner.PickSpot(random, spots[zone] or {}, shape, existing, rootPosition(player))
+	if not spot then
+		warnOnce(`{zone}/{key}`, `[RockService] No free spawn spot for {key} in {zone}`)
+		return false
+	end
+	nextId += 1
+	local rock: Types.Rock = {
+		Id = nextId,
+		Key = key,
+		Config = config,
+		Zone = zone,
+		CFrame = shape.Rotation
+			+ spot.Position
+			+ Vector3.new(0, shape.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0),
+		Size = shape.Size,
+		Modifier = nil,
+		UpAt = os.clock() + RockSpawnConfig.RiseSeconds,
+	}
+	rocks[rock.Id] = rock
+	Packets.RockSpawned:FireClient(player, rock.Id, key, rock.CFrame.Position, rock.Modifier or "")
+	return true
+end
+
+local function scheduleSpawn(player: Player, zone: string, delaySeconds: number)
+	local generation = generations[player]
+	task.delay(delaySeconds, function()
+		if generations[player] ~= generation then
+			return
+		end
+		if not spawnRock(player, zone) then
+			scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds)
+		end
+	end)
+end
+
+local function retire(player: Player, rock: Types.Rock, delaySeconds: number)
+	local rocks = owned[player]
+	if not rocks or rocks[rock.Id] ~= rock then
+		return
+	end
+	rocks[rock.Id] = nil
+	scheduleSpawn(player, rock.Zone, delaySeconds)
+end
+
+local function showOthers(player: Player, rock: Types.Rock, quality: number, isBroken: boolean)
+	local position = rock.CFrame.Position
+	for _, other in Players:GetPlayers() do
+		if other == player then
+			continue
+		end
+		local otherPosition = rootPosition(other)
+		if
+			otherPosition
+			and (otherPosition - position).Magnitude <= RockSpawnConfig.OthersEffectMaxDistance
+		then
+			Packets.RockChopShown:FireClient(other, position, rock.Size.X, quality, isBroken)
+		end
+	end
+end
+
+local function onReady(player: Player)
+	if owned[player] then
+		return
+	end
+	owned[player] = {}
+	generations[player] = (generations[player] or 0) + 1
+	for zone, zoneConfig in RockSpawnConfig.Zones do
+		local zoneSpots = spots[zone]
+		if not zoneSpots or #zoneSpots == 0 then
+			warnOnce(zone, `[RockService] {zone} has no spawn spots`)
+			continue
+		end
+		for _ = 1, zoneConfig.RockCount do
+			if not spawnRock(player, zone) then
+				scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds)
+			end
+		end
+	end
+end
 
 local function scheduleNextRound(player: Player, session: Types.Session)
 	session.StartTime = nil
@@ -38,8 +163,18 @@ local function scheduleNextRound(player: Player, session: Types.Session)
 	end)
 end
 
-local function onTriggered(rock: Types.Rock, player: Player)
-	if not rock.Prompt.Enabled or sessions[player] or not services.DataService:GetData(player) then
+local function onChopRequest(player: Player, id: number)
+	local rocks = owned[player]
+	local rock = if rocks then rocks[id] else nil
+	if not rock or sessions[player] or os.clock() < rock.UpAt - RockSpawnConfig.RiseSlackSeconds then
+		return
+	end
+	if not services.DataService:GetData(player) then
+		return
+	end
+	local position = rootPosition(player)
+	local reach = ChopConfig.PromptRangeStuds + rock.Size.X / 2 + RockSpawnConfig.ChopRangeSlackStuds
+	if not position or (position - rock.CFrame.Position).Magnitude > reach then
 		return
 	end
 	local strength = services.StatsService:GetStrength(player)
@@ -47,11 +182,10 @@ local function onTriggered(rock: Types.Rock, player: Player)
 	local strengthRatio = strength / math.max(rock.Config.StrengthRequired, 1)
 	local session = Session.New(rock, canBreak, strengthRatio, ChopZones.RandomCenter(random), os.clock())
 	sessions[player] = session
-	rock.Prompt.Enabled = false
 	services.PetService:PutAway(player)
-	Packets.ChopMinigameStart:FireClient(
+	Packets.RockMinigameStart:FireClient(
 		player,
-		rock.Part,
+		rock.Id,
 		canBreak,
 		strengthRatio,
 		session.Center,
@@ -74,7 +208,8 @@ local function onRelease(player: Player)
 		sessions[player] = nil
 		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, session.Health)
 		print(`[RockService] {player.Name} cracked {rock.Key} (too weak)`)
-		Effects.Crack(rock)
+		Packets.RockChopped:FireClient(player, rock.Id, ChopQuality.Crack, false)
+		showOthers(player, rock, ChopQuality.Crack, false)
 		return
 	end
 
@@ -111,11 +246,9 @@ local function onRelease(player: Player)
 
 	if quality == ChopQuality.Master then
 		sessions[player] = nil
-		rock.Prompt.Enabled = false
-		Effects.MasterStart(rock)
-		task.delay(MasterChopConfig.ImpactDelaySeconds, function()
-			Effects.Break(rock, quality)
-		end)
+		retire(player, rock, MasterChopConfig.ImpactDelaySeconds + RockSpawnConfig.RespawnSeconds)
+		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
+		showOthers(player, rock, quality, true)
 		for _, other in Players:GetPlayers() do
 			services.NotificationService:Notify(
 				other,
@@ -128,25 +261,26 @@ local function onRelease(player: Player)
 
 	if isBroken then
 		sessions[player] = nil
-		Effects.Break(rock, quality)
+		retire(player, rock, RockSpawnConfig.RespawnSeconds)
+		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
+		showOthers(player, rock, quality, true)
 		return
 	end
 
-	Effects.Hit(rock, quality)
+	Packets.RockChopped:FireClient(player, rock.Id, quality, false)
+	showOthers(player, rock, quality, false)
 	scheduleNextRound(player, session)
 end
 
 local function onLeave(player: Player)
-	local session = sessions[player]
-	if not session then
-		return
-	end
 	sessions[player] = nil
-	Effects.Restore(session.Rock)
 end
 
 local function onPlayerRemoving(player: Player)
 	forcedMasters[player] = nil
+	spotViewers[player] = nil
+	owned[player] = nil
+	generations[player] = nil
 	onLeave(player)
 end
 
@@ -155,20 +289,52 @@ function RockService.Init(_self: any, registry: { [string]: any })
 end
 
 function RockService.Start(_self: any)
-	local rockConfigs: { [string]: RockConfig.Rock } = RockConfig.Rocks
-	for key, config in rockConfigs do
-		local rock = Rocks.Spawn(function(instance: Instance)
-			trove:Add(instance)
-		end, key, config)
-		table.insert(rocks, rock)
-		trove:Add(rock.Prompt.Triggered:Connect(function(player: Player)
-			onTriggered(rock, player)
-		end))
+	local configs: { [string]: RockConfig.Rock } = RockConfig.Rocks
+	for key in configs do
+		local shape = SpawnPoints.Shape(key)
+		if shape then
+			shapes[key] = shape
+		end
+	end
+	local started = os.clock()
+	spots = SpawnPoints.Sample(shapes)
+	for zone, zoneSpots in spots do
+		print(
+			`[RockService] {zone}: {#zoneSpots} spawn spots ({string.format(
+				"%.0f",
+				(os.clock() - started) * 1000
+			)} ms)`
+		)
 	end
 
+	trove:Add(Packets.RockReady.OnServerEvent:Connect(onReady))
+	trove:Add(Packets.RockChop.OnServerEvent:Connect(onChopRequest))
 	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(onRelease))
 	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(onLeave))
 	trove:Add(Players.PlayerRemoving:Connect(onPlayerRemoving))
+end
+
+function RockService.ToggleSpawnSpots(_self: any, player: Player): boolean
+	local isShown = not spotViewers[player]
+	if isShown then
+		spotViewers[player] = true
+	else
+		spotViewers[player] = nil
+	end
+	local positions: { Vector3 } = {}
+	local keys: { string } = {}
+	if isShown then
+		for _, zoneSpots in spots do
+			for _, spot in zoneSpots do
+				if spot.Largest then
+					table.insert(positions, spot.Position)
+					table.insert(keys, spot.Largest)
+				end
+			end
+		end
+	end
+	Packets.RockSpawnSpots:FireClient(player, positions, keys)
+	return isShown
 end
 
 function RockService.ForceNextMaster(_self: any, player: Player)
@@ -191,9 +357,11 @@ end
 
 function RockService.Destroy(_self: any)
 	trove:Clean()
-	table.clear(rocks)
+	table.clear(owned)
+	table.clear(generations)
 	table.clear(sessions)
 	table.clear(forcedMasters)
+	table.clear(spotViewers)
 end
 
 return RockService

@@ -44,31 +44,38 @@ local function bestBreakable(strength: number): (string?, RockConfig.Rock?)
 	return bestKey, best
 end
 
-local function findRockPart(key: string): BasePart?
-	for _, tagged in CollectionService:GetTagged(ROCK_TAG) do
-		if tagged:IsA("BasePart") and tagged:GetAttribute("RockKey") == key then
-			return tagged
-		end
-	end
-	return nil
+local function requirementOf(part: BasePart): number?
+	local key = part:GetAttribute("RockKey")
+	local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
+	local rock = if type(key) == "string" then rocks[key] else nil
+	return if rock then rock.StrengthRequired else nil
 end
 
-local function rockPosition(key: string, rock: RockConfig.Rock): Vector3
-	local part = findRockPart(key)
-	return if part then part.Position else rock.PlaceholderPosition
+local function nearestRock(position: Vector3, accepts: (BasePart, number) -> boolean): BasePart?
+	local nearest: BasePart? = nil
+	local nearestDistance = math.huge
+	for _, tagged in CollectionService:GetTagged(ROCK_TAG) do
+		if not tagged:IsA("BasePart") then
+			continue
+		end
+		local requirement = requirementOf(tagged)
+		if not requirement or not accepts(tagged, requirement) then
+			continue
+		end
+		local distance = flatDistance(position, tagged.Position)
+		if distance < nearestDistance then
+			nearest = tagged
+			nearestDistance = distance
+		end
+	end
+	return nearest
 end
 
 local function isNearWorseRock(position: Vector3, best: RockConfig.Rock): boolean
-	local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
-	for key, rock in rocks do
-		if
-			rock.StrengthRequired < best.StrengthRequired
-			and flatDistance(position, rockPosition(key, rock)) <= GuideConfig.GrindDistance
-		then
-			return true
-		end
-	end
-	return false
+	local worse = nearestRock(position, function(_part: BasePart, requirement: number): boolean
+		return requirement < best.StrengthRequired
+	end)
+	return worse ~= nil and flatDistance(position, worse.Position) <= GuideConfig.GrindDistance
 end
 
 local function isReadyToUpgrade(dataController: any): boolean
@@ -129,9 +136,9 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 	local arrows: { Arrow } = {}
 	local isGuidingRock = false
 	local isShopDismissed = false
-	local guidedKey: string? = nil
+	local guidedPart: BasePart? = nil
 	local highlight: Highlight? = nil
-	local highlightKey: string? = nil
+	local highlightPart: BasePart? = nil
 
 	local function clear()
 		for _, arrow in arrows do
@@ -147,7 +154,7 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 			return
 		end
 		highlight = nil
-		highlightKey = nil
+		highlightPart = nil
 		local info =
 			TweenInfo.new(GuideConfig.HighlightFadeSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 		local tween = TweenService:Create(current, info, { FillTransparency = 1, OutlineTransparency = 1 })
@@ -157,15 +164,11 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 		tween:Play()
 	end
 
-	local function setHighlight(key: string?)
-		if key == highlightKey then
+	local function setHighlight(part: BasePart?)
+		if part == highlightPart and (not part or (highlight and highlight.Parent)) then
 			return
 		end
 		fadeOutHighlight()
-		if not key then
-			return
-		end
-		local part = findRockPart(key)
 		if not part then
 			return
 		end
@@ -185,7 +188,7 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 			OutlineTransparency = GuideConfig.HighlightOutlineTransparency,
 		}):Play()
 		highlight = created
-		highlightKey = key
+		highlightPart = part
 	end
 	trove:Add(function()
 		if highlight then
@@ -206,7 +209,7 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 	end
 
 	local function chooseTarget(position: Vector3): Vector3?
-		guidedKey = nil
+		guidedPart = nil
 		local isReady = isReadyToUpgrade(dataController)
 		if not isReady then
 			isShopDismissed = false
@@ -220,12 +223,22 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 				return shopPosition
 			end
 		end
-		local bestKey, best = bestBreakable(readData(dataController, "Strength"))
-		if not best then
+		local strength = readData(dataController, "Strength")
+		local bestKey, best = bestBreakable(strength)
+		local targetPart = if bestKey
+			then nearestRock(position, function(part: BasePart, _requirement: number): boolean
+				return part:GetAttribute("RockKey") == bestKey
+			end)
+			else nil
+		targetPart = targetPart
+			or nearestRock(position, function(_part: BasePart, requirement: number): boolean
+				return requirement <= strength
+			end)
+		if not best or not targetPart then
 			isGuidingRock = false
 			return nil
 		end
-		local target = rockPosition(bestKey or "", best)
+		local target = targetPart.Position
 		if isGuidingRock then
 			if flatDistance(position, target) <= GuideConfig.ArrivalDistance then
 				isGuidingRock = false
@@ -235,7 +248,7 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 		then
 			isGuidingRock = true
 		end
-		guidedKey = if isGuidingRock then bestKey else nil
+		guidedPart = if isGuidingRock then targetPart else nil
 		return if isGuidingRock then target else nil
 	end
 
@@ -251,7 +264,7 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 
 		local position = root.Position
 		local target = chooseTarget(position)
-		setHighlight(guidedKey)
+		setHighlight(guidedPart)
 		if not target then
 			clear()
 			return

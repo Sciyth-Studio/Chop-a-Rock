@@ -24,6 +24,7 @@ local AdminConfig: AdminSettings = {
 		{ Id = "GrantGeode", Label = "+1 Geode", Shortcut = Enum.KeyCode.G },
 		{ Id = "ForceMaster", Label = "Next Chop: Master", Shortcut = Enum.KeyCode.M },
 		{ Id = "ForceSecret", Label = "Next Hatch: Secret", Shortcut = Enum.KeyCode.H },
+		{ Id = "SpawnSpots", Label = "Spawn Spots", Shortcut = Enum.KeyCode.K },
 		{ Id = "ResetData", Label = "Reset My Data", Shortcut = Enum.KeyCode.Backspace },
 	},
 	ShortcutModifiers = { Enum.KeyCode.LeftControl, Enum.KeyCode.LeftShift },

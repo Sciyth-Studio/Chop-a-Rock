@@ -10,7 +10,7 @@ local Packets = require(ReplicatedStorage.Packets)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local ArmService = require(script.Parent.ArmService)
-local SplitModel = require(script.Parent.Parent.Utils.SplitModel)
+local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 local StatsService = require(script.Parent.StatsService)
 
 local TRAINING_TAG = "TrainingBoard"
