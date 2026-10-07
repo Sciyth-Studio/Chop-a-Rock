@@ -5,6 +5,7 @@ export type LevelSettings = {
 	LevelGrowth: number,
 	LevelWord: string,
 	FillTweenSeconds: number,
+	LevelUpEffectKey: string,
 }
 
 local LevelConfig: LevelSettings = {
@@ -12,6 +13,7 @@ local LevelConfig: LevelSettings = {
 	LevelGrowth = 1.35,
 	LevelWord = "Lvl",
 	FillTweenSeconds = 0.25,
+	LevelUpEffectKey = "VFX_LevelUp",
 }
 
 return table.freeze(LevelConfig)

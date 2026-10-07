@@ -132,6 +132,10 @@ make(center, "PointLight", "Light", { Brightness = 10, Range = 12, Color = Color
 model.Parent = folder
 ```
 
+Give every instance in a template a unique name: tuning code finds layers with `FindFirstChild(name, true)`, and an Attachment named like an emitter (`Pillar` holding `Pillar`) gets returned instead.
+
+On this place (bloom threshold 2, saturated colour correction, bright sky and floor), additive gold layers at Brightness 4 to 6 summed into a white blob (2026-10-07, VFX_LevelUp). Rings and pillars read well at Brightness 1.4 to 2.5 with `LightEmission` 0.15 to 0.3; glints and dots held up at 3 to 4.
+
 After building, add `VFX_<Name> = { Category = "VFX", InstanceName = "VFX_<Name>" }` to `src/shared/AssetRegistry.luau` and run `./scripts/check.ps1`.
 
 ## Built-in stand-in textures
