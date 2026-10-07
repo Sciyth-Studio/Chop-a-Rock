@@ -118,6 +118,9 @@ Loop details:
   The whole server gets an announcement. Never on a Crack. Studio dev shortcut: Ctrl+Shift+M forces the next chop.
   [PLAYTEST] Odds (draft Bad 0.5% / Mid 0.75% / Good 1% / Great 1.5% / Perfect 2.5% ≈ 1 in 100), Master payout
   multiplier (draft 3x). User-made SFX_Chop_Master and VFX_Master_Burst slot in through AssetRegistry when ready.
+- [TBD] ASCENDED CHOP (planned by the user, not yet built): a 1 in 1,000 chop, rarer than the Master Chop, with
+  impact frames, anime-style camera angle changes and a slow-motion hit. Rewards, odds by timing quality and how it
+  relates to the Master Chop are still to be decided.
 - Players move on when they have earned enough to do what's required to try the next rock.
 - What to do next is shown in the world: a label above each rock shows its name and required strength, and a scrolling
   arrow trail with a highlight guides the player to the rock they should grind (or to the shop). Values in GuideConfig.
@@ -997,3 +1000,6 @@ DECISION LOG
   - The guide arrow points to the nearest rock of the kind to grind, else the nearest rock the player can break.
   - Admin "Spawn Spots" toggle shows candidate spots as dots coloured by the biggest rock that fits.
   - [PLAYTEST] count, weights, gap, clearance, slope, rise time, respawn delay.
+2026-10-06 — Ascended Chop planned (§02):
+  - The user plans a 1/1000 ASCENDED CHOP with impact frames, anime-style camera angle changes and a slow-mo hit.
+    Logged as [TBD]; rewards and details deferred. Not to be built until the user picks it up.
