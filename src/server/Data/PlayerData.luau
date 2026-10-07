@@ -60,8 +60,12 @@ PlayerData.Template = {
 		},
 	},
 	Settings = {
-		Music = 1,
+		Volume = 1,
+		Music = true,
 		SoundEffects = true,
+		LowGraphics = false,
+		Notifications = true,
+		AutoEquip = true,
 	},
 	LastSeenAt = 0,
 	Receipts = {},
@@ -200,6 +204,14 @@ function PlayerData.Validate(data: any): boolean
 	return true
 end
 
-function PlayerData.Migrate(_data: any) end
+function PlayerData.Migrate(data: any)
+	local settings = data.Settings
+	if type(settings) == "table" and type(settings.Music) == "number" then
+		if settings.Volume == nil and settings.Music > 0 then
+			settings.Volume = settings.Music
+		end
+		settings.Music = settings.Music > 0
+	end
+end
 
 return PlayerData

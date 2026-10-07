@@ -21,6 +21,7 @@ export type Grant = {
 local PetService = {
 	Name = "PetService",
 	HeldChanged = Signal.new() :: Signal.Signal<Player>,
+	Granted = Signal.new() :: Signal.Signal<Player>,
 }
 
 local services: { [string]: any } = {}
@@ -145,6 +146,7 @@ function PetService.Grant(_self: any, player: Player, petKey: string): Grant?
 	local isNew = services.IndexService:RecordPet(player, petKey)
 	services.DataService:RequestSave(player)
 	PetService:SyncTools(player)
+	PetService.Granted:Fire(player)
 	return {
 		Id = id,
 		PetKey = petKey,

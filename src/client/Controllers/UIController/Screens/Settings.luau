@@ -69,9 +69,9 @@ function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			continue
 		end
 		local label: TextLabel? = button:FindFirstChild("Label", true) :: any
-		local isOn = true
+		local isOn = false
 		trove:Add(dataController:Observe({ "Settings", name }, function(value: any)
-			isOn = value ~= false
+			isOn = value == true
 			paint(button, if isOn then ON_COLORS else OFF_COLORS)
 			if label and label:IsA("TextLabel") then
 				label.Text = if isOn then "On" else "Off"
@@ -91,22 +91,32 @@ function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 		local track: Frame? = slider:FindFirstChild("Track") :: any
 		local fill: Frame? = if track then track:FindFirstChild("Fill") :: any else nil
-		local label: TextLabel? = slider:FindFirstChild("Label", true) :: any
 		if not track or not fill then
 			warn(`[Settings] {slider:GetFullName()} needs Track.Fill`)
 			continue
 		end
+		local knob: Frame? = track:FindFirstChild("Knob") :: any
+		local valueLabel: TextLabel? = find(gui, name .. "Value", "TextLabel")
+		local minusButton: TextButton? = find(gui, name .. "Minus", "TextButton")
+		local plusButton: TextButton? = find(gui, name .. "Plus", "TextButton")
 		paint(slider, ON_COLORS)
 
 		local maxPercent = SettingsConfig.MaxVolumePercent
+		local stepPercent = SettingsConfig.VolumeStepPercent
 		local dragging = false
+		local current = maxPercent
 		local lastSent = -1
 		local lastSentAt = 0
 
 		local function show(percent: number)
-			fill.Size = UDim2.fromScale(percent / maxPercent, 1)
-			if label and label:IsA("TextLabel") then
-				label.Text = `{percent}%`
+			current = percent
+			local alpha = percent / maxPercent
+			fill.Size = UDim2.fromScale(alpha, 1)
+			if knob then
+				knob.Position = UDim2.fromScale(alpha, 0.5)
+			end
+			if valueLabel then
+				valueLabel.Text = `{percent}%`
 			end
 		end
 
@@ -133,13 +143,32 @@ function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			send(percent, force)
 		end
 
+		local function step(direction: number)
+			local snapped = if direction > 0
+				then math.floor(current / stepPercent) * stepPercent + stepPercent
+				else math.ceil(current / stepPercent) * stepPercent - stepPercent
+			local percent = math.clamp(snapped, 0, maxPercent)
+			show(percent)
+			send(percent, true)
+		end
+
 		trove:Add(dataController:Observe({ "Settings", name }, function(value: any)
 			if dragging then
 				return
 			end
-			local level = if type(value) == "number" then value elseif value == false then 0 else 1
+			local level = if type(value) == "number" then value else 1
 			show(math.round(math.clamp(level, 0, 1) * maxPercent))
 		end))
+		if minusButton then
+			trove:Add(minusButton.Activated:Connect(function()
+				step(-1)
+			end))
+		end
+		if plusButton then
+			trove:Add(plusButton.Activated:Connect(function()
+				step(1)
+			end))
+		end
 		trove:Add(slider.InputBegan:Connect(function(input: InputObject)
 			if
 				input.UserInputType == Enum.UserInputType.MouseButton1

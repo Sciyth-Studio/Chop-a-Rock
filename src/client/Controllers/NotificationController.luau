@@ -12,16 +12,21 @@ local NotificationController = {
 	Name = "NotificationController",
 	Notified = Signal.new(),
 	_trove = nil :: TroveInstance?,
+	_controllers = {} :: { [string]: any },
 }
 
 function NotificationController.Notify(self: any, kind: string, message: string)
+	if self._controllers.DataController:Get({ "Settings", "Notifications" }) == false then
+		return
+	end
 	if not NotificationConfig.Kinds[kind] then
 		kind = NotificationConfig.FallbackKind
 	end
 	self.Notified:Fire(kind, message)
 end
 
-function NotificationController.Init(self: any, _controllers: { [string]: any })
+function NotificationController.Init(self: any, controllers: { [string]: any })
+	self._controllers = controllers
 	self._trove = Trove.new()
 end
 

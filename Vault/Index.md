@@ -75,6 +75,7 @@ _One note per game system as they're worked on._
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
 - [[Shop Pads]] — neon floor rectangles open the Arm Shop / Geode shop on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
+- [[Settings]] — master Volume with -/+, Music/SFX/Low Graphics/Auto Equip/Notifications toggles; what each does
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._

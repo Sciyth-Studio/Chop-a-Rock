@@ -233,6 +233,12 @@ function PedestalService.Start(_self: any)
 		clearPlot(plot)
 	end))
 	trove:Add(services.PetService.HeldChanged:Connect(refresh))
+	trove:Add(services.PetService.Granted:Connect(function(player: Player)
+		local data = services.DataService:GetData(player)
+		if data and data.Settings.AutoEquip ~= false then
+			respond(player, Placement.EquipBest(context, player))
+		end
+	end))
 	for _, player in Players:GetPlayers() do
 		local plot = services.BaseService:GetPlot(player)
 		if plot then

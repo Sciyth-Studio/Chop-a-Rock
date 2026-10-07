@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local CashPopConfig = require(ReplicatedStorage.Config.CashPopConfig)
+local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
@@ -72,7 +73,7 @@ local function feetPosition(): Vector3?
 end
 
 function CashPopController.Play(_self: any, position: Vector3, profile: CashPopConfig.CashPopProfile)
-	if template and profile.ShowBurst then
+	if template and profile.ShowBurst and not LowGraphics.IsOn() then
 		VFXEmit.play(template, CFrame.new(position))
 	end
 	spawnCoins(position, profile)

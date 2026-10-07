@@ -9,6 +9,7 @@ local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
+local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
 
@@ -175,7 +176,7 @@ local function playEffect(key: string, cframe: CFrame, scale: number, tint: Tint
 	local origin = if root then root.CFrame else model:GetPivot()
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("ParticleEmitter") then
-			prepareEmitter(descendant, scale, tint, countScale or 1)
+			prepareEmitter(descendant, scale, tint, (countScale or 1) * LowGraphics.EmitScale())
 		elseif scale == 1 then
 			continue
 		elseif descendant:IsA("Attachment") then
@@ -282,7 +283,7 @@ local function spawnChunks(position: Vector3, size: Vector3, look: ChunkLook, ch
 	local chunks: { BasePart } = {}
 	local scale = ChopConfig.ChunkSpawnVelocityScale
 	local sizeScale = math.max(1, size.X / ChopConfig.ReferenceRockSize)
-	local scaledCount = math.floor(chunkCount * sizeScale + 0.5)
+	local scaledCount = math.floor(chunkCount * sizeScale * LowGraphics.EmitScale() + 0.5)
 	for _ = 1, scaledCount do
 		local chunk = Instance.new("Part")
 		chunk.Name = "Rock_Chunk"
