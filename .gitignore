@@ -11,3 +11,6 @@
 .DS_Store
 
 /Vault/.obsidian/workspace*.json
+
+*.blend1
+__pycache__/
