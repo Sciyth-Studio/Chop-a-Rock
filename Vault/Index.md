@@ -12,10 +12,12 @@ What Claude has learned while working on the game: preferences, references, gotc
 - Update an existing note rather than adding a duplicate. Delete notes that turn out to be wrong.
 - Images the user pastes into chat arrive as files Claude can open and copy into `Attachments/`.
 - Images live in `Attachments/`. Every image is embedded in a note that says what to take from it; open images only through those notes.
+- Keep [[To Do]] current: remove items once done and checked in code, add new ones when the user approves work. Read it when the user asks what's next.
 - Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`, `new-zone`.
 
 ## Project
 - [[Chop a Rock]] — what the game is, repos, design source of truth
+- [[To Do]] — running task list: next, approved, waiting on the user, deferred; phases in `ROADMAP.md`
 
 ## Preferences
 - [[Code Output Rules]] — whole files, no comments, no scope creep, propose-and-wait on player-facing changes
