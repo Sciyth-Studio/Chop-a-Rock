@@ -167,6 +167,8 @@ Rocks and zones:
 - Zone idea pool (user's list, rough cool-factor order, not committed): forest, desert, snow, jungle, ocean,
   cherry blossom, aztec, enchanted forest, prehistoric, volcano, demon (or a softer "shadow" for ages 6-12), cosmic.
   Lake was dropped as too boring.
+- [DECIDED 2026-10-07] Zone order: forest, desert, jungle, ocean, snow. Rocks and decoration for zones 3-5 are
+  still to be planned (the rock lineup stays [TBD]).
 - Each zone's environment (sky, atmosphere, particles) matches its material, not just the rock.
 - Rocks are blocky, stud-textured models. AI builds them in Blender (rock-model skill) with pre-split pieces for breaks.
 - Earlier idea, not committed: gray → mossy → obsidian → glowing → crystalline → cosmic material progression.
@@ -199,7 +201,7 @@ Pet rocks:
   beaks. Every Rok has Bloky's chamfered-square eyes and no other face. Pets match their zone: the theme comes from
   things growing on, sitting on or worn by the rock (plants, hats, objects), rock formations and Neon accents on
   Legendary and Secret. Commons are a plain zone-specific shape with no props. Each pet fits the geode hollow.
-[DECIDED 2026-10-04] Pet lineup, planned for five zones (forest, desert, snow, jungle, ocean; zones 3-5 not committed):
+[DECIDED 2026-10-04] Pet lineup, planned for five zones (forest, desert, jungle, ocean, snow; order set 2026-10-07):
   Forest:  Common Bloky (chamfered cube, modelled) / Uncommon Sprout (two-leaf sprout) / Rare Shroomy (tall, mushrooms
            growing on it) / Epic Nesty (bird's nest on top with three pebble eggs) / Legendary Berry (leaf crown,
            glowing berries) / Secret Treebo (tree growing from its back, glowing fireflies)
@@ -1003,3 +1005,9 @@ DECISION LOG
 2026-10-06 — Ascended Chop planned (§02):
   - The user plans a 1/1000 ASCENDED CHOP with impact frames, anime-style camera angle changes and a slow-mo hit.
     Logged as [TBD]; rewards and details deferred. Not to be built until the user picks it up.
+2026-10-07 — Zone order (§03):
+  - Zones after the forest go desert, jungle, ocean, snow (was planned as desert, snow, jungle, ocean).
+  - Bases (floor and terrace walls only) were laid in Studio for jungle, ocean and snow, 120 studs apart along the line.
+  - The rock proposals for these zones (snow, jade, sea rock/coral/pearl) are not approved yet.
+  - The ocean zone is deep-ocean themed (seabed, not a beach). Its base was recoloured dark navy. The ocean Rok
+    lineup (§03) was planned for a beach/pirate ocean and has not been revisited yet.

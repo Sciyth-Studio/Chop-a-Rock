@@ -12,7 +12,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - Update an existing note rather than adding a duplicate. Delete notes that turn out to be wrong.
 - Images the user pastes into chat arrive as files Claude can open and copy into `Attachments/`.
 - Images live in `Attachments/`. Every image is embedded in a note that says what to take from it; open images only through those notes.
-- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`.
+- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`, `new-zone`.
 
 ## Project
 - [[Chop a Rock]] — what the game is, repos, design source of truth
@@ -42,6 +42,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Tintable Mesh Textures]] — studs are the 2022 MaterialVariants in MaterialService (`2022 Inlet`, `2022 Stud` = outlet); copy MaterialVariant with Material
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
+- [[Zone Line]] — zone order forest → desert → jungle → ocean → snow; folders, Z ranges (120 apart), floor/terrace colours
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared
 - [[Shop Stall Reference]] — striped-awning market stall sheet for the lobby shops; three meshes for recolouring
