@@ -18,9 +18,9 @@ function AdminController.IsAdmin(_self: any): boolean
 	return Players.LocalPlayer:GetAttribute(AdminConfig.AttributeName) == true
 end
 
-function AdminController.Run(_self: any, commandId: string)
+function AdminController.Run(_self: any, commandId: string, argument: string?)
 	if AdminController:IsAdmin() then
-		Packets.AdminRun:Fire(commandId)
+		Packets.AdminRun:Fire(commandId, argument or "")
 	end
 end
 
@@ -40,7 +40,7 @@ function AdminController.Start(self: any)
 			end
 		end
 		for _, command in AdminConfig.Commands do
-			if command.Shortcut == input.KeyCode then
+			if command.Kind == "Button" and command.Shortcut == input.KeyCode then
 				AdminController:Run(command.Id)
 				return
 			end

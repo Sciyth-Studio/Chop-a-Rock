@@ -161,14 +161,14 @@ function DataService.AdjustCash(_self: any, player: Player, amount: number): boo
 	return DataService:RequestSave(player)
 end
 
-function DataService.ResetData(_self: any, player: Player): boolean
+function DataService.ResetData(_self: any, player: Player, overrides: { [string]: any }?): boolean
 	local data = DataService:GetData(player)
 	local replica = DataService:GetReplica(player)
 	if not data or not replica then
 		return false
 	end
 	local template = PlayerData.Template
-	replica:SetValues({}, {
+	local values: { [string]: any } = {
 		Cash = template.Cash,
 		Strength = template.Strength,
 		ArmTier = template.ArmTier,
@@ -179,7 +179,13 @@ function DataService.ResetData(_self: any, player: Player): boolean
 		PedestalSlots = template.PedestalSlots,
 		PedestalEarnings = {},
 		Index = { Pets = {}, Rocks = {}, Claimed = { Pets = {}, Rocks = {}, Zones = {} } },
-	})
+	}
+	if overrides then
+		for key, value in overrides do
+			values[key] = value
+		end
+	end
+	replica:SetValues({}, values)
 	table.clear(data.Receipts)
 	DataService.PlayerLoaded:Fire(player, data)
 	DataService:RequestSave(player)

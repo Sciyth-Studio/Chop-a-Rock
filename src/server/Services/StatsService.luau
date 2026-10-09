@@ -31,6 +31,14 @@ function StatsService.AddStrength(_self: any, player: Player, delta: number): nu
 	return after
 end
 
+function StatsService.SetStrength(_self: any, player: Player, strength: number): boolean
+	if not DataService:GetData(player) then
+		return false
+	end
+	DataService:Set(player, { "Strength" }, math.max(0, math.floor(strength)))
+	return DataService:RequestSave(player)
+end
+
 function StatsService.Init(_self: any, _services: { [string]: any }) end
 
 function StatsService.Start(_self: any) end

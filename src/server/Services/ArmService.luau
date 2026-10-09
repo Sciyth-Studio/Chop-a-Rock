@@ -44,6 +44,16 @@ function ArmService.BuyTier(_self: any, player: Player, tierIndex: number): bool
 	return true
 end
 
+function ArmService.SetTier(_self: any, player: Player, tierIndex: number): boolean
+	if not DataService:GetData(player) or not ArmConfig.Tiers[tierIndex] then
+		return false
+	end
+	DataService:Set(player, { "ArmTier" }, tierIndex)
+	ArmService.TierChanged:Fire(player, tierIndex)
+	DataService:RequestSave(player)
+	return true
+end
+
 function ArmService.Init(_self: any, _services: { [string]: any }) end
 
 function ArmService.Start(_self: any)

@@ -209,6 +209,16 @@ local function respond(player: Player, changed: boolean): boolean
 	return changed
 end
 
+function PedestalService.SetSlots(_self: any, player: Player, count: number): boolean
+	local services = context.Services
+	if not services.DataService:GetData(player) or count < 1 or count > PedestalSlots.Total() then
+		return false
+	end
+	services.DataService:Set(player, { "PedestalSlots" }, count)
+	Placement.Sanitize(context, player)
+	return respond(player, true)
+end
+
 function PedestalService.Init(_self: any, registry: { [string]: any })
 	context.Services = registry
 end
