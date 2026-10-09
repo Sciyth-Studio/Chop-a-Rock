@@ -12,7 +12,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Desert: real models for the three placeholder rocks (`rock-model` skill)
 
 ## Admin panel (approved 2026-10-08, see [[Admin Panel]])
-- [ ] Phase 1 playtest: presets, auto-preset, warps, value commands, tabbed panel (built, not yet tested in Play)
+- [ ] Phase 1 playtest: Desert preset, Set Cash "2.5m" and the Desert warp checked in Play 2026-10-09; still to check: Arms picker, Set Slots, Set Level, auto-preset, My Base warp
 - [ ] Phase 2: Rok picker (+ trait/modifier), N geodes of a type, force any hatch rarity, fill/clear Backpack, fill pedestals; complete/reset Index page or zone, claim all; force next chop quality, always-perfect / one-hit / ignore-strength toggles, spawn a chosen rock, instant respawn; set Hot Streak tier, freeze timer; simulate N hours offline
 - [ ] Phase 3: Ctrl+Shift+Space command bar, save/load snapshots (Studio), weather/Rush/Diamond commands as those systems land
 
