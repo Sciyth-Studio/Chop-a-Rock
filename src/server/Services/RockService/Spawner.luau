@@ -10,7 +10,16 @@ local function flatDistance(a: Vector3, b: Vector3): number
 	return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
 end
 
-local function isFree(spot: Types.Spot, shape: Types.Shape, rocks: { Types.Rock }, avoid: Vector3?): boolean
+local function isFree(
+	spot: Types.Spot,
+	shape: Types.Shape,
+	rocks: { Types.Rock },
+	avoid: Vector3?,
+	reserved: Types.Reserved?
+): boolean
+	if reserved and flatDistance(spot.Position, reserved.Position) < shape.Radius + reserved.Radius then
+		return false
+	end
 	if avoid and flatDistance(spot.Position, avoid) < shape.Radius + RockSpawnConfig.PlayerClearanceStuds then
 		return false
 	end
@@ -65,11 +74,12 @@ function Spawner.PickSpot(
 	spots: { Types.Spot },
 	shape: Types.Shape,
 	rocks: { Types.Rock },
-	avoid: Vector3?
+	avoid: Vector3?,
+	reserved: Types.Reserved?
 ): Types.Spot?
 	local valid: { Types.Spot } = {}
 	for _, spot in spots do
-		if spot.Fits[shape.Key] and isFree(spot, shape, rocks, avoid) then
+		if spot.Fits[shape.Key] and isFree(spot, shape, rocks, avoid, reserved) then
 			table.insert(valid, spot)
 		end
 	end
@@ -77,6 +87,40 @@ function Spawner.PickSpot(
 		return nil
 	end
 	return valid[random:NextInteger(1, #valid)]
+end
+
+function Spawner.PickSpotNear(
+	random: Random,
+	spots: { Types.Spot },
+	shape: Types.Shape,
+	rocks: { Types.Rock },
+	center: Vector3?,
+	radius: number,
+	reserved: Types.Reserved?
+): Types.Spot?
+	if not center then
+		return Spawner.PickSpot(random, spots, shape, rocks, nil, reserved)
+	end
+	local near: { Types.Spot } = {}
+	local nearest: Types.Spot? = nil
+	local nearestDistance = math.huge
+	for _, spot in spots do
+		if not spot.Fits[shape.Key] or not isFree(spot, shape, rocks, center, reserved) then
+			continue
+		end
+		local distance = flatDistance(spot.Position, center)
+		if distance <= radius then
+			table.insert(near, spot)
+		end
+		if distance < nearestDistance then
+			nearest = spot
+			nearestDistance = distance
+		end
+	end
+	if #near > 0 then
+		return near[random:NextInteger(1, #near)]
+	end
+	return nearest
 end
 
 return Spawner

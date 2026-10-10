@@ -14,7 +14,9 @@ local ChopZones = require(ReplicatedStorage.ChopZones)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
+local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local Packets = require(ReplicatedStorage.Packets)
+local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -293,7 +295,15 @@ local function beginMinigame(
 	local rootPart = if character then character:FindFirstChild("HumanoidRootPart") :: BasePart? else nil
 	local rockScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
 	local isRelative = rock:GetAttribute(ChopConfig.RelativeOffsetAttribute) == true
+	local slotCount = rock:GetAttribute(DiamondRockConfig.SlotsAttribute)
+	local slot = Players.LocalPlayer:GetAttribute(DiamondRockConfig.PlayerSlotAttribute)
+	local slotRotation = if type(slotCount) == "number" and type(slot) == "number"
+		then CFrame.Angles(0, (slot - 1) / slotCount * math.pi * 2 + math.pi, 0)
+		else nil
 	local function offset(vector: Vector3): Vector3
+		if slotRotation then
+			return slotRotation:VectorToWorldSpace(vector)
+		end
 		return if isRelative then rock.CFrame:VectorToWorldSpace(vector) else vector
 	end
 	local rootStart: CFrame? = if rootPart then rootPart.CFrame else nil
@@ -468,6 +478,7 @@ function ChopController.Start(self: any)
 			end
 		)
 	)
+	trove:Add(Packets.ChopEnded.OnClientEvent:Connect(endMinigame))
 	trove:Add(Packets.ChopRoundStart.OnClientEvent:Connect(function(center: number)
 		if not minigameActive then
 			return
@@ -482,6 +493,8 @@ function ChopController.Start(self: any)
 		Packets.ChopResult.OnClientEvent:Connect(
 			function(quality: number, payout: number, _damage: number, health: number, multiplier: number)
 				print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
+				local isRush = activeRock ~= nil
+					and activeRock:GetAttribute(RushRockConfig.EndsAtAttribute) ~= nil
 				local isMaster = quality == ChopQuality.Master
 				if isMaster and activeTrove then
 					masterStartClock = os.clock()
@@ -520,7 +533,16 @@ function ChopController.Start(self: any)
 						LocalSound.Play("SFX_Money_Gain")
 						if popAt then
 							cashPopController:Play(popAt, CashPopConfig.Chop)
-							if multiplier > 1 then
+							if isRush then
+								local total = math.floor(
+									multiplier * RushRockConfig.PayoutMultiplier * 100 + 0.5
+								) / 100
+								cashPopController:PlayText(popAt, payout, total, {
+									Main = RushRockConfig.PopMain,
+									Light = RushRockConfig.PopLight,
+									Dark = RushRockConfig.PopDark,
+								})
+							elseif multiplier > 1 then
 								cashPopController:PlayText(popAt, payout, multiplier)
 							end
 						end

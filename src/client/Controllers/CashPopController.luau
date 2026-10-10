@@ -92,12 +92,26 @@ local function fadeLabel(label: TextLabel, seconds: number)
 	end
 end
 
-function CashPopController.PlayText(_self: any, position: Vector3, payout: number, multiplier: number)
+export type TextColors = {
+	Main: Color3,
+	Light: Color3,
+	Dark: Color3,
+}
+
+function CashPopController.PlayText(
+	_self: any,
+	position: Vector3,
+	payout: number,
+	multiplier: number,
+	colors: TextColors?
+)
 	local source = textTemplate
-	local definition: HotStreakConfig.Tier? = nil
-	for _, tier in HotStreakConfig.Tiers do
-		if tier.Multiplier == multiplier then
-			definition = tier
+	local definition: TextColors? = colors
+	if not definition then
+		for _, tier in HotStreakConfig.Tiers do
+			if tier.Multiplier == multiplier then
+				definition = { Main = tier.Main, Light = tier.Light, Dark = tier.Dark }
+			end
 		end
 	end
 	if not source or not definition then

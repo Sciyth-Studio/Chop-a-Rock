@@ -1,0 +1,27 @@
+---
+description: Diamond Rock (built 2026-10-09) - shared server-wide special rock every 10-15 min at a random clear spot in a busy zone, 60 s countdown, paid per hit by damage share; where state lives, how chopping in slots works, admin commands.
+type: system
+---
+# Diamond Rock
+
+Approved 2026-10-09. The user rejected dedicated marker spots, so it picks a random clear spot in the zone. All numbers are drafts in `DiamondRockConfig`.
+
+## Rules
+- **When and where:** every 10-15 min the server picks a zone weighted by how many players stand in its `RockSpawnArea`. If nobody is in a zone it retries in 30 s. `RockService:FindRingSpot` tries up to 300 sampled spots for one where the rock box and all 8 standing spots (a ring at the chop snap distance) are clear and level (`SpawnPoints.FitsRing`). Characters are excluded from the check.
+- **Your rocks in the way:** `RockService:ReserveArea` sinks any per-player rock within the ring plus 4 studs (`RockRemoved` packet) and respawns it elsewhere. New spawns avoid that circle until `ReleaseArea`. Rush rocks and the rock you are chopping are left alone.
+- **Who can chop:** strength of the zone's first rock. Weaker players get the normal too-weak crack.
+- **Numbers:** value = 50x the zone's top rock payout (forest: 40,000). Health = top rock strength x Good damage x 45 chops (forest: 4,500). Each hit pays value x damage / max health, then Hot Streak, friend, rebirth and Index multipliers. A Master deals 5x a Perfect's damage instead of finishing it. Countdown 60 s after a 1.2 s rise.
+- **End:** on break or timeout, everyone's chop session ends (`ChopEnded` packet for everyone but the breaker), everyone who earned gets "Diamond Rock: +$X", the area is released and the next timer starts.
+
+## Where things live
+- Server: `DiamondRockService` (`init` state, sessions and timer; `Spawning` zone pick, stats, model; `Chopping` damage, payout, slot pick). The rock is a real server part, `Workspace.DiamondRock` (Model, Persistent streaming, tag `DiamondRock`), with attributes on `Rock`: `Zone`, `Health`, `MaxHealth`, `EndsAt` (server time), `StrengthRequired`, `ChopSlots`. Chop start reuses `ChopMinigameStart` with the part.
+- Chop slots: the server gives the player the free slot closest to where they stand and sets player attribute `ChopSlot`. `ChopController` rotates the snap and camera offsets by `(slot - 1) / slots * 2pi + pi` when the rock has `ChopSlots`. Both sides use direction `(sin a, 0, cos a)`.
+- Client: `RockController/Diamond.luau` (rise, ring, camera shake within 90 studs, neon beacon 400 studs tall, `VFX_Diamond_Glow` sparkles on the rock and up the beacon ("Column" emitter), the `DiamondLabel` billboard with name, health bar and m:ss time that turns red and pulses under 10 s, the prompt, hit shards and break burst, sink on `DiamondEnded`). The HUD pill is the `DiamondRockPill` screen ("Diamond Rock in the Forest 0:42", top centre). `ArrowTrail` points at it after any Rush rock.
+- Studio: `Assets.Models.Model_Rock_Diamond` (placeholder: boulder mesh x2.2, colour 0,160,230; no Reflectance, which washed it out to a flat blob), `Assets.VFX.DiamondLabel`, `VFX_Diamond_Glow/Ring/Shards/Burst`, `Sounds.SFX_Diamond_Appear/Hit` (placeholders), `StarterGui.DiamondRockPill`. Showcase stands "Diamond Ring/Shards/Burst" in [[VFX Showcase]].
+- VFX pass 2026-10-09 (arrival, idle glow, beacon; the user left per-hit and break for later). The rise waits `ArrivalDelaySeconds` (0.5) so the lead-up plays first: ground glow, scorched glowing cracks, glints gathering inward (`GatherArea` part). Then a star flash, a neon `Column` that shoots up to 300 studs and thins out, two shockwave rings, flying shards, sparkles, dust and a cyan light. `VFX_Diamond_Glow` children: `Glints` and `Shimmer` (rock surface), `Column` (beacon), and Attachments `Base` and `Top`, which code puts on the beacon at the rock's base and at `BeaconHeight`. `Base` holds `Halo` (slow broken ring, 40 studs), `BeaconRings` (rings rising up the beam) and the `Sheath` Beam (camera-facing scrolling light, Base to Top). The beacon core is thinner and brighter now (width 2, transparency 0.2). Textures are drawn in `assets/VFX/Diamond/`, still on `rbxasset://textures/vfx-preview/` addresses until uploaded. The old templates are in `ServerStorage.VFXBackups`.
+- Admin: "Spawn Diamond Rock" (Ctrl+Shift+D, in your zone or the busiest) and "Diamond: 10s Left" (Ctrl+Shift+T).
+
+## Tested 2026-10-09
+Playtest, one player: spawned in the forest, beacon, label, pill and prompt up; snapped to slot 3 at 17.5 studs; Perfect hits did 192.5 damage and paid 1,711; the 10 s timeout ended the chop, turned the time red, sank the rock and showed "+$5,304"; a one-hit break paid 40,000; per-player rocks cleared to 23 studs from centre. Not tested with several players at once.
+
+Related: [[Rock Spawning]], [[Rush Rocks]], [[Chop Effects]], [[Admin Panel]]

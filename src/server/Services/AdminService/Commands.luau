@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AdminConfig = require(ReplicatedStorage.Config.AdminConfig)
 local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
+local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
@@ -128,6 +129,25 @@ local Commands: { [string]: Types.Handler } = {
 	ForceMaster = function(context: Types.Context, player: Player, _argument: string)
 		context.Services.RockService:ForceNextMaster(player)
 		notify(context, player, "next chop is a Master")
+	end,
+	ForceRush = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.RockService:ForceRush(player) then
+			notify(context, player, "next broken rock comes back as a Rush Rock")
+		else
+			notify(context, player, "a Rush Rock is already out")
+		end
+	end,
+	SpawnDiamond = function(context: Types.Context, player: Player, _argument: string)
+		local _spawned, message = context.Services.DiamondRockService:Spawn(player)
+		notify(context, player, message)
+	end,
+	DiamondTimeLeft = function(context: Types.Context, player: Player, _argument: string)
+		local seconds = DiamondRockConfig.AdminCountdownSeconds
+		if context.Services.DiamondRockService:SetTimeLeft(seconds) then
+			notify(context, player, `Diamond Rock ends in {seconds}s`)
+		else
+			notify(context, player, "no Diamond Rock out")
+		end
 	end,
 	SpawnSpots = function(context: Types.Context, player: Player, _argument: string)
 		local isShown = context.Services.RockService:ToggleSpawnSpots(player)

@@ -127,12 +127,14 @@ Loop details:
 - [DECIDED 2026-10-06] In-session pressure rule: pressure only ever offers more, it never takes away what the player
   already has. Nothing drains money, health or progress for being slow.
 - [DECIDED 2026-10-06] HOT STREAK: back-to-back Good-or-better chops on rocks build a streak that multiplies chop money
-  (draft x1.1 / x1.25 / x1.5 / x2 at 3 / 6 / 10 / 15 chops), shown as a flame on the arms. Mid holds the streak; Bad
+  (draft x1.1 / x1.25 / x1.5 / x2 at 3 / 6 / 10 / 15 chops), shown as a custom fire effect on the head. Mid holds the streak; Bad
   drops it one step, never to zero. It fades if the player stops chopping for a few seconds (draft 4s), and carries
   from one rock to the next. Money only; damage is unchanged. [PLAYTEST] all values.
 - [DECIDED 2026-10-06] RUSH ROCKS: every few minutes of chopping (draft 3 min), one of the player's spawns in their zone
   rises gold, always a kind they can break, with a countdown above it (draft 20s). Breaking it in time pays x3 (draft)
   for that rock. If time runs out it turns back into a normal rock. One at a time, per player. [PLAYTEST] all values.
+  [DECIDED 2026-10-09] Only chopping time counts toward the timer. It rises within ~60 studs of the player and the
+  guide arrow points at it. If the player is mid-chop when time runs out, the x3 holds until that rock breaks.
 
 [DECIDED] No next-goal bar. Cut by the user.
 (Resolved 2026-10-06: the reform-animation proposal is covered by rocks rising out of the ground.)
@@ -355,14 +357,18 @@ Rocks are per-player: each player sees and chops their own spawned rocks (§02);
   split by each player's share of damage dealt (co-op, not last-hit-wins). Regular rocks are never contested.
   [DECIDED 2026-10-06] Special rocks show a visible despawn countdown (draft 60s) next to their announcement, so the
   server rushes to them together. [PLAYTEST] length.
-  [PROPOSED] Hits on a special rock pay as they land (like regular rocks), so a rock that times out still pays everyone
-  who chopped it.
+  [DECIDED 2026-10-09] Hits on a special rock pay as they land (like regular rocks), so a rock that times out still
+  pays everyone who chopped it.
   [DECIDED 2026-10-06] DIAMOND ROCK: the first special rock. Every so often (draft 10-15 min) one rises at a dedicated
   spot in a zone, visible to the whole server, with an announcement and a beacon visible across the map. Super high
   value (draft ~50x that zone's top rock), big shared health, the 60s countdown, payout split by damage share.
   Diamond is reserved for this rock: no zone, pet or modifier uses the name. [PLAYTEST] all values.
-  [PROPOSED] Anyone who has reached the zone can chop it (strength requirement = the zone's first rock), so every kid
-  can join in; weaker players simply earn a smaller share.
+  [DECIDED 2026-10-09] Anyone who has reached the zone can chop it (strength requirement = the zone's first rock), so
+  every kid can join in; weaker players simply earn a smaller share.
+  [DECIDED 2026-10-09] Diamond Rock details: it rises at a random clear spot in a zone players are in (weighted by
+  how many), not at dedicated spots; the user's rocks in the way move elsewhere. Health is sized for ~3 players at the
+  zone's top-rock strength to break it in ~45s. A Master Chop on it deals 5x a Perfect instead of finishing it, so one
+  lucky hit can't take the whole prize. Up to 8 players chop it at once from spots in a ring. [PLAYTEST] all values.
 Base plots per server: 8 (this effectively sets max server size).
 
 ================================
@@ -424,7 +430,7 @@ PREMIUM CURRENCY, if any:
 None defined.
 
 UPGRADES:
-- Arms: strict tier upgrades → more strength; each tier has a unique look + aura.
+- Arms: strict tier upgrades → more strength; each tier has a unique look (material and colour, no particles).
 - Base: more pedestal slots (money); more floors (rebirth).
 
 ITEM / EQUIPMENT TIERS:
@@ -646,7 +652,7 @@ user-made effects can replace the first pass:
   5. Level up and rebirth: light pillar/ring around the player (rebirth is the bigger version).
   6. Too weak: "clink" spark bounce-off on a crack.
   7. Training: splinters when the board snaps.
-  8. Arm tiers: faint aura/particles on higher tiers.
+  8. Arm tiers: no particles (removed 2026-10-08); each tier is told apart by material and colour.
 
 ANIMATION DIRECTION:
 
@@ -1011,3 +1017,18 @@ DECISION LOG
   - The rock proposals for these zones (snow, jade, sea rock/coral/pearl) are not approved yet.
   - The ocean zone is deep-ocean themed (seabed, not a beach). Its base was recoloured dark navy. The ocean Rok
     lineup (§03) was planned for a beach/pirate ocean and has not been revisited yet.
+2026-10-08 — First 10-minute pacing check (§07, §10):
+  - From a fresh start, 10 minutes reached 1 rebirth, +530 strength (Sandstone unlocked), Bloky and Nesty hatched,
+    and 3 pedestal slots filled. The user judged the pacing about right; this is the benchmark for later tuning.
+    All values stay [PLAYTEST].
+2026-10-08 — Arm particles removed; walk speed and the Hot Streak (§02, §07):
+  - The user removed the sparkle particles from the arm tiers. Arms keep their material and colour.
+  - After the pacing check the user found that at base walk speed nobody reaches the next rock before a 4s Hot Streak
+    fade.
+  - Hot Streak look: a custom fire effect on the player's head (drawn for this game, not Roblox's built-in Fire),
+    replacing the planned arm flame. Tier colours draft from the mockup: yellow, orange, red, blue at x2.
+  - Auras go strictly on the player's arms and legs (nowhere else on the body). Aura system details [TBD].
+  - Walk speed comes from both the Hot Streak and auras. The streak adds speed per tier (draft +2 / +4 / +6 / +8 over
+    base 16). Streak fade raised from 4s to a draft 8s so a player at base speed reaches the next rock.
+    [PLAYTEST] all values. Whether streak and aura speed stack is decided with the aura system.
+  - Hot Streak x2 fire scale reduced from 1.9 to 1.6 at the user's request (blue was too big).

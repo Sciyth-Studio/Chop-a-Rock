@@ -28,6 +28,19 @@ export type Rock = {
 	UpAt: number,
 }
 
+export type Reserved = {
+	Zone: string,
+	Position: Vector3,
+	Radius: number,
+}
+
+export type RushState = {
+	ChopSeconds: number,
+	LastChopAt: number?,
+	ActiveId: number?,
+	IsScheduled: boolean,
+}
+
 export type Session = {
 	Rock: Rock,
 	CanBreak: boolean,

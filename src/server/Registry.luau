@@ -21,6 +21,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.PetService),
 	require(script.Parent.Services.BaseService),
 	require(script.Parent.Services.RockService),
+	require(script.Parent.Services.DiamondRockService),
 	require(script.Parent.Services.TrainingService),
 	require(script.Parent.Services.GeodeService),
 	require(script.Parent.Services.PedestalService),

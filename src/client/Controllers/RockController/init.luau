@@ -9,8 +9,11 @@ local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RockTemplate = require(ReplicatedStorage.RockTemplate)
+local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Diamond = require(script.Diamond)
 local Effects = require(script.Effects)
+local Rush = require(script.Rush)
 local SpotDots = require(script.SpotDots)
 
 type TroveInstance = typeof(Trove.new())
@@ -21,6 +24,7 @@ type ClientRock = {
 	Prompt: ProximityPrompt,
 	IsUp: boolean,
 	IsBroken: boolean,
+	Rush: Rush.Look?,
 }
 
 local ROCK_TAG = "ChopRock"
@@ -51,10 +55,36 @@ local function remove(id: number)
 		return
 	end
 	rocks[id] = nil
+	if rock.Rush then
+		rock.Rush.End(false)
+	end
 	rock.Part:Destroy()
 end
 
-local function spawn(id: number, key: string, position: Vector3, _modifier: string)
+local function sinkAway(id: number)
+	local rock = rocks[id]
+	if not rock or rock.IsBroken then
+		return
+	end
+	rock.IsBroken = true
+	CollectionService:RemoveTag(rock.Part, ROCK_TAG)
+	refreshPrompt(rock)
+	Effects.Sink(rock.Part, RockSpawnConfig.RiseSeconds, function()
+		remove(id)
+	end)
+end
+
+local function endRush(id: number)
+	local rock = rocks[id]
+	local look = if rock then rock.Rush else nil
+	if not rock or not look then
+		return
+	end
+	rock.Rush = nil
+	look.End(not rock.IsBroken)
+end
+
+local function spawn(id: number, key: string, position: Vector3, modifier: string)
 	if rocks[id] or not folder then
 		return
 	end
@@ -81,8 +111,15 @@ local function spawn(id: number, key: string, position: Vector3, _modifier: stri
 	prompt.Parent = part
 
 	local rock: ClientRock =
-		{ Id = id, Key = key, Part = part, Prompt = prompt, IsUp = false, IsBroken = false }
+		{ Id = id, Key = key, Part = part, Prompt = prompt, IsUp = false, IsBroken = false, Rush = nil }
 	rocks[id] = rock
+	if modifier == RushRockConfig.Modifier then
+		rock.Rush = Rush.Start(
+			part,
+			target,
+			os.clock() + RockSpawnConfig.RiseSeconds + RushRockConfig.CountdownSeconds
+		)
+	end
 	prompt.Triggered:Connect(function()
 		if rock.IsUp and not rock.IsBroken then
 			Packets.RockChop:Fire(id)
@@ -101,6 +138,10 @@ end
 local function breakRock(rock: ClientRock, quality: number)
 	local configs: { [string]: RockConfig.Rock } = RockConfig.Rocks
 	local piecesSeconds = configs[rock.Key].RespawnSeconds
+	if rock.Rush then
+		Rush.Burst(rock.Part)
+		endRush(rock.Id)
+	end
 	Effects.Break(rock.Part, quality, piecesSeconds)
 	task.delay(piecesSeconds, function()
 		remove(rock.Id)
@@ -157,6 +198,9 @@ function RockController.Start(self: any)
 
 	trove:Add(Packets.RockSpawned.OnClientEvent:Connect(spawn))
 	trove:Add(Packets.RockChopped.OnClientEvent:Connect(onChopped))
+	trove:Add(Packets.RockRushEnded.OnClientEvent:Connect(endRush))
+	trove:Add(Packets.RockRemoved.OnClientEvent:Connect(sinkAway))
+	Diamond.Start(trove, chopController)
 	trove:Add(Packets.RockChopShown.OnClientEvent:Connect(Effects.Shown))
 	trove:Add(Packets.RockSpawnSpots.OnClientEvent:Connect(SpotDots.Show))
 	trove:Add(chopController.ActiveChanged:Connect(refreshAll))

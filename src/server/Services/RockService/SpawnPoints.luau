@@ -75,6 +75,48 @@ local function fits(shape: Types.Shape, ground: RaycastResult, areas: { Instance
 	)
 end
 
+function SpawnPoints.FitsRing(
+	position: Vector3,
+	rotation: CFrame,
+	size: Vector3,
+	standDistance: number,
+	slots: number,
+	excluded: { Instance }
+): boolean
+	local lift = RockSpawnConfig.ClearanceLiftStuds
+	local step = RockSpawnConfig.StandMaxStepStuds
+	local ground = findGround(position + Vector3.new(0, step + lift, 0), step * 2 + lift, excluded)
+	if not ground then
+		return false
+	end
+	local rockExcluded = table.clone(excluded)
+	table.insert(rockExcluded, ground.Instance)
+	if not isClear(rotation + ground.Position + Vector3.new(0, size.Y / 2 + lift, 0), size, rockExcluded) then
+		return false
+	end
+	local standSize = RockSpawnConfig.StandClearanceSize
+	for slot = 1, slots do
+		local angle = (slot - 1) / slots * math.pi * 2
+		local column = ground.Position + Vector3.new(math.sin(angle), 0, math.cos(angle)) * standDistance
+		local standGround = findGround(column + Vector3.new(0, step + lift, 0), step * 2 + lift, excluded)
+		if not standGround or math.abs(standGround.Position.Y - ground.Position.Y) > step then
+			return false
+		end
+		local standExcluded = table.clone(excluded)
+		table.insert(standExcluded, standGround.Instance)
+		if
+			not isClear(
+				CFrame.new(standGround.Position + Vector3.new(0, standSize.Y / 2 + lift, 0)),
+				standSize,
+				standExcluded
+			)
+		then
+			return false
+		end
+	end
+	return true
+end
+
 function SpawnPoints.Shape(key: string): Types.Shape?
 	local template = RockTemplate.Build(key)
 	if not template then

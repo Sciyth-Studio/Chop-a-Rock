@@ -47,6 +47,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Zone Line]] — zone order forest → desert → jungle → ocean → snow; folders, Z ranges (120 apart), floor/terrace colours
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared
+- [[Open Cloud Key]] — `ROBLOX_API_KEY` user env var; assets + dev products scopes; reaches group assets; never print it
 - [[Shop Stall Reference]] — striped-awning market stall sheet for the lobby shops; three meshes for recolouring
 - [[Stand Name Signs]] — "Arm Shop" / "Wood Training" / "Geode" billboards above the stands; BillboardGuis don't show in screen_capture
 - [[Geode Reference]] — closed + split geode sheets; flat chipped faces, no bumps, crystals are a separate rarity-coloured part
@@ -68,6 +69,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Studio Reimport]] — Alt+Shift+R updates an imported Model's meshes in place by mesh name; keeps colours, materials, children
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
+- [[VFX Showcase]] — `Workspace.VFXShowcase` stands + local plugin loop every effect in Edit; add a stand per new effect
 - [[Chop Dummy]] — tag an R15 rig `ChopDummy` and it loops the chop pose; pose math in `Utils/ChopPose`
 
 ## Systems
@@ -81,6 +83,9 @@ _One note per game system as they're worked on._
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
 - [[Shop Pads]] — neon floor rectangles open the Arm Shop / Geode shop on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
 - [[Settings]] — master Volume with -/+, Music/SFX/Low Graphics/Auto Equip/Notifications toggles; what each does
+- [[Rush Rocks]] — after ~3 min of chopping the next rock rises gold near you, 20 s countdown, x3 pay; `RockService/Rush`, `RushRockConfig`, admin Ctrl+Shift+R
+- [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
+- [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._

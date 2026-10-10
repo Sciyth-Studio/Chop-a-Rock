@@ -6,8 +6,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local GuideConfig = require(ReplicatedStorage.Config.GuideConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
+local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local TweenService = game:GetService("TweenService")
 
@@ -69,6 +71,29 @@ local function nearestRock(position: Vector3, accepts: (BasePart, number) -> boo
 		end
 	end
 	return nearest
+end
+
+local function findDiamond(strength: number): BasePart?
+	for _, tagged in CollectionService:GetTagged(DiamondRockConfig.Tag) do
+		local part = if tagged:IsA("Model") then tagged.PrimaryPart else nil
+		if not part then
+			continue
+		end
+		local required = part:GetAttribute(DiamondRockConfig.StrengthAttribute)
+		local health = part:GetAttribute(DiamondRockConfig.HealthAttribute)
+		local endsAt = part:GetAttribute(DiamondRockConfig.EndsAtAttribute)
+		if
+			type(required) == "number"
+			and strength >= required
+			and type(health) == "number"
+			and health > 0
+			and type(endsAt) == "number"
+			and endsAt > workspace:GetServerTimeNow()
+		then
+			return part
+		end
+	end
+	return nil
 end
 
 local function isNearWorseRock(position: Vector3, best: RockConfig.Rock): boolean
@@ -210,6 +235,22 @@ function ArrowTrail.Start(trove: TroveInstance, dataController: any)
 
 	local function chooseTarget(position: Vector3): Vector3?
 		guidedPart = nil
+		local rushPart = nearestRock(position, function(part: BasePart, _requirement: number): boolean
+			return part:GetAttribute(RushRockConfig.EndsAtAttribute) ~= nil
+		end)
+		if rushPart and flatDistance(position, rushPart.Position) > GuideConfig.ArrivalDistance then
+			isGuidingRock = false
+			return rushPart.Position
+		end
+		local diamondPart = findDiamond(readData(dataController, "Strength"))
+		if
+			diamondPart
+			and flatDistance(position, diamondPart.Position)
+				> GuideConfig.ArrivalDistance + math.max(diamondPart.Size.X, diamondPart.Size.Z) / 2
+		then
+			isGuidingRock = false
+			return diamondPart.Position
+		end
 		local isReady = isReadyToUpgrade(dataController)
 		if not isReady then
 			isShopDismissed = false

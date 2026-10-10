@@ -25,6 +25,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	AdminPanel = require(script.Screens.AdminPanel),
 	HotStreakFx = require(script.Screens.HotStreakFx),
 	HotStreakBar = require(script.Screens.HotStreakBar),
+	DiamondRockPill = require(script.Screens.DiamondRockPill),
 }
 
 local UIController = { Name = "UIController" }

@@ -418,6 +418,23 @@ function Effects.Rise(part: BasePart, target: CFrame, onRisen: () -> ())
 	tween:Play()
 end
 
+function Effects.Sink(part: BasePart, seconds: number, onSunk: () -> ())
+	local bottom = part.Position - Vector3.new(0, part.Size.Y / 2, 0)
+	local anchor = anchorAt(bottom, RockSpawnConfig.DustLifetimeSeconds)
+	emit(
+		RockSpawnConfig.RiseDustKey,
+		anchor,
+		RockSpawnConfig.DustEmitCount,
+		RockSpawnConfig.DustLifetimeSeconds
+	)
+	playSound(RockSpawnConfig.RiseSoundKey, anchor, nil, RockSpawnConfig.RiseSoundStartSeconds)
+	local target = part.CFrame - Vector3.new(0, part.Size.Y + RockSpawnConfig.RiseDepthPaddingStuds, 0)
+	local info = TweenInfo.new(seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	local tween = TweenService:Create(part, info, { CFrame = target })
+	tween.Completed:Once(onSunk)
+	tween:Play()
+end
+
 function Effects.Crack(part: BasePart)
 	playSound("SFX_Rock_Crack", part)
 	shake(part)

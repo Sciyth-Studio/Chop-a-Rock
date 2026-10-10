@@ -33,13 +33,11 @@ Configs in `src/shared/Config/`, `AssetRegistry`, server-authoritative chop with
 
 ---
 
-## Phase 4 — MVP playtest and tune (current)
-**Goal:** pass the 10-minute criterion with the forest. Not yet confirmed.
-- Play repeatedly. If it fails, decide: feel problem (chop, effects) or loop problem (balance in Config).
-- All draft numbers stay `[PLAYTEST]` in Config.
+## Phase 4 — MVP playtest and tune (done 2026-10-08)
+A 10-minute session from a fresh start reached: 1 rebirth, +530 strength (Sandstone unlocked), Bloky and Nesty hatched, 3 pedestal slots filled. The user judged the pacing about right. Use this as the pacing benchmark when tuning; all draft numbers stay `[PLAYTEST]` in Config.
 
-## Phase 5 — In-session pressure (approved 2026-10-06, not built)
-Hot Streak, Rush Rocks, countdowns on shared special rocks, and the Diamond Rock. Visuals and UI are proposed to the user before building.
+## Phase 5 — In-session pressure (built 2026-10-09; look sign-off pending)
+Hot Streak, Rush Rocks, countdowns on shared special rocks, and the Diamond Rock are built and playtested solo. Left: the user signs off the looks, real sounds, a real Diamond Rock model, and a multi-player test of the Diamond Rock.
 
 ## Phase 6 — More zones
 Zone order: forest → desert → jungle → ocean → snow (`new-zone` skill).

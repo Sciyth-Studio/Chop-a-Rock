@@ -121,6 +121,27 @@ local AdminConfig: AdminSettings = {
 			Shortcut = Enum.KeyCode.M,
 		},
 		{
+			Id = "ForceRush",
+			Label = "Next Rock: Rush",
+			Tab = "Chop",
+			Kind = "Button",
+			Shortcut = Enum.KeyCode.R,
+		},
+		{
+			Id = "SpawnDiamond",
+			Label = "Spawn Diamond Rock",
+			Tab = "Chop",
+			Kind = "Button",
+			Shortcut = Enum.KeyCode.D,
+		},
+		{
+			Id = "DiamondTimeLeft",
+			Label = "Diamond: 10s Left",
+			Tab = "Chop",
+			Kind = "Button",
+			Shortcut = Enum.KeyCode.T,
+		},
+		{
 			Id = "SpawnSpots",
 			Label = "Spawn Spots",
 			Tab = "Chop",

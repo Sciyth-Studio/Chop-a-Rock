@@ -33,6 +33,12 @@ local Packets = {
 		Packet.NumberU8,
 		Packet.Boolean8
 	),
+	RockRushEnded = Packet("RockRushEnded", Packet.NumberU32),
+	RockRemoved = Packet("RockRemoved", Packet.NumberU32),
+	DiamondChop = Packet("DiamondChop"):RateLimit(3, 1),
+	DiamondChopped = Packet("DiamondChopped", Packet.NumberU8, Packet.Boolean8),
+	DiamondEnded = Packet("DiamondEnded"),
+	ChopEnded = Packet("ChopEnded"),
 	RockSpawnSpots = Packet("RockSpawnSpots", { Packet.Vector3F32 }, { Packet.String }),
 	ChopRoundStart = Packet("ChopRoundStart", Packet.NumberF64):RateLimit(5, 1),
 	ChopRelease = Packet("ChopRelease"):RateLimit(3, 1),
