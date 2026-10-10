@@ -23,7 +23,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Jungle, ocean and snow rock lineups (proposals not approved)
 - [ ] Ocean Rok lineup — planned for beach/pirate, zone is now deep ocean
 - [ ] Item icons — decisions D1–D6 in `IconSystemPlan.md`
-- [ ] Chop animations: a friend is animating WindUp + Strike (R15, uploaded to the Sciyth Studio group). Master reuses the same two clips for now; once they arrive, swap the procedural `ChopPose` arm for tracks (WindUp scrubbed by meter cursor), see [[Chop Dummy]]
+- [ ] Chop animations (published 2026-10-10: WindUp 83046642519862, Strike 86582123703470, group-owned): user tunes `WindUpSpeed` and watches a Master chop in Play, see [[Chop Dummy]]
 
 ## Deferred until the user raises it
 - Ascended Chop (1 in 1,000)

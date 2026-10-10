@@ -93,6 +93,8 @@ local map: { [string]: AssetEntry } = {
 	SFX_Diamond_Hit = { Category = "Sounds", InstanceName = "SFX_Diamond_Hit" },
 	SFX_HotStreak_Loop = { Category = "Sounds", InstanceName = "SFX_HotStreak_Loop" },
 	SFX_HotStreak_Up = { Category = "Sounds", InstanceName = "SFX_HotStreak_Up" },
+	Anim_Chop_WindUp = { Category = "Animations", InstanceName = "Anim_Chop_WindUp" },
+	Anim_Chop_Strike = { Category = "Animations", InstanceName = "Anim_Chop_Strike" },
 }
 
 local soundGroupName = "SoundEffects"

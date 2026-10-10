@@ -36,7 +36,7 @@ description: Use when verifying a change in Roblox Studio for this project (runn
 - It cannot write `Motor6D.C0`, send real key input (`VirtualInputManager` is blocked), or construct an `InputObject`.
 - Changing a player attribute on the client only changes the client's view, which is enough to test HUD, arrows, labels and highlights (for example `LocalPlayer:SetAttribute("Strength", 300)`).
 - A `ProximityPrompt` only shows when the character is in range and the camera faces it. To test prompt UI, place the character near the rock, point a Scriptable camera at it, wait about 1.5 seconds, then call `prompt:InputHoldBegin()` and `prompt:InputHoldEnd()`.
-- The character's joints are `AnimationConstraint`s, not Motor6Ds. Poses are set by writing `.Transform` on `RunService.PreSimulation`; writing on RenderStepped has no effect.
+- The character's joints are `AnimationConstraint`s, not Motor6Ds. Writing `.Transform` only works on `RunService.PreSimulation`; writing on RenderStepped has no effect. The chop itself is animation tracks; check them with `Animator:GetPlayingAnimationTracks()` (Priority Action).
 - `screen_capture` needs a capture id; prefer numeric checks (positions, sizes, colors, transparencies) and describe visuals honestly as unseen.
 - `LogService:GetLogHistory()` in the Client datamodel shows warnings that `get_console_output` omits.
 

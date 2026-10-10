@@ -70,7 +70,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
 - [[VFX Showcase]] — `Workspace.VFXShowcase` stands + local plugin loop every effect in Edit; add a stand per new effect
-- [[Chop Dummy]] — tag an R15 rig `ChopDummy` and it loops the chop pose; pose math in `Utils/ChopPose`
+- [[Chop Dummy]] — chop is two clips in `Assets/Animations` (WindUp loop + Strike) played by `Utils/ChopAnimation`; tag an R15 rig `ChopDummy` to loop it
 
 ## Systems
 _One note per game system as they're worked on._

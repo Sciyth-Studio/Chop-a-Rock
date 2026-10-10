@@ -401,15 +401,12 @@ function ChopController.IsMinigameActive(_self: any): boolean
 	return minigameActive
 end
 
-function ChopController.GetMasterPhase(_self: any): string?
+function ChopController.GetMasterSeconds(_self: any): number?
 	local started = masterStartClock
 	if not started then
 		return nil
 	end
-	if os.clock() - started < MasterChopConfig.ImpactDelaySeconds then
-		return "WindUp"
-	end
-	return "Strike"
+	return os.clock() - started
 end
 
 function ChopController.IsReleased(_self: any): boolean
