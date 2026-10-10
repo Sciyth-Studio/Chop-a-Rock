@@ -68,6 +68,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Studio Reimport]] — Alt+Shift+R updates an imported Model's meshes in place by mesh name; keeps colours, materials, children
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
+- [[Chop Dummy]] — tag an R15 rig `ChopDummy` and it loops the chop pose; pose math in `Utils/ChopPose`
 
 ## Systems
 _One note per game system as they're worked on._
