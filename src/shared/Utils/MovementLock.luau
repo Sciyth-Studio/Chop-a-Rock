@@ -1,5 +1,9 @@
 --!strict
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local WalkSpeedTarget = require(ReplicatedStorage.Utils.WalkSpeedTarget)
+
 type Lock = {
 	Count: number,
 	WalkSpeed: number,
@@ -10,6 +14,10 @@ type Lock = {
 local locks: { [Humanoid]: Lock } = {}
 
 local MovementLock = {}
+
+function MovementLock.IsLocked(humanoid: Humanoid): boolean
+	return locks[humanoid] ~= nil
+end
 
 function MovementLock.Acquire(humanoid: Humanoid): () -> ()
 	local lock = locks[humanoid]
@@ -40,7 +48,10 @@ function MovementLock.Acquire(humanoid: Humanoid): () -> ()
 		end
 		locks[humanoid] = nil
 		if humanoid.Parent then
-			humanoid.WalkSpeed = held.WalkSpeed
+			local character = humanoid.Parent
+			local owner = if character then Players:GetPlayerFromCharacter(character) else nil
+			local target = if owner then WalkSpeedTarget.Get(owner) else nil
+			humanoid.WalkSpeed = target or held.WalkSpeed
 			humanoid.JumpPower = held.JumpPower
 			humanoid.JumpHeight = held.JumpHeight
 		end

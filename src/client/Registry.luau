@@ -22,6 +22,8 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.PadSoundController),
 	require(script.Parent.Controllers.CashPopController),
 	require(script.Parent.Controllers.LevelUpController),
+	require(script.Parent.Controllers.WalkSpeedController),
+	require(script.Parent.Controllers.HotStreakController),
 }
 
 return controllers

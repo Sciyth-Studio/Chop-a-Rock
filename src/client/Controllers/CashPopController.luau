@@ -5,9 +5,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local CashPopConfig = require(ReplicatedStorage.Config.CashPopConfig)
+local HotStreakConfig = require(ReplicatedStorage.Config.HotStreakConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
 
 type TroveInstance = typeof(Trove.new())
@@ -18,6 +21,7 @@ local CashPopController = {
 }
 
 local template: Model? = nil
+local textTemplate: BillboardGui? = nil
 
 local function randomIn(range: NumberRange): number
 	return range.Min + math.random() * (range.Max - range.Min)
@@ -79,8 +83,86 @@ function CashPopController.Play(_self: any, position: Vector3, profile: CashPopC
 	spawnCoins(position, profile)
 end
 
+local function fadeLabel(label: TextLabel, seconds: number)
+	local info = TweenInfo.new(seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	TweenService:Create(label, info, { TextTransparency = 1 }):Play()
+	local stroke = label:FindFirstChildWhichIsA("UIStroke")
+	if stroke then
+		TweenService:Create(stroke, info, { Transparency = 1 }):Play()
+	end
+end
+
+function CashPopController.PlayText(_self: any, position: Vector3, payout: number, multiplier: number)
+	local source = textTemplate
+	local definition: HotStreakConfig.Tier? = nil
+	for _, tier in HotStreakConfig.Tiers do
+		if tier.Multiplier == multiplier then
+			definition = tier
+		end
+	end
+	if not source or not definition then
+		return
+	end
+	local anchor = Instance.new("Part")
+	anchor.Name = "CashPopTextAnchor"
+	anchor.Size = Vector3.one * 0.2
+	anchor.Transparency = 1
+	anchor.Anchored = true
+	anchor.CanCollide = false
+	anchor.CanQuery = false
+	anchor.CanTouch = false
+	anchor.CastShadow = false
+	anchor.CFrame = CFrame.new(position)
+	local billboard = source:Clone()
+	Typography.Apply(billboard)
+	local text = `+${NumberFormat.Compact(payout)} x{multiplier}`
+	local label = billboard:FindFirstChild("Label")
+	local shadow = billboard:FindFirstChild("LabelShadow")
+	if not (label and label:IsA("TextLabel") and shadow and shadow:IsA("TextLabel")) then
+		warn(`[CashPopController] {CashPopConfig.TextKey} needs TextLabels "Label" and "LabelShadow"`)
+		billboard:Destroy()
+		anchor:Destroy()
+		return
+	end
+	label.Text = text
+	shadow.Text = text
+	local gradient = label:FindFirstChildWhichIsA("UIGradient")
+	if gradient then
+		gradient.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, definition.Main),
+			ColorSequenceKeypoint.new(0.5, definition.Light),
+			ColorSequenceKeypoint.new(1, definition.Main),
+		})
+	end
+	local stroke = label:FindFirstChildWhichIsA("UIStroke")
+	if stroke then
+		stroke.Color = definition.Dark
+	end
+	billboard.Adornee = anchor
+	billboard.Parent = anchor
+	anchor.Parent = workspace
+	TweenService:Create(
+		anchor,
+		TweenInfo.new(HotStreakConfig.CashPopSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ CFrame = CFrame.new(position + Vector3.new(0, HotStreakConfig.CashPopRiseStuds, 0)) }
+	):Play()
+	task.delay(HotStreakConfig.CashPopSeconds - HotStreakConfig.CashPopFadeSeconds, function()
+		fadeLabel(label, HotStreakConfig.CashPopFadeSeconds)
+		fadeLabel(shadow, HotStreakConfig.CashPopFadeSeconds)
+	end)
+	task.delay(HotStreakConfig.CashPopSeconds, function()
+		anchor:Destroy()
+	end)
+end
+
 function CashPopController.Init(self: any, _controllers: { [string]: any })
 	self._trove = Trove.new()
+	local textAsset = AssetRegistry.get(CashPopConfig.TextKey)
+	if textAsset:IsA("BillboardGui") then
+		textTemplate = textAsset
+	else
+		textAsset:Destroy()
+	end
 	local asset = AssetRegistry.get(CashPopConfig.EffectKey)
 	if asset:IsA("Model") then
 		template = asset

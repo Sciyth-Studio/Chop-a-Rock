@@ -206,7 +206,7 @@ local function onRelease(player: Player)
 
 	if not session.CanBreak then
 		sessions[player] = nil
-		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, session.Health)
+		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, session.Health, 1)
 		print(`[RockService] {player.Name} cracked {rock.Key} (too weak)`)
 		Packets.RockChopped:FireClient(player, rock.Id, ChopQuality.Crack, false)
 		showOthers(player, rock, ChopQuality.Crack, false)
@@ -225,7 +225,9 @@ local function onRelease(player: Player)
 	else
 		damage, payout = Session.Apply(session, services.StatsService:GetStrength(player), quality)
 	end
+	local streakMultiplier = services.HotStreakService:RecordChop(player, quality)
 	if payout > 0 then
+		payout = services.HotStreakService:ApplyCashMultiplier(payout, streakMultiplier)
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
@@ -236,7 +238,7 @@ local function onRelease(player: Player)
 		services.IndexService:RecordRock(player, rock.Key)
 	end
 	local health = if isBroken then 0 else session.Health
-	Packets.ChopResult:FireClient(player, quality, payout, damage, health)
+	Packets.ChopResult:FireClient(player, quality, payout, damage, health, streakMultiplier)
 	print(
 		`[RockService] {player.Name} chopped {rock.Key}: quality={quality}, position={string.format(
 			"%.3f",

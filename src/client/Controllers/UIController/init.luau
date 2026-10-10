@@ -23,6 +23,8 @@ local modules: { [string]: Types.ScreenModule } = {
 	Letterbox = require(script.Screens.Letterbox),
 	Settings = require(script.Screens.Settings),
 	AdminPanel = require(script.Screens.AdminPanel),
+	HotStreakFx = require(script.Screens.HotStreakFx),
+	HotStreakBar = require(script.Screens.HotStreakBar),
 }
 
 local UIController = { Name = "UIController" }

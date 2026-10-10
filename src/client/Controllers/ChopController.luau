@@ -480,7 +480,7 @@ function ChopController.Start(self: any)
 	end))
 	trove:Add(
 		Packets.ChopResult.OnClientEvent:Connect(
-			function(quality: number, payout: number, _damage: number, health: number)
+			function(quality: number, payout: number, _damage: number, health: number, multiplier: number)
 				print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
 				local isMaster = quality == ChopQuality.Master
 				if isMaster and activeTrove then
@@ -520,6 +520,9 @@ function ChopController.Start(self: any)
 						LocalSound.Play("SFX_Money_Gain")
 						if popAt then
 							cashPopController:Play(popAt, CashPopConfig.Chop)
+							if multiplier > 1 then
+								cashPopController:PlayText(popAt, payout, multiplier)
+							end
 						end
 					end)
 				end

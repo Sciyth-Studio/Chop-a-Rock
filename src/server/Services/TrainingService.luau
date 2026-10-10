@@ -28,7 +28,7 @@ type Training = {
 	Board: BasePart,
 	Plot: Model?,
 	LastChopClock: number,
-	SavedWalkSpeed: number,
+	ReleaseSpeed: () -> (),
 	SavedJumpPower: number,
 	SavedJumpHeight: number,
 }
@@ -166,9 +166,9 @@ local function stopTraining(player: Player)
 		return
 	end
 	trainings[player] = nil
+	training.ReleaseSpeed()
 	local _, humanoid = playerRootAndHumanoid(player)
 	if humanoid and humanoid.Parent then
-		humanoid.WalkSpeed = training.SavedWalkSpeed
 		humanoid.JumpPower = training.SavedJumpPower
 		humanoid.JumpHeight = training.SavedJumpHeight
 	end
@@ -197,11 +197,10 @@ local function startTraining(player: Player, board: BasePart, plot: Model?)
 		Board = board,
 		Plot = plot,
 		LastChopClock = os.clock(),
-		SavedWalkSpeed = humanoid.WalkSpeed,
+		ReleaseSpeed = services.WalkSpeedService:Freeze(player),
 		SavedJumpPower = humanoid.JumpPower,
 		SavedJumpHeight = humanoid.JumpHeight,
 	}
-	humanoid.WalkSpeed = 0
 	humanoid.JumpPower = 0
 	humanoid.JumpHeight = 0
 	services.PetService:PutAway(player)

@@ -10,6 +10,7 @@ export type CashPopProfile = {
 
 export type CashPopSettings = {
 	EffectKey: string,
+	TextKey: string,
 	Chop: CashPopProfile,
 	Pad: CashPopProfile,
 	CoinColor: Color3,
@@ -23,6 +24,7 @@ export type CashPopSettings = {
 
 local CashPopConfig: CashPopSettings = {
 	EffectKey = "VFX_Cash_Pop",
+	TextKey = "UI_CashPopText",
 	Chop = {
 		CoinCount = 3,
 		CoinScale = 0.75,

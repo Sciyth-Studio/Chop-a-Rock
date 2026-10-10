@@ -7,6 +7,7 @@ local IconConfig = {
 	Rebirth = "rbxassetid://110491182765186",
 	Bag = "rbxassetid://126551755246168",
 	Index = "rbxassetid://80371787143053",
+	HotStreak = "rbxassetid://94131698155889",
 }
 
 return IconConfig

@@ -8,4 +8,4 @@ type: gotcha
 
 **Rule:** client code that freezes the player calls `MovementLock.Acquire(humanoid)` (`src/shared/Utils/MovementLock.luau`) and calls the function it returns to release. Locks are counted per humanoid: the first lock saves the values and only the last release restores them. Never write WalkSpeed, JumpPower or JumpHeight directly to freeze the player.
 
-**Still open:** the server's TrainingService saves and restores the same properties on the server. It doesn't overlap with chops today, but it would if a chop could start during training.
+**Walk speed (2026-10-08):** MovementLock no longer owns the speed value. It restores the server-published `WalkSpeedTarget` (see [[Hot Streak]]), and TrainingService freezes through `WalkSpeedService:Freeze`, so the old overlap risk is gone.

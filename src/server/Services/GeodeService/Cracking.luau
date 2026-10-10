@@ -93,7 +93,7 @@ end
 
 local function tooWeak(context: Types.Context, player: Player, session: Types.Session)
 	local geode = GeodeConfig.Geodes[session.GeodeKey]
-	Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1)
+	Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
 	Effects.Crack(session.Part)
 	Effects.Hide(session.Model, GeodeConfig.TooWeakClearSeconds)
 	context.Services.NotificationService:Notify(
@@ -129,7 +129,7 @@ function Cracking.Release(
 	local data = services.DataService:GetData(player)
 	local owned = if data then data.Geodes[session.GeodeKey] or 0 else 0
 	if not petKey or owned < 1 or not services.PetService:CanAdd(player, 1) then
-		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1)
+		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
 		Effects.Hide(session.Model, 0)
 		return GeodeConfig.RecrackDelaySeconds
 	end
@@ -137,14 +137,14 @@ function Cracking.Release(
 	local grant = services.PetService:Grant(player, petKey)
 	if not grant then
 		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
-		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1)
+		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
 		Effects.Hide(session.Model, 0)
 		return GeodeConfig.RecrackDelaySeconds
 	end
 	local pet = PetConfig.Pets[grant.PetKey]
 	local rarity = RarityConfig.Rarities[pet.Rarity]
 	local isMaster = quality == ChopQuality.Master
-	Packets.ChopResult:FireClient(player, quality, 0, 1, 0)
+	Packets.ChopResult:FireClient(player, quality, 0, 1, 0, 1)
 	print(
 		`[GeodeService] {player.Name} cracked {session.GeodeKey}: quality={quality}, luck={string.format(
 			"%.2f",

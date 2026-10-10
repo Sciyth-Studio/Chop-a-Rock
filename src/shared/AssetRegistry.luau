@@ -75,6 +75,10 @@ local map: { [string]: AssetEntry } = {
 	VFX_Perfect_Burst = { Category = "VFX", InstanceName = "VFX_Perfect_Burst" },
 	VFX_Master_WindUp = { Category = "VFX", InstanceName = "VFX_Master_WindUp" },
 	VFX_Cash_Pop = { Category = "VFX", InstanceName = "VFX_Cash_Pop" },
+	VFX_HotStreak = { Category = "VFX", InstanceName = "VFX_HotStreak" },
+	UI_CashPopText = { Category = "VFX", InstanceName = "CashPopText" },
+	SFX_HotStreak_Loop = { Category = "Sounds", InstanceName = "SFX_HotStreak_Loop" },
+	SFX_HotStreak_Up = { Category = "Sounds", InstanceName = "SFX_HotStreak_Up" },
 }
 
 local soundGroupName = "SoundEffects"
