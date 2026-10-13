@@ -28,14 +28,28 @@ A Model with `Duration` 0.3 to 0.5, `Easing` "Cubic", `EasingDirection` "Out", `
 - Wind: 3 to 6 faint grey crescents or rings, flat, growing to 25 to 35 studs by 60% of life, Transparency 0.45 to 0.85 rising past 1, `LightEmission` 1, `RotSpeed` 15 to 20.
 - Ground skirt: a squashed flat copy of the dust.
 
+## From the reference effects
+
+Measured on `Workspace.VFXReference` (breakdowns in `studied.md`).
+
+| Build | How |
+| --- | --- |
+| Tornado or funnel | Flat swirl rings (`VelocityPerpendicular`) shot straight up: Speed 17.5, Spread 6, Rate 100, Lifetime 1, Size 0 to 14, `RotSpeed` 250, LE 0.75, `LockedToPart`. Two or three ring textures on separate emitters. Each ring grows as it rises, so the stack is a cone. |
+| Circle from Beams | Two Beams between attachments 2r apart, `CurveSize0/1` -r·0.67 / +r·0.67 on one and the reverse on the other, `FaceCamera` false, 50 segments. Width sets the band. |
+| Light pillars | Beams from a floor attachment to one 2 to 5 studs up, `FaceCamera` true, Width 2, Transparency `0:0, 0.7:0, 1:1`. Vary the heights. |
+| Churning ground splash | Flat ground texture, Lifetime 0.3, Rate 15, Size growing (2 to 10), random Rotation, Transparency `0:1, 0.2:0, 0.8:0, 1:1`. Overlapping short copies move instead of sitting still. |
+| Lightning strike | One 4x4 `OneShot` bolt sheet at 32 fps, Size 13, `FacingCameraWorldUp`, 10 studs above the hit; ground splashes plus a 20-stud ring; a spark sheet rising at Speed 15, Spread 60, Drag 2. |
+| Cel explosion | Three painted fire flipbooks (4x4 `OneShot`, 30 fps) at LE 0, Brightness 4.2, Speed 20, Drag 5, Size about 11 to 13 with a ±5 envelope, `Squash` envelope; black smoke at LE 0.5 behind; specks at Brightness 500. |
+
 ## Building in Studio
 
 Run with `execute_luau` (Edit, Play stopped). `make` sets properties from plain values (numbers or `{min, max}` ranges, colours as `{r, g, b}` 0 to 1 or keypoint lists, sequences as `{{time, value}, ...}`) so a layer list reads like the tables above.
 
 ```lua
-local folder = game.ReplicatedStorage.Assets.VFX
+local folder = game.ReplicatedStorage.Assets.VFX.Chop
 local name = "VFX_Example"
-if folder:FindFirstChild(name) then folder[name]:Destroy() end
+local old = game.ReplicatedStorage.Assets.VFX:FindFirstChild(name, true)
+if old then old:Destroy() end
 
 local model = Instance.new("Model")
 model.Name = name

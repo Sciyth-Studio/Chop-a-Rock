@@ -4,10 +4,15 @@ export type Rebirth = {
 	LevelRequired: number,
 	CashMultiplier: number,
 	StrengthMultiplier: number,
+	LuckBonus: number,
 }
 
 export type RebirthSettings = {
-	Rebirths: { Rebirth },
+	BaseLevelRequired: number,
+	LevelStep: number,
+	BaseMultiplier: number,
+	MultiplierPerRebirth: number,
+	MaxAdminRebirths: number,
 	ResetCash: boolean,
 	ResetStrength: boolean,
 	ResetArmTier: boolean,
@@ -15,13 +20,11 @@ export type RebirthSettings = {
 }
 
 local RebirthConfig: RebirthSettings = {
-	Rebirths = {
-		{
-			LevelRequired = 12,
-			CashMultiplier = 2,
-			StrengthMultiplier = 2,
-		},
-	},
+	BaseLevelRequired = 12,
+	LevelStep = 4,
+	BaseMultiplier = 1,
+	MultiplierPerRebirth = 1,
+	MaxAdminRebirths = 100,
 	ResetCash = true,
 	ResetStrength = true,
 	ResetArmTier = false,

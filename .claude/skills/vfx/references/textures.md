@@ -4,7 +4,9 @@ Texture guidance condensed from Roqer's VFX texture reference by S4US; the scrip
 
 ## Loading the scripts
 
-Blender must be running with the MCP add-on. Run once per Blender session (and again after editing a script) with `execute_blender_code`:
+Blender must be running with the MCP add-on. Without Blender open, `vfx_draw` also runs under Blender's bundled Python (it has numpy): write a script in the scratchpad that loads the module the same way and run it with `"C:/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe" -I script.py` (worked 2026-10-09 for the aura textures). Windows has no other Python.
+
+Run once per Blender session (and again after editing a script) with `execute_blender_code`:
 
 ```python
 import sys, types, os
@@ -26,6 +28,9 @@ Later calls use `vd = sys.modules["vfx_draw"]`. `vfx_draw` needs only numpy; `vf
 - **Drawn matter is lopsided.** Uneven counts, lengths, spacing; strokes that taper like pen pressure; detail from holes and notches, not shading (at most a lit and a shadow tone). Even spacing, mirror symmetry and uniform outlines read as clip art.
 - **A flash keeps a solid centre.** Small holes punched into a core read as eyes.
 - **Smoke:** clean cel puffs suit this game's cartoon look; mottled billows with a crisp rim read as heavier.
+- **Detail density is the quality bar.** The user's reference textures (`studied.md`) are busy inside: a magic circle with concentric bands, glyphs and spokes; swirl rings of several tapered strokes at different radii; fire flipbooks with painted inner tongues and a darker rim. A single shape per texture (one leaf, one gust arc, one dot) looks cheap next to them even with many layers stacked. Before drawing, list the 3 to 6 sub-shapes inside the texture.
+- **Beam textures run vertically:** the image's Y axis maps along the beam, from Attachment0 to Attachment1, and X maps across its width. A pillar drawn with its bright core along X showed nothing (2026-10-10); draw the core as a vertical line.
+- **Ground and ring textures need structure all the way round:** rings of ticks, runes or notches, an inner and an outer band, broken arcs. A plain soft ring reads as a halo, not a circle.
 - **Frames grow, then break apart.** Peak around frame 4 to 6 of 16, then eaten into 2 to 6 pieces; last cells may be blank.
 - **Size:** single textures 256 or 512 px; flipbook sheets are always 1024 x 1024 (`Grid4x4` = 256 px frames, the usual choice). Leave padding inside each cell.
 - Roblox has no multiply blend: darken with a black layer at `LightEmission` 0. Use `additive=True` only for a layer that is always `LightEmission` 1.

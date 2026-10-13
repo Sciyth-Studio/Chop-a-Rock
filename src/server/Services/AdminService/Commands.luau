@@ -86,7 +86,7 @@ local Commands: { [string]: Types.Handler } = {
 		end
 	end,
 	SetRebirths = function(context: Types.Context, player: Player, argument: string)
-		local rebirths = number(context, player, argument, 0, #RebirthConfig.Rebirths)
+		local rebirths = number(context, player, argument, 0, RebirthConfig.MaxAdminRebirths)
 		if rebirths and context.Services.DataService:Set(player, { "Rebirths" }, rebirths) then
 			context.Services.DataService:RequestSave(player)
 			notify(context, player, `rebirths {rebirths}`)

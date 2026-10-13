@@ -118,7 +118,7 @@ Accept a split when both pieces have `nonmanifold` 0, `self_intersections` 0, `i
 
 ## 6. Export
 
-Each rock gets its own folder, `assets/Rocks/<Name>/`:
+Each rock gets its own folder inside its zone folder, `assets/Rocks/<Zone>/<Name>/` (Forest, Desert, Jungle, Ocean, Snow). A zone's shared `.blend` sits in the zone folder as `<Zone>Rocks.blend`:
 
 ```python
 import os
@@ -130,17 +130,31 @@ rb.export_fbx(pieces, d + r"\MossRock_Split.fbx")
 
 Also save previews (`<Name>_preview.png`, `<Name>_Split_preview.png` with the pieces apart) and a `.blend` copy (`bpy.ops.wm.save_as_mainfile(filepath=..., copy=True)`, then delete any `.blend1`). Keep only those five files in the folder; scratch renders go in the scratchpad. `assets/` is the hand-off folder for the user and is not committed. Textures the user supplies live in `assets/Textures/` (stud images in `assets/Textures/Studs/`).
 
+## Props (zone rocks from the desert on)
+
+Since 2026-10-10 the desert, jungle, ocean and snow rocks carry their theme through separate prop meshes (cactus, skull, flowers, vines, kelp, snow caps), each in its own colour. Their reference sheets are in the vault (`Reference/Zone Rocks Reference`).
+
+- **Bodies:** `build_layers` for stepped or mesa shapes (stacked sloped slabs), and `build_boulder` for round ones. Run `fix_slivers` when the report shows slivers.
+- **Props:** `grass_tuft`, `skull`, `flowers`, `blossom` and `saguaro`, plus `hull_into` / `ring` / `make_obj` for new prop shapes. Each prop is one mesh in one colour, made of convex hulls; it doesn't need to be watertight.
+- **Placement:** keep each prop wholly on one side of x = 0, so it rides with one split half. Find the surface by ray-casting.
+- **Export:** export the rock and its props together into `<Name>.fbx`, and the two pieces and the same props into `<Name>_Split.fbx`.
+- **Studio template:** props are MeshParts parented under the rock MeshPart. Leave them Anchored and don't add welds: `RockTemplate.Build` unanchors them, welds them to the rock with a `Weld` that has an explicit C0, and makes them non-colliding and massless. Don't use `WeldConstraint` here. Made outside Workspace, it locks in the offset the parts have when they enter Workspace, which is after the rock has moved, so the props were left about 170 studs away (2026-10-10). That way they follow the rock as it rises, shakes and sinks, and `Effects` hides them on break.
+- **Studio split model:** each prop is parented under the piece on its side. `SplitModel.Spawn` sizes and positions from the direct child pieces only, recolours only the pieces, and welds each prop to its piece. Props keep their own colours.
+- Also put the props under the `Model_RockPreview_*` copy used by the Index.
+
 ## 7. Import and wire up in Studio
+
+**Claude imports the models itself (since 2026-10-10).** Upload each FBX with `scripts/upload_model.ps1 -Path <fbx> -Name <name>`. It uses Open Cloud with the `ROBLOX_API_KEY` user env var, puts the asset under the Sciyth Studio group and prints the asset id. Then, in Edit, load it with `InsertService:LoadAsset(id)` through `execute_luau` and wire it up as below. For rocks that replace an existing `Model_Rock_<Key>` template, fill in `ROCKS` and `PROP_COLORS` in `scripts/wire_rocks.luau` and paste it into `execute_luau`. It swaps the template and the Index preview and builds `Model_RockSplit_<Name>` with the props sorted onto their halves. Then add the registry entries. The manual 3D Importer steps that follow are the fallback. Imported MeshParts arrive unanchored, grey and with Default collision fidelity.
 
 The user imports; you cannot run the 3D Importer. Tell them:
 
-1. Import 3D, pick `assets/Rocks/<Name>/<Name>.fbx`, keep File Dimensions at the default and do not rescale (`export_fbx` scales the vertices 2x on export, so 1 Blender unit imports as 2 studs; the FBX unit-scale option is ignored by Roblox's importer, and before 2026-10-02 rocks exported at 1:1 so the user had to scale every import 2x), Anchored on, then Import.
+1. Import 3D, pick `assets/Rocks/<Zone>/<Name>/<Name>.fbx`, keep File Dimensions at the default and do not rescale (`export_fbx` scales the vertices 2x on export, so 1 Blender unit imports as 2 studs; the FBX unit-scale option is ignored by Roblox's importer, and before 2026-10-02 rocks exported at 1:1 so the user had to scale every import 2x), Anchored on, then Import.
 2. Import 3D again with `<Name>_Split.fbx`. It arrives as one Model holding both pieces.
 3. Tell you when both are in Workspace.
 
 Then, with Play stopped, do the wiring through the Studio MCP (`execute_luau`, Edit):
 
-- **Split model**: rename it `Model_RockSplit_<Shape>` (one per mesh shape, not per tier: pieces take the rock's color and material at break time), move it to `ReplicatedStorage.Assets.Models`, and set each piece to `CollisionFidelity` Hull. Add `Model_RockSplit_<Shape> = { Category = "Models", InstanceName = "Model_RockSplit_<Shape>" }` to `src/shared/AssetRegistry.luau` and run `./scripts/check.ps1`.
+- **Split model**: rename it `Model_RockSplit_<Shape>` (one per mesh shape, not per tier: pieces take the rock's color and material at break time), move it to `ReplicatedStorage.Assets.Models.Rocks.<Zone>`, and set each piece to `CollisionFidelity` Hull. Add `Model_RockSplit_<Shape> = { Category = "Models", InstanceName = "Model_RockSplit_<Shape>" }` to `src/shared/AssetRegistry.luau` and run `./scripts/check.ps1`.
 - **Studs**: on the rock and on every split piece, leave `TextureID` empty, set `Material` Plastic and `MaterialVariant` `2022 Inlet` (a stud MaterialVariant in MaterialService; `2022 Stud` is the outlet stud), and set `Color` to the rock colour. The variant follows the mesh's stud-grid UVs. Don't add a `SurfaceAppearance`, because it would override the variant. The break code copies `Material` and `MaterialVariant` onto the pieces and debris.
 - **Rock**: take the MeshPart out of its import Model, name it `Rock_<RockKey>`, parent it to `Workspace.Rocks`, tag `ChopRock`, set attributes `RockKey` (a key in `RockConfig`) and `SplitModel` (the registry key), set `Color`, `Material` Plastic with `MaterialVariant` `2022 Inlet`, `TextureID` empty, `CollisionFidelity` Hull, `Anchored` true, `Archivable` true, and place it so its bottom sits on the ground where the old rock was (Position.Y = ground + Size.Y / 2). When replacing an existing rock, copy its position and attributes first, then delete the old part and the empty import Models.
 - `CollisionFidelity` cannot be changed from `execute_luau` (the write is silently ignored), so ask the user to set it to Hull in Properties on the rock and on each split piece. The 3D Importer brings meshes in as default-grey Plastic with fidelity Default; everything else above is set by script.

@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local Level = require(ReplicatedStorage.Utils.Level)
+local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -65,6 +66,8 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local cashAfter: TextLabel? = find(gui, "CashAfter", "TextLabel")
 	local strengthBefore: TextLabel? = find(gui, "StrengthBefore", "TextLabel")
 	local strengthAfter: TextLabel? = find(gui, "StrengthAfter", "TextLabel")
+	local luckBefore: TextLabel? = find(gui, "LuckBefore", "TextLabel")
+	local luckAfter: TextLabel? = find(gui, "LuckAfter", "TextLabel")
 	local levelText: TextLabel? = find(gui, "LevelText", "TextLabel")
 	local levelBar: Frame? = find(gui, "LevelBar", "Frame")
 	local fill: Frame? = if levelBar then find(levelBar, "Fill", "Frame") else nil
@@ -112,20 +115,18 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local function refresh()
 		local rebirths = readNumber("Rebirths", 0)
 		local level = Level.FromStrength(readNumber("Strength", 0)).Level
-		local currentRebirth = RebirthConfig.Rebirths[rebirths]
-		local nextRebirth = RebirthConfig.Rebirths[rebirths + 1]
+		local currentRebirth = RebirthStats.Get(rebirths)
+		local nextRebirth = RebirthStats.Get(rebirths + 1)
 		for _, object in hiddenWhenMaxed do
-			object.Visible = nextRebirth ~= nil
+			object.Visible = true
 		end
 		if comingSoon then
-			comingSoon.Visible = nextRebirth == nil
+			comingSoon.Visible = false
 		end
-		if not nextRebirth then
-			isReady = false
-			return
-		end
-		local cashNow = if currentRebirth then currentRebirth.CashMultiplier else 1
-		local strengthNow = if currentRebirth then currentRebirth.StrengthMultiplier else 1
+		local cashNow = currentRebirth.CashMultiplier
+		local strengthNow = currentRebirth.StrengthMultiplier
+		setText(luckBefore, `+{math.floor(currentRebirth.LuckBonus * 100 + 0.5)}% Luck`)
+		setText(luckAfter, `+{math.floor(nextRebirth.LuckBonus * 100 + 0.5)}% Luck`)
 		setText(beforeTitle, `Rebirth {rebirths}`)
 		setText(afterTitle, `Rebirth {rebirths + 1}`)
 		setText(cashBefore, `x{formatMultiplier(cashNow)} Cash`)

@@ -173,6 +173,8 @@ function DataService.ResetData(_self: any, player: Player, overrides: { [string]
 		Strength = template.Strength,
 		ArmTier = template.ArmTier,
 		Rebirths = template.Rebirths,
+		Auras = {},
+		EquippedAura = template.EquippedAura,
 		Geodes = {},
 		Pets = {},
 		NextPetId = template.NextPetId,

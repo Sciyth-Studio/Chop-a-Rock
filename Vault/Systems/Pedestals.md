@@ -24,3 +24,4 @@ Plan and decisions: `PetBaseSystemPlan.md` (approved 2026-10-06), Master Game Pl
 - Hotbar icons are empty until the item-icon pipeline (`IconSystemPlan.md`) lands; set `Tool.TextureId` from it then.
 
 Related: [[Base Plot Reference]], [[Index]], [[Menu Panel Style]]
+- Earnings pad colour (2026-10-10): pure green 0,255,0 looked self-lit, and the user called it a glow. The lobby colour correction pushes bright greens so hard that the stud texture disappears. Pads are now 0,90,0, which still reads bright green but is properly lit with studs showing. Up to about 0,75 still looks lit; 0,115 and above look glowing. Applied to `Model_BasePedestal`, the `Model_BasePlot` pedestals and the old backup.

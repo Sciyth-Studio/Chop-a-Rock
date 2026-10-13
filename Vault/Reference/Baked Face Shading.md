@@ -1,5 +1,5 @@
 ---
-description: Greyscale shading by face direction baked into vertex colours in Blender (2026-10-04), so models look shaded and still recolour from the part Color.
+description: Greyscale shading by face direction baked into vertex colours in Blender (2026-10-04). Dropped from buildings 2026-10-10 (see Flat Shading On Buildings); kept as the technique reference.
 type: reference
 ---
 # Baked face shading

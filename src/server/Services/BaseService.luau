@@ -147,6 +147,11 @@ function BaseService.GetPlot(_self: any, player: Player): Model?
 	return claims[player]
 end
 
+function BaseService.GetSpawn(_self: any, player: Player): SpawnLocation?
+	local plot = claims[player]
+	return if plot then getSpawn(plot) else nil
+end
+
 function BaseService.GetOwner(_self: any, plot: Model): Player?
 	return owners[plot]
 end

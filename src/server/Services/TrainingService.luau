@@ -279,6 +279,10 @@ local function setupBoard(instance: Instance)
 	end)
 end
 
+function TrainingService.Stop(_self: any, player: Player)
+	stopTraining(player)
+end
+
 function TrainingService.Init(_self: any, registry: { [string]: any })
 	services = registry
 end

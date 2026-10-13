@@ -9,7 +9,7 @@ Goal: every Rok and every rock kind gets a PNG icon, uploaded once and shown wit
 
 ## What exists today
 - ViewportFrame previews are built in four screens: `Index` (cards + detail), `GeodeStand` (cards), `HatchReveal` (one big model) and `Shop` (arm preview, out of scope).
-- Models: `Assets/Models/Model_Rok_<Name>` (6 Roks) and `Model_RockPreview_<RockKey>` (3 rocks). Source FBX files: `assets/Roks/<Name>/<Name>.fbx`, `assets/Rocks/<Rock>/<Rock>.fbx`.
+- Models: `Assets/Models/Model_Rok_<Name>` (6 Roks) and `Model_RockPreview_<RockKey>` (3 rocks). Source FBX files: `assets/Roks/<Name>/<Name>.fbx`, `assets/Rocks/<Zone>/<Rock>/<Rock>.fbx`.
 - Every part uses one of only three looks (checked in Studio 2026-10-06): **Plastic + `2022 Inlet`** stud variant (bodies, rocks), **SmoothPlastic** (eyes, leaves, caps...), **Neon** (Berry's berries, Treebo's fireflies). Colour lives on the Studio part, and the baked `FaceShade` vertex colours live in the FBX.
 - Image uploads made with the Studio MCP go to the personal account and **fail to load** in the group-owned game (`Asset Ownership`).
 
@@ -27,7 +27,7 @@ Screens --ItemIcons.Get(kind, key)--> ImageLabel  (fallback: ViewportFrame while
 
 1. **Read colours from Studio.** One `execute_luau` call walks each icon model and records, per part name, its `Color`, `Material` and `MaterialVariant`. Claude writes the result to `assets/Icons/specs.json`.
 2. **Render in Blender** (new skill `item-icons`, script `.claude/skills/item-icons/scripts/icon_renderer.py`, run through the Blender MCP in a scratch scene, never in a model's own `.blend`):
-   - A manifest in the skill maps each icon to its source: `Pet/Bloky -> assets/Roks/Bloky/Bloky.fbx`, `Rock/Basic -> assets/Rocks/BlockRock/BlockRock.fbx`, and so on.
+   - A manifest in the skill maps each icon to its source: `Pet/Bloky -> assets/Roks/Bloky/Bloky.fbx`, `Rock/Basic -> assets/Rocks/Forest/BlockRock/BlockRock.fbx`, and so on.
    - Materials: Studio colour x `FaceShade` vertex colour. Inlet adds the stud texture through the existing stud UVs. SmoothPlastic is flat, and Neon becomes emission.
    - Camera: the same direction as today's previews (`IndexConfig.Preview.CameraDirection`, converted from Roblox axes), fitted to the bounding box with fixed padding so every icon has the same margin. The film is transparent.
    - Output: `assets/Icons/Pet_Bloky.png`, `Rock_Basic.png`, ... at the size picked in D2, plus `contact_sheet.png` of everything for review.

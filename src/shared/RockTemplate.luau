@@ -14,6 +14,20 @@ function RockTemplate.Build(key: string): BasePart?
 	end
 	local asset = AssetRegistry.get(config.TemplateKey)
 	if asset:IsA("BasePart") and asset:GetAttribute("RockKey") == key then
+		for _, descendant in asset:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				descendant.Anchored = false
+				descendant.CanCollide = false
+				descendant.CanQuery = false
+				descendant.CanTouch = false
+				descendant.Massless = true
+				local weld = Instance.new("Weld")
+				weld.Part0 = asset
+				weld.Part1 = descendant
+				weld.C0 = asset.CFrame:ToObjectSpace(descendant.CFrame)
+				weld.Parent = descendant
+			end
+		end
 		return asset
 	end
 	asset:Destroy()

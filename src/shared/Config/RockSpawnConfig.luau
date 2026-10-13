@@ -48,6 +48,18 @@ local RockSpawnConfig: RockSpawnSettings = {
 			RockCount = 10,
 			Weights = { DesertFirst = 50, DesertSecond = 30, DesertThird = 20 },
 		},
+		Jungle = {
+			RockCount = 10,
+			Weights = { JungleFirst = 50, JungleSecond = 30, JungleThird = 20 },
+		},
+		Ocean = {
+			RockCount = 10,
+			Weights = { OceanFirst = 50, OceanSecond = 30, OceanThird = 20 },
+		},
+		Snow = {
+			RockCount = 10,
+			Weights = { SnowFirst = 50, SnowSecond = 30, SnowThird = 20 },
+		},
 	},
 	SampleSpacingStuds = 4,
 	MaxSlopeDegrees = 25,
@@ -80,6 +92,15 @@ local RockSpawnConfig: RockSpawnSettings = {
 		DesertFirst = Color3.fromRGB(255, 230, 0),
 		DesertSecond = Color3.fromRGB(255, 120, 0),
 		DesertThird = Color3.fromRGB(255, 0, 0),
+		JungleFirst = Color3.fromRGB(255, 230, 0),
+		JungleSecond = Color3.fromRGB(255, 120, 0),
+		JungleThird = Color3.fromRGB(255, 0, 0),
+		OceanFirst = Color3.fromRGB(255, 230, 0),
+		OceanSecond = Color3.fromRGB(255, 120, 0),
+		OceanThird = Color3.fromRGB(255, 0, 0),
+		SnowFirst = Color3.fromRGB(255, 230, 0),
+		SnowSecond = Color3.fromRGB(255, 120, 0),
+		SnowThird = Color3.fromRGB(255, 0, 0),
 	},
 }
 

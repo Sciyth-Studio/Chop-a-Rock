@@ -3,8 +3,6 @@
 export type ArmVisual = {
 	Material: Enum.Material?,
 	Color: Color3?,
-	EffectColor: Color3?,
-	EffectRate: number,
 }
 
 export type ArmTier = {
@@ -25,7 +23,6 @@ local ArmConfig = {
 			Visual = {
 				Material = Enum.Material.Grass,
 				Color = Color3.fromRGB(60, 200, 0),
-				EffectRate = 0,
 			},
 		},
 		{
@@ -36,7 +33,6 @@ local ArmConfig = {
 			Visual = {
 				Material = Enum.Material.Wood,
 				Color = Color3.fromRGB(170, 100, 40),
-				EffectRate = 0,
 			},
 		},
 		{
@@ -47,8 +43,6 @@ local ArmConfig = {
 			Visual = {
 				Material = Enum.Material.Granite,
 				Color = Color3.fromRGB(160, 160, 170),
-				EffectColor = Color3.fromRGB(255, 140, 0),
-				EffectRate = 14,
 			},
 		},
 		{
@@ -59,8 +53,6 @@ local ArmConfig = {
 			Visual = {
 				Material = Enum.Material.Metal,
 				Color = Color3.fromRGB(190, 195, 210),
-				EffectColor = Color3.fromRGB(180, 220, 255),
-				EffectRate = 22,
 			},
 		},
 		{
@@ -71,8 +63,6 @@ local ArmConfig = {
 			Visual = {
 				Material = Enum.Material.Glass,
 				Color = Color3.fromRGB(0, 255, 255),
-				EffectColor = Color3.fromRGB(0, 255, 255),
-				EffectRate = 35,
 			},
 		},
 	} :: { ArmTier },

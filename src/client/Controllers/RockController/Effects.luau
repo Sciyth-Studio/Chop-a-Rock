@@ -339,6 +339,8 @@ local function hide(part: BasePart)
 			descendant.Enabled = false
 		elseif descendant:IsA("Highlight") then
 			descendant.Enabled = false
+		elseif descendant:IsA("BasePart") then
+			descendant.Transparency = 1
 		end
 	end
 end

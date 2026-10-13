@@ -18,6 +18,8 @@ export type Data = {
 	Strength: number,
 	ArmTier: number,
 	Rebirths: number,
+	Auras: { [string]: boolean },
+	EquippedAura: string,
 	Geodes: { [string]: number },
 	Pets: { [string]: Pet },
 	NextPetId: number,
@@ -45,6 +47,8 @@ PlayerData.Template = {
 	Strength = 0,
 	ArmTier = 1,
 	Rebirths = 0,
+	Auras = {},
+	EquippedAura = "",
 	Geodes = {},
 	Pets = {},
 	NextPetId = 1,
@@ -128,6 +132,12 @@ function PlayerData.Validate(data: any): boolean
 		end
 	end
 	if data.ArmTier ~= nil and (not natural(data.ArmTier) or data.ArmTier < 1) then
+		return false
+	end
+	if data.Auras ~= nil and not flags(data.Auras) then
+		return false
+	end
+	if data.EquippedAura ~= nil and type(data.EquippedAura) ~= "string" then
 		return false
 	end
 	if data.Geodes ~= nil and not counts(data.Geodes) then

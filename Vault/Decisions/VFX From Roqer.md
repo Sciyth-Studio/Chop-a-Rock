@@ -15,3 +15,5 @@ What was taken, all from commit `bf7118b`:
 **Permission:** Roqer is AGPL-3.0-or-later. S4US gave the user permission by DM to use the emit module in the game and to use the Blender helpers. Keep the attribution headers and `vendor/VFXEmit/README.md`.
 
 Related: [[Asset Ownership]] (upload textures to the Sciyth Studio group)
+
+**2026-10-08:** S4US also okayed sharing it however the user likes. A generic, tool-neutral copy of the skill (no Chop a Rock specifics, VFXEmit bundled in `templates/`) lives at `shared/roblox-vfx/` for other devs (Claude Code, Codex and other agents). It is a separate copy: changes to `.claude/skills/vfx` don't flow into it automatically.

@@ -23,6 +23,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Code Output Rules]] — whole files, no comments, no scope creep, propose-and-wait on player-facing changes
 - [[Only Surface Blocking Opens]] — on status questions, name only items that gate current work
 - [[High Saturation Colors]] — max-saturation by default; chop-quality palette
+- [[Literal Black And Grey]] — "black"/"grey" mean neutral black and grey, never slate or tinted; reference sheet colours don't override it
 - [[UI Text Style]] — colored stroke + gradient fill; black/white only when asked
 - [[No All Caps In UI]] — "Rebirth", never "REBIRTH"; in Studio labels and code strings alike
 - [[UI Built In Studio]] — ScreenGuis authored in Studio, driven by UIController screens
@@ -30,7 +31,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Stage Only Own Files]] — parallel sessions; `git add` by explicit path
 - [[Drop In Assets Over Ids In Code]] — asset lists (music etc.) read a Studio folder, not ids in config
 - [[Studs On Models By Default]] — every model gets the stud overlay unless told otherwise
-- [[Baked Shading On Buildings]] — buildings get greyscale baked face shading + edge glow; stays recolourable
+- [[Flat Shading On Buildings]] — buildings are flat-coloured (no baked shading) since 2026-10-10; studs + part Color only
 - [[Simple Names No Material Clash]] — player-facing names are simple kid words, never a rock material
 - [[Roks Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
 - [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
@@ -56,6 +57,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Index UI Reference]] — three simulator Index screenshots: zone card grid, detail pane with rewards and Claim, Claim All, variant tabs down the side
 - [[Geode Stand UI Reference]] — egg-shop screenshots for the stand's odds/buy modal: header, 3x2 pet cards with %, big buttons; opened by prompt
 - [[Shopkeeper Avatar]] — R6 avatar of user 341574948 leaning on the geode stand; how to import and pose one
+- [[Zone Rocks Reference]] — ChatGPT sheets for the desert, jungle, ocean, snow chop rocks (3 each, with props); open before modelling them
 - [[Bloky Reference]] — first Rok (pet rock): chamfered cube, chamfered-square eyes as separate meshes
 - [[Sprout Reference]] — Uncommon forest Rok: Bloky's body and eyes plus a two-leaf seedling mesh on top
 - [[Shroomy Reference]] — Rare forest Rok: taller Bloky body, red-spotted mushrooms on top and the left side
@@ -65,11 +67,13 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 - [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
 - [[Why The Game Looks Blue]] — skybox env lighting + blue OutdoorAmbient + ColorCorrection saturation; tested one at a time
-- [[Baked Face Shading]] — greyscale per-face vertex colours baked in Blender; recolourable via part Color
+- [[Baked Face Shading]] — greyscale per-face vertex colours baked in Blender; no longer used on buildings (see Flat Shading On Buildings)
 - [[Studio Reimport]] — Alt+Shift+R updates an imported Model's meshes in place by mesh name; keeps colours, materials, children
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
 - [[VFX Showcase]] — `Workspace.VFXShowcase` stands + local plugin loop every effect in Edit; add a stand per new effect
+- [[VFX Reference Folder]] — `Workspace.VFXReference`: the user's example effects (aura, tornado, lightning, explosion); the VFX quality bar
+- [[Studio Assets Folders]] — `ReplicatedStorage.Assets` Models/VFX sorted into feature subfolders (rocks by zone); AssetRegistry looks up recursively
 - [[Chop Dummy]] — chop is two clips in `Assets/Animations` (WindUp loop + Strike) played by `Utils/ChopAnimation`; tag an R15 rig `ChopDummy` to loop it
 
 ## Systems
@@ -77,6 +81,7 @@ _One note per game system as they're worked on._
 - [[Bases]] — 6 plots cloned onto `BaseSpot` plates in a U around the centre shops; claim on join, per-base `BaseSpawn`, owner-only training stand
 - [[Rock Spawning]] — per-player rocks rise in `RockSpawnArea` boxes; server keeps data, client draws rocks and effects; forest floor is rotated and sits on the Baseplate
 - [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands; add a command = config entry + `AdminService/Commands` handler
+- [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads, slots, Equip Best, Roks panel; `PedestalService` + `PetService/Tools`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
@@ -86,11 +91,14 @@ _One note per game system as they're worked on._
 - [[Rush Rocks]] — after ~3 min of chopping the next rock rises gold near you, 20 s countdown, x3 pay; `RockService/Rush`, `RushRockConfig`, admin Ctrl+Shift+R
 - [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
+- [[Auras]] — red lobby Aura Shop, unlock by rebirth, arms + legs + trail, +walk speed; `AuraService`, `AuraController`, `AuraConfig`, `VFX_Aura_<Key>` Limb/Body templates
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
 - [[Rocks Look Like Boulders]] — 2026-10-02: boulder look, user remodels by hand; what a hand-made rock must keep
 - [[Forest Rock Tiers]] — 2026-10-02: stone First, boulder Second, mossy boulder Third; moss is vertex colour; export scale gotcha
+- [[Big Numbers Over Small Ones]] — 2026-10-10: billions are fine; keep tier growth, add money sinks and scale costs with income
+- [[Zones After Desert]] — 2026-10-10: approved jungle, ocean, snow rocks (built as placeholders), Roks and geodes (not built); the number rules
 - [[VFX From Roqer]] — 2026-10-07: vendored VFXEmit + derived Blender VFX helpers from Roqer with S4US's permission; `vfx` skill
 
 ## Inbox

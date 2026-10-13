@@ -1032,3 +1032,18 @@ DECISION LOG
     base 16). Streak fade raised from 4s to a draft 8s so a player at base speed reaches the next rock.
     [PLAYTEST] all values. Whether streak and aura speed stack is decided with the aura system.
   - Hot Streak x2 fire scale reduced from 1.9 to 1.6 at the user's request (blue was too big).
+2026-10-09 — Auras: bought at a lobby shop, unlocked by rebirth, include trails (§06, §07):
+  - Players buy auras at a new Aura Shop in the lobby.
+  - Better auras unlock through rebirths.
+  - Each aura includes a trail as well as the arm-and-leg effect, because auras are meant for speed.
+  - 5 auras for now; more may come later. Each costs a considerable sum of money and is unlocked by a rebirth
+    count. Locked auras still show in the shop.
+  - Unlocks scale linearly with rebirths (rebirth requirements already rise): aura N unlocks at Rebirth N.
+    Speed starts at +10 and rises +10 per aura (+10 / +20 / +30 / +40 / +50). The user tested 250 walk speed with
+    admin and found it fine. Bought auras are kept through rebirth. Aura Shop is red.
+  - Prices $10k / $75k / $400k / $2M / $10M. One aura worn at a time. Aura speed stacks with the Hot Streak
+    (max 16 + 50 + 8 = 74); streak speed unchanged. Approved by the user. [PLAYTEST] all values.
+  - Auras are nature / martial arts themed and get cooler in order (approved 2026-10-09):
+    Leaf (green leaves circling the limbs, leaf trail), Wind (white-cyan gusts, wispy ribbon trail),
+    Thunder (yellow sparks, zigzag lightning trail), Spirit (magenta energy flames, energy band trail with
+    afterimage sparkles), Dragon (gold-and-red dragon ribbon spiralling the limbs with embers, gold scale trail).

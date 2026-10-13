@@ -266,9 +266,8 @@ local function onRelease(player: Player)
 	local strength = services.StatsService:GetStrength(player)
 	local damage = Chopping.Damage(strength, quality, rockService:DamageMultiplier(quality))
 	local applied, payout = Chopping.Apply(diamond, damage)
-	local streakMultiplier = services.HotStreakService:RecordChop(player, quality)
+	services.HotStreakService:KeepAlive(player)
 	if payout > 0 then
-		payout = services.HotStreakService:ApplyCashMultiplier(payout, streakMultiplier)
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
@@ -278,7 +277,7 @@ local function onRelease(player: Player)
 	local isBroken = Chopping.IsBroken(diamond)
 	local health = if isBroken then 0 else diamond.Health
 	diamond.Part:SetAttribute(DiamondRockConfig.HealthAttribute, health)
-	Packets.ChopResult:FireClient(player, quality, payout, applied, health, streakMultiplier)
+	Packets.ChopResult:FireClient(player, quality, payout, applied, health, 1)
 	Packets.DiamondChopped:FireAllClients(quality, isBroken)
 	print(
 		`[DiamondRockService] {player.Name} hit the Diamond Rock: quality={quality}, damage={string.format(
@@ -308,6 +307,10 @@ function DiamondRockService.Start(_self: any)
 		end
 	end))
 	scheduleNext()
+end
+
+function DiamondRockService.EndSession(_self: any, player: Player)
+	endSession(player)
 end
 
 function DiamondRockService.HasSession(_self: any, player: Player): boolean

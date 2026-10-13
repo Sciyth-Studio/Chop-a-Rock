@@ -294,7 +294,7 @@ local function onRelease(player: Player)
 	else
 		damage, payout = Session.Apply(session, services.StatsService:GetStrength(player), quality)
 	end
-	local streakMultiplier = services.HotStreakService:RecordChop(player, quality)
+	local streakMultiplier = services.HotStreakService:RecordChop(player, quality, session.StrengthRatio)
 	if payout > 0 then
 		payout = Rush.ApplyPayout(rock, payout)
 		payout = services.HotStreakService:ApplyCashMultiplier(payout, streakMultiplier)
@@ -506,6 +506,10 @@ end
 
 function RockService.RollMaster(_self: any, quality: number, strengthRatio: number): boolean
 	return Session.IsMaster(random, quality, strengthRatio)
+end
+
+function RockService.EndSession(_self: any, player: Player)
+	onLeave(player)
 end
 
 function RockService.HasSession(_self: any, player: Player): boolean

@@ -68,7 +68,6 @@ def finish(name, bm, rgb):
     bm.free()
     obj = bpy.data.objects.new(name, me)
     bpy.context.scene.collection.objects.link(obj)
-    rb.face_shade_colors(me, edge_width=0.12, edge_shade=0.62)
     rb.planar_stud_uvs(me)
     me.materials.append(rb.stud_overlay_material(f"{name}_Mat", rgb, STUDS))
     return obj

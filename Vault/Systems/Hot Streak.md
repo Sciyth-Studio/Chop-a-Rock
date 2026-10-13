@@ -6,6 +6,8 @@ type: system
 
 Good, Great, Perfect or Master chops on rocks add 1 to a streak count. Mid holds, Bad drops one tier step (never to zero; with no tier it holds), a too-weak crack is ignored. 8 s without a chop clears it; respawn and leaving clear it. Not saved.
 
+Easy rocks don't count (2026-10-10): if the player's strength is more than `MaxStrengthRatio` (25, draft) times the rock's requirement, the chop doesn't build, drop or refresh the streak and gets no multiplier. Tiers are 5x apart, so only the top two breakable tiers count. Diamond Rock chops call `KeepAlive` instead: the timer refreshes, but there's no build, drop or multiplier (see [[Diamond Rock]]).
+
 ## Where things live
 - `HotStreakService` (server) owns count and tier and publishes player attributes `HotStreakTier`, `HotStreakCount`, `HotStreakExpiresAt` (server time). Every client reads them, so other players' head fire needs no packet. `RockService` calls `RecordChop` (returns the multiplier for this chop) and `ApplyCashMultiplier`, next to the other cash multipliers. `ChopResult` carries the multiplier so the client can show it.
 - Numbers (tiers, fade, colours, fire scales, screen effect strengths, sound pitch) are all in `HotStreakConfig`: x1.1 / x1.25 / x1.5 / x2 at 3 / 6 / 10 / 15 chops, +2 / +4 / +6 / +8 walk speed. All drafts.

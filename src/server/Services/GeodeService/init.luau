@@ -153,6 +153,17 @@ function GeodeService.GrantGeodes(_self: any, player: Player, geodeKey: string, 
 	return true
 end
 
+function GeodeService.EndSession(_self: any, player: Player)
+	if sessions[player] then
+		endSession(player)
+		refreshPit(player)
+	end
+end
+
+function GeodeService.IsRevealing(_self: any, player: Player): boolean
+	return isLocked(player)
+end
+
 function GeodeService.ForceNextRarity(_self: any, player: Player, rarityKey: string)
 	context.ForcedRarities[player] = rarityKey
 end

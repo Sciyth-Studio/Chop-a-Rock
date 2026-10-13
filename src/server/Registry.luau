@@ -17,6 +17,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.ArmService),
 	require(script.Parent.Services.ArmVisualService),
 	require(script.Parent.Services.RebirthService),
+	require(script.Parent.Services.AuraService),
 	require(script.Parent.Services.IndexService),
 	require(script.Parent.Services.PetService),
 	require(script.Parent.Services.BaseService),
@@ -25,6 +26,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.TrainingService),
 	require(script.Parent.Services.GeodeService),
 	require(script.Parent.Services.PedestalService),
+	require(script.Parent.Services.TeleportService),
 	require(script.Parent.Services.AdminService),
 	require(script.Parent.Services.SettingsService),
 }

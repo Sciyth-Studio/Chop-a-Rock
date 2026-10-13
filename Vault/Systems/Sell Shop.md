@@ -11,7 +11,7 @@ The user asked (2026-10-06) for a shop to sell Roks, so deleting is no longer ne
 Take from it: the sort sidebar with Select All, the card grid (stat on the card, price bar along the bottom), and the Total Value bar with Sell. The weight label became the rarity, since Roks have no weight.
 
 ## World
-- `Workspace.SellShop` is a clone of `Workspace.GeodeShop`, 16 studs to its right (x = 74). Green stripes, pad and highlight `0,200,40`. Its sign "Sell Shop" uses the `Green` style colours. The `GojoRok` decoration wasn't copied.
+- `Workspace.SellShop` is a clone of `Workspace.GeodeShop`, 16 studs to its right (x = 50 after the 2026-10-10 recentring). Green stripes, pad and highlight `0,200,40`. Its sign "Sell Shop" uses the `Green` style colours. The `GojoRok` decoration wasn't copied.
 - `ShopPad` attributes: `Screen = SellShop`, `ShopName = Sell Shop` (see [[Shop Pads]]).
 - Shopkeeper `Karlosush` (user 531562578), R6, standing behind the counter like the Geode Shop's.
 

@@ -56,6 +56,8 @@ local Packets = {
 	TrainingChop = Packet("TrainingChop"):RateLimit(5, 1),
 	TrainingStopRequest = Packet("TrainingStopRequest"):RateLimit(5, 1),
 	BuyArm = Packet("BuyArm", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
+	BuyAura = Packet("BuyAura", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
+	EquipAura = Packet("EquipAura", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
 	Rebirth = Packet("Rebirth"):Response(Packet.Boolean8):RateLimit(2, 1),
 	BuyGeode = Packet("BuyGeode", Packet.String, Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	GeodeHatched = Packet(
@@ -84,6 +86,7 @@ local Packets = {
 	PadCollected = Packet("PadCollected"),
 	Notify = Packet("Notify", Packet.String, Packet.String),
 	AdminRun = Packet("AdminRun", Packet.String, Packet.String):RateLimit(5, 1),
+	Teleport = Packet("Teleport", Packet.String):RateLimit(6, 1),
 }
 
 return Packets

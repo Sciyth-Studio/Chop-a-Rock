@@ -93,9 +93,23 @@ local function tick()
 	end
 end
 
-function HotStreakService.RecordChop(_self: any, player: Player, quality: number): number
+function HotStreakService.KeepAlive(_self: any, player: Player)
 	local state = states[player]
-	if not state or quality <= ChopQuality.Crack then
+	if not state or state.Count <= 0 then
+		return
+	end
+	state.LastChopAt = os.clock()
+	publish(player)
+end
+
+function HotStreakService.RecordChop(
+	_self: any,
+	player: Player,
+	quality: number,
+	strengthRatio: number
+): number
+	local state = states[player]
+	if not state or quality <= ChopQuality.Crack or strengthRatio > HotStreakConfig.MaxStrengthRatio then
 		return 1
 	end
 	local multiplier = multiplierFor(state.Tier)

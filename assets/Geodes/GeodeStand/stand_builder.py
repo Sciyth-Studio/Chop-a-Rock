@@ -75,7 +75,6 @@ def build_stand(color=(163, 158, 148), merge=0.0, p=P):
         rb.boolean(stand, part, "UNION")
         rb._remove_object(part.name)
     rb.clean_mesh(stand.data, merge)
-    rb.face_shade_colors(stand.data, edge_width=0.12, edge_shade=0.62)
     rb.planar_stud_uvs(stand.data)
     rb._finish(stand, rb.plain_material("GeodeStandStone", color))
     return stand, rb.stats(stand.data)
@@ -111,7 +110,6 @@ def build_crystals(color=(70, 110, 220), p=P, cluster=CLUSTER):
             crystal(bm, base, r * H, h * H, math.radians(tilt_deg), yaw)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     obj = new_obj("GeodeStand_Crystals", bm)
-    rb.face_shade_colors(obj.data, edge_width=0.12, edge_shade=0.62)
     rb._finish(obj, rb.plain_material("GeodeStandCrystal", color))
     return obj, rb.stats(obj.data)
 

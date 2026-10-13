@@ -48,7 +48,7 @@ Copy the desert's `ZoneEntrance` into the new `ZoneTemplate`. Put it at the zone
 ## 4. Rocks
 
 - **Models:** follow `model-workflow`, then `rock-model` (Blender build, split, FBX export, Studio wiring). Until the real ones exist, a placeholder is the boulder mesh scaled and tinted, split with `Model_RockSplit_Boulder`, as the desert did.
-- **Templates:** `ReplicatedStorage.Assets.Models.Model_Rock_<Zone>First/Second/Third`, plus `Model_RockPreview_<Zone>*` for the Index. Each template keeps its `RockKey`, `SplitModel`, MaterialVariant and rotation, and has no `ChopRock` tag.
+- **Templates:** `ReplicatedStorage.Assets.Models.Rocks.<Zone>.Model_Rock_<Zone>First/Second/Third`, plus `Model_RockPreview_<Zone>*` for the Index and the zone's `Model_RockSplit_*`, all in that zone folder. Each template keeps its `RockKey`, `SplitModel`, MaterialVariant and rotation, and has no `ChopRock` tag.
 - **Code:** `RockConfig` entries (`<Zone>First` etc.: `DisplayName`, `StrengthRequired`, `TemplateKey`), `AssetRegistry` keys for the templates and previews, `IndexConfig` Rocks page zone plus preview keys, and `RockSpawnConfig.Zones.<Zone>` (`RockCount` 10, weights 50 / 30 / 20) plus `SpotColors`. Run `./scripts/check.ps1`.
 
 ## 5. Rock spawn area

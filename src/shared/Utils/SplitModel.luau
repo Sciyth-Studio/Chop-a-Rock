@@ -13,6 +13,31 @@ local SplitModel = {}
 
 SplitModel.Attribute = "SplitModel"
 
+local function piecesBox(pieces: { BasePart }): (CFrame, Vector3)
+	local low = Vector3.one * math.huge
+	local high = -Vector3.one * math.huge
+	for _, piece in pieces do
+		local half = piece.Size / 2
+		for _, corner in
+			{
+				Vector3.new(-1, -1, -1),
+				Vector3.new(-1, -1, 1),
+				Vector3.new(-1, 1, -1),
+				Vector3.new(-1, 1, 1),
+				Vector3.new(1, -1, -1),
+				Vector3.new(1, -1, 1),
+				Vector3.new(1, 1, -1),
+				Vector3.new(1, 1, 1),
+			}
+		do
+			local point = piece.CFrame:PointToWorldSpace(half * corner)
+			low = low:Min(point)
+			high = high:Max(point)
+		end
+	end
+	return CFrame.new((low + high) / 2), high - low
+end
+
 function SplitModel.Spawn(part: BasePart, push: Push): Model?
 	local key = part:GetAttribute(SplitModel.Attribute)
 	if type(key) ~= "string" then
@@ -24,21 +49,42 @@ function SplitModel.Spawn(part: BasePart, push: Push): Model?
 		return nil
 	end
 	local model = asset :: Model
-	local boxCFrame, boxSize = model:GetBoundingBox()
+
+	local pieces: { BasePart } = {}
+	for _, child in model:GetChildren() do
+		if child:IsA("BasePart") then
+			table.insert(pieces, child)
+		end
+	end
+	if #pieces == 0 then
+		model:Destroy()
+		return nil
+	end
+
+	local boxCFrame, boxSize = piecesBox(pieces)
 	model.WorldPivot = boxCFrame
 	model:ScaleTo(model:GetScale() * part.Size.X / boxSize.X)
 	model:PivotTo(part.CFrame)
 
-	local pieces: { BasePart } = {}
-	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			descendant.Anchored = false
-			descendant.CanCollide = true
-			descendant.CanQuery = false
-			descendant.Color = part.Color
-			descendant.Material = part.Material
-			descendant.MaterialVariant = part.MaterialVariant
-			table.insert(pieces, descendant)
+	for _, piece in pieces do
+		piece.Anchored = false
+		piece.CanCollide = true
+		piece.CanQuery = false
+		piece.Color = part.Color
+		piece.Material = part.Material
+		piece.MaterialVariant = part.MaterialVariant
+		for _, descendant in piece:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				descendant.Anchored = false
+				descendant.CanCollide = false
+				descendant.CanQuery = false
+				descendant.Massless = true
+				local weld = Instance.new("Weld")
+				weld.Part0 = piece
+				weld.Part1 = descendant
+				weld.C0 = piece.CFrame:ToObjectSpace(descendant.CFrame)
+				weld.Parent = descendant
+			end
 		end
 	end
 	model.Parent = workspace

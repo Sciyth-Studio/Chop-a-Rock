@@ -9,9 +9,6 @@ type Original = { Material: Enum.Material, Color: Color3 }
 
 local ARM_PARTS =
 	{ "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
-local HAND_PARTS = { LeftHand = true, RightHand = true }
-local EFFECT_NAME = "ArmEffect"
-local SPARK_TEXTURE = "rbxasset://textures/particles/sparkles_main.dds"
 
 local trove = Trove.new()
 local services: { [string]: any } = {}
@@ -21,23 +18,6 @@ local originals: { [BasePart]: Original } = setmetatable({}, { __mode = "k" }) :
 local ArmVisualService = {
 	Name = "ArmVisualService",
 }
-
-local function makeEffect(visual: ArmConfig.ArmVisual): ParticleEmitter
-	local emitter = Instance.new("ParticleEmitter")
-	emitter.Name = EFFECT_NAME
-	emitter.Texture = SPARK_TEXTURE
-	emitter.Color = ColorSequence.new(visual.EffectColor or Color3.new(1, 1, 1))
-	emitter.LightEmission = 1
-	emitter.Rate = visual.EffectRate
-	emitter.Lifetime = NumberRange.new(0.5, 1)
-	emitter.Speed = NumberRange.new(1, 3)
-	emitter.SpreadAngle = Vector2.new(180, 180)
-	emitter.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.5),
-		NumberSequenceKeypoint.new(1, 0),
-	})
-	return emitter
-end
 
 local function apply(player: Player)
 	local character = player.Character
@@ -59,14 +39,6 @@ local function apply(player: Player)
 		end
 		part.Material = visual.Material or original.Material
 		part.Color = visual.Color or original.Color
-
-		local existing = part:FindFirstChild(EFFECT_NAME)
-		if existing then
-			existing:Destroy()
-		end
-		if HAND_PARTS[partName] and visual.EffectRate > 0 then
-			makeEffect(visual).Parent = part
-		end
 	end
 end
 

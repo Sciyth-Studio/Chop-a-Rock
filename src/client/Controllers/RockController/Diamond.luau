@@ -4,6 +4,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
@@ -25,9 +26,60 @@ type Active = {
 	Prompt: ProximityPrompt,
 	IsUp: boolean,
 	HasEnded: boolean,
+	Loops: { Sound },
 }
 
 local Diamond = {}
+
+local warnedSounds: { [string]: true } = {}
+
+local function loadSound(key: string): Sound?
+	local asset = AssetRegistry.get(key)
+	if not asset:IsA("Sound") then
+		asset:Destroy()
+		return nil
+	end
+	if asset.SoundId == "" then
+		if not warnedSounds[key] then
+			warnedSounds[key] = true
+			warn(`[Diamond] {key} has no SoundId; skipping`)
+		end
+		asset:Destroy()
+		return nil
+	end
+	return asset
+end
+
+local function playOnce(key: string)
+	local sound = loadSound(key)
+	if not sound then
+		return
+	end
+	SoundService:PlayLocalSound(sound)
+	task.delay(5, function()
+		sound:Destroy()
+	end)
+end
+
+local function startLoop(trove: TroveInstance, loops: { Sound }, key: string, parent: Instance)
+	local sound = loadSound(key)
+	if not sound then
+		return
+	end
+	sound.Looped = true
+	sound.Parent = parent
+	sound:Play()
+	trove:Add(sound)
+	table.insert(loops, sound)
+end
+
+local function stopLoops(loops: { Sound })
+	for _, sound in loops do
+		sound:Stop()
+		sound:Destroy()
+	end
+	table.clear(loops)
+end
 
 local function playModel(key: string, cframe: CFrame)
 	local asset = AssetRegistry.get(key)
@@ -172,6 +224,9 @@ local function makeLabel(trove: TroveInstance, part: BasePart, isEnded: () -> bo
 		end
 		shown = remaining
 		setText(timeLabel, timeShadow, string.format("%d:%02d", remaining // 60, remaining % 60))
+		if remaining > 0 and remaining <= DiamondRockConfig.WarningSeconds then
+			playOnce(DiamondRockConfig.TickSoundKey)
+		end
 		if remaining > DiamondRockConfig.WarningSeconds or remaining <= 0 or not timeLabel then
 			return
 		end
@@ -281,6 +336,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			Prompt = prompt,
 			IsUp = false,
 			HasEnded = false,
+			Loops = {},
 		}
 		active = state
 		diamondTrove:Connect(prompt.Triggered, function()
@@ -291,6 +347,12 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 
 		local beacon = makeBeacon(diamondTrove, target)
 		addGlow(diamondTrove, part, beacon, target)
+		startLoop(diamondTrove, state.Loops, DiamondRockConfig.BeaconSoundKey, beacon)
+		local function startShimmer()
+			if not state.HasEnded and part.Parent then
+				startLoop(diamondTrove, state.Loops, DiamondRockConfig.ShimmerSoundKey, part)
+			end
+		end
 		makeLabel(diamondTrove, part, function(): boolean
 			return state.HasEnded
 		end)
@@ -300,6 +362,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 		if remaining < DiamondRockConfig.CountdownSeconds then
 			state.IsUp = true
 			refreshPrompt()
+			startShimmer()
 			return
 		end
 		part.CFrame = target - Vector3.new(0, part.Size.Y + 1, 0)
@@ -313,6 +376,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			Effects.Rise(part, target, function()
 				state.IsUp = true
 				refreshPrompt()
+				startShimmer()
 			end)
 		end))
 	end
@@ -333,6 +397,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			end
 			playModel(DiamondRockConfig.ShardsKey, baseCFrame(part) + Vector3.new(0, part.Size.Y / 2, 0))
 			if isBroken then
+				playOnce(DiamondRockConfig.ShatterSoundKey)
 				playModel(DiamondRockConfig.BurstKey, baseCFrame(part))
 				Effects.Break(part, quality, DiamondRockConfig.BreakCleanupSeconds)
 				return
@@ -342,6 +407,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 		end
 		if isBroken then
 			current.HasEnded = true
+			stopLoops(current.Loops)
 			refreshPrompt()
 		end
 		if quality == ChopQuality.Master then
@@ -358,6 +424,8 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			return
 		end
 		current.HasEnded = true
+		stopLoops(current.Loops)
+		playOnce(DiamondRockConfig.DespawnSoundKey)
 		refreshPrompt()
 		Effects.Sink(current.Part, DiamondRockConfig.SinkSeconds, function() end)
 	end
@@ -369,6 +437,14 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 	trove:Connect(CollectionService:GetInstanceRemovedSignal(DiamondRockConfig.Tag), teardown)
 	trove:Add(Packets.DiamondChopped.OnClientEvent:Connect(onChopped))
 	trove:Add(Packets.DiamondEnded.OnClientEvent:Connect(onEnded))
+	trove:Add(Packets.Notify.OnClientEvent:Connect(function(kind: string, message: string)
+		if
+			kind == DiamondRockConfig.EarnedKind
+			and string.sub(message, 1, #DiamondRockConfig.PayoutPrefix) == DiamondRockConfig.PayoutPrefix
+		then
+			playOnce(DiamondRockConfig.PayoutSoundKey)
+		end
+	end))
 	trove:Connect(chopController.ActiveChanged, refreshPrompt)
 	trove:Add(function()
 		if active then

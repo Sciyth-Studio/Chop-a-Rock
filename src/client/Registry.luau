@@ -24,6 +24,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.LevelUpController),
 	require(script.Parent.Controllers.WalkSpeedController),
 	require(script.Parent.Controllers.HotStreakController),
+	require(script.Parent.Controllers.AuraController),
 }
 
 return controllers

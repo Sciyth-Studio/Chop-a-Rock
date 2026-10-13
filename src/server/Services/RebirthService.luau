@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packets = require(ReplicatedStorage.Packets)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local Level = require(ReplicatedStorage.Utils.Level)
+local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 
 local RebirthService = { Name = "RebirthService" }
 local services: { [string]: any } = {}
@@ -13,7 +14,7 @@ local function current(player: Player): RebirthConfig.Rebirth?
 	if not data or data.Rebirths <= 0 then
 		return nil
 	end
-	return RebirthConfig.Rebirths[math.min(data.Rebirths, #RebirthConfig.Rebirths)]
+	return RebirthStats.Get(data.Rebirths)
 end
 
 function RebirthService.GetCashMultiplier(_self: any, player: Player): number
@@ -36,8 +37,8 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 	if not data or not replica then
 		return false
 	end
-	local nextRebirth = RebirthConfig.Rebirths[data.Rebirths + 1]
-	if not nextRebirth or Level.FromStrength(data.Strength).Level < nextRebirth.LevelRequired then
+	local nextRebirth = RebirthStats.Get(data.Rebirths + 1)
+	if Level.FromStrength(data.Strength).Level < nextRebirth.LevelRequired then
 		return false
 	end
 	local values: { [string]: any } = { Rebirths = data.Rebirths + 1 }

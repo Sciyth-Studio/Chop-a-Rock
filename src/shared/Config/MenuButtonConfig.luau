@@ -37,7 +37,7 @@ local MenuButtonConfig: MenuButtonSettings = {
 	ButtonSizePixels = 96,
 	ButtonGapPixels = 12,
 	Buttons = {
-		{ Name = "Shop", Screen = "Shop" },
+		{ Name = "Shop", Screen = "RobuxShop" },
 		{ Name = "Roks", Screen = "Roks" },
 		{ Name = "Index", Screen = "Index" },
 		{ Name = "Rebirth", Screen = "Rebirth" },

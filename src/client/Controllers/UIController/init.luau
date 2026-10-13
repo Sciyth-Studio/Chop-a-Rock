@@ -16,6 +16,8 @@ local modules: { [string]: Types.ScreenModule } = {
 	Index = require(script.Screens.Index),
 	Roks = require(script.Screens.Roks),
 	SellShop = require(script.Screens.SellShop),
+	AuraShop = require(script.Screens.AuraShop),
+	RobuxShop = require(script.Screens.RobuxShop),
 	HatchReveal = require(script.Screens.HatchReveal),
 	Rebirth = require(script.Screens.Rebirth),
 	Notifications = require(script.Screens.Notifications),
@@ -26,6 +28,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	HotStreakFx = require(script.Screens.HotStreakFx),
 	HotStreakBar = require(script.Screens.HotStreakBar),
 	DiamondRockPill = require(script.Screens.DiamondRockPill),
+	TeleportBar = require(script.Screens.TeleportBar),
 }
 
 local UIController = { Name = "UIController" }
