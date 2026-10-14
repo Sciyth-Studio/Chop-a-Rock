@@ -18,6 +18,7 @@ Plan and decisions: `PetBaseSystemPlan.md` (approved 2026-10-06), Master Game Pl
 - `Screens/Roks.luau` + `StarterGui.Roks` (teal header, copy of the Shop panel): title "X/Y Placed", `Header.SlotButton`, `List.RowTemplate` (`Preview`, `RokName`, `UnequipButton`), `EmptyLabel`, `EquipBestButton`. Opened by the `RoksButton` menu button (was `BagButton`).
 - The Delete button shown while holding a Rok (`HeldRok`) was removed the same day; Roks are sold at the [[Sell Shop]] instead.
 - `ExpBar.Container` moved to y = 1,-84 so it clears the Roblox hotbar.
+- Idle motion (2026-10-14, draft numbers in `RokMotionConfig`): `Display` tags each `PlacedRok` `IdleRok`, sets `PlacedAt` (server time) and makes it `Atomic` for streaming. `Components/IdleRok.luau` makes it breathe (volume-kept Y squash, random phase), blink (parts ending `_Eyes` / `_Pupils` squash in Y) and drop in with a squash bounce when `PlacedAt` is under 1 s old. It resizes and moves parts locally each frame, so it assumes Rok parts are axis-aligned with the pivot at bottom centre (all forest Roks are). Skipped beyond 100 studs from the camera; Low Graphics turns off breathing only. New Roks need their eye meshes named `<Name>_Eyes` / `<Name>_Pupils` to blink.
 
 ## Gotchas
 - The pedestal prompt range (10) is measured from the pedestal centre; the pad is 8.25 away, so standing on the pad is just inside range.

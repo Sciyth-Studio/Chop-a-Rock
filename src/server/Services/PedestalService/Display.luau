@@ -6,6 +6,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local RokMotionConfig = require(ReplicatedStorage.Config.RokMotionConfig)
 local Types = require(script.Parent.Types)
 
 local PROMPT_NAME = "PedestalPrompt"
@@ -101,6 +102,9 @@ local function setRok(pedestal: Model, petKey: string?)
 	model:ScaleTo(PedestalConfig.RokScale)
 	local top = part.CFrame * CFrame.new(0, part.Size.Y / 2, 0)
 	model:PivotTo(CFrame.new(top.Position) * pedestal:GetPivot().Rotation)
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	model:SetAttribute(RokMotionConfig.PlacedAtAttribute, workspace:GetServerTimeNow())
+	CollectionService:AddTag(model, RokMotionConfig.Tag)
 	model.Parent = pedestal
 end
 

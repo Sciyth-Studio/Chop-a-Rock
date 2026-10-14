@@ -7,6 +7,7 @@ local factories: { (controllers: { [string]: any }) -> any } = {
 	require(script.Parent.Parent.Components.ShopPad),
 	require(script.Parent.Parent.Components.Pedestal),
 	require(script.Parent.Parent.Components.ChopDummy),
+	require(script.Parent.Parent.Components.IdleRok),
 }
 local registry: { [string]: any } = {}
 local components: { any } = {}
