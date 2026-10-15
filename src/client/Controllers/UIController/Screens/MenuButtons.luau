@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local IndexRewards = require(ReplicatedStorage.IndexRewards)
 local MenuButtonConfig = require(ReplicatedStorage.Config.MenuButtonConfig)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -38,12 +39,22 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local badgeLabel = if badge then badge:FindFirstChild(badgeSettings.LabelName, true) else nil
 	if badge and badge:IsA("GuiObject") and badgeLabel and badgeLabel:IsA("TextLabel") then
 		badge.Visible = false
+		badgeLabel.Text = badgeSettings.Symbol
 		trove:Add(context.Controllers.DataController:Observe({ "Index" }, function(index: any)
-			local count = #IndexRewards.Claimable(index)
-			badge.Visible = count > 0
-			badgeLabel.Text = if count > badgeSettings.MaxShown
-				then `{badgeSettings.MaxShown}+`
-				else tostring(count)
+			badge.Visible = #IndexRewards.Claimable(index) > 0
+		end))
+		local wiggleInfo = TweenInfo.new(badgeSettings.WiggleStepSeconds, Enum.EasingStyle.Sine)
+		trove:Add(task.spawn(function()
+			while true do
+				task.wait(badgeSettings.WiggleEverySeconds)
+				if badge.Visible then
+					for _, degrees in badgeSettings.WiggleDegrees do
+						local tween = TweenService:Create(badge, wiggleInfo, { Rotation = degrees })
+						tween:Play()
+						tween.Completed:Wait()
+					end
+				end
+			end
 		end))
 	else
 		warn(`[MenuButtons] Missing index badge in {gui:GetFullName()}`)

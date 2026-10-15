@@ -43,6 +43,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 ## Reference
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
+- [[Tile Style Reference]] — 2026-10-15 pilot restyle (HUD tiles + Daily Rewards panel): outline + colour-to-clear gradient + shade box tiles, translucent dark bodies, square corners, stud headers, no stripes; applied to menu buttons and shops, backups in `UIBackup.BeforeTileStyle`
 - [[UI Style References]] — screenshots of panel UI the user likes; open before building or restyling menus
 - [[Studded Panel Style Reference]] — 2026-10-05 restyle target: dark stud body, striped gradient headers, white/black-stroke text, sharp black outlines
 - [[Tintable Mesh Textures]] — studs are the 2022 MaterialVariants in MaterialService (`2022 Inlet`, `2022 Stud` = outlet); copy MaterialVariant with Material

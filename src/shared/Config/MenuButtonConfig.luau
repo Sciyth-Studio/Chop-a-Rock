@@ -21,7 +21,10 @@ export type MenuButtonSettings = {
 		Button: string,
 		BadgeName: string,
 		LabelName: string,
-		MaxShown: number,
+		Symbol: string,
+		WiggleEverySeconds: number,
+		WiggleDegrees: { number },
+		WiggleStepSeconds: number,
 	},
 }
 
@@ -35,7 +38,7 @@ local MenuButtonConfig: MenuButtonSettings = {
 	PhoneColumns = 4,
 	PhoneTopPixels = 8,
 	ButtonSizePixels = 96,
-	ButtonGapPixels = 12,
+	ButtonGapPixels = 16,
 	Buttons = {
 		{ Name = "Shop", Screen = "RobuxShop" },
 		{ Name = "Roks", Screen = "Roks" },
@@ -46,7 +49,10 @@ local MenuButtonConfig: MenuButtonSettings = {
 		Button = "Index",
 		BadgeName = "Badge",
 		LabelName = "Mark",
-		MaxShown = 9,
+		Symbol = "!",
+		WiggleEverySeconds = 3,
+		WiggleDegrees = { -16, 14, -10, 6, 0 },
+		WiggleStepSeconds = 0.08,
 	},
 }
 
