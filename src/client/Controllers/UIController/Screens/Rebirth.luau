@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
+local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
@@ -96,22 +97,7 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function paint(button: TextButton, colors: MeterColors)
-		local buttonFill = button:FindFirstChild("Fill", true)
-		if not buttonFill then
-			return
-		end
-		local gradient = buttonFill:FindFirstChildWhichIsA("UIGradient")
-		if gradient then
-			gradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, colors.Edge),
-				ColorSequenceKeypoint.new(0.5, colors.Center),
-				ColorSequenceKeypoint.new(1, colors.Edge),
-			})
-		end
-		local studs = buttonFill:FindFirstChild("StudTexture")
-		if studs and studs:IsA("ImageLabel") then
-			studs.ImageColor3 = colors.Studs
-		end
+		BlockButton.Paint(button:FindFirstChild("Fill", true), colors)
 	end
 
 	local function refresh()

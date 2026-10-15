@@ -32,6 +32,8 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 
 ## Other UI conventions
 
+- Buttons use the block style (2026-10-15, the one button style): dark outline-colour background, `Track` inset 4px holding `Fill` (gradient light top to edge bottom, studs) plus `Bevel` and `Lip` (with `Highlight`), 3px black `OuterStroke`, sharp corners. Paint state colours only with `Utils/BlockButton.Paint(fill, colors)`, never by setting the gradient by hand. Full spec in the vault's Tile Style Reference.
+
 - Backgrounds behind HUD text are black gradients that fade out toward the end of the number.
 - The chop meter is an empty rounded bar whose fill uses a gradient anchored to the bar and fills through the five quality colors; Perfect result text keeps its rainbow.
 - Notifications are black gradient bars with `Chrome`-style text; kinds and timings are in `NotificationConfig`.

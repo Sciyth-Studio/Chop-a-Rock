@@ -5,8 +5,10 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Component = require(ReplicatedStorage.Packages.Component)
+local BlockButtonConfig = require(ReplicatedStorage.Config.BlockButtonConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local TrainingSignConfig = require(ReplicatedStorage.Config.TrainingSignConfig)
+local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
@@ -40,27 +42,19 @@ local function find(root: Instance, name: string, className: string): any
 end
 
 local function paint(button: GuiButton?, colors: ShopConfig.MeterColors)
-	local fill = if button then button:FindFirstChild("Fill", true) else nil
-	if not fill then
-		return
-	end
-	local gradient = fill:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, colors.Edge),
-			ColorSequenceKeypoint.new(0.5, colors.Center),
-			ColorSequenceKeypoint.new(1, colors.Edge),
-		})
-	end
-	local studs = fill:FindFirstChild("StudTexture")
-	if studs and studs:IsA("ImageLabel") then
-		studs.ImageColor3 = colors.Studs
-	end
+	BlockButton.Paint(if button then button:FindFirstChild("Fill", true) else nil, colors)
 end
 
 local function setText(label: TextLabel?, text: string)
-	if label then
-		label.Text = text
+	if not label then
+		return
+	end
+	label.Text = text
+	local shadow = if label.Parent
+		then label.Parent:FindFirstChild(label.Name .. BlockButtonConfig.ShadowSuffix)
+		else nil
+	if shadow and shadow:IsA("TextLabel") then
+		shadow.Text = text
 	end
 end
 

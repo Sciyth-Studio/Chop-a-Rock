@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local SettingsConfig = require(ReplicatedStorage.Config.SettingsConfig)
+local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -39,7 +40,7 @@ local function find(root: Instance, name: string, className: string): any
 	return nil
 end
 
-local function paint(button: TextButton, colors: MeterColors)
+local function paintMeter(button: TextButton, colors: MeterColors)
 	local buttonFill = button:FindFirstChild("Fill", true)
 	if not buttonFill then
 		return
@@ -72,9 +73,9 @@ function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local isOn = false
 		trove:Add(dataController:Observe({ "Settings", name }, function(value: any)
 			isOn = value == true
-			paint(button, if isOn then ON_COLORS else OFF_COLORS)
+			BlockButton.Paint(button:FindFirstChild("Fill", true), if isOn then ON_COLORS else OFF_COLORS)
 			if label and label:IsA("TextLabel") then
-				label.Text = if isOn then "On" else "Off"
+				BlockButton.SetText(label, if isOn then "On" else "Off")
 			end
 		end))
 		trove:Add(button.Activated:Connect(function()
@@ -99,7 +100,7 @@ function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local valueLabel: TextLabel? = find(gui, name .. "Value", "TextLabel")
 		local minusButton: TextButton? = find(gui, name .. "Minus", "TextButton")
 		local plusButton: TextButton? = find(gui, name .. "Plus", "TextButton")
-		paint(slider, ON_COLORS)
+		paintMeter(slider, ON_COLORS)
 
 		local maxPercent = SettingsConfig.MaxVolumePercent
 		local stepPercent = SettingsConfig.VolumeStepPercent

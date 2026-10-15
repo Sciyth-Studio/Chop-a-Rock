@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
+local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
@@ -41,21 +42,7 @@ local function setText(label: TextLabel?, text: string)
 end
 
 local function paint(fill: Instance?, colors: ShopConfig.MeterColors)
-	if not fill then
-		return
-	end
-	local gradient = fill:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, colors.Edge),
-			ColorSequenceKeypoint.new(0.5, colors.Center),
-			ColorSequenceKeypoint.new(1, colors.Edge),
-		})
-	end
-	local studs = fill:FindFirstChild("StudTexture")
-	if studs and studs:IsA("ImageLabel") then
-		studs.ImageColor3 = colors.Studs
-	end
+	BlockButton.Paint(fill, colors)
 end
 
 local function buildPreview(frame: ViewportFrame, modelKey: string, modifier: string?)

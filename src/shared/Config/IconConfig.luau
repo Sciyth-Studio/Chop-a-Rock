@@ -9,6 +9,7 @@ local IconConfig = {
 	Index = "rbxassetid://80371787143053",
 	HotStreak = "rbxassetid://94131698155889",
 	Luck = "rbxassetid://97839648540693",
+	Robux = "rbxassetid://137237246101535",
 }
 
 return IconConfig

@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AdminConfig = require(ReplicatedStorage.Config.AdminConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
+local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local AdminWarps = require(ReplicatedStorage.Utils.AdminWarps)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -25,28 +26,13 @@ local function find(root: Instance, name: string, className: string): any
 end
 
 local function paint(button: Instance, colors: ShopConfig.MeterColors)
-	local fill = button:FindFirstChild("Fill", true)
-	if not fill then
-		return
-	end
-	local gradient = fill:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, colors.Edge),
-			ColorSequenceKeypoint.new(0.5, colors.Center),
-			ColorSequenceKeypoint.new(1, colors.Edge),
-		})
-	end
-	local studs = fill:FindFirstChild("StudTexture")
-	if studs and studs:IsA("ImageLabel") then
-		studs.ImageColor3 = colors.Studs
-	end
+	BlockButton.Paint(button:FindFirstChild("Fill", true), colors)
 end
 
 local function setText(root: Instance, name: string, text: string)
 	local label = root:FindFirstChild(name, true)
 	if label and (label:IsA("TextLabel") or label:IsA("TextBox")) then
-		(label :: any).Text = text
+		BlockButton.SetText(label, text)
 	end
 end
 

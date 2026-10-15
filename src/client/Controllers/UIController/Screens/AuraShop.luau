@@ -5,6 +5,7 @@ local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local AuraShopConfig = require(ReplicatedStorage.Config.AuraShopConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
+local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -45,22 +46,7 @@ local function setText(label: TextLabel?, text: string)
 end
 
 local function paint(row: Row, colors: ShopConfig.MeterColors)
-	local fill = row.Fill
-	if not fill then
-		return
-	end
-	local gradient = fill:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, colors.Edge),
-			ColorSequenceKeypoint.new(0.5, colors.Center),
-			ColorSequenceKeypoint.new(1, colors.Edge),
-		})
-	end
-	local studs = fill:FindFirstChild("StudTexture")
-	if studs and studs:IsA("ImageLabel") then
-		studs.ImageColor3 = colors.Studs
-	end
+	BlockButton.Paint(row.Fill, colors)
 end
 
 local function present(row: Row, text: string, colors: ShopConfig.MeterColors, showPrice: boolean)
@@ -71,10 +57,10 @@ local function present(row: Row, text: string, colors: ShopConfig.MeterColors, s
 	end
 	local label = row.Label
 	if label then
-		local layout = if showPrice then ShopConfig.PriceLabel.WithIcon else ShopConfig.PriceLabel.WithoutIcon
-		label.AnchorPoint = layout.AnchorPoint
-		label.Position = layout.Position
-		label.Size = layout.Size
+		BlockButton.PlaceLabel(
+			label,
+			if showPrice then ShopConfig.PriceLabel.WithIcon else ShopConfig.PriceLabel.WithoutIcon
+		)
 	end
 end
 
