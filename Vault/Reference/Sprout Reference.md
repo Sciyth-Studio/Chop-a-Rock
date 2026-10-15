@@ -17,6 +17,6 @@ Take from it:
 
 Build (Blender, approved 2026-10-04): `Sprout`, `Sprout_Eyes` and `Sprout_Pupils` are Bloky's meshes renamed (imported from Bloky's FBX). `Sprout_Leaves` is new: a six-sided curved stem sunk 0.05 units into the top face plus two lofted, faceted leaves unioned into one watertight mesh (198 tris, cleaned with a 0.006 merge), about 1.4 studs across and 1.2 studs taller than the body. Leaf green is (110, 205, 25). Files: `assets/Roks/Sprout/` (`Sprout.fbx`, `Sprout.blend`, `Sprout_preview.png`).
 
-In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Sprout` (AssetRegistry key `Model_Rok_Sprout`), PrimaryPart `Sprout`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Inlet` MaterialVariant like Bloky; other parts SmoothPlastic (Neon for glowing accents).
+In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Sprout` (AssetRegistry key `Model_Rok_Sprout`), PrimaryPart `Sprout`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Small Stud` MaterialVariant (Plastic copy, small outlet studs; was `2022 Inlet` until 2026-10-14); other parts SmoothPlastic (Neon for glowing accents).
 
 Related: [[Roks Stay Rocks]], [[Bloky Reference]]

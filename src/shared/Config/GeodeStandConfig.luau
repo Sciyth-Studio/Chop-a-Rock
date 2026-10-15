@@ -8,7 +8,10 @@ export type GeodeStandSettings = {
 		Unavailable: ShopConfig.MeterColors,
 		LuckOn: ShopConfig.MeterColors,
 		LuckOff: ShopConfig.MeterColors,
+		TabActive: ShopConfig.MeterColors,
+		TabIdle: ShopConfig.MeterColors,
 	},
+	TabStrengthFormat: string,
 	Preview: {
 		CameraDirection: Vector3,
 		FieldOfView: number,
@@ -20,6 +23,7 @@ export type GeodeStandSettings = {
 	HiddenName: string,
 	SingleButtonOffsetPixels: number,
 	PairButtonOffsetPixels: number,
+	ButtonCenterOffsetPixels: number,
 }
 
 local GeodeStandConfig: GeodeStandSettings = {
@@ -32,7 +36,14 @@ local GeodeStandConfig: GeodeStandSettings = {
 			Studs = Color3.fromRGB(190, 100, 0),
 		},
 		LuckOff = ShopConfig.Palette.Grey,
+		TabActive = {
+			Edge = Color3.fromRGB(0, 110, 255),
+			Center = Color3.fromRGB(130, 205, 255),
+			Studs = Color3.fromRGB(0, 60, 170),
+		},
+		TabIdle = ShopConfig.Palette.Grey,
 	},
+	TabStrengthFormat = "%s Strength",
 	Preview = {
 		CameraDirection = Vector3.new(0.35, 0.3, -1),
 		FieldOfView = 30,
@@ -44,6 +55,7 @@ local GeodeStandConfig: GeodeStandSettings = {
 	HiddenName = "???",
 	SingleButtonOffsetPixels = 0,
 	PairButtonOffsetPixels = 162,
+	ButtonCenterOffsetPixels = 92,
 }
 
 return table.freeze(GeodeStandConfig)

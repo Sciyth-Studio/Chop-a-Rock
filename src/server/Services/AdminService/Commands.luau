@@ -7,10 +7,11 @@ local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local WalkSpeedConfig = require(ReplicatedStorage.Config.WalkSpeedConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
-local Level = require(ReplicatedStorage.Utils.Level)
+local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Arguments = require(script.Parent.Arguments)
 local Presets = require(script.Parent.Presets)
@@ -24,6 +25,12 @@ local function notify(context: Types.Context, player: Player, message: string)
 end
 
 local function number(
+local function zoneGeode(context: Types.Context, player: Player): string?
+	local data = context.Services.DataService:GetData(player)
+	local strength = if data and type(data.Strength) == "number" then data.Strength else 0
+	return GeodeOrder.ForStrength(strength)
+end
+
 	context: Types.Context,
 	player: Player,
 	argument: string,
@@ -73,12 +80,6 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, `+{AdminConfig.CashAmount} cash`)
 		end
 	end,
-	SetLevel = function(context: Types.Context, player: Player, argument: string)
-		local level = number(context, player, argument, 1, AdminConfig.Limits.Level)
-		if level and context.Services.StatsService:SetStrength(player, Level.StrengthFor(level)) then
-			notify(context, player, `level {level}`)
-		end
-	end,
 	SetStrength = function(context: Types.Context, player: Player, argument: string)
 		local strength = number(context, player, argument, 0, AdminConfig.Limits.Strength)
 		if strength and context.Services.StatsService:SetStrength(player, strength) then
@@ -99,13 +100,19 @@ local Commands: { [string]: Types.Handler } = {
 		end
 	end,
 	SetPedestalSlots = function(context: Types.Context, player: Player, argument: string)
+	SetTrainingTier = function(context: Types.Context, player: Player, argument: string)
+		local tier = number(context, player, argument, 1, #TrainingConfig.Stands)
+		if tier and context.Services.TrainingService:SetTier(player, tier) then
+			notify(context, player, `{TrainingConfig.Stands[tier].DisplayName} Training`)
+		end
+	end,
 		local slots = number(context, player, argument, 1, PedestalSlots.Total())
 		if slots and context.Services.PedestalService:SetSlots(player, slots) then
 			notify(context, player, `{slots} slots`)
 		end
 	end,
 	GrantPet = function(context: Types.Context, player: Player, _argument: string)
-		local geodeKey = next(GeodeConfig.Geodes)
+		local geodeKey = zoneGeode(context, player)
 		local petKey = if geodeKey then HatchOdds.Roll(random, geodeKey, 1) else nil
 		local grant = if petKey then context.Services.PetService:Grant(player, petKey) else nil
 		if not grant then
@@ -117,7 +124,7 @@ local Commands: { [string]: Types.Handler } = {
 		notify(context, player, `{pet.DisplayName} ({pet.Rarity}){trait}{if grant.IsNew then " New" else ""}`)
 	end,
 	GrantGeode = function(context: Types.Context, player: Player, _argument: string)
-		local geodeKey = next(GeodeConfig.Geodes)
+		local geodeKey = zoneGeode(context, player)
 		if geodeKey and context.Services.GeodeService:GrantGeodes(player, geodeKey, 1) then
 			notify(context, player, `+1 {GeodeConfig.Geodes[geodeKey].DisplayName}`)
 		end

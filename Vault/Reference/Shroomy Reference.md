@@ -17,7 +17,7 @@ Take from it:
 - Mushrooms are separate meshes by colour (caps red, stems cream, spots white) so colours stay on the parts; no studs on them.
 - Front is the eyes view (top-left of the sheet).
 
-In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Shroomy` (AssetRegistry key `Model_Rok_Shroomy`), PrimaryPart `Shroomy`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Inlet` MaterialVariant like Bloky; other parts SmoothPlastic (Neon for glowing accents).
+In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Shroomy` (AssetRegistry key `Model_Rok_Shroomy`), PrimaryPart `Shroomy`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Small Stud` MaterialVariant (Plastic copy, small outlet studs; was `2022 Inlet` until 2026-10-14); other parts SmoothPlastic (Neon for glowing accents).
 
 Colours (user, 2026-10-04): caps (235, 20, 20), stems (235, 225, 200), spots white 245.
 

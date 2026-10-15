@@ -57,84 +57,10 @@ function HotStreakBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		progressLabel, progressShadow = findPair(container, "ProgressLabel")
 	end
 
-	local levelGui: ScreenGui? = nil
-	local levelContainer: GuiObject? = nil
-	local levelScale: UIScale? = nil
 	local baseY = if container then container.Position.Y.Offset else 0
-	local slideTween: Tween? = nil
 	local fillTween: Tween? = nil
 	local expiresAt = 0
 	local shakeStart: number? = nil
-
-	local function targetY(): number
-		local level = levelContainer
-		if not level then
-			return baseY
-		end
-		local scale = if levelScale then levelScale.Scale else 1
-		local bottom = level.Position.Y.Offset
-		if levelGui and not levelGui.Enabled then
-			return bottom
-		end
-		return bottom - level.Size.Y.Offset * scale - HotStreakConfig.BarGapPixels * scale
-	end
-
-	local function place(animate: boolean)
-		local box = container
-		if not box then
-			return
-		end
-		baseY = targetY()
-		if slideTween then
-			slideTween:Cancel()
-			slideTween = nil
-		end
-		local goal = UDim2.new(box.Position.X.Scale, 0, box.Position.Y.Scale, baseY)
-		if animate and box.Visible then
-			local tween = TweenService:Create(
-				box,
-				TweenInfo.new(
-					HotStreakConfig.BarSlideSeconds,
-					Enum.EasingStyle.Quad,
-					Enum.EasingDirection.Out
-				),
-				{ Position = goal }
-			)
-			slideTween = tween
-			tween:Play()
-		else
-			box.Position = goal
-		end
-	end
-
-	local playerGui = gui.Parent
-	if playerGui then
-		task.spawn(function()
-			local instance = playerGui:WaitForChild(HotStreakConfig.LevelBarScreen, 15)
-			if not instance or not instance:IsA("ScreenGui") then
-				warn(`[HotStreakBar] Missing ScreenGui "{HotStreakConfig.LevelBarScreen}"; bar stays put`)
-				return
-			end
-			local level = instance:FindFirstChild(HotStreakConfig.BarContainer)
-			if not level or not level:IsA("GuiObject") then
-				warn(`[HotStreakBar] Missing "{HotStreakConfig.BarContainer}" in {instance:GetFullName()}`)
-				return
-			end
-			levelGui = instance
-			levelContainer = level
-			local scaleInstance = level:FindFirstChild(HotStreakConfig.BarScaleName)
-			if scaleInstance and scaleInstance:IsA("UIScale") then
-				levelScale = scaleInstance
-				trove:Connect(scaleInstance:GetPropertyChangedSignal("Scale"), function()
-					place(false)
-				end)
-			end
-			trove:Connect(instance:GetPropertyChangedSignal("Enabled"), function()
-				place(true)
-			end)
-			place(false)
-		end)
-	end
 
 	local function setFill(ratio: number)
 		local bar = fill
@@ -196,7 +122,6 @@ function HotStreakBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			setFill(1)
 		end
 		if not box.Visible then
-			place(false)
 			box.GroupTransparency = 0
 			box.Visible = true
 		end
@@ -228,7 +153,7 @@ function HotStreakBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			box.GroupTransparency = 0
 		end
 		local started = shakeStart
-		if not started or slideTween and slideTween.PlaybackState == Enum.PlaybackState.Playing then
+		if not started then
 			return
 		end
 		local elapsed = os.clock() - started
@@ -254,9 +179,6 @@ function HotStreakBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			gui.Enabled = false
 		end,
 		Destroy = function(_self: Types.Screen)
-			if slideTween then
-				slideTween:Cancel()
-			end
 			if fillTween then
 				fillTween:Cancel()
 			end

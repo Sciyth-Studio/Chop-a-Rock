@@ -12,6 +12,9 @@ local Trove = require(ReplicatedStorage.Packages.Trove)
 local ArmService = require(script.Parent.ArmService)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 local StatsService = require(script.Parent.StatsService)
+local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
+local Stands = require(script.Stands)
+local Upgrade = require(script.Upgrade)
 
 local TRAINING_TAG = "TrainingBoard"
 local PLOT_TAG = "BasePlot"
@@ -88,8 +91,8 @@ local function playSoundOnPart(key: string, part: BasePart)
 	end)
 end
 
-local function playBoardBurst(board: BasePart)
-	local asset = AssetRegistry.get("VFX_Board_Break")
+local function emitBurst(key: string, board: BasePart, tint: Color3?)
+	local asset = AssetRegistry.get(key)
 	if not asset:IsA("Attachment") then
 		asset:Destroy()
 		return
@@ -97,7 +100,9 @@ local function playBoardBurst(board: BasePart)
 	asset.Parent = board
 	for _, descendant in asset:GetDescendants() do
 		if descendant:IsA("ParticleEmitter") then
-			descendant.Color = ColorSequence.new(board.Color)
+			if tint then
+				descendant.Color = ColorSequence.new(tint)
+			end
 			local count = descendant:GetAttribute("EmitCount")
 			descendant:Emit(if type(count) == "number" then count else TrainingConfig.BoardBurstEmitCount)
 		end
@@ -107,6 +112,24 @@ local function playBoardBurst(board: BasePart)
 			asset:Destroy()
 		end
 	end)
+end
+
+local function setEffectsEnabled(board: BasePart, isEnabled: boolean, saved: { [Instance]: boolean })
+	for _, descendant in board:GetDescendants() do
+		if not descendant:IsA("ParticleEmitter") and not descendant:IsA("Light") then
+			continue
+		end
+		local effect = descendant :: any
+		if isEnabled then
+			local wasEnabled = saved[descendant]
+			if wasEnabled ~= nil then
+				effect.Enabled = wasEnabled
+			end
+		else
+			saved[descendant] = effect.Enabled
+			effect.Enabled = false
+		end
+	end
 end
 
 local function fadePieces(model: Model)
@@ -122,7 +145,7 @@ local function fadePieces(model: Model)
 	end
 end
 
-local function breakBoard(board: BasePart)
+local function breakBoard(board: BasePart, effectKey: string)
 	if brokenBoards[board] then
 		return
 	end
@@ -132,9 +155,24 @@ local function breakBoard(board: BasePart)
 	end
 	brokenBoards[board] = true
 	services.CollisionService:MarkDebris(model)
-	board.Transparency = 1
-	board.CanCollide = false
-	playBoardBurst(board)
+	local saved: { [BasePart]: { Transparency: number, CanCollide: boolean } } = {}
+	local parts: { BasePart } = { board }
+	for _, descendant in board:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			table.insert(parts, descendant)
+		end
+	end
+	for _, part in parts do
+		saved[part] = { Transparency = part.Transparency, CanCollide = part.CanCollide }
+		part.Transparency = 1
+		part.CanCollide = false
+	end
+	local savedEffects: { [Instance]: boolean } = {}
+	setEffectsEnabled(board, false, savedEffects)
+	emitBurst("VFX_Board_Break", board, board.Color)
+	if effectKey ~= "" then
+		emitBurst(effectKey, board, nil)
+	end
 	fadePieces(model)
 	task.delay(TrainingConfig.BoardPieceLifetimeSeconds, function()
 		if model.Parent then
@@ -143,9 +181,14 @@ local function breakBoard(board: BasePart)
 	end)
 	task.delay(TrainingConfig.BoardRespawnSeconds, function()
 		brokenBoards[board] = nil
+		for part, state in saved do
+			if part.Parent then
+				part.Transparency = state.Transparency
+				part.CanCollide = state.CanCollide
+			end
+		end
 		if board.Parent then
-			board.Transparency = 0
-			board.CanCollide = true
+			setEffectsEnabled(board, true, savedEffects)
 		end
 	end)
 end
@@ -207,8 +250,24 @@ local function startTraining(player: Player, board: BasePart, plot: Model?)
 	Packets.TrainingStarted:FireClient(player)
 end
 
+local function syncStand(plot: Model)
+	local owner = services.BaseService:GetOwner(plot)
+	local data = if owner then services.DataService:GetData(owner) else nil
+	Stands.Apply(plot, TrainingStands.Get(if data then data.TrainingTier else 1))
+end
+
+local lastStandCheck = 0
+
 local function tick()
 	local now = os.clock()
+	if now - lastStandCheck >= TrainingConfig.StandCheckSeconds then
+		lastStandCheck = now
+		for _, plot in CollectionService:GetTagged(PLOT_TAG) do
+			if plot:IsA("Model") and plot:IsDescendantOf(workspace) then
+				syncStand(plot)
+			end
+		end
+	end
 	for player, training in trainings do
 		local root, _ = playerRootAndHumanoid(player)
 		if not root or not training.Board.Parent or not canUse(player, training.Plot) then
@@ -222,18 +281,13 @@ local function tick()
 		end
 		if now - training.LastChopClock >= TrainingConfig.ChopIntervalSeconds then
 			training.LastChopClock = now
-			local gain = math.max(
-				1,
-				math.floor(
-					TrainingConfig.StrengthPerChop
-							* ArmService:GetTrainingMultiplier(player)
-							* services.RebirthService:GetStrengthMultiplier(player)
-						+ 0.5
-				)
-			)
+			local data = services.DataService:GetData(player)
+			local stand = TrainingStands.Get(if data then data.TrainingTier else 1)
+			local gain =
+				math.max(1, math.floor(stand.StrengthPerRep * ArmService:GetTrainingMultiplier(player) + 0.5))
 			local newStrength = StatsService:AddStrength(player, gain)
-			playSoundOnPart("SFX_Train_Chop", training.Board)
-			breakBoard(training.Board)
+			playSoundOnPart(stand.BreakSound, training.Board)
+			breakBoard(training.Board, stand.BreakEffect)
 			Packets.TrainingChop:FireClient(player)
 			print(`[TrainingService] {player.Name} trained: strength={newStrength}`)
 		end
@@ -283,6 +337,29 @@ function TrainingService.Stop(_self: any, player: Player)
 	stopTraining(player)
 end
 
+local function syncPlayerStand(player: Player)
+	local plot = services.BaseService:GetPlot(player)
+	if plot then
+		syncStand(plot)
+	end
+end
+
+function TrainingService.SetTier(_self: any, player: Player, tier: number): boolean
+	local isSet = services.DataService:Set(player, { "TrainingTier" }, TrainingStands.ClampTier(tier))
+	if isSet then
+		syncPlayerStand(player)
+	end
+	return isSet
+end
+
+function TrainingService.GrantTier(_self: any, player: Player, tier: number): boolean
+	local granted = Upgrade.Grant(services, player, tier)
+	if granted then
+		task.defer(syncPlayerStand, player)
+	end
+	return granted
+end
+
 function TrainingService.Init(_self: any, registry: { [string]: any })
 	services = registry
 end
@@ -295,9 +372,24 @@ function TrainingService.Start(_self: any)
 
 	trove:Add(RunService.Heartbeat:Connect(tick))
 
+	trove:Add(services.BaseService.PlotClaimed:Connect(function(_player: Player, plot: Model)
+		syncStand(plot)
+	end))
+	trove:Add(services.BaseService.PlotReleased:Connect(function(_player: Player, plot: Model)
+		syncStand(plot)
+	end))
+
 	trove:Add(Packets.TrainingStopRequest.OnServerEvent:Connect(function(player: Player)
 		stopTraining(player)
 	end))
+
+	Packets.UpgradeTraining.OnServerInvoke = function(player: Player)
+		local result = Upgrade.Buy(services, player)
+		if result == "Upgraded" then
+			syncPlayerStand(player)
+		end
+		return result
+	end
 
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		trainings[player] = nil
@@ -308,6 +400,7 @@ function TrainingService.Destroy(_self: any)
 	for player in trainings do
 		stopTraining(player)
 	end
+	Packets.UpgradeTraining.OnServerInvoke = nil
 	trove:Clean()
 	table.clear(trainings)
 	table.clear(brokenBoards)

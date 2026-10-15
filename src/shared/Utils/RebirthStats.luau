@@ -9,9 +9,9 @@ local RebirthStats = {}
 function RebirthStats.Get(rebirth: number): RebirthConfig.Rebirth
 	local count = math.max(rebirth, 0)
 	return {
-		LevelRequired = RebirthConfig.BaseLevelRequired + RebirthConfig.LevelStep * (math.max(count, 1) - 1),
+		StrengthRequired = RebirthConfig.BaseStrengthRequired
+			* RebirthConfig.StrengthGrowth ^ (math.max(count, 1) - 1),
 		CashMultiplier = RebirthConfig.BaseMultiplier + RebirthConfig.MultiplierPerRebirth * count,
-		StrengthMultiplier = RebirthConfig.BaseMultiplier + RebirthConfig.MultiplierPerRebirth * count,
 		LuckBonus = LuckConfig.PerRebirthBonus * count,
 	}
 end

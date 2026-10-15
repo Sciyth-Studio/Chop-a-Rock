@@ -3,8 +3,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
-local Level = require(ReplicatedStorage.Utils.Level)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
+local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -114,7 +116,7 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local function refresh()
 		local rebirths = readNumber("Rebirths", 0)
-		local level = Level.FromStrength(readNumber("Strength", 0)).Level
+		local strength = readNumber("Strength", 0)
 		local currentRebirth = RebirthStats.Get(rebirths)
 		local nextRebirth = RebirthStats.Get(rebirths + 1)
 		for _, object in hiddenWhenMaxed do
@@ -124,21 +126,25 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			comingSoon.Visible = false
 		end
 		local cashNow = currentRebirth.CashMultiplier
-		local strengthNow = currentRebirth.StrengthMultiplier
 		setText(luckBefore, `+{math.floor(currentRebirth.LuckBonus * 100 + 0.5)}% Luck`)
 		setText(luckAfter, `+{math.floor(nextRebirth.LuckBonus * 100 + 0.5)}% Luck`)
 		setText(beforeTitle, `Rebirth {rebirths}`)
 		setText(afterTitle, `Rebirth {rebirths + 1}`)
 		setText(cashBefore, `x{formatMultiplier(cashNow)} Cash`)
 		setText(cashAfter, `x{formatMultiplier(nextRebirth.CashMultiplier)} Cash`)
-		setText(strengthBefore, `x{formatMultiplier(strengthNow)} Strength`)
-		setText(strengthAfter, `x{formatMultiplier(nextRebirth.StrengthMultiplier)} Strength`)
-		local required = nextRebirth.LevelRequired
-		setText(levelText, `Level: {math.min(level, required)}/{required}`)
+		setText(strengthBefore, `{TrainingStands.ForRebirths(rebirths).DisplayName} Training`)
+		setText(strengthAfter, `{TrainingStands.ForRebirths(rebirths + 1).DisplayName} Training`)
+		local required = nextRebirth.StrengthRequired
+		setText(
+			levelText,
+			`Strength: {NumberFormat.Compact(math.floor(math.min(strength, required)))}/{NumberFormat.Compact(
+				required
+			)} {TrainingConfig.StrengthUnit}`
+		)
 		if fill then
-			fill.Size = UDim2.fromScale(math.clamp(level / required, 0, 1), 1)
+			fill.Size = UDim2.fromScale(math.clamp(strength / required, 0, 1), 1)
 		end
-		isReady = level >= required
+		isReady = strength >= required
 		if rebirthButton then
 			if isReady then
 				paint(rebirthButton, READY_COLORS)

@@ -204,7 +204,9 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local button = found
 		local function place()
 			local x = label.Position.X.Offset + textWidth(label) + HudConfig.InviteGapPixels
-			button.Position = UDim2.new(0, x, 0.5, 0)
+			local anchor = button.AnchorPoint.X
+			button.Position =
+				UDim2.new(button.Size.X.Scale * anchor, x + button.Size.X.Offset * anchor, 0.5, 0)
 		end
 		trove:Connect(label:GetPropertyChangedSignal("TextBounds"), place)
 		place()

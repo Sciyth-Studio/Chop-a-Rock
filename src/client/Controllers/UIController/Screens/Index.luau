@@ -253,10 +253,10 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local rock = RockConfig.Rocks[key]
 			setText(
 				detailOdds,
-				if rock then `Needs {NumberFormat.Commas(rock.StrengthRequired)} Strength` else ""
+				if rock then `Needs {NumberFormat.CompactRock(rock.StrengthRequired)} Strength` else ""
 			)
-			setText(detailStat, if rock then `${NumberFormat.Commas(rock.BasePayout)} per break` else "")
-			setText(detailCount, `Broken {NumberFormat.Commas(count)}`)
+			setText(detailStat, if rock then `${NumberFormat.CompactRock(rock.BasePayout)} per break` else "")
+			setText(detailCount, `Broken {NumberFormat.CompactRock(count)}`)
 		else
 			local pet = PetConfig.Pets[key]
 			local oneIn = if zone and zone.GeodeKey then IndexRewards.OneIn(zone.GeodeKey, key) else nil

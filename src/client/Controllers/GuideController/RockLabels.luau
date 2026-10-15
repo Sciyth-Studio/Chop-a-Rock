@@ -67,7 +67,7 @@ local function attach(trove: TroveInstance, part: Instance)
 	template.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + GuideConfig.LabelHeightAboveRock, 0)
 	nameLabel.Text = config.DisplayName
 	requirementLabel.Text =
-		`Strength {NumberFormat.Commas(config.StrengthRequired)} {TrainingConfig.StrengthUnit}`
+		`Strength {NumberFormat.CompactRock(config.StrengthRequired)} {TrainingConfig.StrengthUnit}`
 
 	template.Parent = part
 	labels[part] = template

@@ -43,7 +43,7 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 - The label is bottom-anchored, non-italic, `Chrome` text style (attribute `TextStyle`, gradient and black stroke, 3px thick). Short words such as Shop, Roks and Index use a 0.4 label height so the text is larger; long words are limited by the width. A copy named `LabelShadow` sits behind it (black, 40% transparent, offset 2px right and 3px down, own 3px black stroke, no gradient or `TextStyle`); set the text on both. The invisible `TextButton` named `Button` covers the frame and receives the click.
 - Current buttons, in order: `ShopButton`, `RoksButton` (opens the Roks pedestal panel; was `BagButton`), `IndexButton`, `RebirthButton`. Icon asset ids live in `IconConfig`. `IndexButton` has a red `Badge` (count of waiting index rewards, driven by `MenuButtonConfig.IndexBadge`).
 - New icons: `upload_image` uploads to the user's personal account, and those images do not load in the group-owned game. Ask the user to import the PNG through Studio (it lands in the group) and give you the id. Check it loads with `ContentProvider:PreloadAsync` (status `Success`).
-- Compact layout: when the preferred input is touch or the screen's short side is under `PhoneMaxShortSidePixels`, `MenuButtons.luau` swaps the container's `UIListLayout` for the `UIGridLayout` named `PhoneLayout`, sets its `FillDirectionMaxCells` to `PhoneColumns` (4, one row), moves the container to `PhoneTopPixels` from the top and resizes it. Both layouts are parked in the `LayoutStore` folder. Never park a layout object directly in a ScreenGui: it lays out that ScreenGui's children and collapses the container. The layout swap and scaling run only while the game is playing, not in Edit mode or the Edit-mode device emulator.
+- Compact layout: when the preferred input is touch or the screen's short side is under `PhoneMaxShortSidePixels`, `MenuButtons.luau` swaps the container's desktop `UIGridLayout` (`GridLayout`, one column; a grid since 2026-10-14 so hover grow doesn't push neighbours, see the vault's UI Feel) for the `UIGridLayout` named `PhoneLayout`, sets its `FillDirectionMaxCells` to `PhoneColumns` (4, one row), moves the container to `PhoneTopPixels` from the top and resizes it. Both layouts are parked in the `LayoutStore` folder. Never park a layout object directly in a ScreenGui: it lays out that ScreenGui's children and collapses the container. The layout swap and scaling run only while the game is playing, not in Edit mode or the Edit-mode device emulator.
 
 ## Scaling and shadows
 
@@ -62,7 +62,8 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 
 ## Geode Stand
 
-- `StarterGui.GeodeStand.Panel` is a copy of the Arm Shop panel recoloured Sky blue (header fill edge 0,110,255 / centre 130,205,255 / studs 0,60,170), 760x660. Children:
+- `StarterGui.GeodeStand.Panel` is a copy of the Arm Shop panel recoloured Sky blue (header fill edge 0,110,255 / centre 130,205,255 / studs 0,60,170), 944x660 since 2026-10-14. Children:
+  - `Tabs`: left column (copied from the Index tabs), one `TabTemplate` clone per geode zone; code paints the active tab Sky and idle grey and opens on the zone the player's strength reaches. The grid and buy buttons sit 92 px right of centre.
   - `Grid`: `UIGridLayout`, 3 columns, 228x189 cells, holding the hidden `CardTemplate`. Each card has `ColorGlow` (code sets the rarity colour), `WeldTexture` (black weld texture over the glow), `Preview` (ViewportFrame), `Odds` (top-left) and `PetName` (bottom).
   - `LuckToggle`: top-right of the body.
   - `BuyOne` / `BuyThree`: 300x76 at the bottom, each with an `Amount` label, a `PriceIcon` and a price `Label`.

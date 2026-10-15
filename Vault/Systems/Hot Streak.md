@@ -21,7 +21,7 @@ Easy rocks don't count (2026-10-10): if the player's strength is more than `MaxS
 `SFX_HotStreak_Loop` and `SFX_HotStreak_Up` live in `Assets/Sounds` with empty SoundIds. An empty id warns once and skips.
 
 ## Gotchas
-- Head fire textures are `rbxasset://textures/vfx-preview/...` local previews until the user signs off and uploads them.
+- Head fire textures (checked 2026-10-14) are third-party Creator Store images, not ours: `Flame` 11534281007 (ReiAkaris) and `FlameBack` 4509687978 (Senzial). Nothing to upload unless we want our own.
 - The bar flame icon is `IconConfig.HotStreak` (94131698155889), uploaded from the user's account: it fails to load in the group game until shared with the experience (Output "Click to share access").
 - The head fire only exists on characters in Play; to see it in Edit, look at the Hot Streak stands in [[VFX Showcase]]. Rate-based emitters do run in Edit mode (checked 2026-10-08).
 - Camera shake adds an offset after the camera script each frame, so it also works while ChopController holds the camera Scriptable.

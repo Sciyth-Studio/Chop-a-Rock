@@ -26,7 +26,6 @@ local RELEASE_ACTION = "ChopRelease"
 local LEAVE_ACTION = "ChopLeave"
 local METER_SCREEN = "ChopMeter"
 local LETTERBOX_SCREEN = "Letterbox"
-local EXP_BAR_SCREEN = "ExpBar"
 local TELEPORT_BAR_SCREEN = "TeleportBar"
 local RESULT_DISPLAY_SECONDS = 0.7
 
@@ -353,11 +352,9 @@ local function beginMinigame(
 
 	minigameStartTime = os.clock()
 	uiController:Open(METER_SCREEN)
-	uiController:Close(EXP_BAR_SCREEN)
 	uiController:Close(TELEPORT_BAR_SCREEN)
 	trove:Add(function()
 		uiController:Close(METER_SCREEN)
-		uiController:Open(EXP_BAR_SCREEN)
 		uiController:Open(TELEPORT_BAR_SCREEN)
 	end)
 

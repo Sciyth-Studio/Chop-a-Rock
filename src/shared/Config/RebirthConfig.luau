@@ -1,15 +1,14 @@
 --!strict
 
 export type Rebirth = {
-	LevelRequired: number,
+	StrengthRequired: number,
 	CashMultiplier: number,
-	StrengthMultiplier: number,
 	LuckBonus: number,
 }
 
 export type RebirthSettings = {
-	BaseLevelRequired: number,
-	LevelStep: number,
+	BaseStrengthRequired: number,
+	StrengthGrowth: number,
 	BaseMultiplier: number,
 	MultiplierPerRebirth: number,
 	MaxAdminRebirths: number,
@@ -17,11 +16,14 @@ export type RebirthSettings = {
 	ResetStrength: boolean,
 	ResetArmTier: boolean,
 	SkipRobuxPrice: number,
+	RebirthEffectKey: string,
+	RebirthSoundKey: string,
+	RebirthSoundStartSeconds: number,
 }
 
 local RebirthConfig: RebirthSettings = {
-	BaseLevelRequired = 12,
-	LevelStep = 4,
+	BaseStrengthRequired = 100,
+	StrengthGrowth = 125,
 	BaseMultiplier = 1,
 	MultiplierPerRebirth = 1,
 	MaxAdminRebirths = 100,
@@ -29,6 +31,9 @@ local RebirthConfig: RebirthSettings = {
 	ResetStrength = true,
 	ResetArmTier = false,
 	SkipRobuxPrice = 25,
+	RebirthEffectKey = "VFX_LevelUp",
+	RebirthSoundKey = "SFX_Level_Up",
+	RebirthSoundStartSeconds = 0.3,
 }
 
 return table.freeze(RebirthConfig)

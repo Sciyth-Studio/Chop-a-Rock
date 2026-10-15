@@ -12,6 +12,7 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
+local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Effects = require(script.Parent.Effects)
 local Luck = require(script.Parent.Luck)
@@ -20,14 +21,14 @@ local Types = require(script.Parent.Types)
 local Cracking = {}
 
 function Cracking.PickGeode(data: any): string?
-	local keys: { string } = {}
-	for key, count in data.Geodes do
-		if count > 0 and GeodeConfig.Geodes[key] then
-			table.insert(keys, key)
+	local keys = GeodeOrder.Sorted()
+	for index = #keys, 1, -1 do
+		local key = keys[index]
+		if (data.Geodes[key] or 0) > 0 then
+			return key
 		end
 	end
-	table.sort(keys)
-	return keys[1]
+	return nil
 end
 
 function Cracking.Begin(

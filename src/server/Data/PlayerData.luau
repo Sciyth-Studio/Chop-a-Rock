@@ -2,6 +2,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
+local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 
 export type Pet = {
 	Key: string,
@@ -17,6 +18,7 @@ export type Data = {
 	Cash: number,
 	Strength: number,
 	ArmTier: number,
+	TrainingTier: number,
 	Rebirths: number,
 	Auras: { [string]: boolean },
 	EquippedAura: string,
@@ -46,6 +48,7 @@ PlayerData.Template = {
 	Cash = 0,
 	Strength = 0,
 	ArmTier = 1,
+	TrainingTier = 1,
 	Rebirths = 0,
 	Auras = {},
 	EquippedAura = "",
@@ -131,6 +134,9 @@ function PlayerData.Validate(data: any): boolean
 			return false
 		end
 	end
+	if data.TrainingTier ~= nil and (not natural(data.TrainingTier) or data.TrainingTier < 1) then
+		return false
+	end
 	if data.ArmTier ~= nil and (not natural(data.ArmTier) or data.ArmTier < 1) then
 		return false
 	end
@@ -215,6 +221,9 @@ function PlayerData.Validate(data: any): boolean
 end
 
 function PlayerData.Migrate(data: any)
+	if data.TrainingTier == nil and natural(data.Rebirths) then
+		data.TrainingTier = TrainingStands.IndexForRebirths(data.Rebirths)
+	end
 	local settings = data.Settings
 	if type(settings) == "table" and type(settings.Music) == "number" then
 		if settings.Volume == nil and settings.Music > 0 then

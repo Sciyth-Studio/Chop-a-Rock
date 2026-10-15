@@ -59,7 +59,7 @@ Add a Part tagged `RockSpawnArea` with the `Zone` attribute set to the `RockSpaw
 
 - **Rok models:** `model-workflow`, reusing Bloky's eyes ([[Reuse Rok Eyes]]). Add a vault reference note per Rok.
 - **Config:** `PetConfig` entries, `GeodeConfig.Geodes.<Zone>` (price, strength, six weighted pets), and an `IndexConfig` Roks page zone with its `GeodeKey`.
-- **Stand:** a geode stand in the zone, in the zone's colours ([[Geode Stand Reference]]).
+- **Shop:** no stand per zone. The geode gets a tab in the lobby Geode Shop from its `TabName` and `Order` (vault [[Geode Shop]]); tint copies of the Basic geode models for it.
 
 ## 7. Decoration (user)
 

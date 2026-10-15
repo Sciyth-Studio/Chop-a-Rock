@@ -39,7 +39,7 @@ local AuraConfig: AuraSettings = {
 			WalkSpeedBonus = 10,
 			Color = Color3.fromRGB(40, 255, 0),
 			AssetKey = "VFX_Aura_Leaf",
-			Icon = "rbxasset://textures/vfx-preview/LeafCircle-1791613049.png",
+			Icon = "rbxassetid://126076653128655",
 		},
 		{
 			Key = "Wind",
@@ -49,7 +49,7 @@ local AuraConfig: AuraSettings = {
 			WalkSpeedBonus = 20,
 			Color = Color3.fromRGB(0, 230, 255),
 			AssetKey = "VFX_Aura_Wind",
-			Icon = "rbxasset://textures/vfx-preview/WindCircle-1791613049.png",
+			Icon = "rbxassetid://127419173561611",
 		},
 		{
 			Key = "Thunder",
@@ -59,7 +59,7 @@ local AuraConfig: AuraSettings = {
 			WalkSpeedBonus = 30,
 			Color = Color3.fromRGB(255, 235, 0),
 			AssetKey = "VFX_Aura_Thunder",
-			Icon = "rbxasset://textures/vfx-preview/ThunderCircle-1791613049.png",
+			Icon = "rbxassetid://127926369516073",
 		},
 		{
 			Key = "Spirit",
@@ -69,7 +69,7 @@ local AuraConfig: AuraSettings = {
 			WalkSpeedBonus = 40,
 			Color = Color3.fromRGB(255, 0, 220),
 			AssetKey = "VFX_Aura_Spirit",
-			Icon = "rbxasset://textures/vfx-preview/SpiritCircle-1791613049.png",
+			Icon = "rbxassetid://79636488922235",
 		},
 		{
 			Key = "Dragon",
@@ -79,7 +79,7 @@ local AuraConfig: AuraSettings = {
 			WalkSpeedBonus = 50,
 			Color = Color3.fromRGB(255, 190, 0),
 			AssetKey = "VFX_Aura_Dragon",
-			Icon = "rbxasset://textures/vfx-preview/DragonCircle-1791613049.png",
+			Icon = "rbxassetid://98307052478401",
 		},
 	},
 }

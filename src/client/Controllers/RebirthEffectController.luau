@@ -4,16 +4,15 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
-local LevelConfig = require(ReplicatedStorage.Config.LevelConfig)
-local Level = require(ReplicatedStorage.Utils.Level)
+local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
 
 type TroveInstance = typeof(Trove.new())
 
-local LevelUpController = {
-	Name = "LevelUpController",
+local RebirthEffectController = {
+	Name = "RebirthEffectController",
 	_trove = nil :: TroveInstance?,
 	_controllers = {} :: { [string]: any },
 }
@@ -65,14 +64,14 @@ local function stopAll()
 	table.clear(active)
 end
 
-function LevelUpController.Init(self: any, controllers: { [string]: any })
+function RebirthEffectController.Init(self: any, controllers: { [string]: any })
 	self._controllers = controllers
 	self._trove = Trove.new()
 end
 
-function LevelUpController.Start(self: any)
+function RebirthEffectController.Start(self: any)
 	local trove = self._trove :: TroveInstance
-	local asset = AssetRegistry.get(LevelConfig.LevelUpEffectKey)
+	local asset = AssetRegistry.get(RebirthConfig.RebirthEffectKey)
 	if not asset:IsA("Model") then
 		asset:Destroy()
 		return
@@ -81,22 +80,26 @@ function LevelUpController.Start(self: any)
 	trove:Add(template)
 	trove:Add(stopAll)
 
-	local lastLevel: number? = nil
-	trove:Add(self._controllers.DataController:Observe({ "Strength" }, function(value: any)
-		local level = Level.FromStrength(if type(value) == "number" then value else 0).Level
-		if lastLevel and level > lastLevel then
-			play(template)
-			LocalSound.Play(LevelConfig.LevelUpSoundKey, LevelConfig.LevelUpSoundStartSeconds)
+	local dataController = self._controllers.DataController
+	local lastRebirths: number? = nil
+	trove:Add(dataController:Observe({ "Rebirths" }, function()
+		local rebirths = dataController:Get({ "Rebirths" })
+		if type(rebirths) ~= "number" then
+			return
 		end
-		lastLevel = level
+		if lastRebirths and rebirths == lastRebirths + 1 then
+			play(template)
+			LocalSound.Play(RebirthConfig.RebirthSoundKey, RebirthConfig.RebirthSoundStartSeconds)
+		end
+		lastRebirths = rebirths
 	end))
 end
 
-function LevelUpController.Destroy(self: any)
+function RebirthEffectController.Destroy(self: any)
 	if self._trove then
 		self._trove:Destroy()
 		self._trove = nil
 	end
 end
 
-return LevelUpController
+return RebirthEffectController

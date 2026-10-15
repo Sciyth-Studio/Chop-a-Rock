@@ -11,6 +11,7 @@ The user brought a toolbox stud pack into MaterialService and asked for every st
 - To stud a part: `Material = Plastic`, `MaterialVariant = "2022 Inlet"` (or `"2022 Stud"` for outlet). Remove any `SurfaceAppearance` first, because it overrides the variant.
 - On MeshParts the variant follows the mesh UVs, so the stud-grid UVs from `rock_builder.planar_stud_uvs` give the same stud size as before. Part `Color` and baked vertex colours (moss) still tint it.
 - 64 parts were converted. `BasePlot_Floor` uses `2022 Stud` (outlet); everything else that had the inlet overlay uses `2022 Inlet`.
+- `StudsPerTile` does scale the texture on MeshParts too (tested on Bloky 2026-10-14): a copy of `2022 Inlet` at 0.5 gave studs half the size. `2022 Inlet` and `2022 Stud` are 1; `2022 Small Stud` is 0.5 (outlet). It came on a Glacier base; a Plastic copy with the same name was added 2026-10-14 and every Rok body now uses it (templates in `Assets.Models.Roks`, `ArmShop.RokFriend`, `GeodeShop.GojoRok`; the GojoRok blindfold stays `2022 Inlet`).
 - Code that copies a part's look must copy `MaterialVariant` along with `Material`. `SplitModel` and the RockService chunk/half effects now do.
 - Not converted: `ServerStorage.OldArmShopVisuals` (unused; has stud `Texture`s with the same 2022 image) and the `Baseplate`'s top Texture `79447581991048` (hidden under the lobby).
 

@@ -16,10 +16,10 @@ Design is in the Master Game Plan Decision Log, 2026-10-09: 5 auras (Leaf, Wind,
 - `Screens/AuraShop.luau` + `StarterGui.AuraShop`: a red copy of the Arm Shop panel. The row's `Preview` ViewportFrame became an `Icon` ImageLabel (particles don't show in ViewportFrames). Button states: price (green / grey), `Rebirth N` (grey, locked), `Equip` (blue), `Equipped` (red, glow on; click unequips).
 
 ## World
-- `Workspace.AuraShop`: clone of the Sell Shop 16 studs right (x = 66 since the 2026-10-10 recentring), red `230,0,0` stripes, pad and outline, sign `Red` text style. Shopkeeper `AuraKeeper` (user 4512760450, R6), posed by copying Karlosush's part offsets from his HumanoidRootPart (see [[Shopkeeper Avatar]], [[Sell Shop]]). Pad `Screen = AuraShop`, `ShopName = Aura Shop` ([[Shop Pads]]).
+- `Workspace.AuraShop`: clone of the Sell Shop 16 studs right (x = 66 since the 2026-10-10 recentring), red `230,0,0` stripes, pad and outline, sign `Red` text style. Shopkeeper `AuraKeeper` (user 169380679 since 2026-10-15, was 4512760450; R6), standing pose kept by copying the old keeper's part offsets from its HumanoidRootPart (see [[Shopkeeper Avatar]], [[Sell Shop]]). Pad `Screen = AuraShop`, `ShopName = Aura Shop` ([[Shop Pads]]).
 
 ## Textures
-- Drawn 2026-10-09 into `assets/VFX/Aura/` (Leaf, Gust, Bolt and Flame 4x4 loop sheets, Glint, Dot, TrailSoft, TrailBolt, TrailScales, Ring, Streak, Orb) and used as `rbxasset://textures/vfx-preview/...` local previews, in the templates and in `AuraConfig.Icon`. Only this computer sees them; upload after the user signs off the look, then replace every preview address (templates and `AuraConfig`).
+- Drawn 2026-10-09 into `assets/VFX/Aura/` (Leaf, Gust, Bolt and Flame 4x4 loop sheets, Glint, Dot, TrailSoft, TrailBolt, TrailScales, Ring, Streak, Orb) and used as `rbxasset://textures/vfx-preview/...` local previews, in the templates and in `AuraConfig.Icon`. Signed off and uploaded under the group 2026-10-13 (Open Cloud, Image); every address in the templates, showcase and `AuraConfig.Icon` is now `rbxassetid://`.
 - Showcase stands "Aura Leaf" ... "Aura Dragon" in [[VFX Showcase]] (`Mode = Aura`): a copy of the dummy walks back and forth so the trail shows.
 
 ## Gotcha

@@ -18,6 +18,6 @@ Tri budget (the user was worried about the nest): don't model individual twigs. 
 
 Build (Blender, approved 2026-10-04): `Nesty`, `Nesty_Eyes` and `Nesty_Pupils` are Bloky's meshes copied from Sprout. `Nesty_Nest` is 340 tris (overlapping closed shells, not unioned) and `Nesty_Eggs` is 144 tris; the user asked for bigger, flatter eggs, so each is about 0.33 units wide and 0.34 tall (pebble-like, not tall eggs). Preview colours: nest (150, 85, 35), eggs (170, 210, 245). Files: `assets/Roks/Nesty/` (`Nesty.fbx`, `Nesty.blend`, `Nesty_preview.png`).
 
-In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Nesty` (AssetRegistry key `Model_Rok_Nesty`), PrimaryPart `Nesty`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Inlet` MaterialVariant like Bloky; other parts SmoothPlastic (Neon for glowing accents).
+In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Nesty` (AssetRegistry key `Model_Rok_Nesty`), PrimaryPart `Nesty`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Small Stud` MaterialVariant (Plastic copy, small outlet studs; was `2022 Inlet` until 2026-10-14); other parts SmoothPlastic (Neon for glowing accents).
 
 Related: [[Roks Stay Rocks]], [[Reuse Rok Eyes]], [[Sprout Reference]], [[Shroomy Reference]]

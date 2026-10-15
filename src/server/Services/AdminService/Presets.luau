@@ -5,8 +5,8 @@ local AdminConfig = require(ReplicatedStorage.Config.AdminConfig)
 local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
-local Level = require(ReplicatedStorage.Utils.Level)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
+local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Types = require(script.Parent.Types)
 
 local Presets = {}
@@ -60,7 +60,7 @@ function Presets.Apply(context: Types.Context, player: Player, preset: AdminConf
 	if preset.CompleteIndex then
 		completeIndex(index)
 	end
-	local strength = preset.Strength or (if preset.Level then Level.StrengthFor(preset.Level) else nil)
+	local strength = preset.Strength
 	local overrides: { [string]: any } = {
 		PedestalSlots = slotCount,
 		Pets = pets,
@@ -72,6 +72,7 @@ function Presets.Apply(context: Types.Context, player: Player, preset: AdminConf
 	overrides.Strength = strength
 	overrides.Rebirths = preset.Rebirths
 	overrides.ArmTier = preset.ArmTier
+	overrides.TrainingTier = TrainingStands.IndexForRebirths(preset.Rebirths or 0)
 	return context.Services.DataService:ResetData(player, overrides)
 end
 

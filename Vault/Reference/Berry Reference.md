@@ -17,6 +17,6 @@ Take from it:
 
 Build (Blender, approved 2026-10-04): `Berry`, `Berry_Eyes` and `Berry_Pupils` are copies of Nesty's (Bloky's) meshes. `Berry_Leaves` is 22 overlapping faceted leaf shells, 16 tris each (a ring of 12 outward-leaning leaves, an inner ring of 8 and two tall centre leaves), 352 tris. `Berry_Berries` is four 8x4 low-poly spheres, 192 tris. Preview colours: leaves (110, 205, 25), berries (255, 5, 190). Files: `assets/Roks/Berry/` (`Berry.fbx`, `Berry.blend`, `Berry_preview.png`).
 
-In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Berry` (AssetRegistry key `Model_Rok_Berry`), PrimaryPart `Berry`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Inlet` MaterialVariant like Bloky; other parts SmoothPlastic (Neon for glowing accents).
+In Studio (2026-10-04): `ReplicatedStorage.Assets.Models.Model_Rok_Berry` (AssetRegistry key `Model_Rok_Berry`), PrimaryPart `Berry`, pivot at bottom centre, front faces -Z, anchored, Hull collision, still has `RBX_ReimportId` ([[Studio Reimport]]). Body is Plastic grey 120 with the `2022 Small Stud` MaterialVariant (Plastic copy, small outlet studs; was `2022 Inlet` until 2026-10-14); other parts SmoothPlastic (Neon for glowing accents).
 
 Related: [[Roks Stay Rocks]], [[Sprout Reference]], [[Nesty Reference]]

@@ -4,6 +4,7 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local HatchRevealConfig = require(ReplicatedStorage.Config.HatchRevealConfig)
 local HatchTiming = require(ReplicatedStorage.HatchTiming)
@@ -29,6 +30,29 @@ local HatchController = {
 local trove = Trove.new()
 local controllers: { [string]: any } = {}
 local active: { [Attachment]: Reveal } = {}
+local backpackHolds = 0
+
+local function setBackpackShown(isShown: boolean)
+	pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.Backpack, isShown)
+end
+
+local function holdBackpack(): () -> ()
+	backpackHolds += 1
+	if backpackHolds == 1 then
+		setBackpackShown(false)
+	end
+	local released = false
+	return function()
+		if released then
+			return
+		end
+		released = true
+		backpackHolds -= 1
+		if backpackHolds == 0 then
+			setBackpackShown(true)
+		end
+	end
+end
 
 local function easeOut(alpha: number): number
 	return 1 - (1 - alpha) * (1 - alpha)
@@ -138,6 +162,7 @@ local function play(spot: Attachment, hatch: Types.Hatch)
 	end
 	local isOwner = hatch.Owner == Players.LocalPlayer
 	local release: (() -> ())? = nil
+	local releaseBackpack = if isOwner then holdBackpack() else nil
 	if isOwner then
 		task.spawn(function()
 			release = holdOwner(scene, reveal)
@@ -217,6 +242,9 @@ local function play(spot: Attachment, hatch: Types.Hatch)
 	if release then
 		release()
 	end
+	if releaseBackpack then
+		releaseBackpack()
+	end
 	if isCancelled() then
 		Scene.Destroy(scene)
 	else
@@ -268,6 +296,10 @@ function HatchController.Destroy(_self: any)
 	trove:Destroy()
 	if HatchController.Revealed then
 		HatchController.Revealed:Destroy()
+	if backpackHolds > 0 then
+		backpackHolds = 0
+		setBackpackShown(true)
+	end
 	end
 end
 

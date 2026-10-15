@@ -24,7 +24,6 @@ export type Preset = {
 	Id: string,
 	Label: string,
 	Cash: number?,
-	Level: number?,
 	Strength: number?,
 	Rebirths: number?,
 	ArmTier: number?,
@@ -36,7 +35,6 @@ export type Preset = {
 
 export type Limits = {
 	Cash: number,
-	Level: number,
 	Strength: number,
 	WalkSpeed: number,
 }
@@ -76,7 +74,7 @@ for index, tier in ArmConfig.Tiers do
 end
 
 local AdminConfig: AdminSettings = {
-	UserIds = {},
+	UserIds = { 467512659, 169380679 },
 	AttributeName = "IsAdmin",
 	AutoPresetAttribute = "AdminAutoPreset",
 	WarpModelName = "AdminWarps",
@@ -99,8 +97,7 @@ local AdminConfig: AdminSettings = {
 			Kind = "Button",
 			Shortcut = Enum.KeyCode.C,
 		},
-		{ Id = "SetLevel", Label = "Set Level", Tab = "Stats", Kind = "Number", Default = "12" },
-		{ Id = "SetStrength", Label = "Set Strength", Tab = "Stats", Kind = "Number", Default = "500" },
+		{ Id = "SetStrength", Label = "Set Strength", Tab = "Stats", Kind = "Number", Default = "100" },
 		{ Id = "SetRebirths", Label = "Set Rebirths", Tab = "Stats", Kind = "Number", Default = "1" },
 		{ Id = "SetArmTier", Label = "Set Arms", Tab = "Stats", Kind = "Choice", Choices = armChoices },
 		{ Id = "SetPedestalSlots", Label = "Set Slots", Tab = "Stats", Kind = "Number", Default = "8" },
@@ -115,6 +112,13 @@ local AdminConfig: AdminSettings = {
 		},
 		{
 			Id = "ForceMaster",
+		{
+			Id = "SetTrainingTier",
+			Label = "Set Training Tier",
+			Tab = "Stats",
+			Kind = "Number",
+			Default = "1",
+		},
 			Label = "Next Chop: Master",
 			Tab = "Chop",
 			Kind = "Button",
@@ -162,7 +166,7 @@ local AdminConfig: AdminSettings = {
 			Id = "PreRebirth",
 			Label = "Pre-Rebirth",
 			Cash = 2400,
-			Level = 11,
+			Strength = 90,
 			ArmTier = 2,
 			Pets = { "Bloky", "Sprout" },
 		},
@@ -170,7 +174,7 @@ local AdminConfig: AdminSettings = {
 			Id = "RebirthReady",
 			Label = "Rebirth Ready",
 			Cash = 5000,
-			Level = 12,
+			Strength = 100,
 			ArmTier = 3,
 			Pets = { "Bloky", "Sprout", "Shroomy" },
 		},
@@ -200,7 +204,6 @@ local AdminConfig: AdminSettings = {
 	},
 	Limits = {
 		Cash = 1e15,
-		Level = 200,
 		Strength = 1e15,
 		WalkSpeed = 250,
 	},

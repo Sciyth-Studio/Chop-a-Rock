@@ -6,6 +6,7 @@ local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
+local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -62,7 +63,7 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 			services.NotificationService:Notify(
 				player,
 				DiamondRockConfig.EarnedKind,
-				string.format(DiamondRockConfig.EarnedText, NumberFormat.Commas(earned))
+				string.format(DiamondRockConfig.EarnedText, NumberFormat.CompactRock(earned))
 			)
 		end
 	end
@@ -174,11 +175,16 @@ function scheduleNext(delaySeconds: number?)
 	end)
 end
 
-local function scheduleNextRound(player: Player, session: Types.Session)
+local function scheduleNextRound(player: Player, session: Types.Session, isMaster: boolean)
 	session.StartTime = nil
 	session.Round += 1
 	local round = session.Round
-	task.delay(ChopConfig.RoundPauseSeconds, function()
+	local pause = if isMaster
+		then MasterChopConfig.ImpactDelaySeconds
+			+ MasterChopConfig.StrikeHoldSeconds
+			+ ChopConfig.RoundPauseSeconds
+		else ChopConfig.RoundPauseSeconds
+	task.delay(pause, function()
 		if sessions[player] ~= session or session.Round ~= round then
 			return
 		end
@@ -289,7 +295,7 @@ local function onRelease(player: Player)
 		finish(diamond, true, player)
 		return
 	end
-	scheduleNextRound(player, session)
+	scheduleNextRound(player, session, quality == ChopQuality.Master)
 end
 
 function DiamondRockService.Init(_self: any, registry: { [string]: any })

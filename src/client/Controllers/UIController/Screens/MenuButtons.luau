@@ -50,7 +50,7 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local container = gui:FindFirstChild(MenuButtonConfig.ContainerName)
-	local listLayout = if container then container:FindFirstChildWhichIsA("UIListLayout") else nil
+	local desktopLayout = if container then container:FindFirstChildWhichIsA("UIGridStyleLayout") else nil
 	local layoutStore = gui:FindFirstChild(MenuButtonConfig.LayoutStoreName)
 	local phoneLayout = if layoutStore
 		then layoutStore:FindFirstChild(MenuButtonConfig.PhoneLayoutName)
@@ -59,7 +59,7 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		layoutStore
 		and container
 		and container:IsA("Frame")
-		and listLayout
+		and desktopLayout
 		and phoneLayout
 		and phoneLayout:IsA("UIGridLayout")
 	then
@@ -90,7 +90,7 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				local cell = MenuButtonConfig.ButtonSizePixels
 				local gap = MenuButtonConfig.ButtonGapPixels
 				phoneLayout.FillDirectionMaxCells = columns
-				listLayout.Parent = layoutStore
+				desktopLayout.Parent = layoutStore
 				phoneLayout.Parent = container
 				container.Size =
 					UDim2.fromOffset(columns * cell + (columns - 1) * gap, rows * cell + (rows - 1) * gap)
@@ -102,7 +102,7 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				)
 			else
 				phoneLayout.Parent = layoutStore
-				listLayout.Parent = container
+				desktopLayout.Parent = container
 				container.Size = desktopSize
 				container.Position = desktopPosition
 			end
@@ -125,7 +125,7 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		watchCamera()
 	else
 		warn(
-			`[MenuButtons] Phone layout disabled; needs Container, UIListLayout and PhoneLayout in {gui:GetFullName()}`
+			`[MenuButtons] Phone layout disabled; needs Container, its layout and PhoneLayout in {gui:GetFullName()}`
 		)
 	end
 

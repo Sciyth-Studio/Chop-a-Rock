@@ -2,8 +2,13 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UIFeelConfig = require(ReplicatedStorage.Config.UIFeelConfig)
+local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Typography = require(ReplicatedStorage.Utils.Typography)
+local Trove = require(ReplicatedStorage.Packages.Trove)
 local WaitFor = require(ReplicatedStorage.Packages.WaitFor)
+local ButtonFeel = require(script.ButtonFeel)
+local PanelPop = require(script.PanelPop)
 local Types = require(script.Types)
 
 local modules: { [string]: Types.ScreenModule } = {
@@ -21,7 +26,6 @@ local modules: { [string]: Types.ScreenModule } = {
 	HatchReveal = require(script.Screens.HatchReveal),
 	Rebirth = require(script.Screens.Rebirth),
 	Notifications = require(script.Screens.Notifications),
-	ExpBar = require(script.Screens.ExpBar),
 	Letterbox = require(script.Screens.Letterbox),
 	Settings = require(script.Screens.Settings),
 	AdminPanel = require(script.Screens.AdminPanel),
@@ -35,10 +39,19 @@ local UIController = { Name = "UIController" }
 local registry: { [string]: any } = {}
 local screens: { [string]: Types.Screen } = {}
 local opened: { [string]: boolean } = {}
+local guis: { [string]: ScreenGui } = {}
 local pending: { any } = {}
 local destroyed = false
+local feelTrove = Trove.new()
+local feel: ButtonFeel.ButtonFeel? = nil
+local pop = PanelPop.new()
 
 function UIController.Init(_self: any, controllers: { [string]: any })
+local function findPopScale(name: string): UIScale?
+	local gui = guis[name]
+	return if gui and gui.Enabled then pop.Find(gui) else nil
+end
+
 	registry = controllers
 end
 
@@ -57,6 +70,14 @@ function UIController.Open(_self: any, name: string, argument: any?)
 	opened[name] = true
 	screen:Open(argument)
 end
+	local popScale = findPopScale(name)
+	if popScale then
+		pop.Open(popScale)
+	end
+	local openSound = UIFeelConfig.OpenSounds[name] or if popScale then UIFeelConfig.PanelOpenSound else nil
+	if openSound then
+		LocalSound.Play(openSound)
+	end
 
 function UIController.Close(_self: any, name: string)
 	local screen = screens[name]
@@ -64,7 +85,23 @@ function UIController.Close(_self: any, name: string)
 		return
 	end
 	opened[name] = nil
-	screen:Close()
+	local popScale = findPopScale(name)
+	if not popScale then
+		screen:Close()
+		return
+	end
+	LocalSound.Play(UIFeelConfig.PanelCloseSound)
+	pop.Close(popScale, function()
+		if not opened[name] and screens[name] == screen then
+			screen:Close()
+		end
+	end)
+end
+
+function UIController.BindFeel(_self: any, gui: LayerCollector)
+	if feel then
+		feel.Bind(gui)
+	end
 end
 
 function UIController.IsOpen(_self: any, name: string): boolean
@@ -82,6 +119,8 @@ function UIController.Start(_self: any)
 		end,
 	}
 	for name, module in modules do
+	local created = ButtonFeel.new(feelTrove)
+	feel = created
 		local promise = WaitFor.Child(Players.LocalPlayer, "PlayerGui", 15)
 			:andThen(function(playerGui: Instance)
 				return WaitFor.Child(playerGui, name, 15)
@@ -98,6 +137,8 @@ function UIController.Start(_self: any)
 				local screen = module.new(context, gui)
 				screens[name] = screen
 				if screen.StartsOpen then
+				guis[name] = gui
+				created.Bind(gui)
 					UIController:Open(name)
 				else
 					screen:Close()
@@ -121,10 +162,14 @@ function UIController.Destroy(_self: any)
 	end
 	table.clear(pending)
 	for _, screen in screens do
+	feelTrove:Destroy()
+	feel = nil
+	pop.Destroy()
 		screen:Destroy()
 	end
 	table.clear(screens)
 	table.clear(opened)
+	table.clear(guis)
 end
 
 return UIController

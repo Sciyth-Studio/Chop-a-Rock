@@ -10,6 +10,7 @@ local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
+local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -26,6 +27,12 @@ type Card = {
 	Odds: TextLabel?,
 	Name: TextLabel?,
 	Preview: ViewportFrame?,
+}
+
+type Tab = {
+	GeodeKey: string,
+	Button: TextButton,
+	Fill: Instance?,
 }
 
 type BuyButton = {
@@ -111,9 +118,13 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local blocker: TextButton? = find(gui, "Blocker", "TextButton", true)
 	local toggle: TextButton? = find(gui, "LuckToggle", "TextButton", true)
 	local blockerLabel: TextLabel? = if blocker then find(blocker, "Label", "TextLabel", false) else nil
+	local tabsFrame: GuiObject? = find(gui, "Tabs", "GuiObject", true)
+	local tabTemplate: TextButton? = find(gui, "TabTemplate", "TextButton", true)
 
-	if template then
-		template.Visible = false
+	for _, hidden in { template, tabTemplate } :: { GuiObject? } do
+		if hidden then
+			hidden.Visible = false
+		end
 	end
 
 	local geodeKey: string? = nil
@@ -121,6 +132,9 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local isBuying = false
 	local cards: { Card } = {}
 	local buttons: { BuyButton } = {}
+	local tabs: { Tab } = {}
+
+	local orderedKeys = GeodeOrder.Sorted()
 
 	for _, entry in { { Name = "BuyOne", Amount = 1 }, { Name = "BuyThree", Amount = 3 } } do
 		local button: TextButton? = find(gui, entry.Name, "TextButton", true)
@@ -232,19 +246,37 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local visible = blockedText == nil and (button.Amount == 1 or showThree)
 			button.Button.Visible = visible
 			if button.Amount == 1 then
-				local offset = if showThree
-					then -GeodeStandConfig.PairButtonOffsetPixels
-					else GeodeStandConfig.SingleButtonOffsetPixels
+				local offset = GeodeStandConfig.ButtonCenterOffsetPixels
+					+ if showThree
+						then -GeodeStandConfig.PairButtonOffsetPixels
+						else GeodeStandConfig.SingleButtonOffsetPixels
 				button.Button.Position =
 					UDim2.new(0.5, offset, button.Button.Position.Y.Scale, button.Button.Position.Y.Offset)
 			end
 		end
 	end
 
+	local function refreshTabs()
+		for _, tab in tabs do
+			paint(
+				tab.Fill,
+				if tab.GeodeKey == geodeKey
+					then GeodeStandConfig.Palette.TabActive
+					else GeodeStandConfig.Palette.TabIdle
+			)
+		end
+	end
+
 	local function refresh()
+		refreshTabs()
 		refreshCards()
 		refreshOdds()
 		refreshButtons()
+	end
+
+	local function defaultKey(): string?
+		local strength = read({ "Strength" })
+		return GeodeOrder.ForStrength(if type(strength) == "number" then strength else 0)
 	end
 
 	local function buildCards(key: string)
@@ -283,6 +315,44 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			})
 			frame.Parent = grid
 			cardTrove:Add(frame)
+		end
+	end
+
+	local function selectGeode(key: string)
+		if key == geodeKey then
+			return
+		end
+		geodeKey = key
+		showGamepassOdds = false
+		buildCards(key)
+	end
+
+	if tabsFrame and tabTemplate then
+		for order, key in orderedKeys do
+			local geode = GeodeConfig.Geodes[key]
+			local button = tabTemplate:Clone()
+			button.Name = key
+			button.LayoutOrder = order
+			button.Visible = true
+			setText(find(button, "Label", "TextLabel", true), geode.TabName)
+			setText(
+				find(button, "Count", "TextLabel", true),
+				string.format(
+					GeodeStandConfig.TabStrengthFormat,
+					NumberFormat.Compact(geode.StrengthRequired)
+				)
+			)
+			trove:Add(button.Activated:Connect(function()
+				selectGeode(key)
+				refresh()
+			end))
+			table.insert(tabs, {
+				GeodeKey = key,
+				Button = button,
+				Fill = button:FindFirstChild("Fill", true),
+			})
+			button.Parent = tabsFrame
+			trove:Add(button)
 		end
 	end
 
@@ -326,11 +396,10 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	return {
 		Modal = true,
 		StartsOpen = false,
-		Open = function(_self: Types.Screen, key: any?)
-			if type(key) == "string" and GeodeConfig.Geodes[key] and key ~= geodeKey then
-				geodeKey = key
-				showGamepassOdds = false
-				buildCards(key)
+		Open = function(_self: Types.Screen)
+			local key = defaultKey()
+			if key then
+				selectGeode(key)
 			end
 			if not geodeKey then
 				return
