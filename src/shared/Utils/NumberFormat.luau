@@ -22,6 +22,17 @@ function NumberFormat.Compact(value: number, threshold: number?): string
 	return `{text}{suffixes[index]}`
 end
 
+function NumberFormat.Rate(value: number): string
+	if value < 1000 and value % 1 ~= 0 then
+		return (string.format("%.1f", value):gsub("%.0$", ""))
+	end
+	return NumberFormat.Compact(value)
+end
+
+function NumberFormat.CompactRock(value: number): string
+	return NumberFormat.Compact(value, rockCompactThreshold)
+end
+
 function NumberFormat.Percent(chance: number): string
 	local percent = chance * 100
 	local decimals = if percent < 1 then 2 else 1

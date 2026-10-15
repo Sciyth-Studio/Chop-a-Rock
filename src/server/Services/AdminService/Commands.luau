@@ -9,6 +9,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local WalkSpeedConfig = require(ReplicatedStorage.Config.WalkSpeedConfig)
+local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
@@ -24,13 +25,13 @@ local function notify(context: Types.Context, player: Player, message: string)
 	context.Services.NotificationService:Notify(player, "Info", `Admin: {message}`)
 end
 
-local function number(
 local function zoneGeode(context: Types.Context, player: Player): string?
 	local data = context.Services.DataService:GetData(player)
 	local strength = if data and type(data.Strength) == "number" then data.Strength else 0
 	return GeodeOrder.ForStrength(strength)
 end
 
+local function number(
 	context: Types.Context,
 	player: Player,
 	argument: string,
@@ -99,13 +100,13 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, ArmConfig.Tiers[tier].DisplayName)
 		end
 	end,
-	SetPedestalSlots = function(context: Types.Context, player: Player, argument: string)
 	SetTrainingTier = function(context: Types.Context, player: Player, argument: string)
 		local tier = number(context, player, argument, 1, #TrainingConfig.Stands)
 		if tier and context.Services.TrainingService:SetTier(player, tier) then
 			notify(context, player, `{TrainingConfig.Stands[tier].DisplayName} Training`)
 		end
 	end,
+	SetPedestalSlots = function(context: Types.Context, player: Player, argument: string)
 		local slots = number(context, player, argument, 1, PedestalSlots.Total())
 		if slots and context.Services.PedestalService:SetSlots(player, slots) then
 			notify(context, player, `{slots} slots`)
@@ -142,6 +143,44 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, "next broken rock comes back as a Rush Rock")
 		else
 			notify(context, player, "a Rush Rock is already out")
+		end
+	end,
+	WeatherStart = function(context: Types.Context, player: Player, argument: string)
+		if context.Services.WeatherService:Force(argument) then
+			notify(context, player, `{argument} started`)
+		else
+			notify(context, player, `no weather called {argument}`)
+		end
+	end,
+	WeatherEnd = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.WeatherService:EndActive() then
+			notify(context, player, "weather ended")
+		else
+			notify(context, player, "no weather is on")
+		end
+	end,
+	WeatherNext = function(context: Types.Context, player: Player, _argument: string)
+		local seconds = WeatherConfig.AdminNextSeconds
+		local key = context.Services.WeatherService:StartIn(seconds)
+		notify(context, player, `{key} in {seconds}s`)
+	end,
+	GiveModifier = function(context: Types.Context, player: Player, argument: string)
+		local petService = context.Services.PetService
+		local data = context.Services.DataService:GetData(player)
+		local petId = petService:GetHeldPetId(player)
+		if not petId and data then
+			local lowest: number? = nil
+			for id, pet in data.Pets do
+				if pet.Slot and (not lowest or pet.Slot < lowest) then
+					lowest = pet.Slot
+					petId = id
+				end
+			end
+		end
+		if petId and petService:SetModifier(player, petId, argument, false) then
+			notify(context, player, `Rok {petId} is now {argument}`)
+		else
+			notify(context, player, "hold a Rok or place one first")
 		end
 	end,
 	SpawnDiamond = function(context: Types.Context, player: Player, _argument: string)

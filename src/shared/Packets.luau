@@ -69,6 +69,7 @@ local Packets = {
 		Packet.String,
 		Packet.NumberU8,
 		Packet.Boolean8,
+		Packet.String,
 		Packet.String
 	),
 	UnequipPet = Packet("UnequipPet", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(10, 1),

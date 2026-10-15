@@ -2,6 +2,7 @@
 
 local ArmConfig = require(script.Parent.ArmConfig)
 local ShopConfig = require(script.Parent.ShopConfig)
+local WeatherConfig = require(script.Parent.WeatherConfig)
 
 export type Kind = "Button" | "Number" | "Choice"
 
@@ -73,6 +74,17 @@ for index, tier in ArmConfig.Tiers do
 	table.insert(armChoices, { Value = tostring(index), Label = tier.DisplayName })
 end
 
+local weatherChoices: { Choice } = {}
+for _, event in WeatherConfig.Events do
+	table.insert(weatherChoices, { Value = event.Key, Label = event.DisplayName })
+end
+
+local modifierChoices: { Choice } = {}
+for _, event in WeatherConfig.Events do
+	local modifier = WeatherConfig.Modifiers[event.Modifier]
+	table.insert(modifierChoices, { Value = event.Modifier, Label = modifier.DisplayName })
+end
+
 local AdminConfig: AdminSettings = {
 	UserIds = { 467512659, 169380679 },
 	AttributeName = "IsAdmin",
@@ -84,7 +96,7 @@ local AdminConfig: AdminSettings = {
 	BaseWarpLabel = "My Base",
 	BaseSpawnName = "BaseSpawn",
 	WalkSpeedSource = "Admin",
-	Tabs = { "Presets", "Move", "Stats", "Roks", "Chop", "Debug" },
+	Tabs = { "Presets", "Move", "Stats", "Roks", "Chop", "Weather", "Debug" },
 	PresetTab = "Presets",
 	WarpTab = "Move",
 	Commands = {
@@ -100,6 +112,13 @@ local AdminConfig: AdminSettings = {
 		{ Id = "SetStrength", Label = "Set Strength", Tab = "Stats", Kind = "Number", Default = "100" },
 		{ Id = "SetRebirths", Label = "Set Rebirths", Tab = "Stats", Kind = "Number", Default = "1" },
 		{ Id = "SetArmTier", Label = "Set Arms", Tab = "Stats", Kind = "Choice", Choices = armChoices },
+		{
+			Id = "SetTrainingTier",
+			Label = "Set Training Tier",
+			Tab = "Stats",
+			Kind = "Number",
+			Default = "1",
+		},
 		{ Id = "SetPedestalSlots", Label = "Set Slots", Tab = "Stats", Kind = "Number", Default = "8" },
 		{ Id = "GrantPet", Label = "Grant Rok", Tab = "Roks", Kind = "Button", Shortcut = Enum.KeyCode.P },
 		{ Id = "GrantGeode", Label = "+1 Geode", Tab = "Roks", Kind = "Button", Shortcut = Enum.KeyCode.G },
@@ -112,13 +131,6 @@ local AdminConfig: AdminSettings = {
 		},
 		{
 			Id = "ForceMaster",
-		{
-			Id = "SetTrainingTier",
-			Label = "Set Training Tier",
-			Tab = "Stats",
-			Kind = "Number",
-			Default = "1",
-		},
 			Label = "Next Chop: Master",
 			Tab = "Chop",
 			Kind = "Button",
@@ -151,6 +163,33 @@ local AdminConfig: AdminSettings = {
 			Tab = "Chop",
 			Kind = "Button",
 			Shortcut = Enum.KeyCode.K,
+		},
+		{
+			Id = "WeatherStart",
+			Label = "Weather: Start",
+			Tab = "Weather",
+			Kind = "Choice",
+			Choices = weatherChoices,
+		},
+		{
+			Id = "WeatherEnd",
+			Label = "Weather: End",
+			Tab = "Weather",
+			Kind = "Button",
+		},
+		{
+			Id = "WeatherNext",
+			Label = "Weather: Next in 10s",
+			Tab = "Weather",
+			Kind = "Button",
+			Shortcut = Enum.KeyCode.N,
+		},
+		{
+			Id = "GiveModifier",
+			Label = "Rok: Give Modifier",
+			Tab = "Weather",
+			Kind = "Choice",
+			Choices = modifierChoices,
 		},
 		{
 			Id = "ResetData",

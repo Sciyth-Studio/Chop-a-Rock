@@ -7,8 +7,10 @@ local Component = require(ReplicatedStorage.Packages.Component)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local RokModifier = require(ReplicatedStorage.RokModifier)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
+local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
 type Pedestal = {
 	Instance: Instance,
@@ -63,6 +65,7 @@ return function(_controllers: { [string]: any })
 		local amount = findLabel(padGui, "Amount")
 		local title = findLabel(infoGui, "Title")
 		local detail = findLabel(infoGui, "Detail")
+		local modifierLabel = findLabel(infoGui, "Modifier")
 
 		local function refreshInfo()
 			local isOwned = pedestal:GetAttribute("OwnerUserId") ~= nil
@@ -72,13 +75,33 @@ return function(_controllers: { [string]: any })
 			local pet = if type(petKey) == "string" then PetConfig.Pets[petKey] else nil
 			padGui.Enabled = isOwned and state ~= "Locked"
 			infoGui.Enabled = isOwned and (state == "Locked" or pet ~= nil)
+			local modifierValue = pedestal:GetAttribute(WeatherConfig.ModifierAttribute)
+			local modifier = if type(modifierValue) == "string" then modifierValue else nil
+			local modifierConfig = RokModifier.Get(modifier)
 			if title then
 				title.Text = if state == "Locked" then "Locked" elseif pet then pet.DisplayName else ""
+			end
+			if modifierLabel then
+				local isShown = modifierConfig ~= nil and pet ~= nil and state ~= "Locked"
+				modifierLabel.Visible = isShown
+				if modifierConfig and isShown then
+					modifierLabel.Text = modifierConfig.DisplayName
+					local gradient = modifierLabel:FindFirstChildWhichIsA("UIGradient")
+					if gradient then
+						gradient.Color =
+							ColorSequence.new(modifierConfig.LabelTop, modifierConfig.LabelBottom)
+					end
+					local stroke = modifierLabel:FindFirstChildWhichIsA("UIStroke")
+					if stroke then
+						stroke.Color =
+							modifierConfig.LabelBottom:Lerp(Color3.new(0, 0, 0), WeatherConfig.LabelDarkAlpha)
+					end
+				end
 			end
 			if detail then
 				detail.Text = if state == "Locked"
 					then (if type(price) == "number" then `${NumberFormat.Compact(price)}` else "")
-					elseif pet then `${NumberFormat.Commas(pet.MoneyPerSecond)}/s`
+					elseif pet then `${NumberFormat.Rate(RokModifier.Rate(petKey :: string, modifier))}/s`
 					else ""
 				detail.Visible = detail.Text ~= ""
 			end
@@ -95,7 +118,7 @@ return function(_controllers: { [string]: any })
 			amount.Text = `${NumberFormat.Compact(math.floor(value))}`
 		end
 
-		for _, name in { "OwnerUserId", "State", "Price", "PetKey" } do
+		for _, name in { "OwnerUserId", "State", "Price", "PetKey", WeatherConfig.ModifierAttribute } do
 			self.Trove:Connect(pedestal:GetAttributeChangedSignal(name), refreshInfo)
 		end
 		local elapsed = 0

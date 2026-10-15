@@ -24,6 +24,7 @@ export type Hatch = {
 	Rarity: string,
 	IsNew: boolean,
 	Trait: string?,
+	Modifier: string?,
 }
 
 return {}

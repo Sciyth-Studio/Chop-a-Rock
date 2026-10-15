@@ -32,26 +32,27 @@ local modules: { [string]: Types.ScreenModule } = {
 	HotStreakFx = require(script.Screens.HotStreakFx),
 	HotStreakBar = require(script.Screens.HotStreakBar),
 	DiamondRockPill = require(script.Screens.DiamondRockPill),
+	WeatherPill = require(script.Screens.WeatherPill),
 	TeleportBar = require(script.Screens.TeleportBar),
 }
 
 local UIController = { Name = "UIController" }
 local registry: { [string]: any } = {}
 local screens: { [string]: Types.Screen } = {}
-local opened: { [string]: boolean } = {}
 local guis: { [string]: ScreenGui } = {}
+local opened: { [string]: boolean } = {}
 local pending: { any } = {}
-local destroyed = false
 local feelTrove = Trove.new()
 local feel: ButtonFeel.ButtonFeel? = nil
 local pop = PanelPop.new()
+local destroyed = false
 
-function UIController.Init(_self: any, controllers: { [string]: any })
 local function findPopScale(name: string): UIScale?
 	local gui = guis[name]
 	return if gui and gui.Enabled then pop.Find(gui) else nil
 end
 
+function UIController.Init(_self: any, controllers: { [string]: any })
 	registry = controllers
 end
 
@@ -69,7 +70,6 @@ function UIController.Open(_self: any, name: string, argument: any?)
 	end
 	opened[name] = true
 	screen:Open(argument)
-end
 	local popScale = findPopScale(name)
 	if popScale then
 		pop.Open(popScale)
@@ -78,6 +78,7 @@ end
 	if openSound then
 		LocalSound.Play(openSound)
 	end
+end
 
 function UIController.Close(_self: any, name: string)
 	local screen = screens[name]
@@ -118,9 +119,9 @@ function UIController.Start(_self: any)
 			UIController:Close(name)
 		end,
 	}
-	for name, module in modules do
 	local created = ButtonFeel.new(feelTrove)
 	feel = created
+	for name, module in modules do
 		local promise = WaitFor.Child(Players.LocalPlayer, "PlayerGui", 15)
 			:andThen(function(playerGui: Instance)
 				return WaitFor.Child(playerGui, name, 15)
@@ -136,9 +137,9 @@ function UIController.Start(_self: any)
 				Typography.Apply(gui)
 				local screen = module.new(context, gui)
 				screens[name] = screen
-				if screen.StartsOpen then
 				guis[name] = gui
 				created.Bind(gui)
+				if screen.StartsOpen then
 					UIController:Open(name)
 				else
 					screen:Close()
@@ -161,15 +162,15 @@ function UIController.Destroy(_self: any)
 		promise:cancel()
 	end
 	table.clear(pending)
-	for _, screen in screens do
 	feelTrove:Destroy()
 	feel = nil
 	pop.Destroy()
+	for _, screen in screens do
 		screen:Destroy()
 	end
 	table.clear(screens)
-	table.clear(opened)
 	table.clear(guis)
+	table.clear(opened)
 end
 
 return UIController

@@ -6,7 +6,9 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local RokModifier = require(ReplicatedStorage.RokModifier)
 local RokMotionConfig = require(ReplicatedStorage.Config.RokMotionConfig)
+local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local Types = require(script.Parent.Types)
 
 local PROMPT_NAME = "PedestalPrompt"
@@ -15,6 +17,7 @@ local OWNED_PROMPT_TAG = "OwnedPrompt"
 export type SlotView = {
 	State: "Locked" | "Empty" | "Placed",
 	PetKey: string?,
+	Modifier: string?,
 	Price: number?,
 	Earnings: Types.SlotEarnings?,
 	CanPlace: boolean,
@@ -70,9 +73,25 @@ function Display.EnsurePrompt(pedestal: Model): ProximityPrompt?
 	return prompt
 end
 
-local function setRok(pedestal: Model, petKey: string?)
+local function setModifier(model: Instance, modifier: string?, isCatch: boolean)
+	if model:GetAttribute(WeatherConfig.ModifierAttribute) == modifier then
+		return
+	end
+	model:SetAttribute(WeatherConfig.ModifierAttribute, modifier)
+	if modifier then
+		CollectionService:AddTag(model, WeatherConfig.RokTag)
+	else
+		CollectionService:RemoveTag(model, WeatherConfig.RokTag)
+	end
+	if isCatch and modifier then
+		model:SetAttribute(WeatherConfig.CaughtAtAttribute, workspace:GetServerTimeNow())
+	end
+end
+
+local function setRok(pedestal: Model, petKey: string?, modifier: string?)
 	local current = pedestal:FindFirstChild(PedestalConfig.DisplayName)
 	if current and current:GetAttribute("PetKey") == petKey then
+		setModifier(current, modifier, true)
 		return
 	end
 	if current then
@@ -105,6 +124,7 @@ local function setRok(pedestal: Model, petKey: string?)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	model:SetAttribute(RokMotionConfig.PlacedAtAttribute, workspace:GetServerTimeNow())
 	CollectionService:AddTag(model, RokMotionConfig.Tag)
+	setModifier(model, modifier, false)
 	model.Parent = pedestal
 end
 
@@ -113,12 +133,13 @@ function Display.Render(pedestal: Model, owner: Player, view: SlotView)
 	pedestal:SetAttribute("OwnerUserId", owner.UserId)
 	pedestal:SetAttribute("State", view.State)
 	pedestal:SetAttribute("PetKey", if pet then view.PetKey else nil)
+	pedestal:SetAttribute(WeatherConfig.ModifierAttribute, if pet then view.Modifier else nil)
 	pedestal:SetAttribute("Price", view.Price)
 	local earnings = view.Earnings
 	pedestal:SetAttribute("Rate", if earnings then earnings.Rate else 0)
 	pedestal:SetAttribute("Banked", if earnings then earnings.Banked else 0)
 	pedestal:SetAttribute("BankedAt", if earnings then earnings.BankedAt else 0)
-	setRok(pedestal, if pet then view.PetKey else nil)
+	setRok(pedestal, if pet then view.PetKey else nil, if pet then view.Modifier else nil)
 
 	local prompt = Display.EnsurePrompt(pedestal)
 	if not prompt then
@@ -131,7 +152,7 @@ function Display.Render(pedestal: Model, owner: Player, view: SlotView)
 		prompt:SetAttribute("Active", view.Price ~= nil)
 	elseif view.State == "Placed" then
 		prompt.ActionText = "Pick up"
-		prompt.ObjectText = if pet then pet.DisplayName else ""
+		prompt.ObjectText = if view.PetKey then RokModifier.Name(view.PetKey, view.Modifier) else ""
 		prompt:SetAttribute("Active", true)
 	else
 		prompt.ActionText = "Place"
@@ -141,10 +162,21 @@ function Display.Render(pedestal: Model, owner: Player, view: SlotView)
 end
 
 function Display.Clear(pedestal: Model)
-	for _, name in { "OwnerUserId", "State", "PetKey", "Price", "Rate", "Banked", "BankedAt" } do
+	for _, name in
+		{
+			"OwnerUserId",
+			"State",
+			"PetKey",
+			WeatherConfig.ModifierAttribute,
+			"Price",
+			"Rate",
+			"Banked",
+			"BankedAt",
+		}
+	do
 		pedestal:SetAttribute(name, nil)
 	end
-	setRok(pedestal, nil)
+	setRok(pedestal, nil, nil)
 	local part = Display.PedestalPart(pedestal)
 	local prompt = if part then part:FindFirstChild(PROMPT_NAME) else nil
 	if prompt and prompt:IsA("ProximityPrompt") then

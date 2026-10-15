@@ -11,6 +11,7 @@ local HatchRevealConfig = require(ReplicatedStorage.Config.HatchRevealConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
+local RokModifier = require(ReplicatedStorage.RokModifier)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -40,7 +41,7 @@ local function setText(label: TextLabel?, text: string)
 	end
 end
 
-local function buildPreview(frame: ViewportFrame, modelKey: string)
+local function buildPreview(frame: ViewportFrame, modelKey: string, modifier: string?)
 	for _, child in frame:GetChildren() do
 		if child:IsA("Model") or child:IsA("Camera") then
 			child:Destroy()
@@ -52,6 +53,7 @@ local function buildPreview(frame: ViewportFrame, modelKey: string)
 		return
 	end
 	local model = asset :: Model
+	RokModifier.Tint(model, modifier)
 	local camera = Instance.new("Camera")
 	camera.FieldOfView = HatchRevealConfig.PreviewFieldOfView
 	camera.Parent = frame
@@ -79,6 +81,7 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local preview: ViewportFrame? = find(gui, "Preview", "ViewportFrame")
 	local statValue: TextLabel? = find(gui, "StatValue", "TextLabel")
 	local trait: TextLabel? = find(gui, "Trait", "TextLabel")
+	local modifierLabel: TextLabel? = find(gui, "Modifier", "TextLabel")
 	local continueLabel: TextLabel? = find(gui, "Continue", "TextLabel")
 	local dismiss: TextButton? = find(gui, "Dismiss", "TextButton")
 	local popScale: UIScale? = find(gui, "PopScale", "UIScale")
@@ -92,7 +95,8 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if not pet or not rarity then
 			return
 		end
-		setText(petName, pet.DisplayName)
+		local modifier = RokModifier.Get(hatch.Modifier)
+		setText(petName, RokModifier.Name(hatch.PetKey, hatch.Modifier))
 		setText(rarityLabel, rarity.DisplayName)
 		if rarityLabel then
 			rarityLabel.TextColor3 = if rarity.RainbowLabel then Color3.new(1, 1, 1) else rarity.Color
@@ -111,7 +115,19 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if newBadge then
 			newBadge.Visible = hatch.IsNew == true
 		end
-		setText(statValue, `{NumberFormat.Commas(pet.MoneyPerSecond)}/s`)
+		setText(statValue, `{NumberFormat.Rate(RokModifier.Rate(hatch.PetKey, hatch.Modifier))}/s`)
+		if modifierLabel then
+			modifierLabel.Visible = modifier ~= nil
+			setText(
+				modifierLabel,
+				if modifier
+					then `{modifier.DisplayName} {NumberFormat.Multiplier(modifier.Multiplier)}`
+					else ""
+			)
+			if modifier then
+				modifierLabel.TextColor3 = modifier.Color
+			end
+		end
 		local traitConfig = if hatch.Trait then PetConfig.Traits[hatch.Trait] else nil
 		if trait then
 			trait.Visible = traitConfig ~= nil
@@ -122,7 +138,7 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			rays.ImageColor3 = Color3.new(1, 1, 1):Lerp(rarity.Color, HatchRevealConfig.RaysTint)
 		end
 		if preview then
-			buildPreview(preview, pet.ModelKey)
+			buildPreview(preview, pet.ModelKey, hatch.Modifier)
 		end
 		setText(
 			continueLabel,

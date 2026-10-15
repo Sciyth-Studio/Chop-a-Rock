@@ -8,6 +8,7 @@ local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
+local RokModifier = require(ReplicatedStorage.RokModifier)
 local RokValue = require(ReplicatedStorage.RokValue)
 local SellShopConfig = require(ReplicatedStorage.Config.SellShopConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
@@ -71,8 +72,9 @@ local function paint(fill: Instance?, colors: ShopConfig.MeterColors)
 	end
 end
 
-local function buildPreview(frame: ViewportFrame, modelKey: string)
+local function buildPreview(frame: ViewportFrame, modelKey: string, modifier: string?)
 	local model = AssetRegistry.get(modelKey)
+	RokModifier.Tint(model, modifier)
 	if not model:IsA("Model") then
 		model:Destroy()
 		return
@@ -217,15 +219,18 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				if rarityLabel and rarity then
 					rarityLabel.TextColor3 = rarity.Color
 				end
-				setText(
-					find(frame, "Rate", "TextLabel", true),
-					`${NumberFormat.Commas(config.MoneyPerSecond)}/s`
-				)
-				local value = RokValue.Sell(pet.Key)
+				local modifier = RokModifier.Get(pet.Modifier)
+				local rateLabel: TextLabel? = find(frame, "Rate", "TextLabel", true)
+				local rateText = `${NumberFormat.Rate(RokModifier.Rate(pet.Key, pet.Modifier))}/s`
+				setText(rateLabel, if modifier then `{modifier.DisplayName} {rateText}` else rateText)
+				if rateLabel and modifier then
+					rateLabel.TextColor3 = modifier.Color
+				end
+				local value = RokValue.Sell(pet.Key, pet.Modifier)
 				setText(find(frame, "Price", "TextLabel", true), `${NumberFormat.Commas(value)}`)
 				local preview: ViewportFrame? = find(frame, "Preview", "ViewportFrame", true)
 				if preview then
-					buildPreview(preview, config.ModelKey)
+					buildPreview(preview, config.ModelKey, pet.Modifier)
 				end
 				local stroke = frame:FindFirstChild("OuterStroke")
 				cards[id] = {

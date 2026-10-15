@@ -47,7 +47,7 @@ local PedestalConfig: PedestalSettings = {
 	PadTemplateKey = "UI_PedestalPad",
 	InfoTemplateKey = "UI_PedestalInfo",
 	DisplayRefreshSeconds = 0.1,
-	InfoHeightStuds = 7,
+	InfoHeightStuds = 7.5,
 	PadLabelHeightStuds = 2.5,
 	LabelMaxDistance = 80,
 }

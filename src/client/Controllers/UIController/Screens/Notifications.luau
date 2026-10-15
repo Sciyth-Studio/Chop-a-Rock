@@ -6,6 +6,7 @@ local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local Types = require(script.Parent.Parent.Types)
 
 type Entry = {
@@ -27,6 +28,24 @@ local function findChild(root: Instance, name: string, className: string): Insta
 	end
 	warn(`[Notifications] Missing {className} "{name}" in {root:GetFullName()}`)
 	return nil
+end
+
+local function style(label: TextLabel, stroke: UIStroke?, kind: string)
+	local prefix = WeatherConfig.NoticeKindPrefix
+	if string.sub(kind, 1, #prefix) ~= prefix then
+		return
+	end
+	local modifier = WeatherConfig.Modifiers[string.sub(kind, #prefix + 1)]
+	if not modifier then
+		return
+	end
+	local gradient = Instance.new("UIGradient")
+	gradient.Rotation = 90
+	gradient.Color = ColorSequence.new(modifier.LabelTop, modifier.LabelBottom)
+	gradient.Parent = label
+	if stroke then
+		stroke.Color = modifier.LabelBottom:Lerp(Color3.new(0, 0, 0), WeatherConfig.LabelDarkAlpha)
+	end
 end
 
 function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
@@ -111,6 +130,7 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local stroke = label:FindFirstChildWhichIsA("UIStroke")
+		style(label, stroke, kind)
 		nextOrder += 1
 		frame.Name = `Notification{nextOrder}`
 		frame.LayoutOrder = nextOrder

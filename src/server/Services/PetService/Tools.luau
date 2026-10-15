@@ -1,15 +1,19 @@
 --!strict
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local RokModifier = require(ReplicatedStorage.RokModifier)
+local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
 local PET_ID_ATTRIBUTE = "PetId"
 
 local Tools = {}
 
-local function build(id: string, pet: PetConfig.Pet): Tool?
+local function build(id: string, petKey: string, modifier: string?): Tool?
+	local pet = PetConfig.Pets[petKey]
 	local asset = AssetRegistry.get(pet.ModelKey)
 	if not asset:IsA("Model") or not asset.PrimaryPart then
 		warn(`[PetService] {pet.ModelKey} needs to be a Model with a PrimaryPart to become a tool`)
@@ -36,11 +40,15 @@ local function build(id: string, pet: PetConfig.Pet): Tool?
 	end
 	handle.Name = "Handle"
 	local tool = Instance.new("Tool")
-	tool.Name = pet.DisplayName
-	tool.ToolTip = `${NumberFormat.Commas(pet.MoneyPerSecond)}/s`
+	tool.Name = RokModifier.Name(petKey, modifier)
+	tool.ToolTip = `${NumberFormat.Rate(RokModifier.Rate(petKey, modifier))}/s`
 	tool.CanBeDropped = false
 	tool.Grip = PetConfig.ToolGrip
 	tool:SetAttribute(PET_ID_ATTRIBUTE, id)
+	tool:SetAttribute(WeatherConfig.ModifierAttribute, modifier)
+	if modifier then
+		CollectionService:AddTag(tool, WeatherConfig.RokTag)
+	end
 	for _, child in model:GetChildren() do
 		child.Parent = tool
 	end
@@ -83,18 +91,25 @@ function Tools.Sync(player: Player, pets: { [string]: any })
 		return
 	end
 	local existing = owned(player)
+	local kept: { [string]: boolean } = {}
 	for id, tools in existing do
 		local pet = pets[id]
-		local keep = pet ~= nil and pet.Slot == nil and PetConfig.Pets[pet.Key] ~= nil
+		local keep = pet ~= nil
+			and pet.Slot == nil
+			and PetConfig.Pets[pet.Key] ~= nil
+			and tools[1]:GetAttribute(WeatherConfig.ModifierAttribute) == pet.Modifier
 		for index, tool in tools do
 			if not keep or index > 1 then
 				tool:Destroy()
 			end
 		end
+		if keep then
+			kept[id] = true
+		end
 	end
 	local missing: { string } = {}
 	for id, pet in pets do
-		if pet.Slot == nil and PetConfig.Pets[pet.Key] and not existing[id] then
+		if pet.Slot == nil and PetConfig.Pets[pet.Key] and not kept[id] then
 			table.insert(missing, id)
 		end
 	end
@@ -102,7 +117,7 @@ function Tools.Sync(player: Player, pets: { [string]: any })
 		return (tonumber(a) or 0) < (tonumber(b) or 0)
 	end)
 	for _, id in missing do
-		local tool = build(id, PetConfig.Pets[pets[id].Key])
+		local tool = build(id, pets[id].Key, pets[id].Modifier)
 		if tool then
 			tool.Parent = backpack
 		end

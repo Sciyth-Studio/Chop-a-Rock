@@ -14,7 +14,7 @@ Plan and decisions: `PetBaseSystemPlan.md` (approved 2026-10-06), Master Game Pl
 - Collect: owner touches the pedestal's `EarningsPad` (server `Touched`, 1 s cooldown per slot).
 
 ## Client
-- `Components/Pedestal.luau` (tag `Pedestal`, added by the server) clones `Assets/VFX/PedestalPad` (`Amount`) onto the pad and `PedestalInfo` (`Title`, `Detail`) above the pedestal, and counts the pad up locally from the attributes. Visitors see them too.
+- `Components/Pedestal.luau` (tag `Pedestal`, added by the server) clones `Assets/VFX/PedestalPad` (`Amount`) onto the pad and `PedestalInfo` (`Modifier`, `Title`, `Detail`, top to bottom; see [[Weather]]) above the pedestal, and counts the pad up locally from the attributes. Visitors see them too.
 - `Screens/Roks.luau` + `StarterGui.Roks` (teal header, copy of the Shop panel): title "X/Y Placed", `Header.SlotButton`, `List.RowTemplate` (`Preview`, `RokName`, `UnequipButton`), `EmptyLabel`, `EquipBestButton`. Opened by the `RoksButton` menu button (was `BagButton`).
 - The Delete button shown while holding a Rok (`HeldRok`) was removed the same day; Roks are sold at the [[Sell Shop]] instead.
 - `ExpBar.Container` moved to y = 1,-84 so it clears the Roblox hotbar.

@@ -1,5 +1,7 @@
 --!strict
 
+local WeatherConfig = require(script.Parent.WeatherConfig)
+
 export type NotificationSettings = {
 	Kinds: { [string]: boolean },
 	FallbackKind: string,
@@ -28,5 +30,9 @@ local NotificationConfig: NotificationSettings = {
 	FadeOutSeconds = 0.6,
 	RepeatSuffix = " x",
 }
+
+for key in WeatherConfig.Modifiers do
+	NotificationConfig.Kinds[WeatherConfig.NoticeKindPrefix .. key] = true
+end
 
 return table.freeze(NotificationConfig)

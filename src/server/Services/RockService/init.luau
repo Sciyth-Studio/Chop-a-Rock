@@ -297,6 +297,7 @@ local function onRelease(player: Player)
 	local streakMultiplier = services.HotStreakService:RecordChop(player, quality, session.StrengthRatio)
 	if payout > 0 then
 		payout = Rush.ApplyPayout(rock, payout)
+		payout = services.WeatherService:ApplyRockMultiplier(payout)
 		payout = services.HotStreakService:ApplyCashMultiplier(payout, streakMultiplier)
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)

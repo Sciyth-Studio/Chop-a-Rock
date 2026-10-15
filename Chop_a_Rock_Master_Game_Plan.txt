@@ -303,19 +303,37 @@ Reasons to come back:
   meteorite geodes). Specific events [TBD].
 [DECIDED 2026-10-03] Weather events also give pet rocks MODIFIERS (the genre's "mutations"). Weather list so far:
   sandstorm, hurricane, heat wave, thunderstorm, eclipse (more can be added).
+  [DECIDED 2026-10-14] Cadence: a weather event is guaranteed every 30 minutes and lasts 15 minutes. The five
+    events above are the launch list.
+  [DECIDED 2026-10-14] Timing runs on a shared clock: every server starts an event on the :00 and :30, so the
+    times are predictable. Which event plays is a weighted roll: Sandstorm 35%, Hurricane 25%, Heat Wave 20%,
+    Thunderstorm 15%, Eclipse 5% ([PLAYTEST]).
+  [DECIDED 2026-10-14] During an event every rock takes on the weather's look AND pays more chop money. Draft: rocks
+    pay the event's modifier multiplier (x1.5 Sandstorm up to x5 Eclipse) [PLAYTEST].
+  [DECIDED 2026-10-14] Weather events spawn no special rocks and add no event geodes. Instead, geodes opened during
+    an event can hatch a Rok with that weather's modifier.
+  [DECIDED 2026-10-14] Each event shows in the world: sky, lighting, particles and sound per weather, an
+    announcement when it starts, and a HUD countdown to the next event.
   [DECIDED 2026-10-03] Pets catch modifiers by being out in the weather: during a weather event, each pet on a
     pedestal (REVISED 2026-10-06; was equipped pets) has a small chance per minute to catch that weather's modifier (e.g. lightning strikes a pet in a thunderstorm).
     Being online during events is what pays, which supports CCU. [PLAYTEST] catch chance.
+    [DECIDED 2026-10-14] 2% per minute per Rok: a 26% chance per Rok over a 15-minute event; with 8 full
+    pedestals, about 2 modified per event and a 91% chance of at least one [PLAYTEST].
   [DECIDED 2026-10-03] Rest of how it works:
-  - Pets hatched during the event get a higher chance of the modifier.
+  - Pets hatched during the event get a higher chance of the modifier. Draft (2026-10-14): a geode opened during an
+    event has a 25% chance to hatch its Rok with that weather's modifier [PLAYTEST].
+  - Draft (2026-10-14): a modified Rok sells for more, since its sell price (100 s of income) uses its multiplied
+    income [PLAYTEST].
   - One modifier per pet. If a pet catches a new one, it keeps whichever has the bigger multiplier.
   - A modifier multiplies that pet's money per second (REVISED 2026-10-06; was its money boost). Common weather = small multiplier,
     rare weather = big one.
   - Modifier names are simple one-word kid words and must never be a rock material name (sand, lava, ice, crystal...),
     since future zones will have rocks of those materials.
-  - Draft modifiers: Sandstorm → Dusty (x1.5), Hurricane → Windy (x2), Heat Wave → Toasty (x2),
-    Thunderstorm → Zappy (x3), Eclipse → Eclipsed (x5, rarest event). [PLAYTEST] multipliers, chances, event
-    frequency and length; all config-driven.
+  - Draft modifiers: Sandstorm → Dusty (x1.5), Hurricane → Windy (x2), Heat Wave → Toasty (x2.5),
+    Thunderstorm → Zappy (x3), Eclipse → Eclipsed (x5, rarest event). [PLAYTEST] multipliers and chances;
+    all config-driven.
+    [DECIDED 2026-10-14] Hurricane and Heat Wave must have different multipliers: Windy x2, Toasty x2.5, with
+    Heat Wave rarer than Hurricane. The others stand.
   - Look: overlay + particles per modifier, none of which may read as a rock material (Dusty puffs of dust, Windy
     swirl, Toasty heat shimmer and rosy tint, Zappy sparks, Eclipsed vivid purple corona with stars — kept bright
     per §03).
@@ -463,7 +481,8 @@ UNLOCK REQUIREMENTS:
 - Geodes: strength (per geode tier) plus money per geode.
 - Base floors: rebirth.
 
-PLAYER LEVELS (revised 2026-10-01):
+PLAYER LEVELS (revised 2026-10-01) [REMOVED 2026-10-13: no level system; rebirth is gated by a strength number and the
+HUD has no bottom bar any more. See the Decision Log. Kept below for history.]
 - Level is derived from strength (EXP is literally strength; nothing else grants EXP). Not saved separately.
 - Purpose: (1) gates rebirth, (2) a concrete, kid-readable strength indicator ("Level 12" instead of "1,901 strength").
 - Resets to 1 on rebirth, because strength resets.
@@ -485,13 +504,16 @@ What determines reward amount? Rock size/tier, timing quality, equipped pet boos
   pedestals (offline money) and fill the index. Pets must boost money (at least) for this loop to close.
 How does risk affect reward? Attempting a rock that's too strong = crack, no reward.
 
-REBIRTH:
-- Requires reaching a minimum level, which rises with each rebirth. [PLAYTEST] Level 12 for the first rebirth;
-  how much it rises per rebirth (additive or multiplicative) is config-driven.
-- Resets strength and level to 1, and resets cash to 0 (no fixed cash price).
+REBIRTH (revised 2026-10-13):
+- Requires a strength number: Rebirth N needs 100 × 125^(N-1) strength, which is the strength of the toughest rock in
+  zone N (100, 12,500, 1.56M, 195M, 24.4B). One rebirth per zone. [PLAYTEST]
+- Each rebirth unlocks the next training stand (Wood, Brick, Steel, Vault, Energy Core, Cosmic). A rep takes 1 s and
+  gives the stand's set strength (1 / 25 / 2,500 / 300K / 40M / 5B) × the arm multiplier. [PLAYTEST]
+- Resets strength and cash to 0 (no fixed cash price).
 - Arm tier is kept ([PLAYTEST]; RebirthConfig.ResetArmTier).
 - Unlocks a new base floor (more pedestal space). (Post-MVP: bases are not in the MVP.)
-- Grants multipliers to money gain and strength gain. Rebirth #1: x2 cash, x2 strength. [PLAYTEST]
+- Grants a money multiplier (x2 at Rebirth 1, +1 per rebirth) and the luck bonus. No strength multiplier since
+  2026-10-13: strength gain comes from the training stand. [PLAYTEST]
 [OPEN] What else resets? Pedestal slots?
        → [PLAYTEST] User will decide through playtesting. Code must support either choice via config.
 [DECIDED 2026-10-03] Persists through rebirth: pet rocks (including modifiers and, later, Golden pets), index, floors.
@@ -1047,3 +1069,36 @@ DECISION LOG
     Leaf (green leaves circling the limbs, leaf trail), Wind (white-cyan gusts, wispy ribbon trail),
     Thunder (yellow sparks, zigzag lightning trail), Spirit (magenta energy flames, energy band trail with
     afterimage sparkles), Dragon (gold-and-red dragon ribbon spiralling the limbs with embers, gold scale trail).
+2026-10-13 — Rebirths gated by strength, one training stand per rebirth, no levels (§07 REBIRTH, PLAYER LEVELS):
+  - Taken from a successful reference game the user studied: strength is the one stat, rebirth gives money
+    multipliers, every rebirth unlocks a new training with a set strength per rep, and rebirth is gated by a strength
+    number, so a level system isn't needed.
+  - The level system is removed, and the HUD has no progress bar at the bottom (the user rejected a rebirth bar);
+    rebirth progress shows on the Rebirth screen. The
+    level-up effect and sound now play when a rebirth becomes ready.
+  - Rebirth gate = the strength of the toughest rock in the current zone: 100 × 125^(N-1). One rebirth per zone,
+    because strength per second has to keep pace with the ×125-per-zone rock requirements.
+  - Training stands: Wood (R0, 1/rep), Brick (R1, 25), Steel (R2, 2,500), Vault (R3, 300K), Energy Core (R4, 40M),
+    Cosmic (R5, 5B). Each takes about 10 minutes of training with no arms to reach its zone's toughest rock. Arms
+    still multiply training. Reps take 1 s (was 1.6 s). The stand at a player's base swaps automatically to their
+    tier. The stand itself only changes looks and feel; its strength per rep is the training output.
+  - Rebirth keeps its cash multiplier and luck bonus and loses its strength multiplier. Every zone after Snow needs a
+    new stand. All numbers are [PLAYTEST].
+2026-10-14 — Weather cadence (§05):
+  - A weather event is guaranteed every 30 minutes and lasts 15 minutes ([PLAYTEST], config-driven).
+  - The five events (sandstorm, hurricane, heat wave, thunderstorm, eclipse) are approved as the launch list.
+  - Draft multipliers kept, except Heat Wave's Toasty goes to x2.5 so it differs from Hurricane's Windy (x2).
+  - Shared clock: events start on the :00 and :30 on every server. Weighted roll: Sandstorm 35%, Hurricane 25%,
+    Heat Wave 20%, Thunderstorm 15%, Eclipse 5%.
+  - During an event every rock gets the weather look and pays more (draft: the event's modifier multiplier).
+  - No special rocks or event geodes from weather; geodes opened during an event can hatch modified Roks
+    (draft 25%).
+  - Each event gets sky, lighting, particles, sound, a start announcement and a HUD countdown to the next one.
+  - Catch chance 2% per minute per Rok on a pedestal (chosen over 3%, which filled a base with modifiers in about
+    2 hours). Draft set by Claude because the user had no preference: modified Roks sell for 100 s of their
+    multiplied income. All [PLAYTEST].
+  - Build plan approved (WeatherSystemPlan.md, W1–W12): the rock boost covers per-player and Rush rocks, not the
+    Diamond Rock, and stacks like Rush. Rocks and Roks share each modifier's particles. Modified Roks are named
+    "Zappy Bloky". Owners are told when a Rok catches a modifier. Notices go out a minute before and at the start.
+    A top-centre weather pill counts down without naming the next event. Modifiers are caught only while online.
+    Index modifier tabs stay deferred.

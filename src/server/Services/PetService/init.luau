@@ -6,7 +6,10 @@ local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local RokModifier = require(ReplicatedStorage.RokModifier)
 local RokValue = require(ReplicatedStorage.RokValue)
+local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PlayerData = require(script.Parent.Parent.Data.PlayerData)
 local Tools = require(script.Tools)
 
@@ -16,12 +19,14 @@ export type Grant = {
 	IsNew: boolean,
 	Trait: string?,
 	TraitValue: number?,
+	Modifier: string?,
 }
 
 local PetService = {
 	Name = "PetService",
 	HeldChanged = Signal.new() :: Signal.Signal<Player>,
 	Granted = Signal.new() :: Signal.Signal<Player>,
+	ModifierChanged = Signal.new() :: Signal.Signal<Player, string>,
 }
 
 local services: { [string]: any } = {}
@@ -107,8 +112,7 @@ function PetService.CanAdd(_self: any, player: Player, amount: number): boolean
 end
 
 function PetService.GetRate(_self: any, pet: PlayerData.Pet): number
-	local config = PetConfig.Pets[pet.Key]
-	return if config then config.MoneyPerSecond else 0
+	return RokModifier.Rate(pet.Key, pet.Modifier)
 end
 
 function PetService.GetHeldPetId(_self: any, player: Player): string?
@@ -126,7 +130,7 @@ function PetService.SyncTools(_self: any, player: Player)
 	end
 end
 
-function PetService.Grant(_self: any, player: Player, petKey: string): Grant?
+function PetService.Grant(_self: any, player: Player, petKey: string, modifier: string?): Grant?
 	local pet = PetConfig.Pets[petKey]
 	local data = services.DataService:GetData(player)
 	local replica = services.DataService:GetReplica(player)
@@ -140,6 +144,7 @@ function PetService.Grant(_self: any, player: Player, petKey: string): Grant?
 		HatchedAt = os.time(),
 		Trait = trait,
 		TraitValue = traitValue,
+		Modifier = if RokModifier.Get(modifier) then modifier else nil,
 	}
 	replica:Set({ "NextPetId" }, data.NextPetId + 1)
 	replica:Set({ "Pets", id }, record)
@@ -153,7 +158,48 @@ function PetService.Grant(_self: any, player: Player, petKey: string): Grant?
 		IsNew = isNew,
 		Trait = trait,
 		TraitValue = traitValue,
+		Modifier = record.Modifier,
 	}
+end
+
+function PetService.SetModifier(
+	_self: any,
+	player: Player,
+	petId: string,
+	modifier: string,
+	isCatch: boolean
+): boolean
+	local data = services.DataService:GetData(player)
+	local replica = services.DataService:GetReplica(player)
+	local pet = if data then data.Pets[petId] else nil
+	if not pet or not replica or not RokModifier.Get(modifier) then
+		return false
+	end
+	if isCatch and not RokModifier.IsBetter(modifier, pet.Modifier) then
+		return false
+	end
+	local oldRate = RokModifier.Rate(pet.Key, pet.Modifier)
+	replica:Set({ "Pets", petId, "Modifier" }, modifier)
+	services.DataService:RequestSave(player)
+	PetService:SyncTools(player)
+	PetService.ModifierChanged:Fire(player, petId)
+	local config = WeatherConfig.Modifiers[modifier]
+	local petConfig = PetConfig.Pets[pet.Key]
+	if petConfig then
+		services.NotificationService:Notify(
+			player,
+			WeatherConfig.NoticeKindPrefix .. modifier,
+			string.format(
+				WeatherConfig.CatchText,
+				petConfig.DisplayName,
+				config.DisplayName,
+				NumberFormat.Rate(oldRate),
+				NumberFormat.Rate(RokModifier.Rate(pet.Key, modifier))
+			)
+		)
+	end
+	print(`[PetService] {player.Name}'s {pet.Key} ({petId}) is now {modifier}`)
+	return true
 end
 
 function PetService.Sell(_self: any, player: Player, petIds: { string }): number
@@ -171,7 +217,7 @@ function PetService.Sell(_self: any, player: Player, petIds: { string }): number
 			return 0
 		end
 		sold[petId] = true
-		total += RokValue.Sell(pet.Key)
+		total += RokValue.Sell(pet.Key, pet.Modifier)
 		count += 1
 	end
 	if count == 0 then

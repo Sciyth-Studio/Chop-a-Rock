@@ -135,7 +135,7 @@ function Cracking.Release(
 		return GeodeConfig.RecrackDelaySeconds
 	end
 	services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned - 1)
-	local grant = services.PetService:Grant(player, petKey)
+	local grant = services.PetService:Grant(player, petKey, services.WeatherService:RollHatchModifier())
 	if not grant then
 		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
 		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
@@ -176,7 +176,8 @@ function Cracking.Release(
 			grant.PetKey,
 			table.find(RarityConfig.Order, pet.Rarity) or 1,
 			grant.IsNew,
-			grant.Trait or ""
+			grant.Trait or "",
+			grant.Modifier or ""
 		)
 	end)
 	if rarity.Announce then

@@ -55,6 +55,7 @@ local function refresh(player: Player)
 		Display.Render(pedestal, player, {
 			State = if not isUnlocked then "Locked" elseif petId then "Placed" else "Empty",
 			PetKey = if petId then data.Pets[petId].Key else nil,
+			Modifier = if petId then data.Pets[petId].Modifier else nil,
 			Price = if slot == nextSlot then nextPrice else nil,
 			Earnings = session.Slots[slot],
 			CanPlace = isHolding,
@@ -243,6 +244,7 @@ function PedestalService.Start(_self: any)
 		clearPlot(plot)
 	end))
 	trove:Add(services.PetService.HeldChanged:Connect(refresh))
+	trove:Add(services.PetService.ModifierChanged:Connect(refresh))
 	trove:Add(services.PetService.Granted:Connect(function(player: Player)
 		local data = services.DataService:GetData(player)
 		if data and data.Settings.AutoEquip ~= false then

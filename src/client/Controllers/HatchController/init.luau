@@ -267,7 +267,8 @@ function HatchController.Start(_self: any)
 				petKey: string,
 				rarityIndex: number,
 				isNew: boolean,
-				trait: string
+				trait: string,
+				modifier: string
 			)
 				if not spot or not spot:IsA("Attachment") then
 					return
@@ -283,6 +284,7 @@ function HatchController.Start(_self: any)
 					Rarity = rarity,
 					IsNew = isNew,
 					Trait = if trait ~= "" then trait else nil,
+					Modifier = if modifier ~= "" then modifier else nil,
 				})
 			end
 		)
@@ -294,12 +296,12 @@ function HatchController.Destroy(_self: any)
 		reveal.IsCancelled = true
 	end
 	trove:Destroy()
-	if HatchController.Revealed then
-		HatchController.Revealed:Destroy()
 	if backpackHolds > 0 then
 		backpackHolds = 0
 		setBackpackShown(true)
 	end
+	if HatchController.Revealed then
+		HatchController.Revealed:Destroy()
 	end
 end
 

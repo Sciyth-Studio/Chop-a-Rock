@@ -9,6 +9,7 @@ local Packets = require(ReplicatedStorage.Packets)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local RokModifier = require(ReplicatedStorage.RokModifier)
 local RoksConfig = require(ReplicatedStorage.Config.RoksConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -57,12 +58,13 @@ local function paint(fill: Instance?, colors: ShopConfig.MeterColors)
 	end
 end
 
-local function buildPreview(frame: ViewportFrame, modelKey: string)
+local function buildPreview(frame: ViewportFrame, modelKey: string, modifier: string?)
 	local model = AssetRegistry.get(modelKey)
 	if not model:IsA("Model") then
 		model:Destroy()
 		return
 	end
+	RokModifier.Tint(model, modifier)
 	local settings = RoksConfig.Preview
 	local camera = Instance.new("Camera")
 	camera.FieldOfView = settings.FieldOfView
@@ -166,13 +168,21 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			row.Name = `Slot{slot}`
 			row.LayoutOrder = order
 			row.Visible = true
+			local record = pets[petId :: string]
+			local modifier = RokModifier.Get(record.Modifier)
+			local nameLabel: TextLabel? = find(row, "RokName", "TextLabel", true)
 			setText(
-				find(row, "RokName", "TextLabel", true),
-				`{pet.DisplayName} (${NumberFormat.Commas(pet.MoneyPerSecond)}/s)`
+				nameLabel,
+				`{RokModifier.Name(record.Key, record.Modifier)} (${NumberFormat.Rate(
+					RokModifier.Rate(record.Key, record.Modifier)
+				)}/s)`
 			)
+			if nameLabel and modifier then
+				nameLabel.TextColor3 = modifier.Color
+			end
 			local preview: ViewportFrame? = find(row, "Preview", "ViewportFrame", true)
 			if preview then
-				buildPreview(preview, pet.ModelKey)
+				buildPreview(preview, pet.ModelKey, record.Modifier)
 			end
 			local unequip: TextButton? = find(row, "UnequipButton", "TextButton", true)
 			if unequip then
