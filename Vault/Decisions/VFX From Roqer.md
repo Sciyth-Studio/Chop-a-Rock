@@ -1,19 +1,17 @@
 ---
-description: 2026-10-07 — VFX pipeline adopted from Roqer (S4US) with the author's permission: vendored emit module, derived Blender helpers, the vfx skill.
+description: VFX pipeline from Roqer (S4US). Since 2026-10-15 the vfx skill is the MIT roblox-vfx skill, adapted to this project, with its Emit/Build/Capture/Shapes runtime vendored at ReplicatedStorage.VFX.
 type: decision
 ---
 # VFX from Roqer
 
-**2026-10-07.** The user wanted Roqer's VFX ability (https://github.com/S4US/Roqer), not the rest of the app. Roqer's desktop app and MCP server were not adopted: its script edits go into Studio's copy, which fights Rojo, and its VFX checking tools (`capture_moments`, `reference_clip`) only exist inside the app.
+**2026-10-07.** The user wanted Roqer's VFX ability (https://github.com/S4US/Roqer), not the rest of the app. Roqer's desktop app and MCP server were not adopted: its script edits go into Studio's copy, which fights Rojo, and its VFX checking tools (`capture_moments`, `reference_clip`) only exist inside the app. First version: Roqer's emit module vendored at `vendor/VFXEmit` (AGPL, used with S4US's DM permission), derived Blender helpers `vfx_draw.py` / `vfx_shapes.py`, and condensed references.
 
-What was taken, all from commit `bf7118b`:
+**2026-10-08:** S4US also okayed sharing it however the user likes. A generic, tool-neutral copy of that first skill lives at `shared/roblox-vfx/` for other devs. It is a separate copy, not updated by later changes, so it is now older than `.claude/skills/vfx`.
 
-- **`vendor/VFXEmit/Emit.luau`**: Roqer's emit module, unmodified, mapped to `ReplicatedStorage.VFXEmit`. It plays effects from the `EmitCount` / `EmitDelay` / `EmitDuration` attribute convention our existing effects already use, with slow motion and hitstop.
-- **`.claude/skills/vfx/scripts/`**: `vfx_draw.py` (texture and flipbook drawing) and `vfx_shapes.py` (mesh shapes), derived from Roqer's Blender helpers. Dev tools only; nothing ships.
-- **`.claude/skills/vfx/references/`**: design rules and recipes condensed from Roqer's VFX docs.
+**2026-10-15: replaced.** The user downloaded the `roblox-vfx` skill (adapted from Roqer's `roblox-animation-vfx` skill, MIT, TabooHarmony) and asked to replace the vfx skill with it. What changed:
+- **Runtime:** `vendor/RobloxVFX/src` (`Emit`, `Build`, `Capture`, `Shapes`, unmodified) mapped to `ReplicatedStorage.VFX`. `Emit` is the old VFXEmit with only its header changed; `vendor/VFXEmit` is gone and every `require(ReplicatedStorage.VFXEmit)` now reads `ReplicatedStorage.VFX.Emit` (the showcase plugin too). Playtested clean the same day.
+- **Skill:** the upstream references (`vfx-design`, `vfx-craft`, `vfx-textures`, `vfx-motion`, `vfx-mesh-shapes`, `vfx-camera-world`, `vfx-reference`, `vfx-rendered-flipbooks`) rewired to the `Roblox_Studio` MCP, the `Assets.VFX.<Feature>.VFX_<Name>` + AssetRegistry layout, our capture gotchas and Open Cloud group uploads (new `scripts/upload_images.ps1`). The user's taught rules from the old `design.md` moved into `LESSONS.md`; `studied.md`, the showcase plugin and its docs were kept. Old `vfx_draw.py` / `vfx_shapes.py` were dropped for `vfxtex.py` / `vfxblender.py` / `clip_frames.py`.
+- **Python:** `C:/Users/Admin/AppData/Local/Python/bin/python3.exe` has numpy and Pillow; bare `python`/`python3` in the shell hit the Microsoft Store stub.
+- `Build`, `Capture` and `Shapes` (an Arc baked to a MeshPart) checked in Edit the same day.
 
-**Permission:** Roqer is AGPL-3.0-or-later. S4US gave the user permission by DM to use the emit module in the game and to use the Blender helpers. Keep the attribution headers and `vendor/VFXEmit/README.md`.
-
-Related: [[Asset Ownership]] (upload textures to the Sciyth Studio group)
-
-**2026-10-08:** S4US also okayed sharing it however the user likes. A generic, tool-neutral copy of the skill (no Chop a Rock specifics, VFXEmit bundled in `templates/`) lives at `shared/roblox-vfx/` for other devs (Claude Code, Codex and other agents). It is a separate copy: changes to `.claude/skills/vfx` don't flow into it automatically.
+Related: [[Asset Ownership]], [[Open Cloud Key]], [[VFX Showcase]], [[VFX Reference Folder]]

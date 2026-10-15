@@ -1,4 +1,4 @@
--- ROQER_VFX_EMIT 2026-10-03
+-- roblox-vfx skill: Emit, adapted from Roqer's roblox-animation-vfx emit.lua (MIT, TabooHarmony; see LICENSE-ROQER-SKILLS.txt).
 -- Plays effects authored as instances with attributes, the convention the
 -- popular VFX editors share, so an artist can open and tune what the agent
 -- builds. Require it from client code; effects are presentation.

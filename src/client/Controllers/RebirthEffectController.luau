@@ -7,7 +7,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
+local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 
 type TroveInstance = typeof(Trove.new())
 

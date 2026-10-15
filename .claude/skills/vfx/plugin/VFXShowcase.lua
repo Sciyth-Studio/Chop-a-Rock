@@ -356,7 +356,8 @@ local function start()
 	local showcase = workspace:FindFirstChild(showcaseName)
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local templates = if assets then assets:FindFirstChild("VFX") else nil
-	local emitModule = ReplicatedStorage:FindFirstChild("VFXEmit")
+	local runtime = ReplicatedStorage:FindFirstChild("VFX")
+	local emitModule = if runtime then runtime:FindFirstChild("Emit") else nil
 	if not showcase or not templates or not emitModule or not emitModule:IsA("ModuleScript") then
 		return
 	end
@@ -370,7 +371,7 @@ local function start()
 		Aura = fresh(config and config:FindFirstChild("AuraConfig")),
 	}
 	if not context.VFXEmit then
-		warn("[VFXShowcase] Could not load ReplicatedStorage.VFXEmit")
+		warn("[VFXShowcase] Could not load ReplicatedStorage.VFX.Emit")
 		return
 	end
 	for _, stand in showcase:GetDescendants() do

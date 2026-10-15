@@ -15,7 +15,7 @@ local Packets = require(ReplicatedStorage.Packets)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
+local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 local Effects = require(script.Parent.Effects)
 
 type TroveInstance = typeof(Trove.new())

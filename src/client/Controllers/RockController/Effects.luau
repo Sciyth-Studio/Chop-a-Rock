@@ -11,7 +11,7 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
-local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
+local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 
 local Effects = {}
 

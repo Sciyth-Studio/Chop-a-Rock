@@ -11,7 +11,7 @@ local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
-local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
+local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 
 type TroveInstance = typeof(Trove.new())
 

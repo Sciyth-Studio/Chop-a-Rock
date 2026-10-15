@@ -11,7 +11,7 @@ local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local SettingsConfig = require(ReplicatedStorage.Config.SettingsConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
+local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 local WeatherClock = require(ReplicatedStorage.WeatherClock)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 

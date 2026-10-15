@@ -1,77 +1,159 @@
 ---
 name: vfx
-description: Use when making or changing any visual effect in Chop a Rock (a chop hit, rock break, perfect or master burst, hatch reveal, cash pop, aura, trail, shockwave, sparkle, dust), when drawing particle textures or flipbooks, when making mesh effects (crescent slash, shockwave ring, swirl, dome), or when playing effects from code. Covers design rules, drawing textures with the bundled Blender scripts, building the effect template in Studio, playing it with VFXEmit, checking it frame by frame, and uploading. Use it even for "make the chop look juicier" or "add some sparkles".
+description: Use when making or changing any visual effect in Chop a Rock (a chop hit, rock break, perfect or master burst, hatch reveal, cash pop, aura, trail, beam, shockwave, sparkle, dust, camera shake or impact frame), when drawing particle textures or flipbooks, when making mesh effects (crescent slash, shockwave ring, swirl, dome), when matching a reference clip of an effect, or when playing effects from code. Covers design rules measured from published Roblox effects, picking textures from the user's VFX texture kit, drawing textures with numpy, building templates with Build, checking frames with Capture, uploading, and wiring effects into the game. Use it even for "make the chop look juicier" or "add some sparkles".
 ---
 
 # VFX
 
-Based on Roqer's VFX skill and tooling by S4US (https://github.com/S4US/Roqer), used with permission. `references/design.md` holds the design rules, `references/recipes.md` the layer skeletons and property values, and `references/textures.md` how to draw textures and mesh shapes. Load `design.md` and `recipes.md` for every effect, and `textures.md` when the effect draws its own textures or meshes, which most should. `references/studied.md` breaks down the user's reference effects in `Workspace.VFXReference` (aura, tornado, lightning, explosion, burst); it sets the quality bar, so read it and look at the folder in Studio before building anything similar.
+`SK` = this folder (`.claude/skills/vfx`). Adapted from the `roblox-vfx`
+skill, itself adapted from the VFX half of Roqer's `roblox-animation-vfx`
+skill (github.com/S4US/Roqer, skills MIT-licensed by TabooHarmony,
+`LICENSE-ROQER-SKILLS.txt`), wired to this project's `Roblox_Studio` MCP,
+Rojo layout and Python.
+
+**Read `LESSONS.md` first.** It holds every rule the user has taught about
+effects, and it wins over anything below that disagrees. Write new VFX
+feedback there. `references/studied.md` breaks down the user's reference
+effects in `Workspace.VFXReference` (auras, tornado, lightning, explosion,
+burst); they set the quality bar, so read it and look at the folder in Studio
+before building anything similar.
+
+## The loop
+
+1. **Name the moment** and where the player sees it (`vfx-design.md` §1).
+   Chop effects are seen from right behind the character at 10-20 studs;
+   base and shop effects from farther away. A frequent small hit (every
+   chop) is small, one hue and short; a reward beat (Perfect, Master,
+   hatch, rebirth) is staged. Ask the user (one AskUserQuestion round) for
+   anything unclear: mood, palette, how big a moment it is. Read
+   `Lighting`'s `BloomEffect` before picking Brightness.
+2. **Plan the layers** from a skeleton (`vfx-craft.md` §4) on the intensity
+   curve (`vfx-design.md` §6): anticipation, flash, body, secondaries,
+   smoke. Player-facing visuals are proposed to the user before they are
+   final (AGENTS.md project rules).
+3. **Get the textures** (`vfx-textures.md`). Check the user's texture kit
+   first (`kit.py search`, then look at the contact sheets) and bring the
+   chosen ones in with `kit.py prepare`; draw with numpy only what the kit
+   lacks. Everything lands in `assets/VFX/<Effect>/`. Read every `review`
+   sheet, and preview them in Studio without uploading.
+4. **Build the template** with `Build` in
+   `ReplicatedStorage.Assets.VFX.<Feature>.VFX_<Name>`, timing by attributes
+   (`EmitCount` / `EmitDelay` / `EmitDuration`). Register it in
+   `src/shared/AssetRegistry.luau`, run `./scripts/check.ps1`, add a
+   showcase stand (below).
+5. **Check it** in Edit with `Capture.hold` at 4-6 moments, close and from
+   the player's camera (`vfx-craft.md` §6, including this Studio's capture
+   gotchas). Fix, re-check.
+6. **Upload** the settled textures in one batch once the user approves the
+   look (`vfx-textures.md`; Open Cloud under the group), swap out
+   preview addresses, wire it to gameplay (below), and check once in a
+   playtest with the `studio-playtest` skill. Remind the user to save the
+   place: templates live in the place file, not on disk.
+7. Tell the user what was checked (by value versus seen on screen); ask them
+   to watch it at full speed; write feedback into `LESSONS.md`.
+
+## References (load what the effect needs, together in one go)
+
+| File | Load when |
+|---|---|
+| `references/vfx-design.md` | **Always.** What the effect is for, palette, value (dark layers, black twins), brightness vs bloom, layers, timing curve, motion. Numbers measured from published effects |
+| `references/vfx-craft.md` | **Always.** Where templates and the runtime live, emit attributes, replication, particle properties, layer skeletons with `Build` examples, budgets, the check loop |
+| `references/studied.md` | Anything similar to the user's reference effects (auras, tornado, lightning, explosion, burst, ground trail); cleared texture ids |
+| `references/vfx-textures.md` | Most effects: picking textures from the kit, drawing particle textures and flipbooks, preview, check, upload |
+| `references/vfx-motion.md` | Projectiles, volleys, trails, beams, slashes, dashes, orbs, sigils, auras |
+| `references/vfx-mesh-shapes.md` | Crescent meshes, shockwave rings, swirls, domes, ground waves |
+| `references/vfx-camera-world.md` | Camera shake, FOV, blur, impact frames, lights, craters, scorch marks, cast pose from code |
+| `references/vfx-rendered-flipbooks.md` | A flipbook rendered from a 3D scene in Blender instead of drawn |
+| `references/vfx-reference.md` | The user supplied a video or GIF of an effect to match |
 
 ## Pieces
 
 | Piece | Where |
-| --- | --- |
-| Effect templates | `ReplicatedStorage.Assets.VFX`, in a feature subfolder (`Chop`, `Rock`, `Rush`, `Diamond`, `Aura`, `Hatch`, `Level`, `HotStreak`, `Training`, `Pedestal`; AssetRegistry and the showcase plugin search them recursively), one Model (or Attachment for older effects) per effect, named `VFX_<Name>`, registered in `src/shared/AssetRegistry.luau` (`Category = "VFX"`) |
-| Player module | `ReplicatedStorage.VFXEmit` (vendored at `vendor/VFXEmit/Emit.luau`, unmodified; never edit it, wrap it) |
-| Texture and flipbook drawing | `scripts/vfx_draw.py` (numpy only; runs in Blender's Python) |
-| Mesh shapes | `scripts/vfx_shapes.py` (Blender) |
-| Drawn files | `assets/VFX/<Effect>/` (hand-off folder, not committed); review copies in `%TEMP%\vfx_review` |
+|---|---|
+| Effect templates | `ReplicatedStorage.Assets.VFX.<Feature>` (`Chop`, `Rock`, `Rush`, `Diamond`, `Aura`, `Hatch`, `Level`, `HotStreak`, `Training`, `Pedestal`, ...), one Model (or Attachment for older effects) per effect named `VFX_<Name>`, registered in `AssetRegistry` (`Category = "VFX"`; it and the showcase search subfolders recursively) |
+| Runtime | `ReplicatedStorage.VFX.{Emit, Build, Capture, Shapes}`, vendored in `vendor/RobloxVFX/src` and synced by Rojo. Never edit them; wrap them |
+| `Emit` | Plays effects from attributes; `play(template, cf, options?)`, `emit(inst, options?)`; handle `time`, `finished`, `root`, `freeze`, `setTimeScale`, `stop` |
+| `Build` | `Build.run(path, steps)`: JSON/table steps -> instances (sequences, ranges, enums, `$id` links), one undo step, report string; `Build.previewLeftovers()` |
+| `Capture` | `Capture.aim`, `Capture.playerView`, `Capture.hold(template, cf, t)`, `Capture.slow`, `Capture.release`, `Capture.marker` |
+| `Shapes` | EditableMesh shapes (`Arc`, `Ring`, `TornRing`, `Cone`, `Swirl`, `Shell`, custom) baked from shape spots; `Shapes.prepare(template)` |
+| Texture kit | `C:/Users/Admin/Downloads/VFX Assets` (1,935 ready-made textures, outside the repo); catalog and per-folder contact sheets in its `_catalog/` |
+| `scripts/kit.py` | Kit catalog: `index`, `folders`, `search`, `sheet`, `prepare` (copies chosen ids into `assets/VFX/<Effect>/` at Roblox sizes, records sources) |
+| `scripts/vfxtex.py` | numpy texture library (`tex_stroke`, `tex_blob`, `tex_warp`, `draw_flipbook`...) + CLI `check`, `review`, `preview`, `clean-preview` |
+| `scripts/vfxblender.py` | For the `Blender` MCP: `flipbook()` renders a scene to a sheet; `vfx_arc/ring/cone/swirl/shell/surface`; `export_glb` |
+| `scripts/clip_frames.py` | Reference clip -> labelled frame sheet + timing/brightness/colour table (ffmpeg, on PATH) |
+| `scripts/upload_images.ps1` | Uploads PNGs as group-owned `Image` assets through Open Cloud; prints ids and merges them into `assets.json` |
+| Texture scripts and PNGs | `assets/VFX/<Effect>/` (`textures.py`, the PNGs, `kit_sources.json` for kit textures, `assets.json` id map); review sheets go in the scratchpad, never there |
+| Python (`PY`) | `C:/Users/Admin/AppData/Local/Python/bin/python3.exe` (numpy, Pillow). Plain `python`/`python3` hit the Store stub |
+| Showcase | `Workspace.VFXShowcase` + `SK/plugin/VFXShowcase.lua` (below) |
 
-## Workflow
+## Ground rules
 
-1. **Brief.** Name the effect's job and where the player sees it: chop effects are seen from right behind the character at 10 to 20 studs, base and shop effects from farther away. Ask the user (one AskUserQuestion round) for anything unclear: mood, palette, how big a moment it is. Palette defaults follow the vault: [[High Saturation Colors]] and the chop-quality palette. Read the place's `BloomEffect` (`Lighting`) before picking Brightness.
-2. **Plan the layers** from `recipes.md`: list each layer's role, texture, timing, Brightness and LightEmission. Player-facing visuals are proposed to the user before they are final (AGENTS.md project rules).
-3. **Draw textures and meshes** (`textures.md`). Read every `review` PNG the scripts return before using a texture, and fix every `clipped_frames` or unexpected `empty_frames`.
-4. **Preview textures in Studio** without uploading: `vd.studio_preview(path)` copies the PNG into Studio's content folder and returns an `rbxasset://textures/vfx-preview/...` address. Only this computer can see it. A redraw needs a new preview call, because Studio caches each file name for the session.
-5. **Build the template** in Studio with `execute_luau` (Edit, Play stopped): a Model named `VFX_<Name>` in its feature subfolder of `ReplicatedStorage.Assets.VFX` with an invisible, anchored, non-colliding `Root` part as PrimaryPart, Attachments holding the emitters, and the emit attributes (below). Add the AssetRegistry entry and run `./scripts/check.ps1`.
-6. **Check it frame by frame** (below), from close and from the player's camera.
-7. **Upload settled textures** only after the user approves the look. Uploads are irreversible and moderated: say how many there will be and get a yes first. The game's assets belong to the Sciyth Studio group (vault [[Asset Ownership]]), so ask the user to upload to the group, or confirm before using `upload_image`. `upload_image` only takes HTTP URLs: serve `assets/VFX/<Effect>/` on `127.0.0.1` with a small Node static server (PNGs only), and stop it afterwards. It uploads as the Studio user's own account (GuiltyArcher), not the group, so the group-owned game can't load the images until they are shared with the experience: Output logs "The experience doesn't have access permission to use asset id ... Click to share access" and `PreloadAsync` reports `Failure` (seen 2026-10-07 on VFX_LevelUp; vault [[Asset Ownership]]). Before uploading, tell the user this and offer the alternative of importing the PNGs through Studio with the group place open. After an `upload_image` upload, ask the user to click "Click to share access" on each Output message (or share each image with the experience in Creator Hub). Then replace every `rbxasset://textures/vfx-preview/` address; scan with `execute_luau` over `game:GetDescendants()` for any left.
-8. **Wire into code** (below), playtest with the `studio-playtest` skill, and remind the user to save the place.
-
-## Emit attributes
-
-VFXEmit reads the attribute convention that VFX Editor, VFX Forge and similar plugins share, so the user can tune effects by hand:
-
-| On | Attribute | Meaning |
-| --- | --- | --- |
-| ParticleEmitter | `EmitCount` | Burst this many (capped at 500) |
-| ParticleEmitter | `EmitDuration` | Turn on at `Rate` for this many seconds |
-| ParticleEmitter, Beam, Trail, lights | `EmitDelay` | Seconds from the effect's start (absolute, never summed with a parent's) |
-| Beam, Trail | `EmitDuration` | Enabled for this long |
-| PointLight, SpotLight, SurfaceLight | `EmitDuration` | On, then Brightness fades to 0 over this long |
-| Model or Folder holding `Start` and `End` parts | `Duration` (0.4), `Easing` ("Quad"), `EasingDirection` ("Out"), `Spin` (degrees about Start's up axis), `EmitDelay` | `Start` tweens to `End`'s CFrame, Size, Transparency, Color and SpecialMesh Scale; Decals on Start fade to the same-named Decal on End. End is never shown |
-| The effect's root | `EffectDuration` | Overrides when the effect ends |
-
-Emitters with none of these keep running untouched. Our existing effects already use `EmitCount`, so they play through VFXEmit as they are.
+- **Particles, not 3D objects.** Effects are layered ParticleEmitters, Beams
+  and Trails with real textures. Never ball/part clusters for smoke, fire or
+  explosions. Mesh shapes are a layer (crescent, shockwave), not the effect.
+- **Studio = `Roblox_Studio` MCP**, with the `studio_id` from
+  `list_roblox_studios`. `execute_luau` with `datamodel_type` `Edit` (Play
+  stopped) for building and checking.
+- **Code lives on disk.** Rojo syncs `src/` and `vendor/`; never push Luau
+  into Studio by setting `Source`.
+- **Tool calls in one turn race.** Hold/aim in one turn, `screen_capture` in
+  the next.
+- **`require` caches in edit mode** for the whole Studio session: after a
+  module changes, require a fresh clone or restart Studio.
+- **Effects are client-side.** The server decides and tells clients through
+  a Packet (names and CFrames, never instances); damage and rewards never
+  wait on an effect.
+- **Uploads are irreversible and moderated:** only the settled set, one batch,
+  say how many first. Upload under the group with `upload_images.ps1`, not
+  the Studio MCP's `upload_image` (vault [[Open Cloud Key]]).
+- **`Shapes` in shipped effects** needs **Allow Mesh & Image APIs** on in
+  Game Settings > Security, or `CreateEditableMesh` fails on clients. Ask
+  the user to confirm it is on before relying on a baked shape in the game.
+- **Particles can't show inside a ViewportFrame** (vault [[ViewportFrame
+  Gotchas]]); hatch-scene effects must live in the world.
 
 ## Playing effects from code
 
-Effects are presentation and play on the client only. The server decides an event happened and tells clients through a Packet (name or key and a CFrame or position, never instances). Never make rewards or damage wait on an effect.
-
 ```lua
-local VFXEmit = require(ReplicatedStorage.VFXEmit)
+local VFX = require(ReplicatedStorage.VFX.Emit) :: any
 local template = AssetRegistry.get("VFX_Chop_Hit")
-local handle = VFXEmit.play(template, CFrame.new(position))
-handle:freeze(0.05)
+if template:IsA("Model") then
+	local handle = VFX.play(template, CFrame.new(position))
+	handle:freeze(0.05)
+end
 ```
 
-- `VFXEmit.play(template, cframe, options?)` clones a Model or BasePart, places it, plays it and destroys it at the end. `options`: `parent`, `timeScale`, `onDone`.
-- `VFXEmit.emit(root, options?)` plays emitters already in place (on a weapon, the arm, a pedestal) and restores them afterwards. Use it for Attachment templates: parent the clone first, then emit.
-- The handle has `time`, `finished`, `root`, `stop()`, `setTimeScale(scale)` (0 to 1; slow motion) and `freeze(seconds)` (hitstop).
-- `AssetRegistry.get` returns a clone; `VFXEmit.play` clones again. Fetch the template once per controller with `AssetRegistry.get` and keep it, or play the fetched clone in place with `emit`.
-- A missing VFX asset comes back from `AssetRegistry.get` as a placeholder Attachment, and `VFXEmit.play` errors on anything but a Model or BasePart. Check `IsA("Model")` before `play` and skip the effect otherwise.
-- VFXEmit is untyped (vendor). Cast its results to a local type in strict code.
-- For effects that fire constantly, pool instead of cloning every time.
+- `play(template, cframe, options?)` clones a Model or BasePart, places it,
+  plays it and destroys it at the end. `options`: `parent`, `timeScale`,
+  `onDone`. `emit(root, options?)` plays emitters already in place (on a
+  weapon, the arm, a pedestal) and restores them afterwards; use it for
+  Attachment templates (parent the clone first).
+- The existing controllers keep the local name `VFXEmit` for this module
+  (`RockController/Effects`, `CashPopController`, `WeatherController`, ...).
+- Fetch the template once per controller and keep it (`AssetRegistry.get`
+  returns a clone and `play` clones again). For effects that fire many times
+  a second, pool instead of cloning.
+- A mesh-shape template plays through `VFX.play(Shapes.prepare(template),
+  cframe)`; call `prepare` once at load.
 
 ## Showcase
 
-`Workspace.VFXShowcase` (tagged `EditorOnly`) holds a stand for every effect with a dummy (rock, R15 rig, board) so the user can look at them in Edit without pressing Play. Row `Chop` faces -X at X 300, row `Player` at X 340, around Z -395. The local plugin `plugin/VFXShowcase.lua` (installed by copying it to `%LOCALAPPDATA%\Roblox\Plugins\`, loaded when Studio starts) replays them on a loop; its "Loop VFX" toolbar button toggles them, and toggling off and on reloads the templates and configs. Everything it spawns is `Archivable = false`, so it is never saved.
+`Workspace.VFXShowcase` (tagged `EditorOnly`) holds a stand for every effect
+with a dummy (rock, R15 rig, board) so the user can look at them in Edit
+without pressing Play. Row `Chop` faces -X at X 300, row `Player` at X 340,
+around Z -395. The local plugin `SK/plugin/VFXShowcase.lua` (installed by
+copying it to `%LOCALAPPDATA%\Roblox\Plugins\`, loaded when Studio starts)
+replays them on a loop with `ReplicatedStorage.VFX.Emit`; its "Loop VFX"
+toolbar button toggles them, and toggling off and on reloads the templates
+and configs. Everything it spawns is `Archivable = false`, so it is never
+saved. If the plugin changes, copy it to the Plugins folder again.
 
-When you add an effect, add a stand: duplicate a similar one and set its attributes.
+When you add an effect, add a stand: duplicate a similar one and set its
+attributes.
 
 | Attribute | Meaning |
 | --- | --- |
-| `Mode` | `Model` (a Model template played with `VFXEmit.emit` at the stand's `EffectAnchor` part), `Attachment` (an Attachment template parented to `EffectAnchor`, every emitter `Emit(EmitCount)`), `HeadFire` (Hot Streak fire on the `Dummy` rig's head), `Aura` (the aura template worn by a hidden copy of `Dummy` that walks back and forth so the trail shows; spins `SpinDegreesPerSecond` attachments) |
+| `Mode` | `Model` (a Model template played with `emit` at the stand's `EffectAnchor` part), `Attachment` (an Attachment template parented to `EffectAnchor`, every emitter `Emit(EmitCount)`), `HeadFire` (Hot Streak fire on the `Dummy` rig's head), `Aura` (the aura template worn by a hidden copy of `Dummy` that walks back and forth so the trail shows; spins `SpinDegreesPerSecond` attachments) |
 | `Effect` | Template name in `ReplicatedStorage.Assets.VFX` |
 | `Loop` | Seconds between plays (default 3) |
 | `Quality`, `RockColor`, `Scale`, `CountScale` | Chop tinting and scaling, as `RockController/Effects.luau` does it |
@@ -80,26 +162,4 @@ When you add an effect, add a stand: duplicate a similar one and set its attribu
 | `Tier` | Hot Streak tier for `HeadFire` |
 | `WalkStuds` | How far an `Aura` walker goes each way (default 8) |
 
-Physics doesn't run in Edit, so coins and rock chunks only show in Play. If the plugin's behaviour changes, update the copy in the Plugins folder too.
-
-## Checking an effect
-
-Effects play in Edit mode, so tune there and playtest at the end. `require` caches a ModuleScript for the Studio session in Edit, so after changing a module an effect uses, delete and recreate it (or restart Play) before trusting what you see.
-
-Particles only age while Studio draws frames, and it stops drawing when its window is in the background (2026-10-09): a particle growing 1 to 20 studs over 4 s was still 1 stud after 2 s, so layers that start at size 0 or Transparency 1 never appear in a capture. Ask the user to bring Studio to the front before checking frames. Particles also only simulate near the real Edit camera (2026-10-10): `screen_capture`'s `camera_position` moves the view for the shot, but emitters far from where the user's camera sits stay frozen or empty. Set `workspace.CurrentCamera.CFrame` next to the effect with `execute_luau`, wait about 2 s, then call `screen_capture` without a camera position. Forcing a particle visible doesn't get around it: on 2026-10-10, a ground circle set to Transparency 0 and fired with `Emit(1)` still didn't show in a background capture, while Beams and Trails did.
-
-In Play, `screen_capture` arrives too late for a 1 s effect and ignored a Scriptable camera set from the Client on 2026-10-07, though on 2026-10-09 it followed one (set `CameraType` and `CFrame` in one call, capture, then set it back to Custom). Judge looks in Edit; in Play, check physics pieces (coins, chunks) by sampling their positions over time with `execute_luau`.
-
-1. Put a transparent anchored marker part where the effect plays (`Workspace.VFXPreview`), and point a Scriptable camera at it, once close (side and slightly above) and once from where the player's camera would be. Put the camera back to Custom afterwards (vault [[Always Restore Camera Type]]).
-2. Hold the effect at chosen moments. One `execute_luau` call starts it slowed down and stops it at the first moment:
-   ```lua
-   local VFXEmit = require(game.ReplicatedStorage.VFXEmit)
-   local h = VFXEmit.play(game.ReplicatedStorage.Assets.VFX:FindFirstChild("VFX_Name", true), workspace.VFXPreview.CFrame, { timeScale = 0.05 })
-   _G.vfx = h
-   while h.time < 0.1 and not h.finished do task.wait() end
-   h:setTimeScale(0)
-   ```
-   Then call `screen_capture`, advance with the same loop to the next moment (`h:setTimeScale(0.05)`, wait for `h.time`, `setTimeScale(0)`), and repeat. Check 4 to 6 moments: anticipation, the flash (about 0.03 s), the peak, the body at about 0.3 s, the smoke, and just after the end. Trails lose their segments when frozen; check them at `timeScale` 0.05 without stopping. Finish with `_G.vfx:stop()`.
-   Unconfirmed (2026-10-07): two flipbook particles emitted in Edit mode and frozen with `TimeScale = 0` after 0.05 s and 0.35 s showed the same frame. Before trusting a held frame's age in Edit mode, compare it with a playtest capture.
-3. Ask of each capture the questions in `design.md` ("Review"). Check the output for `VFXEmit:` warnings.
-4. Remove the marker. Tell the user what was checked and ask them to watch it at full speed: effects are judged by eye, and a screenshot of a held frame is not the effect.
+Physics doesn't run in Edit, so coins and rock chunks only show in Play.

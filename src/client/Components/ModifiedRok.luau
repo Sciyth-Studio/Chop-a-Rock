@@ -5,7 +5,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local Component = require(ReplicatedStorage.Packages.Component)
 local RokModifier = require(ReplicatedStorage.RokModifier)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
+local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
 local CATCH_WINDOW_SECONDS = 3

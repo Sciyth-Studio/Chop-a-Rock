@@ -7,7 +7,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Typography = require(ReplicatedStorage.Utils.Typography)
-local VFXEmit = require(ReplicatedStorage.VFXEmit) :: any
+local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 
 export type Look = {
 	End: (isFading: boolean) -> (),

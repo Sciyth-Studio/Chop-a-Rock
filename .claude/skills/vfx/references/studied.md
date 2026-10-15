@@ -10,7 +10,7 @@ Breakdowns of effects the user brought in as examples of the quality to aim for.
 - **Fade in and out.** Transparency is almost always `0:1, 0.2:0, 0.5–0.8:0, 1:1`. Nothing pops on or off.
 - **Random `Rotation` -360 to 360** on every round sprite, and `Size` envelopes (`±`), so repeats don't show.
 - **`LightInfluence` 0** everywhere.
-- **The first batch were single standalone effects.** For auras, the user wants layers wrapped around the body as well (`design.md`, "Worn effects"). The second batch (below) shows how real aura rigs do it. The user dislikes detailed ground circles under auras (2026-10-10: "there's enough going on"); a soft flat glow or ground streaks are fine.
+- **The first batch were single standalone effects.** For auras, the user wants layers wrapped around the body as well (`LESSONS.md` §4). The second batch (below) shows how real aura rigs do it. The user dislikes detailed ground circles under auras (2026-10-10: "there's enough going on"); a soft flat glow or ground streaks are fine.
 
 ## Body auras (second batch, 2026-10-10)
 
