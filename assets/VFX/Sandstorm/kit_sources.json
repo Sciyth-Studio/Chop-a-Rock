@@ -1,0 +1,62 @@
+{
+ "SandWisp.png": {
+  "kit_id": "K0050",
+  "kit_path": "1_Normal/Elements/Smoke/15.png",
+  "original_size": [
+   244,
+   125
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "SandClump.png": {
+  "kit_id": "K0066",
+  "kit_path": "1_Normal/Elements/Smoke/52.png",
+  "original_size": [
+   800,
+   800
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "SandPuff.png": {
+  "kit_id": "K0061",
+  "kit_path": "1_Normal/Elements/Smoke/35.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "WindLine.png": {
+  "kit_id": "K0831",
+  "kit_path": "1_Normal/Specs or Wisps/sparkflying.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "WindArc.png": {
+  "kit_id": "K0769",
+  "kit_path": "1_Normal/Slashes or Crescents IDK/Wind_5.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "Grit.png": {
+  "kit_id": "K0799",
+  "kit_path": "1_Normal/Specs or Wisps/10.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "tintable",
+  "grid": null
+ }
+}

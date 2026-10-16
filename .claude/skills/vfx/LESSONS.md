@@ -136,3 +136,24 @@ and X across its width; draw the core as a vertical line (`vfx-motion.md`).
 (2026-10-10), though Speed 0 works on a static part (the reference aura).
 
 **How to apply:** always give flat sprites Speed 0.001.
+
+## 13. Electric effects need a glow
+
+**Why:** the first Zappy Rok effect (yellow hairline snaps and a crackle
+ring, no glow) "looks relatively boring, he could use a glow" (2026-10-15).
+
+**How to apply:** give lightning and electric effects a soft glow behind them
+(a soft round glow sprite at `ZOffset` -1 with a flickering Transparency
+curve) and a small PointLight in the same colour, with the snaps at
+`LightEmission` 1. Yellow glows blow out here (entry 3): keep a yellow glow
+small (about the size of the object) at Brightness under 1.
+
+## 14. Storm skies go properly dark
+
+**Why:** the Hurricane's pale grey cloud ceiling and lighting look were "not
+dark enough" (2026-10-15).
+
+**How to apply:** for storm weather, darken both the event's lighting look
+(Lighting Brightness about 1.8, a dim OutdoorAmbient, a dark Atmosphere
+Decay) and the cloud layer (near-black blue-grey, Transparency about 0.15).
+Particles alone can't darken the skybox.

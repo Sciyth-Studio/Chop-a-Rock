@@ -43,6 +43,19 @@ local function playCatch(root: Instance, modifier: WeatherConfig.Modifier)
 	})
 end
 
+local function scaleEmitter(emitter: ParticleEmitter, factor: number)
+	local keypoints = {}
+	for _, keypoint in emitter.Size.Keypoints do
+		table.insert(
+			keypoints,
+			NumberSequenceKeypoint.new(keypoint.Time, keypoint.Value * factor, keypoint.Envelope * factor)
+		)
+	end
+	emitter.Size = NumberSequence.new(keypoints)
+	emitter.Speed = NumberRange.new(emitter.Speed.Min * factor, emitter.Speed.Max * factor)
+	emitter.Acceleration *= factor
+end
+
 local function dress(root: Instance, trove: any, modifier: WeatherConfig.Modifier, key: string)
 	local colors: { [BasePart]: Color3 } = {}
 	for _, descendant in root:GetDescendants() do
@@ -60,13 +73,21 @@ local function dress(root: Instance, trove: any, modifier: WeatherConfig.Modifie
 	if not part then
 		return
 	end
+	local factor = part.Size.X / WeatherConfig.RokVFXReferenceStuds
 	local template = AssetRegistry.get(modifier.VFXKey)
 	for _, child in template:GetChildren() do
 		if child:IsA("ParticleEmitter") then
 			local emitter = child:Clone()
+			scaleEmitter(emitter, factor)
 			emitter.Name = WeatherConfig.RokVFXName
 			emitter.Parent = part
 			trove:Add(emitter)
+		elseif child:IsA("PointLight") then
+			local light = child:Clone()
+			light.Range *= factor
+			light.Name = WeatherConfig.RokVFXName
+			light.Parent = part
+			trove:Add(light)
 		end
 	end
 	template:Destroy()

@@ -1,0 +1,22 @@
+{
+ "Snaps.flipbook.png": {
+  "kit_id": "K1162",
+  "kit_path": "2_Flipbooks/Lightning/15.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": 4
+ },
+ "ArcRing.flipbook.png": {
+  "kit_id": "K1166",
+  "kit_path": "2_Flipbooks/Lightning/20.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "tintable",
+  "grid": 2
+ }
+}

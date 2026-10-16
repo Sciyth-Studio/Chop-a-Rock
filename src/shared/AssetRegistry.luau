@@ -172,6 +172,7 @@ local map: { [string]: AssetEntry } = {
 	VFX_Weather_Thunderstorm = { Category = "VFX", InstanceName = "VFX_Weather_Thunderstorm" },
 	SFX_Weather_Thunderstorm = { Category = "Sounds", InstanceName = "SFX_Weather_Thunderstorm" },
 	VFX_Weather_Eclipse = { Category = "VFX", InstanceName = "VFX_Weather_Eclipse" },
+	Sky_Eclipse = { Category = "VFX", InstanceName = "Sky_Eclipse" },
 	SFX_Weather_Eclipse = { Category = "Sounds", InstanceName = "SFX_Weather_Eclipse" },
 	VFX_Modifier_Dusty = { Category = "VFX", InstanceName = "VFX_Modifier_Dusty" },
 	VFX_Catch_Dusty = { Category = "VFX", InstanceName = "VFX_Catch_Dusty" },

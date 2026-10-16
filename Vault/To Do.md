@@ -19,7 +19,6 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Geode pity (added 2026-10-15, not started): a pity counter on geode hatches so a rare Rok is guaranteed after enough misses. Thresholds, which rarities count and whether it's per geode or shared aren't decided yet. Not planned yet
 - [ ] Geode upgrades/levels (added 2026-10-15, not started): geodes level up or get upgraded. What a level changes and how you raise it aren't decided yet. Not planned yet
 - [ ] Weather (built 2026-10-14, see [[Weather]]): user watches each event, the modifier and catch effects and the lightning, and picks sounds (all `SFX_Weather_*` are empty). Then Claude draws proper textures with the `vfx` skill for any effect the user wants redone. Not committed
-- [ ] Better weather VFX (added 2026-10-15): the user wants the weather effects improved. Use the `vfx` skill; the user picks which events to redo first
 
 ## Batch approved 2026-10-10
 - [ ] User plays a Diamond with Hot Streak, an easy rock and the Teleport Bar on phone size (colours and 3 s cooldown are drafts)

@@ -260,6 +260,31 @@ local function startRocks(trove: TroveInstance, event: WeatherConfig.Event)
 	end)
 end
 
+local function startSky(trove: TroveInstance, key: string)
+	if key == "" then
+		return
+	end
+	local asset = AssetRegistry.get(key)
+	if not asset:IsA("Sky") then
+		asset:Destroy()
+		return
+	end
+	local hidden: { Sky } = {}
+	for _, child in Lighting:GetChildren() do
+		if child:IsA("Sky") then
+			table.insert(hidden, child)
+			child.Parent = nil
+		end
+	end
+	asset.Parent = Lighting
+	trove:Add(function()
+		asset:Destroy()
+		for _, sky in hidden do
+			sky.Parent = Lighting
+		end
+	end)
+end
+
 local function apply(isFresh: boolean)
 	local value = workspace:GetAttribute(WeatherConfig.WeatherAttribute)
 	local key = if type(value) == "string" then value else ""
@@ -279,6 +304,7 @@ local function apply(isFresh: boolean)
 	local trove = Trove.new()
 	eventTrove = trove
 	startRig(trove, event.ParticlesKey)
+	startSky(trove, event.SkyKey)
 	startSound(trove, event.SoundKey)
 	startRocks(trove, event)
 	if event.HasLightning then

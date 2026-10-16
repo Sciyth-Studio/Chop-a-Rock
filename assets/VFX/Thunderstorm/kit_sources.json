@@ -1,0 +1,22 @@
+{
+ "BoltBeam.png": {
+  "kit_id": "K1894",
+  "kit_path": "3_BeamsTrails/Elemental/Lightning/2022-12-27_14-50-37 TrailElectric8.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "additive",
+  "grid": null
+ },
+ "BranchBeam.png": {
+  "kit_id": "K1890",
+  "kit_path": "3_BeamsTrails/Elemental/Lightning/2022-12-22_17-01-24 TrailElectric22.png",
+  "original_size": [
+   1024,
+   512
+  ],
+  "kind": "additive",
+  "grid": null
+ }
+}

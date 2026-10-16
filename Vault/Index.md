@@ -38,6 +38,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Roks Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
 - [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
 - [[Keep Decor Simple]] — zone decor is few, primitive-shape props; reuse and recolour; Studio parts and particles over Blender models
+- [[Ask The User To Look]] — need eyes on something in Studio? Ask the user instead of long screenshot loops
 - [[Menu Panel Style]] — dark grey stud body, striped gradient header, Chrome title, black outlines, sharp corners
 
 ## Reference

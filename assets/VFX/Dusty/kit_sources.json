@@ -1,0 +1,32 @@
+{
+ "DustSwirl.png": {
+  "kit_id": "K0942",
+  "kit_path": "1_Normal/Swirls/vortex.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "SandSpiral.png": {
+  "kit_id": "K0938",
+  "kit_path": "1_Normal/Swirls/asdasdadasfasfas22.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "CatchFlare.png": {
+  "kit_id": "K0102",
+  "kit_path": "1_Normal/Flares/2023-10-30_22-39-08 MAYBETOOTHICCKER.png",
+  "original_size": [
+   2048,
+   2048
+  ],
+  "kind": "tintable",
+  "grid": null
+ }
+}
