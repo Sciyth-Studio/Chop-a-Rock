@@ -58,7 +58,7 @@ local TrainingConfig: TrainingSettings = {
 			BreakEffect = "",
 			Price = 50000,
 			RobuxPrice = 25,
-			RobuxProductId = 0,
+			RobuxProductId = 3719074519,
 		},
 		{
 			Key = "Steel",
@@ -70,7 +70,7 @@ local TrainingConfig: TrainingSettings = {
 			BreakEffect = "",
 			Price = 5000000,
 			RobuxPrice = 49,
-			RobuxProductId = 0,
+			RobuxProductId = 3719074540,
 		},
 		{
 			Key = "Vault",
@@ -82,7 +82,7 @@ local TrainingConfig: TrainingSettings = {
 			BreakEffect = "",
 			Price = 400000000,
 			RobuxPrice = 79,
-			RobuxProductId = 0,
+			RobuxProductId = 3719074543,
 		},
 		{
 			Key = "Core",
@@ -94,7 +94,7 @@ local TrainingConfig: TrainingSettings = {
 			BreakEffect = "VFX_Train_CoreBreak",
 			Price = 30000000000,
 			RobuxPrice = 99,
-			RobuxProductId = 0,
+			RobuxProductId = 3719074545,
 		},
 		{
 			Key = "Cosmic",
@@ -106,7 +106,7 @@ local TrainingConfig: TrainingSettings = {
 			BreakEffect = "VFX_Train_CosmicBreak",
 			Price = 500000000000,
 			RobuxPrice = 149,
-			RobuxProductId = 0,
+			RobuxProductId = 3719074547,
 		},
 	},
 	StandModelName = "TrainingStand",

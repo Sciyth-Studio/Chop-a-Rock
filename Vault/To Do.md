@@ -1,7 +1,7 @@
 ---
 description: Running task list for Chop a Rock — what's next, what's waiting on the user, what's deferred. Claude keeps it current.
 type: project
-updated: 2026-10-15
+updated: 2026-10-16
 ---
 # To Do
 
@@ -9,16 +9,11 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 
 ## Next
 - [ ] Roks for zones 2-5 (started 2026-10-13): 24 Roks, lineups approved in the master plan §03 (desert) and [[Zones After Desert]] (jungle, ocean, snow). One zone at a time, desert first, `model-workflow` per Rok with Bloky's body and eyes ([[Reuse Rok Eyes]]). Desert done 2026-10-14 (models, `PetConfig`, Desert Geode, Index zone, Geode Shop tab; see [[Geode Shop]]). Next zones: models, then `PetConfig`, `GeodeConfig.Geodes.<Zone>` with `TabName` and `Order`, geode models and the Index Roks zone (`new-zone` step 6)
-- [ ] Base remodel signed off 2026-10-13: delete `ServerStorage.Model_BasePlot_Old` (Claude's delete was blocked by the permission check; user deletes it or allows it)
 - [ ] Training tiers + strength-gated rebirth: built and checked in Play 2026-10-13 (see [[Rebirth Gated By Strength]]). Still to do: the user playtests the pacing and listens to the per-tier break sounds (added 2026-10-14, alternates in `ServerStorage.TrainingSoundOptions`); check on a phone that the Core and Cosmic VFX pixel squares show (VFX approved 2026-10-14); stands for zones after Snow. Not committed
-- [ ] Training upgrade sign (2026-10-14, see [[Training Upgrade Sign Reference]]): built and the request path checked in Play. User: click the sign for real (Claude's test mouse can't reach SurfaceGuis), judge its size and spot, approve the draft cash and Robux prices. Then Claude makes the five Robux developer products (Open Cloud) and puts their ids in `TrainingConfig`. Not committed
 - [ ] Zone rock models with props: the user watches a perfect break in each zone. The white snow props glow under bloom; tone them down if that bothers the user. See [[Zone Rocks Reference]]
-- [ ] Diamond Rock: real model in (user, 2026-10-13); test with 2+ players (Studio local server), see [[Diamond Rock]]
-- [ ] UI feel (approved 2026-10-14, see [[UI Feel]]): all four build phases done and checked in Play (hover/press/click and tilt, panel pop, shimmer on attention buttons 2026-10-15, success bounce / error shake and buzz, toggle and tab sounds). User listens to the sounds (alternates in `ServerStorage.UISoundOptions`), tunes the drafted numbers and saves the place. All committed (phases 3-4 on 2026-10-15)
-- [ ] Training minigames (added 2026-10-15, not started): games to play at a training stand while strength goes up. User will probably make a clone of the mobile game Block Blast first. Not planned yet
+- [ ] Training minigames (added 2026-10-15, not started): games to play at a training stand while strength goes up. The user is making a Fruit Ninja clone first (2026-10-16). Not planned yet
 - [ ] Geode pity (added 2026-10-15, not started): a pity counter on geode hatches so a rare Rok is guaranteed after enough misses. Thresholds, which rarities count and whether it's per geode or shared aren't decided yet. Not planned yet
 - [ ] Geode upgrades/levels (added 2026-10-15, not started): geodes level up or get upgraded. What a level changes and how you raise it aren't decided yet. Not planned yet
-- [ ] Weather (built 2026-10-14, see [[Weather]]): user watches each event, the modifier and catch effects and the lightning, and picks sounds (all `SFX_Weather_*` are empty). Then Claude draws proper textures with the `vfx` skill for any effect the user wants redone. Not committed
 
 ## Batch approved 2026-10-10
 - [ ] User plays a Diamond with Hot Streak, an easy rock and the Teleport Bar on phone size (colours and 3 s cooldown are drafts)

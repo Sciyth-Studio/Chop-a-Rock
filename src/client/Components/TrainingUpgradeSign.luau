@@ -160,7 +160,6 @@ return function(controllers: { [string]: any })
 			if isLocked then
 				setText(cashLabel, string.format(TrainingSignConfig.LockedFormat, nextStand.Rebirths))
 				paint(cashButton, TrainingSignConfig.Palette.Unavailable)
-				paint(robuxButton, TrainingSignConfig.Palette.Unavailable)
 			else
 				local canAfford = readNumber("Cash", 0) >= nextStand.Price
 				setText(cashLabel, `${NumberFormat.Compact(nextStand.Price, 1e3)}`)
@@ -170,8 +169,8 @@ return function(controllers: { [string]: any })
 						then TrainingSignConfig.Palette.Affordable
 						else TrainingSignConfig.Palette.Unavailable
 				)
-				paint(robuxButton, TrainingSignConfig.Palette.Robux)
 			end
+			paint(robuxButton, TrainingSignConfig.Palette.Robux)
 			if cashIcon and cashIcon:IsA("GuiObject") then
 				cashIcon.Visible = not isLocked
 			end
@@ -232,13 +231,12 @@ return function(controllers: { [string]: any })
 				if not isOwner() then
 					return
 				end
-				local blocked = lockedMessage()
-				if blocked then
-					notify(TrainingSignConfig.ErrorKind, blocked)
+				local nextStand = TrainingStands.Next(dataController:Get({ "TrainingTier" }))
+				if not nextStand then
+					notify(TrainingSignConfig.ErrorKind, TrainingSignConfig.Messages.Max)
 					return
 				end
-				local nextStand = TrainingStands.Next(dataController:Get({ "TrainingTier" }))
-				if not nextStand or nextStand.RobuxProductId <= 0 then
+				if nextStand.RobuxProductId <= 0 then
 					notify(TrainingSignConfig.ErrorKind, TrainingSignConfig.Messages.RobuxSoon)
 					return
 				end
