@@ -93,8 +93,11 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		task.spawn(function()
 			local ok = packet:Fire(table.unpack(arguments, 1, arguments.n))
 			isBusy = false
-			if ok == true and packet == Packets.BuyPedestalSlot then
-				LocalSound.Play("SFX_Money_Gain")
+			if packet == Packets.BuyPedestalSlot then
+				if ok == true then
+					LocalSound.Play("SFX_Money_Gain")
+				end
+				context.Feedback(slotButton, ok == true)
 			end
 		end)
 	end

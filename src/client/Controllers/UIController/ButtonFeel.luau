@@ -23,6 +23,7 @@ type Tilt = {
 
 export type ButtonFeel = {
 	Bind: (gui: LayerCollector) -> (),
+	Feedback: (button: GuiButton?, isSuccess: boolean) -> (),
 }
 
 local ButtonFeel = {}
@@ -33,6 +34,20 @@ local pressInfo = TweenInfo.new(UIFeelConfig.PressSeconds, Enum.EasingStyle.Quad
 local releaseInfo =
 	TweenInfo.new(UIFeelConfig.ReleaseSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local tiltInfo = TweenInfo.new(UIFeelConfig.TiltSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+local successUpInfo =
+	TweenInfo.new(UIFeelConfig.SuccessUpSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local successSettleInfo =
+	TweenInfo.new(UIFeelConfig.SuccessSettleSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+local shakeInfo =
+	TweenInfo.new(UIFeelConfig.ShakeStepSeconds, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+local shimmerInfo = TweenInfo.new(
+	UIFeelConfig.ShimmerSweepSeconds,
+	Enum.EasingStyle.Sine,
+	Enum.EasingDirection.InOut,
+	-1,
+	false,
+	UIFeelConfig.ShimmerGapSeconds
+)
 
 local function isCovering(button: GuiButton): boolean
 	return button.BackgroundTransparency >= 1
@@ -83,6 +98,14 @@ local function findTint(visual: GuiObject): Tint?
 	return nil
 end
 
+local function findShine(visual: GuiObject): (GuiObject?, UIGradient?)
+	local shine = visual:FindFirstChild(UIFeelConfig.ShineName, true)
+	if not shine or not shine:IsA("GuiObject") then
+		return nil, nil
+	end
+	return shine, shine:FindFirstChildWhichIsA("UIGradient")
+end
+
 local function centerAnchor(visual: GuiObject)
 	local shift = Vector2.new(0.5, 0.5) - visual.AnchorPoint
 	if shift.Magnitude == 0 then
@@ -126,6 +149,7 @@ function ButtonFeel.new(trove: TroveInstance): ButtonFeel
 	local isTouch = false
 	local lastHoverSound = -math.huge
 	local resets: { [GuiButton]: () -> () } = {}
+	local feedbacks: { [GuiButton]: (isSuccess: boolean) -> () } = {}
 
 	trove:Add(Input.PreferredInput.observe(function(preferred: Enum.PreferredInput)
 		isTouch = preferred == Enum.PreferredInput.Touch
@@ -247,6 +271,95 @@ function ButtonFeel.new(trove: TroveInstance): ButtonFeel
 			end)
 		end
 
+		local shakeToken = 0
+		local baseRotation = if visual then visual.Rotation else 0
+
+		local function bounce()
+			if not scale then
+				return
+			end
+			local tween = TweenService:Create(scale, successUpInfo, { Scale = UIFeelConfig.SuccessScale })
+			tween.Completed:Connect(function(state: Enum.PlaybackState)
+				if state == Enum.PlaybackState.Completed then
+					apply(successSettleInfo)
+				end
+			end)
+			tween:Play()
+		end
+
+		local function shake()
+			local target = visual
+			if not target then
+				return
+			end
+			shakeToken += 1
+			local token = shakeToken
+			task.spawn(function()
+				for _, degrees in UIFeelConfig.ShakeDegrees do
+					if token ~= shakeToken or not target.Parent then
+						return
+					end
+					local tween =
+						TweenService:Create(target, shakeInfo, { Rotation = baseRotation + degrees })
+					tween:Play()
+					tween.Completed:Wait()
+				end
+			end)
+		end
+
+		feedbacks[button] = function(isSuccess: boolean)
+			if isSuccess then
+				bounce()
+			else
+				shake()
+			end
+		end
+		buttonTrove:Add(function()
+			feedbacks[button] = nil
+			shakeToken += 1
+		end)
+
+		local shine: GuiObject?, shineGradient: UIGradient? = nil, nil
+		if visual then
+			shine, shineGradient = findShine(visual)
+		end
+		local shimmerTween: Tween? = nil
+
+		local function refreshShimmer()
+			if not shine then
+				return
+			end
+			local isOn = button:GetAttribute(UIFeelConfig.ShimmerAttribute) == true
+			if isOn == (shimmerTween ~= nil) then
+				return
+			end
+			if shimmerTween then
+				shimmerTween:Cancel()
+				shimmerTween = nil
+			end
+			shine.Visible = isOn
+			if isOn and shineGradient then
+				shineGradient.Offset = Vector2.new(-1, 0)
+				local tween = TweenService:Create(shineGradient, shimmerInfo, { Offset = Vector2.new(1, 0) })
+				shimmerTween = tween
+				tween:Play()
+			end
+		end
+
+		if shine then
+			refreshShimmer()
+			buttonTrove:Connect(
+				button:GetAttributeChangedSignal(UIFeelConfig.ShimmerAttribute),
+				refreshShimmer
+			)
+			buttonTrove:Add(function()
+				if shimmerTween then
+					shimmerTween:Cancel()
+					shimmerTween = nil
+				end
+			end)
+		end
+
 		buttonTrove:Connect(button.MouseEnter, hover)
 		buttonTrove:Connect(button.MouseLeave, unhover)
 		buttonTrove:Connect(button.SelectionGained, hover)
@@ -292,8 +405,19 @@ function ButtonFeel.new(trove: TroveInstance): ButtonFeel
 		end)
 	end
 
+	local function feedback(button: GuiButton?, isSuccess: boolean)
+		if not isSuccess then
+			LocalSound.Play(UIFeelConfig.ErrorSound)
+		end
+		local play = if button then feedbacks[button] else nil
+		if play then
+			play(isSuccess)
+		end
+	end
+
 	return {
 		Bind = bind,
+		Feedback = feedback,
 	}
 end
 

@@ -188,15 +188,17 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		return dataController:Get({ "Index" })
 	end
 
-	local function claim(request: () -> boolean)
+	local function claim(button: TextButton, request: () -> boolean)
 		if isClaiming then
 			return
 		end
 		isClaiming = true
 		task.spawn(function()
-			if request() then
+			local isClaimed = request()
+			if isClaimed then
 				LocalSound.Play("SFX_Money_Gain")
 			end
+			context.Feedback(button, isClaimed)
 			isClaiming = false
 		end)
 	end
@@ -280,6 +282,9 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			elseif isFound then IndexConfig.Text.Claim
 			else IndexConfig.Text.Locked
 		setText(claimLabel, text)
+		if claimButton then
+			claimButton:SetAttribute("Shimmer", canClaim)
+		end
 		BlockButton.Paint(
 			fillOf(claimButton),
 			if canClaim then IndexConfig.Palette.Claim else IndexConfig.Palette.Claimed
@@ -336,14 +341,19 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					then IndexConfig.Text.Claimed
 					else `+{math.floor(IndexConfig.ZoneCashBonus * 100 + 0.5)}% Money`
 			)
+			local canClaimZone = IndexRewards.CanClaimZone(index, currentPage, section.Zone)
+			if section.Reward then
+				section.Reward:SetAttribute("Shimmer", canClaimZone)
+			end
 			BlockButton.Paint(
 				fillOf(section.Reward),
-				if IndexRewards.CanClaimZone(index, currentPage, section.Zone)
-					then IndexConfig.Palette.Claim
-					else IndexConfig.Palette.Claimed
+				if canClaimZone then IndexConfig.Palette.Claim else IndexConfig.Palette.Claimed
 			)
 		end
 		local claimable = #IndexRewards.Claimable(index)
+		if claimAll then
+			claimAll:SetAttribute("Shimmer", claimable > 0)
+		end
 		setText(
 			claimAllLabel,
 			if claimable > 0 then `{IndexConfig.Text.ClaimAll} ({claimable})` else IndexConfig.Text.ClaimAll
@@ -418,7 +428,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local reward: TextButton? = find(frame, "ZoneReward", "TextButton", true)
 			if reward then
 				pageTrove:Connect(reward.Activated, function()
-					claim(function()
+					claim(reward, function()
 						return Packets.ClaimIndexZone:Fire(page.Key, zone.Key) == true
 					end)
 				end)
@@ -476,7 +486,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local key = selectedKey
 			local page = currentPage
 			if key then
-				claim(function()
+				claim(claimButton, function()
 					return Packets.ClaimIndex:Fire(page.Key, key) == true
 				end)
 			end
@@ -485,7 +495,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	if claimAll then
 		trove:Connect(claimAll.Activated, function()
-			claim(function()
+			claim(claimAll, function()
 				local claimed = Packets.ClaimAllIndex:Fire()
 				return type(claimed) == "number" and claimed > 0
 			end)

@@ -223,6 +223,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if button.Amount > 1 then
 				showThree = canBuy
 			end
+			button.Button:SetAttribute("Shimmer", canBuy and blockedText == nil)
 			setText(button.Label, NumberFormat.Commas(price))
 			paint(
 				button.Fill,
@@ -351,9 +352,11 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end
 			isBuying = true
 			task.spawn(function()
-				if Packets.BuyGeode:Fire(key, button.Amount) == true then
+				local isBought = Packets.BuyGeode:Fire(key, button.Amount) == true
+				if isBought then
 					LocalSound.Play("SFX_Money_Gain")
 				end
+				context.Feedback(button.Button, isBought)
 				isBuying = false
 			end)
 		end))

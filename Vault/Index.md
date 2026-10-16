@@ -103,7 +103,7 @@ _One note per game system as they're worked on._
 - [[Rush Rocks]] — after ~3 min of chopping the next rock rises gold near you, 20 s countdown, x3 pay; `RockService/Rush`, `RushRockConfig`, admin Ctrl+Shift+R
 - [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
-- [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; pop, shimmer, feedback phases to come
+- [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
 - [[Auras]] — red lobby Aura Shop, unlock by rebirth, arms + legs + trail, +walk speed; `AuraService`, `AuraController`, `AuraConfig`, `VFX_Aura_<Key>` Limb/Body templates
 - [[Weather]] — events on a shared :00/:30 clock for 15 min, rock pay boost, Roks on pedestals catch modifiers, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 

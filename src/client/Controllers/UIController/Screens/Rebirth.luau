@@ -132,6 +132,7 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 		isReady = strength >= required
 		if rebirthButton then
+			rebirthButton:SetAttribute("Shimmer", isReady)
 			if isReady then
 				paint(rebirthButton, READY_COLORS)
 			else
@@ -142,12 +143,17 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	if rebirthButton then
 		trove:Add(rebirthButton.Activated:Connect(function()
-			if not isReady or isBusy then
+			if isBusy then
+				return
+			end
+			if not isReady then
+				context.Feedback(rebirthButton, false)
 				return
 			end
 			isBusy = true
 			task.spawn(function()
-				Packets.Rebirth:Fire()
+				local isRebirthed = Packets.Rebirth:Fire() == true
+				context.Feedback(rebirthButton, isRebirthed)
 				isBusy = false
 			end)
 		end))

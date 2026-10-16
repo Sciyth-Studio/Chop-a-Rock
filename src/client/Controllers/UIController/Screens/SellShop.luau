@@ -300,18 +300,24 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			for id in selected do
 				table.insert(ids, id)
 			end
-			if isSelling or #ids == 0 then
+			if isSelling then
+				return
+			end
+			if #ids == 0 then
+				context.Feedback(sellButton, false)
 				return
 			end
 			isSelling = true
 			task.spawn(function()
 				local earned = Packets.SellPets:Fire(ids)
 				isSelling = false
-				if type(earned) == "number" and earned > 0 then
+				local isSold = type(earned) == "number" and earned > 0
+				if isSold then
 					table.clear(selected)
 					LocalSound.Play("SFX_Money_Gain")
 					refreshSelection()
 				end
+				context.Feedback(sellButton, isSold)
 			end)
 		end)
 	end

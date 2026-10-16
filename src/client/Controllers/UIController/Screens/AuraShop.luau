@@ -17,6 +17,7 @@ local AuraShop = {}
 
 type Row = {
 	Aura: AuraConfig.Aura,
+	Button: TextButton,
 	Label: TextLabel?,
 	Fill: Instance?,
 	PriceIcon: GuiObject?,
@@ -101,6 +102,10 @@ function AuraShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if row.Glow then
 				row.Glow.Visible = aura.Key == equipped
 			end
+			row.Button:SetAttribute(
+				"Shimmer",
+				not isOwned(aura.Key) and rebirths >= aura.RebirthsRequired and cash >= aura.Price
+			)
 			if aura.Key == equipped then
 				present(row, AuraShopConfig.EquippedText, AuraShopConfig.Palette.Equipped, false)
 			elseif isOwned(aura.Key) then
@@ -117,7 +122,7 @@ function AuraShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	local function activate(aura: AuraConfig.Aura)
+	local function activate(aura: AuraConfig.Aura, button: TextButton)
 		local equipped = equippedKey()
 		if aura.Key == equipped then
 			task.spawn(function()
@@ -129,10 +134,14 @@ function AuraShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end)
 		elseif readNumber("Rebirths") >= aura.RebirthsRequired and readNumber("Cash") >= aura.Price then
 			task.spawn(function()
-				if Packets.BuyAura:Fire(aura.Key) then
+				local isBought = Packets.BuyAura:Fire(aura.Key) == true
+				if isBought then
 					LocalSound.Play("SFX_Money_Gain")
 				end
+				context.Feedback(button, isBought)
 			end)
+		else
+			context.Feedback(button, false)
 		end
 	end
 
@@ -154,12 +163,13 @@ function AuraShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end
 			if button then
 				trove:Add(button.Activated:Connect(function()
-					activate(aura)
+					activate(aura, button)
 				end))
 				local priceIcon = button:FindFirstChild("PriceIcon")
 				local glow = row:FindFirstChild("ColorGlow")
 				table.insert(rows, {
 					Aura = aura,
+					Button = button,
 					Label = find(button, "Label", "TextLabel", false),
 					Fill = button:FindFirstChild("Fill", true),
 					PriceIcon = if priceIcon and priceIcon:IsA("GuiObject") then priceIcon else nil,

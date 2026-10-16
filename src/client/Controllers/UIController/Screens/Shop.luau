@@ -124,6 +124,7 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if row.Glow then
 				row.Glow.Visible = row.Index == ownedTier
 			end
+			row.Button:SetAttribute("Shimmer", row.Index == ownedTier + 1 and cash >= row.Price)
 			if row.Index < ownedTier then
 				present(row, "Owned", ShopConfig.Palette.Orange, false)
 			elseif row.Index == ownedTier then
@@ -154,12 +155,17 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end
 			if button then
 				trove:Add(button.Activated:Connect(function()
-					if index == readNumber("ArmTier", 1) + 1 then
+					local ownedTier = readNumber("ArmTier", 1)
+					if index == ownedTier + 1 then
 						task.spawn(function()
-							if Packets.BuyArm:Fire(index) then
+							local isBought = Packets.BuyArm:Fire(index) == true
+							if isBought then
 								LocalSound.Play("SFX_Money_Gain")
 							end
+							context.Feedback(button, isBought)
 						end)
+					elseif index > ownedTier + 1 then
+						context.Feedback(button, false)
 					end
 				end))
 				local priceIcon = button:FindFirstChild("PriceIcon")

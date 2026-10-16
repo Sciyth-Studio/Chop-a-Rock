@@ -1,5 +1,5 @@
 ---
-description: Button hover/press feel (2026-10-14) on every screen via UIController/ButtonFeel; hover darkens + grows with a tick, press squashes, click sound; layout and pivot gotchas; phases still to build.
+description: Button hover/press feel (2026-10-14) on every screen via UIController/ButtonFeel; hover darkens + grows with a tick, press squashes, click sound; layout and pivot gotchas; panel pop, shimmer, success/error feedback, toggle and tab sounds (2026-10-15).
 type: system
 ---
 # UI Feel
@@ -30,14 +30,20 @@ Approved 2026-10-14. The user asked for "buttons growing darker when hovered + s
 - New modal panel: wrap its `Panel` in a `PopRoot` copy and it pops with no code change.
 - Gotcha: a screen's own `Close` (and state like `isOpen`) runs 0.1 s after `UIController:Close`, when the shrink ends.
 
+## Built (phases 3 and 4, 2026-10-15)
+- Shimmer: a hidden `Shine` frame (white, `UIGradient` rotation 20 with a narrow 0.45-transparency band) sits inside `Track.Fill` of the attention buttons: Rebirth `RebirthButton`, Arm Shop and Aura Shop `RowTemplate.BuyButton`, Geode `BuyOne`/`BuyThree`, Index `ClaimButton`, `ClaimAll` and `SectionTemplate...ZoneReward`. Screens set the boolean attribute `Shimmer` on the button; ButtonFeel shows the shine and slides its gradient Offset -1 to 1 over 0.7 s every 1.8 s (the first sweep waits for the gap too). When on: Rebirth ready, affordable next arm tier, unowned unlocked affordable aura, affordable geode buy with no blocker, claimable entry / zone / any claim.
+- New attention button: add a `Shine` copy to its `Track.Fill` in Studio and set `Shimmer` from the screen.
+- Feedback: `context.Feedback(button, isSuccess)` (from `ButtonFeel.Feedback`). Success bounces `FeelScale` to 1.15 then settles back with Back easing; callers keep playing `SFX_Money_Gain` as the cha-ching. Failure plays `SFX_UI_Error` and shakes the box's `Rotation` through -7, 6, -5, 4, -2, 0 (0.04 s steps). Wired on arm, aura, geode and slot buys, Index claims, Sell, and Rebirth. Local rejects (locked arm tier, locked or unaffordable aura, rebirth not ready, Sell with nothing selected) also fail.
+- Toggle and tab sounds use the existing `ClickSound` attribute: `SFX_UI_Toggle` on the Settings toggles and Geode `LuckToggle`, and `SFX_UI_Tab` on the Index and Geode `TabTemplate` and the Sell Shop `SortTemplate`.
+- Sounds (picked by Claude 2026-10-15, vol 0.5): `SFX_UI_Error` = "Tycoon Error Sound" (`90321528664115`), `SFX_UI_Toggle` = Pro Sound Effects "Switch Click On Or Off Toggle Button 1" (`9119717529`), `SFX_UI_Tab` = RBLX UI Swipe (`10128766965`). Alternates `Error_*`, `Toggle_*` and `Tab_*` are in `ServerStorage.UISoundOptions`. Creator Store search for error/buzzer sounds returns almost nothing from verified creators.
+- Numbers are drafts in `UIFeelConfig` (`SuccessScale`, `ShakeDegrees`, `Shimmer*`).
+
 ## Gotchas
 - `UIScale` scales around the object's `AnchorPoint`. ButtonFeel re-anchors free-positioned boxes to 0.5,0.5 once at bind and shifts `Position` by the exact UDim difference, so they don't move. Code that positions a button itself must use its anchor (`Hud.luau` invite button does).
 - Inside a `UIListLayout`, a `UIScale` pivots at the top-left and pushes the siblings. Inside a `UIGridLayout`, it scales around the cell centre with no reflow. So the menu buttons, teleport bar, Index tabs and Sell Shop sort list were switched to `UIGridLayout` (named `GridLayout`) on 2026-10-14. The old list layouts are in `ServerStorage.UIBackup`. Buttons still in a list (the admin command list) only darken and don't grow.
 - A box that already has another `UIScale` (a `ScreenScale` root such as `ChopMeter.LeaveButton`) doesn't grow.
 
-## Still to build
-- Phase 3: shimmer (`Shine` frame authored on button templates in Studio; code slides its gradient).
-- Phase 4: success bounce/cha-ching and error shake/buzz on buy, claim, rebirth; toggle and tab sounds.
-- Phase 5: real sounds in, tune volumes and timings in a playtest.
+## Still to do
+- Phase 5 (user): listen to the sounds, swap alternates, tune volumes and the drafted numbers in a playtest.
 
 Related: [[Menu Panel Style]], [[Settings]], [[UI Built In Studio]]

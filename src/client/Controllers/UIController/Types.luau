@@ -4,6 +4,7 @@ export type Context = {
 	Controllers: { [string]: any },
 	Open: (name: string, argument: any?) -> (),
 	Close: (name: string) -> (),
+	Feedback: (button: GuiButton?, isSuccess: boolean) -> (),
 }
 
 export type Screen = {

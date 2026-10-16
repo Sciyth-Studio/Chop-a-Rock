@@ -118,6 +118,11 @@ function UIController.Start(_self: any)
 		Close = function(name: string)
 			UIController:Close(name)
 		end,
+		Feedback = function(button: GuiButton?, isSuccess: boolean)
+			if feel then
+				feel.Feedback(button, isSuccess)
+			end
+		end,
 	}
 	local created = ButtonFeel.new(feelTrove)
 	feel = created

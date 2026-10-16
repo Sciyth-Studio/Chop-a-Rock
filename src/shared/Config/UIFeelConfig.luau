@@ -30,6 +30,16 @@ export type UIFeelSettings = {
 	FeelAttribute: string,
 	FeelOff: string,
 	ClickSoundAttribute: string,
+	ErrorSound: string,
+	SuccessScale: number,
+	SuccessUpSeconds: number,
+	SuccessSettleSeconds: number,
+	ShakeDegrees: { number },
+	ShakeStepSeconds: number,
+	ShimmerAttribute: string,
+	ShineName: string,
+	ShimmerSweepSeconds: number,
+	ShimmerGapSeconds: number,
 }
 
 local UIFeelConfig: UIFeelSettings = {
@@ -68,6 +78,16 @@ local UIFeelConfig: UIFeelSettings = {
 	FeelAttribute = "Feel",
 	FeelOff = "None",
 	ClickSoundAttribute = "ClickSound",
+	ErrorSound = "SFX_UI_Error",
+	SuccessScale = 1.15,
+	SuccessUpSeconds = 0.07,
+	SuccessSettleSeconds = 0.3,
+	ShakeDegrees = table.freeze({ -7, 6, -5, 4, -2, 0 }),
+	ShakeStepSeconds = 0.04,
+	ShimmerAttribute = "Shimmer",
+	ShineName = "Shine",
+	ShimmerSweepSeconds = 0.7,
+	ShimmerGapSeconds = 1.8,
 }
 
 return table.freeze(UIFeelConfig)
