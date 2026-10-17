@@ -8,7 +8,6 @@ local IndexRewards = require(ReplicatedStorage.IndexRewards)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
-local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -62,24 +61,6 @@ end
 
 local function fillOf(button: Instance?): Instance?
 	return if button then button:FindFirstChild("Fill", true) else nil
-end
-
-local function paintMeter(fill: Instance?, colors: ShopConfig.MeterColors)
-	if not fill then
-		return
-	end
-	local gradient = fill:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, colors.Edge),
-			ColorSequenceKeypoint.new(0.5, colors.Center),
-			ColorSequenceKeypoint.new(1, colors.Edge),
-		})
-	end
-	local studs = fill:FindFirstChild("StudTexture")
-	if studs and studs:IsA("ImageLabel") then
-		studs.ImageColor3 = colors.Studs
-	end
 end
 
 local function buildPreview(frame: ViewportFrame, modelKey: string?)
@@ -326,7 +307,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local zoneFound, zoneTotal = IndexRewards.FoundCount(index, currentPage, section.Zone)
 			if section.Fill then
 				section.Fill.Size = UDim2.fromScale(if zoneTotal > 0 then zoneFound / zoneTotal else 0, 1)
-				paintMeter(
+				BlockButton.Paint(
 					section.Fill,
 					if zoneFound == zoneTotal
 						then IndexConfig.Palette.ProgressDone

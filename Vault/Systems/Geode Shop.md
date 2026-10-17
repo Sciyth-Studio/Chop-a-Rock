@@ -15,3 +15,5 @@ Decided 2026-10-14 (user): geodes are bought from the one lobby Geode Shop, with
 - Crack order (user, 2026-10-14): a player holding several geode kinds cracks the highest-zone one first (`Cracking.PickGeode` walks `GeodeOrder.Sorted()` from the top).
 
 Related: [[Index]], [[Pedestals]], [[Zones After Desert]], [[Desert Rok Sheets]]
+
+- Jungle (2026-10-16): Jungle Geode $2,560,000, 312,500 Strength, Order 3, `Model_Geode_Jungle` / `Model_GeodeSplit_Jungle` (Desert models copied, shell 235, 35, 130 to match the jungle Roks; crystals unchanged). Odds 55 / 25 / 12 / 6 / 1.8 / 0.2 from [[Zones After Desert]]. User approved the numbers and colour 2026-10-16; the user playtests it.

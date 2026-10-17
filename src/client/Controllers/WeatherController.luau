@@ -7,10 +7,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local GuideConfig = require(ReplicatedStorage.Config.GuideConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local SettingsConfig = require(ReplicatedStorage.Config.SettingsConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 local WeatherClock = require(ReplicatedStorage.WeatherClock)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
@@ -18,6 +20,7 @@ local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 type TroveInstance = typeof(Trove.new())
 
 local ROCK_TAG = "ChopRock"
+local ROCK_NAME_LABEL = "NameLabel"
 local SUN_PART_NAME = "Sun"
 local SUN_DISTANCE = 900
 
@@ -227,21 +230,83 @@ local function decorateRock(trove: TroveInstance, modifier: WeatherConfig.Modifi
 	end)
 end
 
+local function labelRock(trove: TroveInstance, modifier: WeatherConfig.Modifier, part: BasePart)
+	local template = AssetRegistry.get(GuideConfig.LabelTemplateKey)
+	local nameLabel = template:FindFirstChild(ROCK_NAME_LABEL, true)
+	if not template:IsA("BillboardGui") or not nameLabel or not nameLabel:IsA("TextLabel") then
+		template:Destroy()
+		return
+	end
+	for _, child in template:GetChildren() do
+		if child ~= nameLabel then
+			child:Destroy()
+		end
+	end
+	Typography.Apply(template)
+	local rockLabelHeight = template.Size.Y.Scale
+	local height = WeatherConfig.RockLabelHeightStuds
+	template.Name = WeatherConfig.RockLabelName
+	template.Size = UDim2.fromScale(template.Size.X.Scale, height)
+	template.Adornee = part
+	template.MaxDistance = GuideConfig.LabelMaxDistance
+	template.StudsOffsetWorldSpace = Vector3.new(
+		0,
+		part.Size.Y / 2 + GuideConfig.LabelHeightAboveRock + rockLabelHeight / 2 + height / 2,
+		0
+	)
+	nameLabel.Position = UDim2.fromScale(0, 0)
+	nameLabel.Size = UDim2.fromScale(1, 1)
+	nameLabel.Text = modifier.DisplayName
+	local gradient = nameLabel:FindFirstChildWhichIsA("UIGradient")
+	if gradient then
+		gradient.Color = ColorSequence.new(modifier.LabelTop, modifier.LabelBottom)
+	end
+	local stroke = nameLabel:FindFirstChildWhichIsA("UIStroke")
+	if stroke then
+		stroke.Color = modifier.LabelBottom:Lerp(Color3.new(0, 0, 0), WeatherConfig.LabelDarkAlpha)
+	end
+	template.Parent = part
+	trove:Add(template)
+end
+
 local function startRocks(trove: TroveInstance, event: WeatherConfig.Event)
 	local modifier = WeatherConfig.Modifiers[event.Modifier]
 	if not modifier then
 		return
 	end
 	local rockTroves: { [Instance]: TroveInstance } = {}
+	local watchers: { [Instance]: RBXScriptConnection } = {}
 	local function added(part: Instance)
-		if rockTroves[part] then
+		if rockTroves[part] or part:GetAttribute(WeatherConfig.RockWeatherAttribute) ~= event.Key then
 			return
+		end
+		local watcher = watchers[part]
+		watchers[part] = nil
+		if watcher then
+			watcher:Disconnect()
 		end
 		local rockTrove = Trove.new()
 		rockTroves[part] = rockTrove
 		decorateRock(rockTrove, modifier, part)
+		if part:IsA("BasePart") then
+			labelRock(rockTrove, modifier, part)
+		end
+	end
+	local function watch(part: Instance)
+		added(part)
+		if not rockTroves[part] and not watchers[part] then
+			watchers[part] = part:GetAttributeChangedSignal(WeatherConfig.RockWeatherAttribute)
+				:Connect(function()
+					added(part)
+				end)
+		end
 	end
 	local function removed(part: Instance)
+		local watcher = watchers[part]
+		watchers[part] = nil
+		if watcher then
+			watcher:Disconnect()
+		end
 		local rockTrove = rockTroves[part]
 		rockTroves[part] = nil
 		if rockTrove then
@@ -249,12 +314,15 @@ local function startRocks(trove: TroveInstance, event: WeatherConfig.Event)
 		end
 	end
 	for _, part in CollectionService:GetTagged(ROCK_TAG) do
-		added(part)
+		watch(part)
 	end
-	trove:Connect(CollectionService:GetInstanceAddedSignal(ROCK_TAG), added)
+	trove:Connect(CollectionService:GetInstanceAddedSignal(ROCK_TAG), watch)
 	trove:Connect(CollectionService:GetInstanceRemovedSignal(ROCK_TAG), removed)
 	trove:Add(function()
 		for part in rockTroves do
+			removed(part)
+		end
+		for part in watchers do
 			removed(part)
 		end
 	end)

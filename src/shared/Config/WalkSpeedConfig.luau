@@ -6,7 +6,7 @@ export type WalkSpeedSettings = {
 }
 
 local WalkSpeedConfig: WalkSpeedSettings = {
-	BaseWalkSpeed = 16,
+	BaseWalkSpeed = 25,
 	TargetAttribute = "WalkSpeedTarget",
 }
 

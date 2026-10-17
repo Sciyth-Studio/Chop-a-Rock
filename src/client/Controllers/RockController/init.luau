@@ -11,6 +11,7 @@ local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RockTemplate = require(ReplicatedStorage.RockTemplate)
 local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local Diamond = require(script.Diamond)
 local Effects = require(script.Effects)
 local Rush = require(script.Rush)
@@ -74,6 +75,13 @@ local function sinkAway(id: number)
 	end)
 end
 
+local function setWeather(id: number, weather: string)
+	local rock = rocks[id]
+	if rock and not rock.IsBroken then
+		rock.Part:SetAttribute(WeatherConfig.RockWeatherAttribute, weather)
+	end
+end
+
 local function endRush(id: number)
 	local rock = rocks[id]
 	local look = if rock then rock.Rush else nil
@@ -84,7 +92,7 @@ local function endRush(id: number)
 	look.End(not rock.IsBroken)
 end
 
-local function spawn(id: number, key: string, position: Vector3, modifier: string)
+local function spawn(id: number, key: string, position: Vector3, modifier: string, weather: string)
 	if rocks[id] or not folder then
 		return
 	end
@@ -94,6 +102,9 @@ local function spawn(id: number, key: string, position: Vector3, modifier: strin
 	end
 	local target = part.CFrame.Rotation + position
 	part.Name = `Rock_{key}`
+	if weather ~= "" then
+		part:SetAttribute(WeatherConfig.RockWeatherAttribute, weather)
+	end
 	part.Anchored = true
 	part.CanCollide = true
 	part.CFrame = target - Vector3.new(0, part.Size.Y + RockSpawnConfig.RiseDepthPaddingStuds, 0)
@@ -200,6 +211,7 @@ function RockController.Start(self: any)
 	trove:Add(Packets.RockChopped.OnClientEvent:Connect(onChopped))
 	trove:Add(Packets.RockRushEnded.OnClientEvent:Connect(endRush))
 	trove:Add(Packets.RockRemoved.OnClientEvent:Connect(sinkAway))
+	trove:Add(Packets.RockWeatherSet.OnClientEvent:Connect(setWeather))
 	Diamond.Start(trove, chopController)
 	trove:Add(Packets.RockChopShown.OnClientEvent:Connect(Effects.Shown))
 	trove:Add(Packets.RockSpawnSpots.OnClientEvent:Connect(SpotDots.Show))

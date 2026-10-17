@@ -18,6 +18,8 @@ Every model goes through the same six steps. When the user brings up a model, st
 
 When the models come as a set (a zone's three rocks, the training tiers, a zone's six Roks), step 3 has two parts. First, one lineup prompt shows the whole set side by side (front views on top, 3/4 views below, ordered by tier or rarity) so the pieces read as a family and the user can approve the set at once. Once the user is happy with the lineup, write one six-view prompt per item that attaches the lineup and names the item by its position in it. Model from the six-view sheets. Prompts for a set go in `assets/<Category>/<Set>/Prompts.md`.
 
+Batch mode (the user's choice, first used for the jungle Roks 2026-10-16): the prompts stay separate, but the user sends all the sheets at once and Claude builds, reviews and exports the whole set together. Follow the `batch-model` skill.
+
 ## Notes
 
 - Shortcuts exist when a new model is a variant of an existing one: duplicate and rotate, resize or recolour in Studio instead of modelling (the Stone rock is the Boulder mesh scaled and turned 180 degrees). Rotating a chop rock in Studio only keeps its split aligned at 180 degrees; for other angles, rotate in Blender and re-split. Offer this before starting steps 2 to 4.

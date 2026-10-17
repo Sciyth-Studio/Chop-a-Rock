@@ -73,6 +73,12 @@ local IndexConfig: IndexSettings = {
 					GeodeKey = "Desert",
 					Entries = { "Pointy", "Spike", "Howdy", "Flowy", "Ankhy", "Sunny" },
 				},
+				{
+					Key = "Jungle",
+					DisplayName = "Jungle",
+					GeodeKey = "Jungle",
+					Entries = { "Roly", "Leafy", "Viney", "Coco", "Tiki", "Bloomy" },
+				},
 			},
 		},
 		{

@@ -13,7 +13,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - Images the user pastes into chat arrive as files Claude can open and copy into `Attachments/`.
 - Images live in `Attachments/`. Every image is embedded in a note that says what to take from it; open images only through those notes.
 - Keep [[To Do]] current: remove items once done and checked in code, add new ones when the user approves work. Read it when the user asks what's next. Update the [[Trello Board]] only when the user asks ([[Trello Sync On Request]]).
-- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`, `new-zone`.
+- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `batch-model` (a whole set in one Blender file), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`, `new-zone`.
 
 ## Project
 - [[Chop a Rock]] — what the game is, repos, design source of truth
@@ -73,6 +73,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Treebo Reference]] — Secret forest Rok: Bloky body, three-blob faceted tree from the back right, glowing firefly cubes
 - [[Desert Roks Lineup]] — 2026-10-14 lineup of the six golden amber desert Roks; attach to every desert six-view prompt; Sunny's crystal crown not to be copied
 - [[Desert Rok Sheets]] — 2026-10-14 six-view sheets for all six desert Roks; per-Rok notes on what to take (Sunny = flat sun rays, Ankhy ankh stands upright)
+- [[Jungle Rok Sheets]] — 2026-10-16 six-view sheets for the six dragon-fruit-pink jungle Roks; batch-built in one `JungleRoks.blend`
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 - [[Training Upgrade Sign Reference]] — 2026-10-14 in-world "Upgrade / Level 2 > Level 3" sign with red cash and purple Robux buttons, for the training stand
 - [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
@@ -106,7 +107,7 @@ _One note per game system as they're worked on._
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
 - [[Auras]] — red lobby Aura Shop, unlock by rebirth, arms + legs + trail, +walk speed; `AuraService`, `AuraController`, `AuraConfig`, `VFX_Aura_<Key>` Limb/Body templates
-- [[Weather]] — events on a shared :00/:30 clock for 15 min, rock pay boost, Roks on pedestals catch modifiers, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
+- [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._

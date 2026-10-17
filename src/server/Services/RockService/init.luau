@@ -134,6 +134,7 @@ local function spawnRock(player: Player, zone: string, isRush: boolean): boolean
 			+ Vector3.new(0, shape.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0),
 		Size = shape.Size,
 		Modifier = if isRush then RushRockConfig.Modifier else nil,
+		Weather = services.WeatherService:RollStormRock(),
 		UpAt = os.clock() + RockSpawnConfig.RiseSeconds,
 	}
 	rocks[rock.Id] = rock
@@ -141,7 +142,14 @@ local function spawnRock(player: Player, zone: string, isRush: boolean): boolean
 		Rush.Started(rushState, rock.Id)
 		task.delay(RockSpawnConfig.RiseSeconds + RushRockConfig.CountdownSeconds, expireRush, player, rock)
 	end
-	Packets.RockSpawned:FireClient(player, rock.Id, key, rock.CFrame.Position, rock.Modifier or "")
+	Packets.RockSpawned:FireClient(
+		player,
+		rock.Id,
+		key,
+		rock.CFrame.Position,
+		rock.Modifier or "",
+		rock.Weather or ""
+	)
 	return true
 end
 
@@ -295,9 +303,10 @@ local function onRelease(player: Player)
 		damage, payout = Session.Apply(session, services.StatsService:GetStrength(player), quality)
 	end
 	local streakMultiplier = services.HotStreakService:RecordChop(player, quality, session.StrengthRatio)
+	services.WeatherService:RecordHit(player, rock.Weather)
 	if payout > 0 then
 		payout = Rush.ApplyPayout(rock, payout)
-		payout = services.WeatherService:ApplyRockMultiplier(payout)
+		payout = services.WeatherService:ApplyRockMultiplier(payout, rock.Weather)
 		payout = services.HotStreakService:ApplyCashMultiplier(payout, streakMultiplier)
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
@@ -515,6 +524,26 @@ end
 
 function RockService.HasSession(_self: any, player: Player): boolean
 	return sessions[player] ~= nil
+end
+
+function RockService.StartStorm(_self: any, weather: string, perZone: number)
+	for player, rocks in owned do
+		local byZone: { [string]: { Types.Rock } } = {}
+		for _, rock in rocks do
+			if rock.Weather ~= weather then
+				local list = byZone[rock.Zone] or {}
+				byZone[rock.Zone] = list
+				table.insert(list, rock)
+			end
+		end
+		for _, list in byZone do
+			for _ = 1, math.min(perZone, #list) do
+				local rock = table.remove(list, random:NextInteger(1, #list)) :: Types.Rock
+				rock.Weather = weather
+				Packets.RockWeatherSet:FireClient(player, rock.Id, weather)
+			end
+		end
+	end
 end
 
 function RockService.Destroy(_self: any)

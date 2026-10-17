@@ -40,25 +40,6 @@ local function find(root: Instance, name: string, className: string): any
 	return nil
 end
 
-local function paintMeter(button: TextButton, colors: MeterColors)
-	local buttonFill = button:FindFirstChild("Fill", true)
-	if not buttonFill then
-		return
-	end
-	local gradient = buttonFill:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, colors.Edge),
-			ColorSequenceKeypoint.new(0.5, colors.Center),
-			ColorSequenceKeypoint.new(1, colors.Edge),
-		})
-	end
-	local studs = buttonFill:FindFirstChild("StudTexture")
-	if studs and studs:IsA("ImageLabel") then
-		studs.ImageColor3 = colors.Studs
-	end
-end
-
 function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local dataController = context.Controllers.DataController
 	local trove = Trove.new()
@@ -100,7 +81,7 @@ function Settings.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local valueLabel: TextLabel? = find(gui, name .. "Value", "TextLabel")
 		local minusButton: TextButton? = find(gui, name .. "Minus", "TextButton")
 		local plusButton: TextButton? = find(gui, name .. "Plus", "TextButton")
-		paintMeter(slider, ON_COLORS)
+		BlockButton.Paint(slider:FindFirstChild("Fill", true), ON_COLORS)
 
 		local maxPercent = SettingsConfig.MaxVolumePercent
 		local stepPercent = SettingsConfig.VolumeStepPercent

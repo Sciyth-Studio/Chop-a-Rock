@@ -41,23 +41,23 @@ local RockSpawnConfig: RockSpawnSettings = {
 	ZoneAttribute = "Zone",
 	Zones = {
 		Forest = {
-			RockCount = 10,
+			RockCount = 15,
 			Weights = { Basic = 50, Second = 30, Third = 20 },
 		},
 		Desert = {
-			RockCount = 10,
+			RockCount = 15,
 			Weights = { DesertFirst = 50, DesertSecond = 30, DesertThird = 20 },
 		},
 		Jungle = {
-			RockCount = 10,
+			RockCount = 15,
 			Weights = { JungleFirst = 50, JungleSecond = 30, JungleThird = 20 },
 		},
 		Ocean = {
-			RockCount = 10,
+			RockCount = 15,
 			Weights = { OceanFirst = 50, OceanSecond = 30, OceanThird = 20 },
 		},
 		Snow = {
-			RockCount = 10,
+			RockCount = 15,
 			Weights = { SnowFirst = 50, SnowSecond = 30, SnowThird = 20 },
 		},
 	},

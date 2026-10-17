@@ -54,10 +54,6 @@ local function setText(label: TextLabel?, text: string)
 	end
 end
 
-local function formatMultiplier(value: number): string
-	return if value % 1 == 0 then tostring(value) else string.format("%.1f", value)
-end
-
 function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local dataController = context.Controllers.DataController
 	local trove = Trove.new()
@@ -116,8 +112,8 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		setText(luckAfter, `+{math.floor(nextRebirth.LuckBonus * 100 + 0.5)}% Luck`)
 		setText(beforeTitle, `Rebirth {rebirths}`)
 		setText(afterTitle, `Rebirth {rebirths + 1}`)
-		setText(cashBefore, `x{formatMultiplier(cashNow)} Cash`)
-		setText(cashAfter, `x{formatMultiplier(nextRebirth.CashMultiplier)} Cash`)
+		setText(cashBefore, `{NumberFormat.Multiplier(cashNow)} Cash`)
+		setText(cashAfter, `{NumberFormat.Multiplier(nextRebirth.CashMultiplier)} Cash`)
 		setText(strengthBefore, `{TrainingStands.ForRebirths(rebirths).DisplayName} Training`)
 		setText(strengthAfter, `{TrainingStands.ForRebirths(rebirths + 1).DisplayName} Training`)
 		local required = nextRebirth.StrengthRequired

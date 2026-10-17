@@ -14,7 +14,14 @@ local Packets = {
 		Packet.NumberF64
 	):RateLimit(3, 1),
 	RockReady = Packet("RockReady"):RateLimit(2, 1),
-	RockSpawned = Packet("RockSpawned", Packet.NumberU32, Packet.String, Packet.Vector3F32, Packet.String),
+	RockSpawned = Packet(
+		"RockSpawned",
+		Packet.NumberU32,
+		Packet.String,
+		Packet.Vector3F32,
+		Packet.String,
+		Packet.String
+	),
 	RockChop = Packet("RockChop", Packet.NumberU32):RateLimit(3, 1),
 	RockMinigameStart = Packet(
 		"RockMinigameStart",
@@ -35,6 +42,7 @@ local Packets = {
 	),
 	RockRushEnded = Packet("RockRushEnded", Packet.NumberU32),
 	RockRemoved = Packet("RockRemoved", Packet.NumberU32),
+	RockWeatherSet = Packet("RockWeatherSet", Packet.NumberU32, Packet.String),
 	DiamondChop = Packet("DiamondChop"):RateLimit(3, 1),
 	DiamondChopped = Packet("DiamondChopped", Packet.NumberU8, Packet.Boolean8),
 	DiamondEnded = Packet("DiamondEnded"),

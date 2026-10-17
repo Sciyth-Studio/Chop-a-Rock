@@ -107,7 +107,7 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local cursor = findFrame(gui, "Cursor")
 	local healthBar = findFrame(gui, "HealthBar")
-	local healthFillInstance = if healthBar then healthBar:FindFirstChild("HealthFill") else nil
+	local healthFillInstance = if healthBar then healthBar:FindFirstChild("HealthFill", true) else nil
 	local healthFill: Frame? = if healthFillInstance and healthFillInstance:IsA("Frame")
 		then healthFillInstance
 		else nil

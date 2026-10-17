@@ -25,6 +25,7 @@ local suppressedUntil = 0
 local active: Window? = nil
 local warnedFor = 0
 local lastCatchAt = 0
+local stormHits: { [Player]: number } = {}
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -81,17 +82,25 @@ end
 
 local function rollCatches(event: WeatherConfig.Event)
 	for _, player in Players:GetPlayers() do
+		local hits = stormHits[player] or 0
+		stormHits[player] = nil
 		local data = services.DataService:GetData(player)
 		if not data then
 			continue
 		end
+		local candidates: { string } = {}
 		for petId, pet in data.Pets do
-			if pet.Slot == nil or not RokModifier.IsBetter(event.Modifier, pet.Modifier) then
-				continue
+			if pet.Slot ~= nil and RokModifier.IsBetter(event.Modifier, pet.Modifier) then
+				table.insert(candidates, petId)
 			end
-			if random:NextNumber() < WeatherConfig.CatchChance then
-				services.PetService:SetModifier(player, petId, event.Modifier, true)
-			end
+		end
+		local chance = math.min(
+			WeatherConfig.MaxCatchChance,
+			WeatherConfig.CatchChance + hits * WeatherConfig.StormHitCatchChance
+		)
+		if #candidates > 0 and random:NextNumber() < chance then
+			local petId = candidates[random:NextInteger(1, #candidates)]
+			services.PetService:SetModifier(player, petId, event.Modifier, true)
 		end
 	end
 end
@@ -122,6 +131,8 @@ local function tick()
 			)
 		end
 		lastCatchAt = time
+		table.clear(stormHits)
+		services.RockService:StartStorm(active.Key, WeatherConfig.StartStormRocksPerZone)
 		print(`[WeatherService] {active.Key} started, ends in {math.floor(active.EndsAt - time)}s`)
 	end
 	local startsAt, key = nextStart(time)
@@ -151,9 +162,22 @@ function WeatherService.GetActive(_self: any): WeatherConfig.Event?
 	return if active then WeatherClock.Event(active.Key) else nil
 end
 
-function WeatherService.ApplyRockMultiplier(_self: any, payout: number): number
+function WeatherService.RollStormRock(_self: any): string?
+	if active and random:NextNumber() < WeatherConfig.StormRockChance then
+		return active.Key
+	end
+	return nil
+end
+
+function WeatherService.RecordHit(_self: any, player: Player, weather: string?)
+	if active and weather == active.Key then
+		stormHits[player] = (stormHits[player] or 0) + 1
+	end
+end
+
+function WeatherService.ApplyRockMultiplier(_self: any, payout: number, weather: string?): number
 	local event = WeatherService:GetActive()
-	return if event then math.floor(payout * event.RockMultiplier) else payout
+	return if event and weather == event.Key then math.floor(payout * event.RockMultiplier) else payout
 end
 
 function WeatherService.RollHatchModifier(_self: any): string?
@@ -165,6 +189,9 @@ function WeatherService.RollHatchModifier(_self: any): string?
 end
 
 function WeatherService.Start(_self: any)
+	trove:Connect(Players.PlayerRemoving, function(player: Player)
+		stormHits[player] = nil
+	end)
 	trove:Add(task.spawn(function()
 		while true do
 			tick()

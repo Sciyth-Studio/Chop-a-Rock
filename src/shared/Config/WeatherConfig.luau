@@ -35,6 +35,10 @@ export type WeatherSettings = {
 	WarningSeconds: number,
 	CatchIntervalSeconds: number,
 	CatchChance: number,
+	StormHitCatchChance: number,
+	MaxCatchChance: number,
+	StormRockChance: number,
+	StartStormRocksPerZone: number,
 	HatchChance: number,
 	ClockSeed: number,
 	Events: { Event },
@@ -49,6 +53,7 @@ export type WeatherSettings = {
 	RokVFXName: string,
 	RokVFXReferenceStuds: number,
 	RockVFXName: string,
+	RockWeatherAttribute: string,
 	NoticeKindPrefix: string,
 	WarningText: string,
 	StartText: string,
@@ -76,15 +81,21 @@ export type WeatherSettings = {
 	PillIdleDark: Color3,
 	PillDarkAlpha: number,
 	LabelDarkAlpha: number,
+	RockLabelName: string,
+	RockLabelHeightStuds: number,
 	AdminNextSeconds: number,
 }
 
 local WeatherConfig: WeatherSettings = {
 	PeriodSeconds = 1800,
-	DurationSeconds = 900,
+	DurationSeconds = 300,
 	WarningSeconds = 60,
 	CatchIntervalSeconds = 60,
-	CatchChance = 0.02,
+	CatchChance = 0.025,
+	StormHitCatchChance = 0.01,
+	MaxCatchChance = 0.25,
+	StormRockChance = 0.25,
+	StartStormRocksPerZone = 4,
 	HatchChance = 0.25,
 	ClockSeed = 7349,
 	Events = {
@@ -215,7 +226,7 @@ local WeatherConfig: WeatherSettings = {
 	Modifiers = {
 		Dusty = {
 			DisplayName = "Dusty",
-			Multiplier = 1.5,
+			Multiplier = 1.25,
 			Color = Color3.fromRGB(255, 170, 40),
 			VFXKey = "VFX_Modifier_Dusty",
 			CatchVFXKey = "VFX_Catch_Dusty",
@@ -226,7 +237,7 @@ local WeatherConfig: WeatherSettings = {
 		},
 		Windy = {
 			DisplayName = "Windy",
-			Multiplier = 2,
+			Multiplier = 1.5,
 			Color = Color3.fromRGB(0, 220, 200),
 			VFXKey = "VFX_Modifier_Windy",
 			CatchVFXKey = "VFX_Catch_Windy",
@@ -237,7 +248,7 @@ local WeatherConfig: WeatherSettings = {
 		},
 		Toasty = {
 			DisplayName = "Toasty",
-			Multiplier = 2.5,
+			Multiplier = 1.75,
 			Color = Color3.fromRGB(255, 80, 0),
 			VFXKey = "VFX_Modifier_Toasty",
 			CatchVFXKey = "VFX_Catch_Toasty",
@@ -248,7 +259,7 @@ local WeatherConfig: WeatherSettings = {
 		},
 		Zappy = {
 			DisplayName = "Zappy",
-			Multiplier = 3,
+			Multiplier = 2,
 			Color = Color3.fromRGB(255, 230, 0),
 			VFXKey = "VFX_Modifier_Zappy",
 			CatchVFXKey = "VFX_Catch_Zappy",
@@ -259,7 +270,7 @@ local WeatherConfig: WeatherSettings = {
 		},
 		Eclipsed = {
 			DisplayName = "Eclipsed",
-			Multiplier = 5,
+			Multiplier = 3,
 			Color = Color3.fromRGB(190, 0, 255),
 			VFXKey = "VFX_Modifier_Eclipsed",
 			CatchVFXKey = "VFX_Catch_Eclipsed",
@@ -279,6 +290,7 @@ local WeatherConfig: WeatherSettings = {
 	RokVFXName = "ModifierVFX",
 	RokVFXReferenceStuds = 4,
 	RockVFXName = "WeatherVFX",
+	RockWeatherAttribute = "Weather",
 	NoticeKindPrefix = "Weather_",
 	WarningText = "%s in 1 minute!",
 	StartText = "A %s is here! Roks can catch %s (x%s)",
@@ -306,6 +318,8 @@ local WeatherConfig: WeatherSettings = {
 	PillIdleDark = Color3.fromRGB(60, 60, 60),
 	PillDarkAlpha = 0.65,
 	LabelDarkAlpha = 0.7,
+	RockLabelName = "WeatherLabel",
+	RockLabelHeightStuds = 2,
 	AdminNextSeconds = 10,
 }
 

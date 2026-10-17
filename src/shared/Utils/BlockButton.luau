@@ -43,6 +43,7 @@ function BlockButton.Paint(fill: Instance?, colors: Colors)
 		box.BackgroundColor3 = colors.Studs:Lerp(black, BlockButtonConfig.OutlineDarken)
 	end
 	local lip = track:FindFirstChild(BlockButtonConfig.LipName)
+		or fill:FindFirstChild(BlockButtonConfig.LipName)
 	if lip and lip:IsA("GuiObject") then
 		lip.BackgroundColor3 = colors.Studs:Lerp(colors.Edge, BlockButtonConfig.LipToEdge)
 		local highlight = lip:FindFirstChild(BlockButtonConfig.HighlightName)
@@ -51,6 +52,7 @@ function BlockButton.Paint(fill: Instance?, colors: Colors)
 		end
 	end
 	local bevel = track:FindFirstChild(BlockButtonConfig.BevelName)
+		or fill:FindFirstChild(BlockButtonConfig.BevelName)
 	local bevelStroke = if bevel then bevel:FindFirstChildWhichIsA("UIStroke") else nil
 	if bevelStroke then
 		bevelStroke.Color = top:Lerp(white, BlockButtonConfig.BevelLighten)

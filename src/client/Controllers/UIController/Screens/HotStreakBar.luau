@@ -5,6 +5,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local HotStreakConfig = require(ReplicatedStorage.Config.HotStreakConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
+local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
@@ -45,11 +46,15 @@ function HotStreakBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	if not fill then
 		warn(`[HotStreakBar] Missing Frame "Fill" in {gui:GetFullName()}`)
 	end
-	local gradient = if fill then fill:FindFirstChildWhichIsA("UIGradient") else nil
-	local studsInstance = if fill then fill:FindFirstChild("StudTexture") else nil
-	local studs: ImageLabel? = if studsInstance and studsInstance:IsA("ImageLabel")
-		then studsInstance
-		else nil
+	local fireLayers: { { Label: ImageLabel, Speed: Vector2, Shade: "Main" | "Light" | "Dark" } } = {}
+	for name, settings in HotStreakConfig.BarFireLayers do
+		local layer = if fill then fill:FindFirstChild(name) else nil
+		if layer and layer:IsA("ImageLabel") then
+			table.insert(fireLayers, { Label = layer, Speed = settings.Speed, Shade = settings.Shade })
+		else
+			warn(`[HotStreakBar] Missing fire ImageLabel "{name}" in the bar fill`)
+		end
+	end
 	local tierLabel, tierShadow = nil, nil
 	local progressLabel, progressShadow = nil, nil
 	if container then
@@ -80,15 +85,31 @@ function HotStreakBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function paint(definition: HotStreakConfig.Tier)
-		if gradient then
-			gradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, definition.Main),
-				ColorSequenceKeypoint.new(0.5, definition.Light),
-				ColorSequenceKeypoint.new(1, definition.Main),
-			})
+		BlockButton.Paint(fill, {
+			Edge = definition.Dark,
+			Center = definition.Main,
+			Studs = definition.Dark:Lerp(Color3.new(0, 0, 0), HotStreakConfig.BarStudsDarken),
+		})
+		for _, layer in fireLayers do
+			layer.Label.ImageColor3 = if layer.Shade == "Dark"
+				then definition.Dark
+				elseif layer.Shade == "Light" then definition.Light
+				else definition.Main
 		end
-		if studs then
-			studs.ImageColor3 = definition.Dark
+	end
+
+	local function wrap(value: number, tile: number): number
+		return if tile > 0 then value % tile - tile else 0
+	end
+
+	local function scrollFire()
+		local now = os.clock()
+		for _, layer in fireLayers do
+			local tile = layer.Label.TileSize
+			layer.Label.Position = UDim2.fromOffset(
+				wrap(now * layer.Speed.X, tile.X.Offset),
+				wrap(now * layer.Speed.Y, tile.Y.Offset)
+			)
 		end
 	end
 
@@ -145,6 +166,7 @@ function HotStreakBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if not box or not box.Visible then
 			return
 		end
+		scrollFire()
 		local remaining = expiresAt - workspace:GetServerTimeNow()
 		if expiresAt > 0 and remaining <= HotStreakConfig.BlinkSeconds then
 			local isDim = math.floor(remaining * HotStreakConfig.BlinkHertz * 2) % 2 == 1

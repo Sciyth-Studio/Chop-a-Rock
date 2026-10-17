@@ -25,6 +25,7 @@ export type Rock = {
 	CFrame: CFrame,
 	Size: Vector3,
 	Modifier: string?,
+	Weather: string?,
 	UpAt: number,
 }
 

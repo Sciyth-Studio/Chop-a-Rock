@@ -1,13 +1,7 @@
 --!strict
 
 local ShopPadConfig = {
-	WallHeight = 4,
-	WallLightEmission = 0.6,
-	WallBottomTransparency = 0.35,
-	BandCount = 2,
-	BandSeconds = 1.6,
-	BandWidth = 0.18,
-	BandTransparency = 0.1,
+	WallTemplateKey = "VFX_ShopPad",
 	EnterHeightStuds = 6,
 	ExitPaddingStuds = 1,
 	PromptHeightStuds = 3,
