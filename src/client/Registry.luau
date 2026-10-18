@@ -26,6 +26,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.HotStreakController),
 	require(script.Parent.Controllers.AuraController),
 	require(script.Parent.Controllers.WeatherController),
+	require(script.Parent.Controllers.TutorialController),
 }
 
 return controllers

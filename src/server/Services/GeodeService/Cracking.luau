@@ -14,6 +14,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Effects = require(script.Parent.Effects)
 local Luck = require(script.Parent.Luck)
 local Types = require(script.Parent.Types)
@@ -118,9 +119,14 @@ function Cracking.Release(
 	local services = context.Services
 	local elapsed = math.max(0, os.clock() - session.StartTime - ChopConfig.LatencyCompensationSeconds)
 	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
+	local tutorialData = services.DataService:GetData(player)
+	local isTutorial = tutorialData ~= nil and Tutorial.IsActive(Tutorial.StepOf(tutorialData.Tutorial))
 	if
-		services.RockService:ConsumeForcedMaster(player)
-		or services.RockService:RollMaster(quality, session.StrengthRatio)
+		not isTutorial
+		and (
+			services.RockService:ConsumeForcedMaster(player)
+			or services.RockService:RollMaster(quality, session.StrengthRatio)
+		)
 	then
 		quality = ChopQuality.Master
 	end
@@ -135,7 +141,7 @@ function Cracking.Release(
 		return GeodeConfig.RecrackDelaySeconds
 	end
 	services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned - 1)
-	local grant = services.PetService:Grant(player, petKey, services.WeatherService:RollHatchModifier())
+	local grant = services.PetService:Grant(player, petKey, services.WeatherService:RollHatchModifier(player))
 	if not grant then
 		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
 		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)

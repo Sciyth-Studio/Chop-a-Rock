@@ -46,6 +46,9 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 		values.ArmTier = 1
 	end
 	replica:SetValues({}, values)
+	if RebirthConfig.ResetCash then
+		services.PedestalService:ClearEarnings(player)
+	end
 	if RebirthConfig.ResetArmTier then
 		services.ArmService.TierChanged:Fire(player, 1)
 	end

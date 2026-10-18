@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Component = require(ReplicatedStorage.Packages.Component)
 local BlockButtonConfig = require(ReplicatedStorage.Config.BlockButtonConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local TrainingSignConfig = require(ReplicatedStorage.Config.TrainingSignConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
@@ -157,11 +158,11 @@ return function(controllers: { [string]: any })
 				robuxButton.Visible = true
 			end
 			local isLocked = readNumber("Rebirths", 0) < nextStand.Rebirths
+			local canAfford = readNumber("Cash", 0) >= nextStand.Price
 			if isLocked then
 				setText(cashLabel, string.format(TrainingSignConfig.LockedFormat, nextStand.Rebirths))
 				paint(cashButton, TrainingSignConfig.Palette.Unavailable)
 			else
-				local canAfford = readNumber("Cash", 0) >= nextStand.Price
 				setText(cashLabel, `${NumberFormat.Compact(nextStand.Price, 1e3)}`)
 				paint(
 					cashButton,
@@ -170,7 +171,12 @@ return function(controllers: { [string]: any })
 						else TrainingSignConfig.Palette.Unavailable
 				)
 			end
-			paint(robuxButton, TrainingSignConfig.Palette.Robux)
+			paint(
+				robuxButton,
+				if isLocked or canAfford
+					then TrainingSignConfig.Palette.Unavailable
+					else TrainingSignConfig.Palette.Robux
+			)
 			if cashIcon and cashIcon:IsA("GuiObject") then
 				cashIcon.Visible = not isLocked
 			end
@@ -231,9 +237,20 @@ return function(controllers: { [string]: any })
 				if not isOwner() then
 					return
 				end
+				local blocked = lockedMessage()
+				if blocked then
+					notify(TrainingSignConfig.ErrorKind, blocked)
+					return
+				end
 				local nextStand = TrainingStands.Next(dataController:Get({ "TrainingTier" }))
 				if not nextStand then
-					notify(TrainingSignConfig.ErrorKind, TrainingSignConfig.Messages.Max)
+					return
+				end
+				if readNumber("Cash", 0) >= nextStand.Price then
+					notify(
+						TrainingSignConfig.ErrorKind,
+						string.format(TrainingSignConfig.Messages.HasCash, nextStand.DisplayName)
+					)
 					return
 				end
 				if nextStand.RobuxProductId <= 0 then
@@ -243,6 +260,28 @@ return function(controllers: { [string]: any })
 				MarketplaceService:PromptProductPurchase(Players.LocalPlayer, nextStand.RobuxProductId)
 			end)
 		end
+
+		trove:Connect(
+			MarketplaceService.PromptProductPurchaseFinished,
+			function(userId: number, productId: number, isPurchased: boolean)
+				if not isPurchased or userId ~= Players.LocalPlayer.UserId or not isOwner() then
+					return
+				end
+				for _, stand in TrainingConfig.Stands do
+					if stand.RobuxProductId == productId then
+						notify(
+							TrainingSignConfig.CashBoughtKind,
+							string.format(
+								TrainingSignConfig.CashBoughtFormat,
+								NumberFormat.Compact(stand.Price, 1e3),
+								stand.DisplayName
+							)
+						)
+						return
+					end
+				end
+			end
+		)
 
 		trove:Connect(plot:GetAttributeChangedSignal(TrainingSignConfig.OwnerAttribute), refresh)
 		for _, key in { "TrainingTier", "Rebirths", "Cash" } do

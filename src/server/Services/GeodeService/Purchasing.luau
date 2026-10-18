@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Types = require(script.Parent.Types)
 
 local Purchasing = {}
@@ -26,7 +27,7 @@ function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, a
 	local geode = GeodeConfig.Geodes[geodeKey]
 	local dataService = context.Services.DataService
 	local data = dataService:GetData(player)
-	if not geode or not data then
+	if not geode or not data or not Tutorial.CanBuyGeode(Tutorial.StepOf(data.Tutorial)) then
 		return false
 	end
 	if data.Strength < geode.StrengthRequired then

@@ -161,7 +161,73 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
+	local pinned: { [string]: Entry } = {}
+
+	local function pop(entry: Entry)
+		local scale = entry.Frame:FindFirstChildWhichIsA("UIScale") or Instance.new("UIScale")
+		scale.Parent = entry.Frame
+		scale.Scale = NotificationConfig.PinPopFromScale
+		TweenService:Create(
+			scale,
+			TweenInfo.new(NotificationConfig.PinPopSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+			{ Scale = 1 }
+		):Play()
+	end
+
+	local function pin(id: string, kind: string, message: string, order: number)
+		local existing = pinned[id]
+		if existing then
+			if existing.Message ~= message then
+				existing.Message = message
+				render(existing)
+				pop(existing)
+			end
+			return
+		end
+		local frame = templateFrame:Clone()
+		local label = frame:FindFirstChild("Message", true)
+		if not label or not label:IsA("TextLabel") then
+			warn("[Notifications] Template needs a TextLabel named Message")
+			frame:Destroy()
+			return
+		end
+		local stroke = label:FindFirstChildWhichIsA("UIStroke")
+		frame.Name = `Pinned{id}`
+		frame.LayoutOrder = NotificationConfig.PinnedLayoutOrder + order
+		frame.Visible = true
+		frame.Parent = container
+		local entry: Entry = {
+			Kind = kind,
+			Message = message,
+			Count = 1,
+			Frame = frame,
+			Label = label,
+			Stroke = stroke,
+			Token = 0,
+		}
+		pinned[id] = entry
+		render(entry)
+		pop(entry)
+	end
+
+	local function unpin(id: string)
+		local entry = pinned[id]
+		if not entry then
+			return
+		end
+		pinned[id] = nil
+		fade(entry, 1, NotificationConfig.FadeOutSeconds)
+		task.delay(NotificationConfig.FadeOutSeconds, function()
+			entry.Frame:Destroy()
+		end)
+	end
+
 	trove:Connect(controller.Notified, show)
+	trove:Connect(controller.Pinned, pin)
+	trove:Connect(controller.Unpinned, unpin)
+	for id, current in controller:GetPins() do
+		pin(id, current.Kind, current.Message, current.Order)
+	end
 
 	return {
 		Modal = false,
@@ -178,6 +244,10 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				entry.Frame:Destroy()
 			end
 			table.clear(entries)
+			for _, entry in pinned do
+				entry.Frame:Destroy()
+			end
+			table.clear(pinned)
 		end,
 	}
 end

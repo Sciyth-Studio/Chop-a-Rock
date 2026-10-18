@@ -20,6 +20,7 @@ local Types = require(script.Types)
 type Reveal = {
 	IsCancelled: boolean,
 	IsFinished: boolean,
+	IsOwn: boolean,
 }
 
 local HatchController = {
@@ -150,7 +151,8 @@ local function play(spot: Attachment, hatch: Types.Hatch)
 	if previous then
 		previous.IsCancelled = true
 	end
-	local reveal: Reveal = { IsCancelled = false, IsFinished = false }
+	local reveal: Reveal =
+		{ IsCancelled = false, IsFinished = false, IsOwn = hatch.Owner == Players.LocalPlayer }
 	active[spot] = reveal
 	local scene = Scene.Build(spot, hatch.GeodeKey)
 	local rarity = RarityConfig.Rarities[hatch.Rarity]
@@ -250,6 +252,15 @@ local function play(spot: Attachment, hatch: Types.Hatch)
 	else
 		task.delay(HatchRevealConfig.BurstLifetimeSeconds, Scene.Destroy, scene)
 	end
+end
+
+function HatchController.IsPlaying(_self: any): boolean
+	for _, reveal in active do
+		if reveal.IsOwn then
+			return true
+		end
+	end
+	return false
 end
 
 function HatchController.Init(_self: any, registry: { [string]: any })

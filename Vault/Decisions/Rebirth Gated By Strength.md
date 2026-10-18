@@ -1,5 +1,5 @@
 ---
-description: 2026-10-13 — no level system; rebirth N needs the toughest rock of zone N in strength; each rebirth unlocks the next training stand with a set strength per 1 s rep; rebirth gives cash + luck only.
+description: 2026-10-13 — no level system; rebirth N needs the toughest rock of zone N in strength; each rebirth unlocks the next training stand with a set strength per 1 s rep; rebirth gives cash + luck only; Robux buys the stand's cash, never skips the gate (2026-10-18).
 type: decision
 ---
 # Rebirth gated by strength, one stand per rebirth (2026-10-13)
@@ -12,6 +12,7 @@ The user studied a successful game and wanted its model. Strength is the one sta
 - Stands are `TrainingConfig.Stands`: Wood R0 1, Brick R1 25, Steel R2 2,500, Vault R3 300K, Energy Core R4 40M, Cosmic R5 5B per rep, each × the arm multiplier. That's about 10 minutes of training without arms per zone. `ChopIntervalSeconds` is now 1 (was 1.6). The strike animation still fits: 0.21 s lead + 0.35 s hold.
 - The user agreed the stand only changes looks and feel. Its set strength per rep is the training output, and the rebirth count gives no strength multiplier.
 - Rebirth keeps a cash multiplier and the luck bonus. 2026-10-16 the user felt cash was far too easy and cut it to 1 + 0.25 × N (`MultiplierPerRebirth` 0.25, was 1). It only ever applied to chop and Diamond Rock pay, never pedestal income. The draft stand prices below assumed the old ×(1 + N), so they are now steeper relative to chop income.
+- Rebirth also clears uncollected pedestal pad money (2026-10-18). Before that, the money survived a rebirth and paid into the fresh wallet. Placed Roks stay. See [[Pedestals]].
 - Arms still multiply training (Claude's default; the user didn't object).
 - Every zone after Snow needs a new stand.
 - Considered and dropped: gating stands by zones (5 zones vs 6 stands, and zones already give walk speed), by arms (duplicates the money lever), by level (resets on rebirth, so the stand would downgrade), and buying stands with cash (a second money-bought training multiplier, and a bad time to make kids pay right after a rebirth).
@@ -23,3 +24,6 @@ The user asked for a way to change training tier, then sent [[Training Upgrade S
 
 ## Change 2026-10-16: Robux skips the rebirth gate
 The user said Robux only working after the rebirth "defeats the point of the skip". The Robux button on the upgrade sign now buys the next stand at any time, with no rebirth needed. Cash still needs the rebirth. The server grant never checked rebirths. Only the sign's client check changed (`Components/TrainingUpgradeSign`). Prices approved: Robux 25 / 49 / 79 / 99 / 149, developer products made 2026-10-16 (ids in `TrainingConfig`). This replaces "Robux skips only the cash, never the rebirth gate" above.
+
+## Change 2026-10-18: Robux buys the cash, not the stand
+In a balance review the user said Robux should "pay for currency to upgrade training", not skip the upgrade or the rebirth gate. This reverses the 2026-10-16 skip. The stand developer products (ids unchanged in `TrainingConfig`) now grant the next stand's cash `Price` (`TrainingService:GrantStandCash` → `Upgrade.GrantStandCash`, wired in `PurchaseService/Products`); they never set `TrainingTier`. The player then presses the cash button, so the rebirth gate always applies. On the sign the Robux button is grey and refuses ("Rebirth N to unlock X Training") while locked, and grey with "You already have the cash for X Training" when cash covers it; it is purple only when unlocked and short of cash. After a purchase the sign notifies "+$50K for Brick Training! Press the cash button to upgrade" (`Purchase` kind). Claude chose the full price over topping up the shortfall so a fixed Robux price buys a fixed amount and a retried receipt can't change it, and no auto-upgrade so Robux stays a currency purchase; both are drafts for the user to confirm. The Roblox product names and descriptions still read as stand unlocks and need renaming to the cash amounts.

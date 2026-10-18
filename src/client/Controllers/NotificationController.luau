@@ -11,9 +11,33 @@ type TroveInstance = typeof(Trove.new())
 local NotificationController = {
 	Name = "NotificationController",
 	Notified = Signal.new(),
+	Pinned = Signal.new(),
+	Unpinned = Signal.new(),
 	_trove = nil :: TroveInstance?,
 	_controllers = {} :: { [string]: any },
+	_pins = {} :: { [string]: { Kind: string, Message: string, Order: number } },
 }
+
+function NotificationController.Pin(self: any, id: string, kind: string, message: string, order: number?)
+	if not NotificationConfig.Kinds[kind] then
+		kind = NotificationConfig.FallbackKind
+	end
+	self._pins[id] = { Kind = kind, Message = message, Order = order or 0 }
+	self.Pinned:Fire(id, kind, message, order or 0)
+end
+
+function NotificationController.Unpin(self: any, id: string)
+	if self._pins[id] then
+		self._pins[id] = nil
+		self.Unpinned:Fire(id)
+	end
+end
+
+function NotificationController.GetPins(
+	self: any
+): { [string]: { Kind: string, Message: string, Order: number } }
+	return self._pins
+end
 
 function NotificationController.Notify(self: any, kind: string, message: string)
 	if self._controllers.DataController:Get({ "Settings", "Notifications" }) == false then

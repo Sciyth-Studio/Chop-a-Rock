@@ -12,6 +12,7 @@ local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local SettingsConfig = require(ReplicatedStorage.Config.SettingsConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 local WeatherClock = require(ReplicatedStorage.WeatherClock)
@@ -32,6 +33,7 @@ local WeatherController = {
 local targets: { [string]: Instance } = {}
 local baseline: { [Instance]: { [string]: any } } = {}
 local currentKey = ""
+local dataController: any = nil
 local eventTrove: TroveInstance? = nil
 local flash: ColorCorrectionEffect? = nil
 local random = Random.new()
@@ -355,7 +357,9 @@ end
 
 local function apply(isFresh: boolean)
 	local value = workspace:GetAttribute(WeatherConfig.WeatherAttribute)
-	local key = if type(value) == "string" then value else ""
+	local isHidden = not dataController:IsLoaded()
+		or Tutorial.IsActive(Tutorial.StepOf(dataController:Get({ "Tutorial" })))
+	local key = if type(value) == "string" and not isHidden then value else ""
 	if key == currentKey then
 		return
 	end
@@ -387,7 +391,8 @@ function WeatherController.GetActive(_self: any): WeatherConfig.Event?
 	return if currentKey ~= "" then WeatherClock.Event(currentKey) else nil
 end
 
-function WeatherController.Init(self: any, _controllers: { [string]: any })
+function WeatherController.Init(self: any, controllers: { [string]: any })
+	dataController = controllers.DataController
 	self._trove = Trove.new()
 end
 
@@ -404,6 +409,9 @@ function WeatherController.Start(self: any)
 		apply(true)
 	end)
 	apply(false)
+	trove:Add(dataController:Observe({ "Tutorial", "Step" }, function()
+		apply(false)
+	end))
 	trove:Add(function()
 		if eventTrove then
 			eventTrove:Destroy()

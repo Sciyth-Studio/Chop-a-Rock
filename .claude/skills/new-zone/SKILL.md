@@ -5,7 +5,7 @@ description: Use when adding a new zone to Chop a Rock (jungle, ocean, snow or a
 
 # Making a new zone
 
-A zone is one 220 x 120 stud strip in the straight line of zones, with its own rock material, three chop rocks, a geode of six Roks, and decoration. Work through the steps in order. Say which step you are on, and what is still missing, before starting work.
+A zone is one 220 x 168 stud strip in the straight line of zones, with its own rock material, three chop rocks, a geode of six Roks, and decoration. Work through the steps in order. Say which step you are on, and what is still missing, before starting work.
 
 Read first: vault [[Zone Line]] (where each zone sits and its colours), [[Rock Spawning]], [[Forest Zone Entrance]], [[Roks Stay Rocks]], [[Simple Names No Material Clash]], and the master plan §03 (rocks, zone list, Rok lineup) and §06 (gates, teleport pads, walk speed).
 
@@ -24,15 +24,15 @@ When the user approves, log it in the master plan (section plus a dated Decision
 
 Built by Claude when the user asks. Everything else in the world is built by the user.
 
-- Clone the previous zone's `ZoneTemplate` (Floor plus `Walls`), drop `ZoneEntrance`, and move the clone +120 on Z per zone. Parent it to `Workspace.Zones.Zone<Name>` (folder) as `ZoneTemplate`.
-- The floor is 120 x 1 x 220 rotated -90°, so the zone runs along X (x -68 to 152), and it is 120 deep on Z. The walls are two terraces at x -98 and x 182, each three stacked layers: `ThirdLayerWall` (bottom, 16 tall), `SecondLayerWall` (15) and `FirstLayerWall` (the 4-stud cap). All of them are Glacier with the `2022 Stud` MaterialVariant and six faint black stud `Texture`s, which come along with the clone.
+- Clone the previous zone's `ZoneTemplate` (Floor plus `Walls`), drop `ZoneEntrance`, and move the clone +168 on Z per zone. Parent it to `Workspace.Zones.Zone<Name>` (folder) as `ZoneTemplate`.
+- The floor is 168 x 1 x 220 rotated -90°, so the zone runs along X (x -68 to 152), and it is 168 deep on Z. The walls are two terraces at x -98 and x 182, each three stacked layers: `ThirdLayerWall` (bottom, 16 tall), `SecondLayerWall` (15) and `FirstLayerWall` (the 4-stud cap). All of them are Glacier with the `2022 Stud` MaterialVariant and six faint black stud `Texture`s, which come along with the clone.
 - Colours: the cap is the same colour as the floor. The two lower layers are the zone's cliff colour, middle lighter than bottom. Keep the zone's palette in [[Zone Line]].
 - Wrap the edit in `ChangeHistoryService:TryBeginRecording` / `FinishRecording` so the user can undo it. Check the result with `screen_capture` from above, then tell the user to save the place.
 
 ```lua
 local template = previousZone.ZoneTemplate:Clone()
 template.ZoneEntrance:Destroy()
-template:PivotTo(previousZone.ZoneTemplate:GetPivot() + Vector3.new(0, 0, 120))
+template:PivotTo(previousZone.ZoneTemplate:GetPivot() + Vector3.new(0, 0, 168))
 template.Floor.Color = top
 for _, wall in template.Walls:GetChildren() do
 	wall.FirstLayerWall.Color = top
@@ -43,7 +43,7 @@ end
 
 ## 3. Entrance sign
 
-Copy the desert's `ZoneEntrance` into the new `ZoneTemplate`. Put it at the zone's near edge (centre z − 60) and set the `Title` text and style and the `Strength` range ("<First> N to <Third> N Strength"). The range is typed by hand, so update it whenever `RockConfig` changes. Bake the style in Edit with `Typography.ApplyTextStyle`. See [[Forest Zone Entrance]].
+Copy the desert's `ZoneEntrance` into the new `ZoneTemplate`. Put it at the zone's near edge (centre z − 84) and set the `Title` text and style and the `Strength` range ("<First> N to <Third> N Strength"). The range is typed by hand, so update it whenever `RockConfig` changes. Bake the style in Edit with `Typography.ApplyTextStyle`. See [[Forest Zone Entrance]].
 
 ## 4. Rocks
 

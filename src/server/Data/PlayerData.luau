@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 
 export type Pet = {
 	Key: string,
@@ -37,6 +38,7 @@ export type Data = {
 		},
 	},
 	Settings: { [string]: boolean | number },
+	Tutorial: Tutorial.State,
 	LastSeenAt: number,
 	Receipts: { [string]: number },
 }
@@ -74,6 +76,7 @@ PlayerData.Template = {
 		Notifications = true,
 		AutoEquip = true,
 	},
+	Tutorial = Tutorial.NewState(),
 	LastSeenAt = 0,
 	Receipts = {},
 } :: Data
@@ -207,6 +210,9 @@ function PlayerData.Validate(data: any): boolean
 			end
 		end
 	end
+	if data.Tutorial ~= nil and not Tutorial.IsValid(data.Tutorial) then
+		return false
+	end
 	if data.Receipts ~= nil then
 		if type(data.Receipts) ~= "table" then
 			return false
@@ -220,7 +226,18 @@ function PlayerData.Validate(data: any): boolean
 	return true
 end
 
+local function hasProgress(data: any): boolean
+	return (type(data.Cash) == "number" and data.Cash > 0)
+		or (type(data.Strength) == "number" and data.Strength > 0)
+		or (type(data.ArmTier) == "number" and data.ArmTier > 1)
+		or (type(data.Rebirths) == "number" and data.Rebirths > 0)
+		or (type(data.Pets) == "table" and next(data.Pets) ~= nil)
+end
+
 function PlayerData.Migrate(data: any)
+	if data.Tutorial == nil and hasProgress(data) then
+		data.Tutorial = { Step = Tutorial.Done, Taps = 0, Furthest = Tutorial.FirstRebirth }
+	end
 	if data.TrainingTier == nil and natural(data.Rebirths) then
 		data.TrainingTier = TrainingStands.IndexForRebirths(data.Rebirths)
 	end

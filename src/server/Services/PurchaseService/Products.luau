@@ -10,7 +10,7 @@ local Products: { [number]: Grant } = {}
 for tier, stand in TrainingConfig.Stands do
 	if stand.RobuxProductId > 0 then
 		Products[stand.RobuxProductId] = function(player: Player, services: { [string]: any }): boolean
-			return services.TrainingService:GrantTier(player, tier)
+			return services.TrainingService:GrantStandCash(player, tier)
 		end
 	end
 end

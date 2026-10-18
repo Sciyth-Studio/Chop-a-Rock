@@ -2,7 +2,6 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local ArrowTrail = require(script.ArrowTrail)
 local RockLabels = require(script.RockLabels)
 
 type TroveInstance = typeof(Trove.new())
@@ -21,7 +20,6 @@ end
 function GuideController.Start(self: any)
 	local trove = self._trove :: TroveInstance
 	RockLabels.Start(trove)
-	ArrowTrail.Start(trove, self._controllers.DataController)
 end
 
 function GuideController.Destroy(self: any)

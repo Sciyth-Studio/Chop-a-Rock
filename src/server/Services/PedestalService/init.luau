@@ -5,13 +5,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packets = require(ReplicatedStorage.Packets)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Display = require(script.Display)
 local Earnings = require(script.Earnings)
 local Placement = require(script.Placement)
 local Types = require(script.Types)
 
-local PedestalService = { Name = "PedestalService" }
+local PedestalService = {
+	Name = "PedestalService",
+	Collected = Signal.new() :: Signal.Signal<Player>,
+}
 
 local trove = Trove.new()
 local context: Types.Context = { Services = {} }
@@ -103,6 +107,7 @@ local function collect(player: Player, slot: number)
 	end
 	services.DataService:Set(player, { "PedestalEarnings", slotKey(slot) }, earnings.Banked)
 	Packets.PadCollected:FireClient(player)
+	PedestalService.Collected:Fire(player)
 	refresh(player)
 end
 
@@ -218,6 +223,19 @@ function PedestalService.SetSlots(_self: any, player: Player, count: number): bo
 	services.DataService:Set(player, { "PedestalSlots" }, count)
 	Placement.Sanitize(context, player)
 	return respond(player, true)
+end
+
+function PedestalService.ClearEarnings(_self: any, player: Player)
+	local session = sessions[player]
+	if session then
+		local now = Earnings.Now()
+		for _, earnings in session.Slots do
+			earnings.Banked = 0
+			earnings.BankedAt = now
+		end
+	end
+	context.Services.DataService:Set(player, { "PedestalEarnings" }, {})
+	refresh(player)
 end
 
 function PedestalService.Init(_self: any, registry: { [string]: any })

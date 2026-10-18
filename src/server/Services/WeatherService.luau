@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RokModifier = require(ReplicatedStorage.RokModifier)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local WeatherClock = require(ReplicatedStorage.WeatherClock)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
@@ -62,9 +63,20 @@ local function nextStart(time: number): (number, string)
 	return slot.StartsAt, slot.Key
 end
 
+local function inTutorial(player: Player): boolean
+	local data = services.DataService:GetData(player)
+	return Tutorial.IsActive(Tutorial.StepOf(if data then data.Tutorial else nil))
+end
+
 local function notifyAll(event: WeatherConfig.Event, text: string)
 	for _, player in Players:GetPlayers() do
-		services.NotificationService:Notify(player, WeatherConfig.NoticeKindPrefix .. event.Modifier, text)
+		if not inTutorial(player) then
+			services.NotificationService:Notify(
+				player,
+				WeatherConfig.NoticeKindPrefix .. event.Modifier,
+				text
+			)
+		end
 	end
 end
 
@@ -85,7 +97,7 @@ local function rollCatches(event: WeatherConfig.Event)
 		local hits = stormHits[player] or 0
 		stormHits[player] = nil
 		local data = services.DataService:GetData(player)
-		if not data then
+		if not data or Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 			continue
 		end
 		local candidates: { string } = {}
@@ -162,7 +174,10 @@ function WeatherService.GetActive(_self: any): WeatherConfig.Event?
 	return if active then WeatherClock.Event(active.Key) else nil
 end
 
-function WeatherService.RollStormRock(_self: any): string?
+function WeatherService.RollStormRock(_self: any, player: Player?): string?
+	if player and inTutorial(player) then
+		return nil
+	end
 	if active and random:NextNumber() < WeatherConfig.StormRockChance then
 		return active.Key
 	end
@@ -180,7 +195,10 @@ function WeatherService.ApplyRockMultiplier(_self: any, payout: number, weather:
 	return if event and weather == event.Key then math.floor(payout * event.RockMultiplier) else payout
 end
 
-function WeatherService.RollHatchModifier(_self: any): string?
+function WeatherService.RollHatchModifier(_self: any, player: Player?): string?
+	if player and inTutorial(player) then
+		return nil
+	end
 	local event = WeatherService:GetActive()
 	if event and random:NextNumber() < WeatherConfig.HatchChance then
 		return event.Modifier

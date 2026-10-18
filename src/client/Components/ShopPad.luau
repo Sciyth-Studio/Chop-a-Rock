@@ -6,6 +6,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local Component = require(ReplicatedStorage.Packages.Component)
 local ShopPadConfig = require(ReplicatedStorage.Config.ShopPadConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 
 type ShopPad = {
 	Instance: Instance,
@@ -122,7 +123,8 @@ return function(controllers: { [string]: any })
 			return
 		end
 		local uiController = controllers.UIController
-		local isInside = isCharacterInside(self, part)
+		local step = Tutorial.StepOf(controllers.DataController:Get({ "Tutorial" }))
+		local isInside = isCharacterInside(self, part) and Tutorial.IsPadOpen(step, screen)
 		if isInside ~= self.IsInside then
 			self.IsInside = isInside
 			if isInside then

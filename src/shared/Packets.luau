@@ -97,6 +97,7 @@ local Packets = {
 	Notify = Packet("Notify", Packet.String, Packet.String),
 	AdminRun = Packet("AdminRun", Packet.String, Packet.String):RateLimit(5, 1),
 	Teleport = Packet("Teleport", Packet.String):RateLimit(6, 1),
+	TutorialSkip = Packet("TutorialSkip"):RateLimit(2, 1),
 }
 
 return Packets

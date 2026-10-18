@@ -34,6 +34,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	DiamondRockPill = require(script.Screens.DiamondRockPill),
 	WeatherPill = require(script.Screens.WeatherPill),
 	TeleportBar = require(script.Screens.TeleportBar),
+	TutorialHud = require(script.Screens.TutorialHud),
 }
 
 local UIController = { Name = "UIController" }

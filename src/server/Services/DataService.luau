@@ -9,6 +9,7 @@ local ReplicaServer = require(ServerScriptService.ReplicaServer)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local PlayerData = require(script.Parent.Parent.Data.PlayerData)
 local DataSessions = require(script.Parent.Parent.Data.DataSessions)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 
 type Path = { string | number }
 
@@ -182,6 +183,7 @@ function DataService.ResetData(_self: any, player: Player, overrides: { [string]
 		PedestalSlots = template.PedestalSlots,
 		PedestalEarnings = {},
 		Index = { Pets = {}, Rocks = {}, Claimed = { Pets = {}, Rocks = {}, Zones = {} } },
+		Tutorial = Tutorial.NewState(),
 	}
 	if overrides then
 		for key, value in overrides do

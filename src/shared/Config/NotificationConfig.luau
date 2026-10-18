@@ -11,6 +11,9 @@ export type NotificationSettings = {
 	HoldSeconds: number,
 	FadeOutSeconds: number,
 	RepeatSuffix: string,
+	PinnedLayoutOrder: number,
+	PinPopFromScale: number,
+	PinPopSeconds: number,
 }
 
 local NotificationConfig: NotificationSettings = {
@@ -21,6 +24,7 @@ local NotificationConfig: NotificationSettings = {
 		Event = true,
 		Modifier = true,
 		Error = true,
+		Tutorial = true,
 	},
 	FallbackKind = "Info",
 	SoundKey = "SFX_Notification",
@@ -29,6 +33,9 @@ local NotificationConfig: NotificationSettings = {
 	HoldSeconds = 2.5,
 	FadeOutSeconds = 0.6,
 	RepeatSuffix = " x",
+	PinnedLayoutOrder = -1000,
+	PinPopFromScale = 0.9,
+	PinPopSeconds = 0.25,
 }
 
 for key in WeatherConfig.Modifiers do

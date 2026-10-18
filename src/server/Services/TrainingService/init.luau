@@ -8,6 +8,7 @@ local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local Packets = require(ReplicatedStorage.Packets)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local ArmService = require(script.Parent.ArmService)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
@@ -22,6 +23,7 @@ local OWNER_ATTRIBUTE = "OwnerUserId"
 
 local TrainingService = {
 	Name = "TrainingService",
+	Trained = Signal.new() :: Signal.Signal<Player>,
 }
 
 local trove = Trove.new()
@@ -36,6 +38,7 @@ type Training = {
 	SavedJumpHeight: number,
 }
 local trainings: { [Player]: Training } = {}
+local strengthCarry: { [Player]: number } = {}
 local brokenBoards: { [BasePart]: true } = {}
 
 local boardPush: SplitModel.Push = {
@@ -283,12 +286,15 @@ local function tick()
 			training.LastChopClock = now
 			local data = services.DataService:GetData(player)
 			local stand = TrainingStands.Get(if data then data.TrainingTier else 1)
-			local gain =
-				math.max(1, math.floor(stand.StrengthPerRep * ArmService:GetTrainingMultiplier(player) + 0.5))
+			local exact = stand.StrengthPerRep * ArmService:GetTrainingMultiplier(player)
+				+ (strengthCarry[player] or 0)
+			local gain = math.floor(exact)
+			strengthCarry[player] = exact - gain
 			local newStrength = StatsService:AddStrength(player, gain)
 			playSoundOnPart(stand.BreakSound, training.Board)
 			breakBoard(training.Board, stand.BreakEffect)
 			Packets.TrainingChop:FireClient(player)
+			TrainingService.Trained:Fire(player)
 			print(`[TrainingService] {player.Name} trained: strength={newStrength}`)
 		end
 	end
@@ -352,12 +358,8 @@ function TrainingService.SetTier(_self: any, player: Player, tier: number): bool
 	return isSet
 end
 
-function TrainingService.GrantTier(_self: any, player: Player, tier: number): boolean
-	local granted = Upgrade.Grant(services, player, tier)
-	if granted then
-		task.defer(syncPlayerStand, player)
-	end
-	return granted
+function TrainingService.GrantStandCash(_self: any, player: Player, tier: number): boolean
+	return Upgrade.GrantStandCash(services, player, tier)
 end
 
 function TrainingService.Init(_self: any, registry: { [string]: any })
@@ -393,6 +395,7 @@ function TrainingService.Start(_self: any)
 
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		trainings[player] = nil
+		strengthCarry[player] = nil
 	end))
 end
 

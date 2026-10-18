@@ -38,6 +38,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Roks Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
 - [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
 - [[Keep Decor Simple]] — zone decor is few, primitive-shape props; reuse and recolour; Studio parts and particles over Blender models
+- [[Decor Without References]] — decor reference prompts are run with no images attached; the look is written into the prompt
 - [[Ask The User To Look]] — need eyes on something in Studio? Ask the user instead of long screenshot loops
 - [[Menu Panel Style]] — dark grey stud body, striped gradient header, Chrome title, black outlines, sharp corners
 
@@ -50,7 +51,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Tintable Mesh Textures]] — studs are the 2022 MaterialVariants in MaterialService (`2022 Inlet`, `2022 Stud` = outlet); copy MaterialVariant with Material
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
-- [[Zone Line]] — zone order forest → desert → jungle → ocean → snow; folders, Z ranges (120 apart), floor/terrace colours
+- [[Zone Line]] — zone order forest → desert → jungle → ocean → snow; folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared
 - [[Open Cloud Key]] — `ROBLOX_API_KEY` user env var; assets + dev products scopes; reaches group assets; never print it
@@ -97,7 +98,7 @@ _One note per game system as they're worked on._
 - [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; new zone = config only (no stand)
-- [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads, slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
+- [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
 - [[Shop Pads]] — neon floor rectangles open the Arm Shop / Geode shop on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
@@ -108,6 +109,7 @@ _One note per game system as they're worked on._
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
 - [[Auras]] — red lobby Aura Shop, unlock by rebirth, arms + legs + trail, +walk speed; `AuraService`, `AuraController`, `AuraConfig`, `VFX_Aura_<Key>` Limb/Body templates
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
+- [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, pathfinding chevrons, SpotlightUI on buy buttons, red pad locks, Skip; weather ignored while it runs
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
@@ -117,7 +119,8 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Zones After Desert]] — 2026-10-10: approved jungle, ocean, snow rocks (built as placeholders), Roks and geodes (not built); the number rules
 - [[VFX From Roqer]] — 2026-10-07 Roqer VFX pipeline; since 2026-10-15 the vfx skill is the MIT `roblox-vfx` skill, runtime at `ReplicatedStorage.VFX` (Emit/Build/Capture/Shapes)
 - [[Coloured Roks After Forest]] — 2026-10-14: only forest Roks are grey; each later zone's six share one saturated body colour (desert golden amber 215, 152, 35)
-- [[Rebirth Gated By Strength]] — 2026-10-13: no levels; rebirth N needs zone N's toughest rock in strength; each rebirth unlocks the next training stand (set strength per 1 s rep); rebirth gives cash + luck only
+- [[Rebirth Gated By Strength]] — 2026-10-13: no levels; rebirth N needs zone N's toughest rock in strength; each rebirth unlocks the next training stand (set strength per 1 s rep); rebirth gives cash + luck only; Robux buys the stand cash, never skips the gate (2026-10-18)
+- [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T; in Luau except Cozy
 
 ## Inbox
 _Unsorted learnings for the user to review._

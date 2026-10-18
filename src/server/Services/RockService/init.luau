@@ -12,6 +12,7 @@ local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Rush = require(script.Rush)
 local Session = require(script.Session)
 local SpawnPoints = require(script.SpawnPoints)
@@ -134,7 +135,7 @@ local function spawnRock(player: Player, zone: string, isRush: boolean): boolean
 			+ Vector3.new(0, shape.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0),
 		Size = shape.Size,
 		Modifier = if isRush then RushRockConfig.Modifier else nil,
-		Weather = services.WeatherService:RollStormRock(),
+		Weather = services.WeatherService:RollStormRock(player),
 		UpAt = os.clock() + RockSpawnConfig.RiseSeconds,
 	}
 	rocks[rock.Id] = rock
@@ -175,7 +176,10 @@ local function retire(player: Player, rock: Types.Rock, delaySeconds: number)
 	if state and state.ActiveId == rock.Id then
 		state.ActiveId = nil
 	end
-	local isRush = state ~= nil and Rush.IsDue(state)
+	local data = services.DataService:GetData(player)
+	local isRush = state ~= nil
+		and Rush.IsDue(state)
+		and not Tutorial.IsActive(Tutorial.StepOf(if data then data.Tutorial else nil))
 	if state and isRush then
 		state.IsScheduled = true
 	end
@@ -242,7 +246,8 @@ local function onChopRequest(player: Player, id: number)
 	if services.DiamondRockService:HasSession(player) then
 		return
 	end
-	if not services.DataService:GetData(player) then
+	local data = services.DataService:GetData(player)
+	if not data or not Tutorial.CanChop(Tutorial.StepOf(data.Tutorial)) then
 		return
 	end
 	local position = rootPosition(player)
@@ -293,16 +298,24 @@ local function onRelease(player: Player)
 	local elapsed = math.max(0, os.clock() - session.StartTime - ChopConfig.LatencyCompensationSeconds)
 	local position = ChopZones.Position(elapsed)
 	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio)
+	local data = services.DataService:GetData(player)
+	local isTutorial = data ~= nil and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
+	local isTutorialPerfect = data ~= nil and Tutorial.ForcesPerfect(Tutorial.StepOf(data.Tutorial), data)
+	if isTutorialPerfect then
+		quality = ChopQuality.Perfect
+	end
 	local damage: number, payout: number
 	local isForced = forcedMasters[player] == true
-	if isForced or Session.IsMaster(random, quality, session.StrengthRatio) then
+	if not isTutorial and (isForced or Session.IsMaster(random, quality, session.StrengthRatio)) then
 		forcedMasters[player] = nil
 		quality = ChopQuality.Master
 		damage, payout = Session.ApplyMaster(session)
 	else
 		damage, payout = Session.Apply(session, services.StatsService:GetStrength(player), quality)
 	end
-	local streakMultiplier = services.HotStreakService:RecordChop(player, quality, session.StrengthRatio)
+	local streakMultiplier = if isTutorial
+		then 1
+		else services.HotStreakService:RecordChop(player, quality, session.StrengthRatio)
 	services.WeatherService:RecordHit(player, rock.Weather)
 	if payout > 0 then
 		payout = Rush.ApplyPayout(rock, payout)
@@ -528,6 +541,10 @@ end
 
 function RockService.StartStorm(_self: any, weather: string, perZone: number)
 	for player, rocks in owned do
+		local data = services.DataService:GetData(player)
+		if Tutorial.IsActive(Tutorial.StepOf(if data then data.Tutorial else nil)) then
+			continue
+		end
 		local byZone: { [string]: { Types.Rock } } = {}
 		for _, rock in rocks do
 			if rock.Weather ~= weather then

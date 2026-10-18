@@ -73,7 +73,7 @@ Doubloony (pirate coins) was dropped 2026-10-10 as too pirate for the deep ocean
 |---|---|---|---|---|
 | Common | Hexy | Plain six-sided block, no prop | 20,971,520 | 45 |
 | Uncommon | Beanie | Knitted beanie with a pompom | 41,943,040 | 25 |
-| Rare | Cozy | Scarf and earmuffs | 104,857,600 | 16 |
+| Rare | Cozy | Scarf and earmuffs | 110,000,000 (was 104,857,600; [[Balance Pass Oct 18]]) | 16 |
 | Epic | Stacky | Two small stacked rocks on top with a little top hat | 251,658,240 | 10 |
 | Legendary | Piney | Pine tree on its back with glowing lights | 629,145,600 | 3.5 |
 | Secret | Starry | Glowing stars floating around it | 3,145,728,000 | 0.5 |

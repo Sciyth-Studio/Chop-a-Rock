@@ -1,11 +1,16 @@
 # Zone decor prompts
 
-Twelve simple props, shown in two lineups of six so each prop stays big and clear. Run each prompt in its own chat. Attach 2 to 4 colour/finish references (game screenshots work). Every colour region is a separate piece, coloured on the part in Roblox, so the colours here are only the defaults.
+Twelve simple props, shown in two lineups of six so each prop stays big and clear. Run each prompt in its own chat with no images attached; the look is described in the prompt. Every colour region is a separate piece, coloured on the part in Roblox, so the colours here are only the defaults.
 
 **Lineup A: shared, forest, desert**
 
 ```text
-Using the attached reference images ONLY for color palette, lighting, and finish, generate ONE image: a lineup of six simple decoration props for a bright, cartoony Roblox game, left to right.
+Generate ONE image: a lineup of six simple decoration props for a bright, cartoony Roblox game, left to right.
+
+STYLE:
+- Clean 3D render of smooth matte plastic toys, like official Roblox game props.
+- Highly saturated, vivid colours: pure grass green, bright chocolate brown, fire-engine red, sunny orange, hot pink. No muted, pastel, dusty or greyish tones.
+- Soft, even studio lighting with a gentle shade on each face so the flat planes read clearly.
 
 ALL SIX:
 - Built from a few chunky basic shapes (boxes, cylinders, cones, spheres). Very simple, toy-like, low-poly faceted surfaces with broad flat planes. Each prop is simple enough to model in under 300 triangles.
@@ -29,7 +34,12 @@ LAYOUT:
 **Lineup B: jungle, ocean, snow**
 
 ```text
-Using the attached reference images ONLY for color palette, lighting, and finish, generate ONE image: a lineup of six simple decoration props for a bright, cartoony Roblox game, left to right.
+Generate ONE image: a lineup of six simple decoration props for a bright, cartoony Roblox game, left to right.
+
+STYLE:
+- Clean 3D render of smooth matte plastic toys, like official Roblox game props.
+- Highly saturated, vivid colours: pure grass green, bright chocolate brown, fire-engine red, sunny orange, hot pink. No muted, pastel, dusty or greyish tones.
+- Soft, even studio lighting with a gentle shade on each face so the flat planes read clearly.
 
 ALL SIX:
 - Built from a few chunky basic shapes (boxes, cylinders, cones, flat blades, spheres). Very simple, toy-like, low-poly faceted surfaces with broad flat planes. Each prop is simple enough to model in under 300 triangles.

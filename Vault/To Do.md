@@ -10,6 +10,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 ## Next
 - [ ] Roks for zones 2-5 (started 2026-10-13): 24 Roks, lineups approved in the master plan §03 (desert) and [[Zones After Desert]] (jungle, ocean, snow). One zone at a time, desert first, `model-workflow` per Rok with Bloky's body and eyes ([[Reuse Rok Eyes]]). Desert done 2026-10-14 (models, `PetConfig`, Desert Geode, Index zone, Geode Shop tab; see [[Geode Shop]]). Jungle in config 2026-10-16 (`PetConfig`, Jungle Geode, Index zone, pink geode models, Bloomy petals Neon); waiting on the user's playtest and saving the place. Next zones: models, then `PetConfig`, `GeodeConfig.Geodes.<Zone>` with `TabName` and `Order`, geode models and the Index Roks zone (`new-zone` step 6)
 - [ ] Training tiers + strength-gated rebirth: built and checked in Play 2026-10-13 (see [[Rebirth Gated By Strength]]). Still to do: the user playtests the pacing and listens to the per-tier break sounds (added 2026-10-14, alternates in `ServerStorage.TrainingSoundOptions`); check on a phone that the Core and Cosmic VFX pixel squares show (VFX approved 2026-10-14); stands for zones after Snow. Not committed
+- [ ] Training Robux buys cash (2026-10-18, see [[Rebirth Gated By Strength]]): user to confirm full-price grant with no auto-upgrade and the sign wording; rename the five stand developer products on Roblox to their cash amounts. Not committed
 - [ ] Zone rock models with props: the user watches a perfect break in each zone. The white snow props glow under bloom; tone them down if that bothers the user. See [[Zone Rocks Reference]]
 - [ ] Training minigames (added 2026-10-15, not started): games to play at a training stand while strength goes up. The user is making a Fruit Ninja clone first (2026-10-16). Not planned yet
 - [ ] Geode pity (added 2026-10-15, not started): a pity counter on geode hatches so a rare Rok is guaranteed after enough misses. Thresholds, which rarities count and whether it's per geode or shared aren't decided yet. Not planned yet
@@ -30,6 +31,8 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Phase 3: Ctrl+Shift+Space command bar, save/load snapshots (Studio)
 
 ## Waiting on the user
+- [ ] Cap pad banking while a player is online and AFK? Pads fill without limit during a live session; only offline time is capped (4 h). See [[Pedestals]].
+- [ ] Tutorial (built 2026-10-16, see [[Tutorial]]): the user looks at the chevrons, marker, locks and spotlight in Play, and checks touch/gamepad text and the Skip button on a phone. Not committed
 - [ ] Diamond Rock break and per-hit effects (Claude proposes a look first), see [[Diamond Rock]]
 - [ ] Item icons — decisions D1–D6 in `IconSystemPlan.md`
 

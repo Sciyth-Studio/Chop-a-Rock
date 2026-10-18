@@ -5,6 +5,7 @@ local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local DataService = require(script.Parent.DataService)
 local NotificationService = require(script.Parent.NotificationService)
 
@@ -27,7 +28,11 @@ end
 
 function ArmService.BuyTier(_self: any, player: Player, tierIndex: number): boolean
 	local data = DataService:GetData(player)
-	if not data or tierIndex ~= data.ArmTier + 1 then
+	if
+		not data
+		or tierIndex ~= data.ArmTier + 1
+		or not Tutorial.CanBuyArm(Tutorial.StepOf(data.Tutorial))
+	then
 		return false
 	end
 	local tier = ArmConfig.Tiers[tierIndex]

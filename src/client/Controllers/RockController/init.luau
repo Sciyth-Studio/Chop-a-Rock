@@ -11,6 +11,7 @@ local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RockTemplate = require(ReplicatedStorage.RockTemplate)
 local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local Diamond = require(script.Diamond)
 local Effects = require(script.Effects)
@@ -34,6 +35,7 @@ local FOLDER_NAME = "Rocks"
 local rocks: { [number]: ClientRock } = {}
 local folder: Folder? = nil
 local chopController: any = nil
+local dataController: any = nil
 
 local RockController = {
 	Name = "RockController",
@@ -41,7 +43,10 @@ local RockController = {
 }
 
 local function refreshPrompt(rock: ClientRock)
-	rock.Prompt.Enabled = rock.IsUp and not rock.IsBroken and not chopController:IsMinigameActive()
+	rock.Prompt.Enabled = rock.IsUp
+		and not rock.IsBroken
+		and not chopController:IsMinigameActive()
+		and Tutorial.CanChop(Tutorial.StepOf(dataController:Get({ "Tutorial" })))
 end
 
 local function refreshAll()
@@ -193,6 +198,7 @@ end
 function RockController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
 	chopController = controllers.ChopController
+	dataController = controllers.DataController
 end
 
 function RockController.Start(self: any)
@@ -216,6 +222,7 @@ function RockController.Start(self: any)
 	trove:Add(Packets.RockChopShown.OnClientEvent:Connect(Effects.Shown))
 	trove:Add(Packets.RockSpawnSpots.OnClientEvent:Connect(SpotDots.Show))
 	trove:Add(chopController.ActiveChanged:Connect(refreshAll))
+	trove:Add(dataController:Observe({ "Tutorial", "Step" }, refreshAll))
 	Packets.RockReady:Fire()
 end
 

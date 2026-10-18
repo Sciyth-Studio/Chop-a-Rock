@@ -33,7 +33,7 @@ local PedestalConfig: PedestalSettings = {
 		[7] = 60000,
 		[8] = 250000,
 	},
-	OfflineRateMultiplier = 0.5,
+	OfflineRateMultiplier = 0.125,
 	FlushSeconds = 15,
 	RokScale = 2,
 	PromptHoldSeconds = 0.5,

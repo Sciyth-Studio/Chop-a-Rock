@@ -2,6 +2,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
+local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local DataService = require(script.Parent.DataService)
 local NotificationService = require(script.Parent.NotificationService)
 
@@ -20,8 +21,15 @@ function StatsService.AddStrength(_self: any, player: Player, delta: number): nu
 		return 0
 	end
 	local before = data.Strength
-	local after = before + math.max(0, math.floor(delta))
+	local cap = RebirthStats.Get(data.Rebirths + 1).StrengthRequired
+	local after = math.max(before, math.min(before + math.max(0, math.floor(delta)), cap))
+	if after == before then
+		return after
+	end
 	DataService:Set(player, { "Strength" }, after)
+	if before < cap and after >= cap then
+		NotificationService:Notify(player, "Unlock", "Rebirth ready! Rebirth to keep getting stronger")
+	end
 	local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
 	for _, rock in rocks do
 		if before < rock.StrengthRequired and after >= rock.StrengthRequired then

@@ -11,6 +11,12 @@
       "ReplicaClient": { "$path": "vendor/Replica/src/ReplicatedStorage/ReplicaClient.luau" },
       "ReplicaShared": { "$path": "vendor/Replica/src/ReplicatedStorage/ReplicaShared" },
       "VFX": { "$path": "vendor/RobloxVFX/src" },
+      "SpotlightUI": {
+        "$path": "vendor/SpotlightUI/src/Spotlight.lua",
+        "Types": { "$path": "vendor/SpotlightUI/src/Types.lua" },
+        "Packages": { "$path": "vendor/SpotlightUI/Packages" },
+        "Vendors": { "$path": "vendor/SpotlightUI/Vendors" }
+      },
       "Assets": {
         "$className": "Folder",
         "$ignoreUnknownInstances": true,
