@@ -89,14 +89,16 @@ local function launch(player: Player)
 			warn(`[CannonService] Stream request failed: {streamError}`)
 		end
 	end)
-	Packets.CannonLaunch:FireClient(
+	Packets.CannonLaunch:FireAllClients(
 		player,
+		cannon.Key,
 		start,
 		destination.Position,
 		arcHeight,
+		CannonConfig.ChargeSeconds,
 		CannonConfig.FlightSeconds
 	)
-	flights[player] = task.delay(CannonConfig.FlightSeconds, function()
+	flights[player] = task.delay(CannonConfig.ChargeSeconds + CannonConfig.FlightSeconds, function()
 		flights[player] = nil
 		if player.Character ~= character or humanoid.Health <= 0 or not character.Parent then
 			return

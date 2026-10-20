@@ -64,13 +64,34 @@ local Packets = {
 	TrainingChop = Packet("TrainingChop"):RateLimit(5, 1),
 	TrainingStopRequest = Packet("TrainingStopRequest"):RateLimit(5, 1),
 	UpgradeTraining = Packet("UpgradeTraining"):Response(Packet.String):RateLimit(3, 1),
+	TrainingMinigameOpen = Packet("TrainingMinigameOpen"):Response(Packet.Boolean8):RateLimit(3, 1),
+	TrainingMinigameClose = Packet("TrainingMinigameClose"):RateLimit(3, 1),
+	TrainingMinigameWave = Packet(
+		"TrainingMinigameWave",
+		{ Packet.NumberU16 },
+		{ Packet.NumberU8 },
+		{ Packet.NumberF32 },
+		{ Packet.NumberF32 },
+		{ Packet.NumberF32 },
+		{ Packet.NumberF32 }
+	),
+	TrainingMinigameSlice = Packet("TrainingMinigameSlice", Packet.NumberU16):RateLimit(30, 1),
+	TrainingMinigamePower = Packet(
+		"TrainingMinigamePower",
+		Packet.NumberF32,
+		Packet.NumberF32,
+		Packet.NumberU16
+	),
 	BuyAura = Packet("BuyAura", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	BuyCannon = Packet("BuyCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
 	EquipCannon = Packet("EquipCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
 	CannonLaunch = Packet(
 		"CannonLaunch",
+		Packet.Instance,
+		Packet.String,
 		Packet.Vector3F32,
 		Packet.Vector3F32,
+		Packet.NumberF32,
 		Packet.NumberF32,
 		Packet.NumberF32
 	),

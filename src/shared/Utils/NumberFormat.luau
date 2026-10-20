@@ -17,7 +17,7 @@ function NumberFormat.Compact(value: number, threshold: number?): string
 		return NumberFormat.Commas(value)
 	end
 	local index = math.clamp(math.floor(math.log10(value) / 3), 1, #suffixes)
-	local scaled = math.floor(value / 10 ^ (3 * index) * 100) / 100
+	local scaled = math.floor(value / 10 ^ (3 * index) * 100 + 1e-6) / 100
 	local text = string.format("%.2f", scaled):gsub("0+$", ""):gsub("%.$", "")
 	return `{text}{suffixes[index]}`
 end

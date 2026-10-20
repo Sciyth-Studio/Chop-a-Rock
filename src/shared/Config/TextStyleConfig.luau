@@ -58,6 +58,13 @@ local TextStyleConfig: TextStyleSettings = {
 			StrokeThickness = nil,
 			GradientRotation = 90,
 		},
+		Orange = {
+			EdgeColor = Color3.fromRGB(255, 120, 0),
+			CenterColor = Color3.fromRGB(255, 205, 120),
+			StrokeColor = Color3.fromRGB(130, 50, 0),
+			StrokeThickness = nil,
+			GradientRotation = 90,
+		},
 	},
 }
 

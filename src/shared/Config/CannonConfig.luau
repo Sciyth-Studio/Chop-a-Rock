@@ -10,6 +10,29 @@ export type Cannon = {
 	Marker: string,
 }
 
+export type Shake = {
+	Degrees: number,
+	Seconds: number,
+	Frequency: number,
+}
+
+export type CannonEffects = {
+	Fuse: string,
+	Charge: string,
+	Blast: string,
+	Trail: string,
+	Land: string,
+	Equip: string,
+}
+
+export type CannonSounds = {
+	Fuse: string,
+	Boom: string,
+	Whoosh: string,
+	Land: string,
+	Equip: string,
+}
+
 export type CannonSettings = {
 	ScreenName: string,
 	CannonName: string,
@@ -28,6 +51,18 @@ export type CannonSettings = {
 	MinArcHeightStuds: number,
 	MuzzleFallbackHeightStuds: number,
 	StreamTimeoutSeconds: number,
+	ChargeSeconds: number,
+	PullSeconds: number,
+	FuseName: string,
+	BoreName: string,
+	LandLeadSeconds: number,
+	TrailFadeSeconds: number,
+	ChargeLighten: number,
+	TintSaturation: number,
+	BlastShake: Shake,
+	LandShake: Shake,
+	Effects: CannonEffects,
+	Sounds: CannonSounds,
 	Cannons: { Cannon },
 }
 
@@ -49,6 +84,31 @@ local CannonConfig: CannonSettings = {
 	MinArcHeightStuds = 60,
 	MuzzleFallbackHeightStuds = 6,
 	StreamTimeoutSeconds = 2,
+	ChargeSeconds = 0.5,
+	PullSeconds = 0.25,
+	FuseName = "Fuse",
+	BoreName = "Bore",
+	LandLeadSeconds = 0.08,
+	TrailFadeSeconds = 0.6,
+	ChargeLighten = 0.45,
+	TintSaturation = 0.3,
+	BlastShake = { Degrees = 1.2, Seconds = 0.4, Frequency = 18 },
+	LandShake = { Degrees = 0.6, Seconds = 0.25, Frequency = 20 },
+	Effects = {
+		Fuse = "VFX_Cannon_Fuse",
+		Charge = "VFX_Cannon_Charge",
+		Blast = "VFX_Cannon_Blast",
+		Trail = "VFX_Cannon_Trail",
+		Land = "VFX_Cannon_Land",
+		Equip = "VFX_Cannon_Equip",
+	},
+	Sounds = {
+		Fuse = "SFX_Cannon_Fuse",
+		Boom = "SFX_Cannon_Boom",
+		Whoosh = "SFX_Cannon_Whoosh",
+		Land = "SFX_Cannon_Land",
+		Equip = "SFX_Cannon_Equip",
+	},
 	Cannons = {
 		{
 			Key = "Desert",

@@ -9,6 +9,7 @@ type TroveInstance = typeof(Trove.new())
 
 local STOP_ACTION = "TrainingStop"
 local HINT_SCREEN = "TrainingHint"
+local MINIGAME_SCREEN = "TrainingMinigame"
 
 local uiController: any = nil
 local isTraining = false
@@ -20,6 +21,7 @@ local function beginTraining()
 	hasChopped = false
 	lastChopClock = os.clock()
 	uiController:Open(HINT_SCREEN)
+	uiController:Open(MINIGAME_SCREEN)
 	ContextActionService:BindAction(STOP_ACTION, function(_actionName, inputState)
 		if inputState == Enum.UserInputState.Begin then
 			Packets.TrainingStopRequest:Fire()
@@ -34,6 +36,7 @@ local function endTraining()
 	isTraining = false
 	ContextActionService:UnbindAction(STOP_ACTION)
 	uiController:Close(HINT_SCREEN)
+	uiController:Close(MINIGAME_SCREEN)
 end
 
 local TrainingController = {

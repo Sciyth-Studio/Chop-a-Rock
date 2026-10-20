@@ -1,0 +1,32 @@
+{
+ "Muzzle.png": {
+  "kit_id": "K0263",
+  "kit_path": "1_Normal/Misc/Muzzle/1.png",
+  "original_size": [
+   243,
+   126
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "Smoke.flipbook.png": {
+  "kit_id": "K1499",
+  "kit_path": "2_Flipbooks/Smoke/104.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": 4
+ },
+ "Splash.flipbook.png": {
+  "kit_id": "K1134",
+  "kit_path": "2_Flipbooks/Impact/2024-04-20_16-40-11 DBZAuraExplode2x2.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": 2
+ }
+}

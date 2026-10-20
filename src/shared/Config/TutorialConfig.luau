@@ -80,6 +80,7 @@ local TutorialConfig: TutorialSettings = {
 		"DiamondRockPill",
 		"HotStreakBar",
 		"TrainingHint",
+		"TrainingMinigame",
 	},
 	TeleportBarScreen = "TeleportBar",
 	NotificationsScreen = "Notifications",

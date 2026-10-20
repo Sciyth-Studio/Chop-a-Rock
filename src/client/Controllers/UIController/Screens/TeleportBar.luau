@@ -71,10 +71,12 @@ function TeleportBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 				)
 				else fanCloseInfo
 			local height = slot.Frame.Size.Y.Scale
+			local column = (index - 1) % fanSettings.Columns
+			local row = (index - 1) // fanSettings.Columns
 			local position = if isOpen
 				then UDim2.fromScale(
-					0.5,
-					1 + fanSettings.GapScale + height / 2 + (index - 1) * fanSettings.SpacingScale
+					0.5 + (column - (fanSettings.Columns - 1) / 2) * fanSettings.ColumnSpacingScale,
+					1 + fanSettings.GapScale + height / 2 + row * fanSettings.SpacingScale
 				)
 				else fanCenter
 			TweenService:Create(slot.Frame, info, { Position = position }):Play()

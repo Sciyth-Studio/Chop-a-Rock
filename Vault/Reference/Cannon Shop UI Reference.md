@@ -13,6 +13,6 @@ What to take:
 - A horizontal scroll of tall cards, one per tier. Each card is tinted in its zone's colour: name, then a "Tier N" line, then a big model preview on a light panel, then a darker block with "Zone N" and the zone name.
 - Buttons stack at the bottom of each card: cash price in grey and a yellow Robux price under it. The equipped card has a green outline, a green tick on the preview and a single green "Unequip" button.
 
-Not decided: the Robux price row (would need a developer product per cannon), the preview (needs the per-zone cannon models).
+Tried 2026-10-20 (zone-tinted cards, Zone block, price button, cash on the subtitle line, footer; no Robux row or preview), then the user asked for the Aura Shop style instead. The try is kept in `ServerStorage.UIBackup.CannonShop.InspoRestyle`; see [[Cannon Shop]].
 
 Related: [[Cannon Shop]], [[UI Style References]]

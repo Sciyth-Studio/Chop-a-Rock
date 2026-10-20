@@ -22,6 +22,7 @@ export type Data = {
 	Cannons: { [string]: boolean },
 	EquippedCannon: string,
 	TrainingTier: number,
+	TrainingMinigameBest: number,
 	Rebirths: number,
 	Geodes: { [string]: number },
 	Pets: { [string]: Pet },
@@ -53,6 +54,7 @@ PlayerData.Template = {
 	Cannons = {},
 	EquippedCannon = "",
 	TrainingTier = 1,
+	TrainingMinigameBest = 0,
 	Rebirths = 0,
 	Geodes = {},
 	Pets = {},
@@ -132,7 +134,7 @@ function PlayerData.Validate(data: any): boolean
 	if type(data) ~= "table" or (data.SchemaVersion ~= nil and data.SchemaVersion ~= 1) then
 		return false
 	end
-	for _, key in { "Cash", "Strength", "Rebirths", "LastSeenAt" } do
+	for _, key in { "Cash", "Strength", "Rebirths", "TrainingMinigameBest", "LastSeenAt" } do
 		if data[key] ~= nil and not natural(data[key]) then
 			return false
 		end

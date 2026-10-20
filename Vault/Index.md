@@ -63,7 +63,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Geode Stand Reference]] — per-zone pedestal geodes are bought from; tapered stone plinth with corner crystals
 - [[Hatch Reveal Reference]] — full-screen Rok reveal (big name, odds %, NEW!, sunburst, money stat, "Click to continue"); geode hovers, turns white, grows by rarity
 - [[Index UI Reference]] — three simulator Index screenshots: zone card grid, detail pane with rewards and Claim, Claim All, variant tabs down the side
-- [[Cannon Shop UI Reference]] — 2026-10-20 inspo for the Cannon Shop: zone-tinted tall cards per tier (preview, zone block, cash + Robux price, Unequip), subtitle + cash line, footer line
+- [[Cannon Shop UI Reference]] — 2026-10-20 inspo for the Cannon Shop (tried, then dropped for the Aura Shop look): zone-tinted tall cards per tier (preview, zone block, cash + Robux price, Unequip), subtitle + cash line, footer line
 - [[Geode Stand UI Reference]] — egg-shop screenshots for the stand's odds/buy modal: header, 3x2 pet cards with %, big buttons; opened by prompt
 - [[Shopkeeper Avatar]] — R6 avatar of user 341574948 leaning on the geode stand; how to import and pose one
 - [[Zone Rocks Reference]] — ChatGPT sheets for the desert, jungle, ocean, snow chop rocks (3 each, with props); open before modelling them
@@ -99,7 +99,7 @@ _One note per game system as they're worked on._
 - [[Bases]] — 6 plots cloned onto `BaseSpot` plates in a U around the centre shops; claim on join, per-base `BaseSpawn`, owner-only training stand
 - [[Rock Spawning]] — per-player rocks rise in `RockSpawnArea` boxes; server keeps data, client draws rocks and effects; forest floor is rotated and sits on the Baseplate
 - [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands, Reset Player Data (name + press twice), testing-speed commands, Ctrl+Shift+Space command bar, data snapshots; add a command = config entry + `AdminService/Commands` handler
-- [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out Aura / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
+- [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; new zone = config only (no stand)
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
@@ -111,7 +111,7 @@ _One note per game system as they're worked on._
 - [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
-- [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert; equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; `CannonService`, `CannonController`, `CannonConfig`
+- [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert; equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
 - [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop, training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 - [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks, Skip; weather ignored while it runs
@@ -126,6 +126,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Coloured Roks After Forest]] — 2026-10-14: only forest Roks are grey; each later zone's six share one saturated body colour (desert golden amber 215, 152, 35)
 - [[Rebirth Gated By Strength]] — 2026-10-13: no levels; rebirth N needs zone N's toughest rock in strength; each rebirth unlocks the next training stand (set strength per 1 s rep); rebirth gives cash + luck only; Robux buys the stand cash, never skips the gate (2026-10-18)
 - [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; in Luau except Cozy ($120M) and the Snow geode
+- [[Training Minigame Board Slice]] — 2026-10-20: first training minigame is a Fruit Ninja-style 2D swipe game, optional on top of idle reps; server-counted slices fill a power meter that multiplies strength per rep (draft up to x2); bombs empty it
 - [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 
 ## Inbox

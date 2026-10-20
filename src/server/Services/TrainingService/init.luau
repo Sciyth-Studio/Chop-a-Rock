@@ -14,6 +14,7 @@ local AuraService = require(script.Parent.AuraService)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 local StatsService = require(script.Parent.StatsService)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
+local Minigame = require(script.Minigame)
 local Stands = require(script.Stands)
 local Upgrade = require(script.Upgrade)
 
@@ -39,6 +40,7 @@ type Training = {
 }
 local trainings: { [Player]: Training } = {}
 local strengthCarry: { [Player]: number } = {}
+local minigames: { [Player]: Minigame.Session } = {}
 local brokenBoards: { [BasePart]: true } = {}
 
 local boardPush: SplitModel.Push = {
@@ -212,6 +214,7 @@ local function stopTraining(player: Player)
 		return
 	end
 	trainings[player] = nil
+	minigames[player] = nil
 	training.ReleaseSpeed()
 	local _, humanoid = playerRootAndHumanoid(player)
 	if humanoid and humanoid.Parent then
@@ -282,11 +285,17 @@ local function tick()
 			stopTraining(player)
 			continue
 		end
+		local session = minigames[player]
+		if session then
+			Minigame.Step(player, session, now)
+		end
 		if now - training.LastChopClock >= TrainingConfig.ChopIntervalSeconds then
 			training.LastChopClock = now
 			local data = services.DataService:GetData(player)
 			local stand = TrainingStands.Get(if data then data.TrainingTier else 1)
-			local exact = stand.StrengthPerRep * AuraService:GetTrainingMultiplier(player)
+			local exact = stand.StrengthPerRep
+					* AuraService:GetTrainingMultiplier(player)
+					* Minigame.Multiplier(minigames[player])
 				+ (strengthCarry[player] or 0)
 			local gain = math.floor(exact)
 			strengthCarry[player] = exact - gain
@@ -385,6 +394,37 @@ function TrainingService.Start(_self: any)
 		stopTraining(player)
 	end))
 
+	Packets.TrainingMinigameOpen.OnServerInvoke = function(player: Player)
+		if not trainings[player] then
+			return false
+		end
+		local session = minigames[player]
+		if not session then
+			session = Minigame.new(os.clock())
+			minigames[player] = session
+		end
+		Minigame.SendPower(player, session)
+		return true
+	end
+
+	trove:Add(Packets.TrainingMinigameClose.OnServerEvent:Connect(function(player: Player)
+		minigames[player] = nil
+	end))
+
+	trove:Add(Packets.TrainingMinigameSlice.OnServerEvent:Connect(function(player: Player, id: number)
+		local session = minigames[player]
+		if not session or not trainings[player] or type(id) ~= "number" then
+			return
+		end
+		if not Minigame.Slice(player, session, id, os.clock()) then
+			return
+		end
+		local data = services.DataService:GetData(player)
+		if data and session.Score > data.TrainingMinigameBest then
+			services.DataService:Set(player, { "TrainingMinigameBest" }, session.Score)
+		end
+	end))
+
 	Packets.UpgradeTraining.OnServerInvoke = function(player: Player)
 		local result = Upgrade.Buy(services, player)
 		if result == "Upgraded" then
@@ -396,6 +436,7 @@ function TrainingService.Start(_self: any)
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		trainings[player] = nil
 		strengthCarry[player] = nil
+		minigames[player] = nil
 	end))
 end
 
@@ -404,7 +445,9 @@ function TrainingService.Destroy(_self: any)
 		stopTraining(player)
 	end
 	Packets.UpgradeTraining.OnServerInvoke = nil
+	Packets.TrainingMinigameOpen.OnServerInvoke = nil
 	trove:Clean()
+	table.clear(minigames)
 	table.clear(trainings)
 	table.clear(brokenBoards)
 end
