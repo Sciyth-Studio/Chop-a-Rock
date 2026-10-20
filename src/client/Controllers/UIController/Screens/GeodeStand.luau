@@ -17,6 +17,7 @@ local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Types = require(script.Parent.Parent.Types)
 
 local SCREEN_NAME = "GeodeStand"
@@ -217,8 +218,9 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 		setText(blockerLabel, blockedText or "")
 		local showThree = false
+		local step = Tutorial.StepOf(read({ "Tutorial" }))
 		for _, button in buttons do
-			local price = geode.Price * button.Amount
+			local price = Tutorial.GeodeCost(step, geodeKey :: string, button.Amount)
 			local canBuy = cash >= price and slots >= button.Amount
 			if button.Amount > 1 then
 				showThree = canBuy
@@ -375,7 +377,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end))
 	end
 
-	for _, path in { { "Cash" }, { "Strength" }, { "Pets" }, { "Geodes" }, { "Index" } } do
+	for _, path in { { "Cash" }, { "Strength" }, { "Pets" }, { "Geodes" }, { "Index" }, { "Tutorial" } } do
 		trove:Add(dataController:Observe(path, function()
 			if geodeKey then
 				refresh()

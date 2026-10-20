@@ -6,8 +6,12 @@ local IndexRewards = require(ReplicatedStorage.IndexRewards)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 
-local IndexService = { Name = "IndexService" }
+local IndexService = {
+	Name = "IndexService",
+	CashMultiplierChanged = Signal.new() :: Signal.Signal<Player>,
+}
 
 local services: { [string]: any } = {}
 
@@ -70,6 +74,7 @@ function IndexService.ClaimZone(_self: any, player: Player, pageKey: string, zon
 	end
 	services.DataService:Set(player, { "Index", "Claimed", "Zones", IndexRewards.ZoneId(page, zone) }, true)
 	services.DataService:RequestSave(player)
+	IndexService.CashMultiplierChanged:Fire(player)
 	services.NotificationService:Notify(
 		player,
 		"Unlock",
@@ -94,6 +99,42 @@ function IndexService.ClaimAll(_self: any, player: Player): number
 		end
 	end
 	return claimed
+end
+
+function IndexService.SetZoneFound(
+	_self: any,
+	player: Player,
+	pageKey: string,
+	zoneKey: string,
+	isFound: boolean
+): boolean
+	local data = services.DataService:GetData(player)
+	local page = IndexRewards.FindPage(pageKey)
+	local zone = if page then IndexRewards.FindZone(page, zoneKey) else nil
+	if not data or not page or not zone then
+		return false
+	end
+	for _, key in zone.Entries do
+		local count = data.Index[page.Kind][key] or 0
+		services.DataService:Set(
+			player,
+			{ "Index", page.Kind, key },
+			if isFound then math.max(count, 1) else nil
+		)
+		if not isFound then
+			services.DataService:Set(player, { "Index", "Claimed", page.Kind, key }, nil)
+		end
+	end
+	if not isFound then
+		services.DataService:Set(
+			player,
+			{ "Index", "Claimed", "Zones", IndexRewards.ZoneId(page, zone) },
+			nil
+		)
+		IndexService.CashMultiplierChanged:Fire(player)
+	end
+	services.DataService:RequestSave(player)
+	return true
 end
 
 function IndexService.GetCashMultiplier(_self: any, player: Player): number

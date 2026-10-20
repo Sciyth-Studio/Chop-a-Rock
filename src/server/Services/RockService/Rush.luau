@@ -64,11 +64,8 @@ function Rush.PickKey(
 	return bestKey
 end
 
-function Rush.ApplyPayout(rock: Types.Rock, payout: number): number
-	if rock.Modifier ~= RushRockConfig.Modifier then
-		return payout
-	end
-	return math.floor(payout * RushRockConfig.PayoutMultiplier + 0.5)
+function Rush.PayoutMultiplier(rock: Types.Rock): number
+	return if rock.Modifier == RushRockConfig.Modifier then RushRockConfig.PayoutMultiplier else 1
 end
 
 return Rush

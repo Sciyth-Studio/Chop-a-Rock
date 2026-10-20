@@ -72,12 +72,12 @@ function Presets.Apply(context: Types.Context, player: Player, preset: AdminConf
 	overrides.Cash = preset.Cash
 	overrides.Strength = strength
 	overrides.Rebirths = preset.Rebirths
-	overrides.ArmTier = preset.ArmTier
+	overrides.AuraTier = preset.AuraTier
 	overrides.TrainingTier = TrainingStands.IndexForRebirths(preset.Rebirths or 0)
 	local isFresh = (preset.Cash or 0) <= 0
 		and (strength or 0) <= 0
 		and (preset.Rebirths or 0) <= 0
-		and (preset.ArmTier or 1) <= 1
+		and (preset.AuraTier or 1) <= 1
 		and next(pets) == nil
 	overrides.Tutorial = if isFresh
 		then Tutorial.NewState()

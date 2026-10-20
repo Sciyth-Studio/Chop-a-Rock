@@ -102,16 +102,16 @@ local function decide(player: Player, data: any, step: number): number
 	if step == Tutorial.Crack or step == Tutorial.Collect then
 		return Tutorial.BuyGeode
 	end
-	if data.ArmTier >= 2 and step < Tutorial.TrainAgain then
+	if data.AuraTier >= 2 and step < Tutorial.TrainAgain then
 		return Tutorial.TrainAgain
 	end
 	local taps = data.Tutorial.Taps or 0
 	if step == Tutorial.Train then
 		return if data.Strength >= TutorialConfig.TrainGoal and taps > 0 then Tutorial.Chop else step
 	elseif step == Tutorial.Chop then
-		return if data.Cash >= Tutorial.ArmPrice() then Tutorial.BuyArms else step
-	elseif step == Tutorial.BuyArms then
-		return if data.Cash < Tutorial.ArmPrice() then Tutorial.Chop else step
+		return if data.Cash >= Tutorial.AuraPrice() then Tutorial.BuyAura else step
+	elseif step == Tutorial.BuyAura then
+		return if data.Cash < Tutorial.AuraPrice() then Tutorial.Chop else step
 	elseif step == Tutorial.TrainAgain then
 		return if data.Strength >= TutorialConfig.TrainAgainGoal and taps > 0
 			then Tutorial.ChopAgain

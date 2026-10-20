@@ -23,6 +23,18 @@ export type TeleportSettings = {
 	PillGapPixels: number,
 	PillScreenName: string,
 	Destinations: { Destination },
+	ShopFan: {
+		Button: string,
+		FanName: string,
+		OptionSuffix: string,
+		PopScaleName: string,
+		Options: { string },
+		GapScale: number,
+		SpacingScale: number,
+		StaggerSeconds: number,
+		OpenSeconds: number,
+		CloseSeconds: number,
+	},
 }
 
 local TeleportConfig: TeleportSettings = {
@@ -42,8 +54,22 @@ local TeleportConfig: TeleportSettings = {
 	PillScreenName = "DiamondRockPill",
 	Destinations = {
 		{ Id = "Base", Label = "Base", IsBase = true, Marker = "" },
-		{ Id = "Shops", Label = "Shops", IsBase = false, Marker = "Shops" },
+		{ Id = "Aura", Label = "Aura", IsBase = false, Marker = "AuraShop" },
+		{ Id = "Sell", Label = "Sell", IsBase = false, Marker = "SellShop" },
+		{ Id = "Geode", Label = "Geode", IsBase = false, Marker = "GeodeShop" },
 		{ Id = "Rocks", Label = "Rocks", IsBase = false, Marker = "Rocks" },
+	},
+	ShopFan = {
+		Button = "Shops",
+		FanName = "ShopFan",
+		OptionSuffix = "Option",
+		PopScaleName = "PopScale",
+		Options = { "Aura", "Sell", "Geode" },
+		GapScale = 0.15,
+		SpacingScale = 0.95,
+		StaggerSeconds = 0.04,
+		OpenSeconds = 0.28,
+		CloseSeconds = 0.14,
 	},
 }
 

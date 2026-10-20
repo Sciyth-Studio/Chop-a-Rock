@@ -26,6 +26,7 @@ export type HotStreakSettings = {
 	DropMaxQuality: number,
 	MaxStrengthRatio: number,
 	FadeSeconds: number,
+	AdminFreezeRefreshSeconds: number,
 	BlinkSeconds: number,
 	BlinkHertz: number,
 	Tiers: { Tier },
@@ -82,6 +83,7 @@ local HotStreakConfig: HotStreakSettings = {
 	DropMaxQuality = ChopQuality.Bad,
 	MaxStrengthRatio = 25,
 	FadeSeconds = 8,
+	AdminFreezeRefreshSeconds = 1,
 	BlinkSeconds = 3,
 	BlinkHertz = 3,
 	Tiers = {

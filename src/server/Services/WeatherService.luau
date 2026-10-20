@@ -190,9 +190,9 @@ function WeatherService.RecordHit(_self: any, player: Player, weather: string?)
 	end
 end
 
-function WeatherService.ApplyRockMultiplier(_self: any, payout: number, weather: string?): number
+function WeatherService.GetRockMultiplier(_self: any, weather: string?): number
 	local event = WeatherService:GetActive()
-	return if event and weather == event.Key then math.floor(payout * event.RockMultiplier) else payout
+	return if event and weather == event.Key then event.RockMultiplier else 1
 end
 
 function WeatherService.RollHatchModifier(_self: any, player: Player?): string?

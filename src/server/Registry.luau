@@ -14,8 +14,6 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.WalkSpeedService),
 	require(script.Parent.Services.HotStreakService),
 	require(script.Parent.Services.FriendBoostService),
-	require(script.Parent.Services.ArmService),
-	require(script.Parent.Services.ArmVisualService),
 	require(script.Parent.Services.RebirthService),
 	require(script.Parent.Services.AuraService),
 	require(script.Parent.Services.IndexService),

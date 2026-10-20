@@ -1102,3 +1102,12 @@ DECISION LOG
     "Zappy Bloky". Owners are told when a Rok catches a modifier. Notices go out a minute before and at the start.
     A top-centre weather pill counts down without naming the next event. Modifiers are caught only while online.
     Index modifier tabs stay deferred.
+2026-10-18 — Zone cannons and auras replace arms (§06, §07):
+  - Zone travel: a lobby Cannon Shop with a cannon beside it. Its UI sells one cannon per zone for cash; players
+    equip and unequip owned cannons, and firing the lobby cannon launches them to the equipped cannon's zone.
+    Replaces the 2026-10-03 free teleport pads. Prices, unlock rule and flight look are [PROPOSED] until approved.
+  - Arms are removed. Auras take over their job: bought with cash in tier order, the training multipliers stay
+    exactly the arm numbers (1 / 1.25 / 1.5 / 2 / 2.5), and each tier also adds a small walk speed bonus (less
+    than the old auras). The tier count can grow with later zones.
+  - The five hand-made auras (Leaf, Wind, Thunder, Spirit, Dragon) are scrapped. Every aura is one shared effect
+    whose colour shows its tier. Speeds, colours and names are [PROPOSED] until approved.

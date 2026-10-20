@@ -1,8 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
-local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
+local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
@@ -51,34 +50,6 @@ local function setText(label: TextLabel?, text: string)
 	end
 end
 
-local function buildPreview(frame: ViewportFrame, tier: ArmConfig.ArmTier)
-	local arm = AssetRegistry.get(ShopConfig.Preview.ModelKey)
-	if not arm:IsA("Model") then
-		arm:Destroy()
-		warn(`[Shop] Asset "{ShopConfig.Preview.ModelKey}" is not a Model`)
-		return
-	end
-	local visual = tier.Visual
-	for _, descendant in arm:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			descendant.Material = visual.Material or descendant.Material
-			descendant.Color = visual.Color or descendant.Color
-		end
-	end
-	local camera = Instance.new("Camera")
-	camera.FieldOfView = ShopConfig.Preview.FieldOfView
-	camera.Parent = frame
-	arm.Parent = frame
-	local center, size = arm:GetBoundingBox()
-	local distance = size.Magnitude
-		/ 2
-		/ math.tan(math.rad(camera.FieldOfView / 2))
-		* ShopConfig.Preview.CameraPadding
-	camera.CFrame =
-		CFrame.lookAt(center.Position + ShopConfig.Preview.CameraDirection.Unit * distance, center.Position)
-	frame.CurrentCamera = camera
-end
-
 function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local dataController = context.Controllers.DataController
 	local trove = Trove.new()
@@ -118,7 +89,7 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function refresh()
-		local ownedTier = readNumber("ArmTier", 1)
+		local ownedTier = readNumber("AuraTier", 1)
 		local cash = readNumber("Cash", 0)
 		for _, row in rows do
 			if row.Glow then
@@ -139,26 +110,30 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	if list and template then
-		for index, tier in ArmConfig.Tiers do
+		for index, tier in AuraConfig.Tiers do
+			local color = tier.Color
+			if not color then
+				continue
+			end
 			local row = template:Clone()
 			row.Name = `Tier{index}`
 			row.LayoutOrder = index
 			row.Visible = true
 			local nameLabel: TextLabel? = find(row, "TierName", "TextLabel", false)
 			local infoLabel: TextLabel? = find(row, "TierInfo", "TextLabel", false)
-			local preview: ViewportFrame? = find(row, "Preview", "ViewportFrame", false)
+			local icon: ImageLabel? = find(row, "Icon", "ImageLabel", false)
 			local button: TextButton? = find(row, "BuyButton", "TextButton", true)
 			setText(nameLabel, tier.DisplayName)
-			setText(infoLabel, `{tier.TrainingGainMultiplier}x Training Strength`)
-			if preview then
-				buildPreview(preview, tier)
+			setText(infoLabel, `{tier.TrainingGainMultiplier}x Training, +{tier.WalkSpeedBonus} Speed`)
+			if icon then
+				icon.ImageColor3 = color
 			end
 			if button then
 				trove:Add(button.Activated:Connect(function()
-					local ownedTier = readNumber("ArmTier", 1)
+					local ownedTier = readNumber("AuraTier", 1)
 					if index == ownedTier + 1 then
 						task.spawn(function()
-							local isBought = Packets.BuyArm:Fire(index) == true
+							local isBought = Packets.BuyAura:Fire(index) == true
 							if isBought then
 								LocalSound.Play("SFX_Money_Gain")
 							end
@@ -190,7 +165,7 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end))
 	end
 
-	trove:Add(dataController:Observe({ "ArmTier" }, refresh))
+	trove:Add(dataController:Observe({ "AuraTier" }, refresh))
 	trove:Add(dataController:Observe({ "Cash" }, refresh))
 	refresh()
 

@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local IndexRewards = require(ReplicatedStorage.IndexRewards)
 local MenuButtonConfig = require(ReplicatedStorage.Config.MenuButtonConfig)
+local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Input = require(ReplicatedStorage.Packages.Input)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -33,17 +34,46 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
-	local badgeSettings = MenuButtonConfig.IndexBadge
-	local badgeButton = gui:FindFirstChild(badgeSettings.Button .. MenuButtonConfig.ButtonSuffix, true)
-	local badge = if badgeButton then badgeButton:FindFirstChild(badgeSettings.BadgeName) else nil
-	local badgeLabel = if badge then badge:FindFirstChild(badgeSettings.LabelName, true) else nil
-	if badge and badge:IsA("GuiObject") and badgeLabel and badgeLabel:IsA("TextLabel") then
+	local badgeSettings = MenuButtonConfig.Badge
+	local dataController = context.Controllers.DataController
+
+	local function readNumber(key: string): number
+		local value = dataController:Get({ key })
+		return if type(value) == "number" then value else 0
+	end
+
+	local badgeRules: { [string]: { Paths: { { string } }, IsShown: () -> boolean } } = {
+		Index = {
+			Paths = { { "Index" } },
+			IsShown = function()
+				return #IndexRewards.Claimable(dataController:Get({ "Index" })) > 0
+			end,
+		},
+		Rebirth = {
+			Paths = { { "Rebirths" }, { "Strength" } },
+			IsShown = function()
+				return readNumber("Strength") >= RebirthStats.Get(readNumber("Rebirths") + 1).StrengthRequired
+			end,
+		},
+	}
+
+	local wiggleInfo = TweenInfo.new(badgeSettings.WiggleStepSeconds, Enum.EasingStyle.Sine)
+	for _, buttonName in badgeSettings.Buttons do
+		local badgeButton = gui:FindFirstChild(buttonName .. MenuButtonConfig.ButtonSuffix, true)
+		local badge = if badgeButton then badgeButton:FindFirstChild(badgeSettings.BadgeName) else nil
+		local badgeLabel = if badge then badge:FindFirstChild(badgeSettings.LabelName, true) else nil
+		local rule = badgeRules[buttonName]
+		if not (badge and badge:IsA("GuiObject") and badgeLabel and badgeLabel:IsA("TextLabel") and rule) then
+			warn(`[MenuButtons] Missing {buttonName} badge in {gui:GetFullName()}`)
+			continue
+		end
 		badge.Visible = false
 		badgeLabel.Text = badgeSettings.Symbol
-		trove:Add(context.Controllers.DataController:Observe({ "Index" }, function(index: any)
-			badge.Visible = #IndexRewards.Claimable(index) > 0
-		end))
-		local wiggleInfo = TweenInfo.new(badgeSettings.WiggleStepSeconds, Enum.EasingStyle.Sine)
+		for _, path in rule.Paths do
+			trove:Add(dataController:Observe(path, function()
+				badge.Visible = rule.IsShown()
+			end))
+		end
 		trove:Add(task.spawn(function()
 			while true do
 				task.wait(badgeSettings.WiggleEverySeconds)
@@ -56,8 +86,6 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end
 			end
 		end))
-	else
-		warn(`[MenuButtons] Missing index badge in {gui:GetFullName()}`)
 	end
 
 	local container = gui:FindFirstChild(MenuButtonConfig.ContainerName)

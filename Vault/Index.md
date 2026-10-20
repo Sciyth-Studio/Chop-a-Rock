@@ -39,10 +39,12 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
 - [[Keep Decor Simple]] — zone decor is few, primitive-shape props; reuse and recolour; Studio parts and particles over Blender models
 - [[Decor Without References]] — decor reference prompts are run with no images attached; the look is written into the prompt
+- [[User Playtests Changes]] — the user playtests in Studio; Claude runs check.ps1 and lists what to try, and playtests only when asked
 - [[Ask The User To Look]] — need eyes on something in Studio? Ask the user instead of long screenshot loops
 - [[Menu Panel Style]] — dark grey stud body, striped gradient header, Chrome title, black outlines, sharp corners
 
 ## Reference
+- [[Balance Model]] — the user's Excel economy model (Downloads, v7), kept in this chat since 2026-10-19: tabs, syncing it to the Luau, editing it via Excel COM
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
 - [[Tile Style Reference]] — 2026-10-15 pilot restyle (HUD tiles + Daily Rewards panel): outline + colour-to-clear gradient + shade box tiles, translucent dark bodies, square corners, stud headers, no stripes; applied to menu buttons and shops, backups in `UIBackup.BeforeTileStyle`
@@ -56,7 +58,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared
 - [[Open Cloud Key]] — `ROBLOX_API_KEY` user env var; assets + dev products scopes; reaches group assets; never print it
 - [[Shop Stall Reference]] — striped-awning market stall sheet for the lobby shops; three meshes for recolouring
-- [[Stand Name Signs]] — "Arm Shop" / "Wood Training" / "Geode" billboards above the stands; BillboardGuis don't show in screen_capture
+- [[Stand Name Signs]] — shop / "Wood Training" name billboards (Arm Shop deleted 2026-10-18) above the stands; BillboardGuis don't show in screen_capture
 - [[Geode Reference]] — closed + split geode sheets; flat chipped faces, no bumps, crystals are a separate rarity-coloured part
 - [[Geode Stand Reference]] — per-zone pedestal geodes are bought from; tapered stone plinth with corner crystals
 - [[Hatch Reveal Reference]] — full-screen Rok reveal (big name, odds %, NEW!, sunburst, money stat, "Click to continue"); geode hovers, turns white, grows by rarity
@@ -75,6 +77,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Desert Roks Lineup]] — 2026-10-14 lineup of the six golden amber desert Roks; attach to every desert six-view prompt; Sunny's crystal crown not to be copied
 - [[Desert Rok Sheets]] — 2026-10-14 six-view sheets for all six desert Roks; per-Rok notes on what to take (Sunny = flat sun rays, Ankhy ankh stands upright)
 - [[Jungle Rok Sheets]] — 2026-10-16 six-view sheets for the six dragon-fruit-pink jungle Roks; batch-built in one `JungleRoks.blend`
+- [[Ocean Rok Sheets]] — 2026-10-19 six-view sheets for the six coral orange ocean Roks (Drip, Bubbly, Shelly, Reefy, Glowy, Chompy); batch-built in one `OceanRoks.blend`
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 - [[Training Upgrade Sign Reference]] — 2026-10-14 in-world "Upgrade / Level 2 > Level 3" sign with red cash and purple Robux buttons, for the training stand
 - [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
@@ -94,22 +97,22 @@ What Claude has learned while working on the game: preferences, references, gotc
 _One note per game system as they're worked on._
 - [[Bases]] — 6 plots cloned onto `BaseSpot` plates in a U around the centre shops; claim on join, per-base `BaseSpawn`, owner-only training stand
 - [[Rock Spawning]] — per-player rocks rise in `RockSpawnArea` boxes; server keeps data, client draws rocks and effects; forest floor is rotated and sits on the Baseplate
-- [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands; add a command = config entry + `AdminService/Commands` handler
-- [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
+- [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands, Reset Player Data (name + press twice), testing-speed commands, Ctrl+Shift+Space command bar, data snapshots; add a command = config entry + `AdminService/Commands` handler
+- [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out Aura / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; new zone = config only (no stand)
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
-- [[Shop Pads]] — neon floor rectangles open the Arm Shop / Geode shop on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
+- [[Shop Pads]] — neon floor rectangles open the Geode, Sell and Aura shops on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
 - [[Settings]] — master Volume with -/+, Music/SFX/Low Graphics/Auto Equip/Notifications toggles; what each does
 - [[Rush Rocks]] — after ~3 min of chopping the next rock rises gold near you, 20 s countdown, x3 pay; `RockService/Rush`, `RushRockConfig`, admin Ctrl+Shift+R
 - [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
-- [[Auras]] — red lobby Aura Shop, unlock by rebirth, arms + legs + trail, +walk speed; `AuraService`, `AuraController`, `AuraConfig`, `VFX_Aura_<Key>` Limb/Body templates
+- [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop, training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
-- [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, pathfinding chevrons, SpotlightUI on buy buttons, red pad locks, Skip; weather ignored while it runs
+- [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks, Skip; weather ignored while it runs
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
@@ -120,7 +123,8 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[VFX From Roqer]] — 2026-10-07 Roqer VFX pipeline; since 2026-10-15 the vfx skill is the MIT `roblox-vfx` skill, runtime at `ReplicatedStorage.VFX` (Emit/Build/Capture/Shapes)
 - [[Coloured Roks After Forest]] — 2026-10-14: only forest Roks are grey; each later zone's six share one saturated body colour (desert golden amber 215, 152, 35)
 - [[Rebirth Gated By Strength]] — 2026-10-13: no levels; rebirth N needs zone N's toughest rock in strength; each rebirth unlocks the next training stand (set strength per 1 s rep); rebirth gives cash + luck only; Robux buys the stand cash, never skips the gate (2026-10-18)
-- [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T; in Luau except Cozy
+- [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; in Luau except Cozy ($120M) and the Snow geode
+- [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 
 ## Inbox
 _Unsorted learnings for the user to review._

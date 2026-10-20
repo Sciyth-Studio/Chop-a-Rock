@@ -18,11 +18,9 @@ export type Data = {
 	SchemaVersion: number,
 	Cash: number,
 	Strength: number,
-	ArmTier: number,
+	AuraTier: number,
 	TrainingTier: number,
 	Rebirths: number,
-	Auras: { [string]: boolean },
-	EquippedAura: string,
 	Geodes: { [string]: number },
 	Pets: { [string]: Pet },
 	NextPetId: number,
@@ -49,11 +47,9 @@ PlayerData.Template = {
 	SchemaVersion = 1,
 	Cash = 0,
 	Strength = 0,
-	ArmTier = 1,
+	AuraTier = 1,
 	TrainingTier = 1,
 	Rebirths = 0,
-	Auras = {},
-	EquippedAura = "",
 	Geodes = {},
 	Pets = {},
 	NextPetId = 1,
@@ -140,14 +136,10 @@ function PlayerData.Validate(data: any): boolean
 	if data.TrainingTier ~= nil and (not natural(data.TrainingTier) or data.TrainingTier < 1) then
 		return false
 	end
-	if data.ArmTier ~= nil and (not natural(data.ArmTier) or data.ArmTier < 1) then
-		return false
-	end
-	if data.Auras ~= nil and not flags(data.Auras) then
-		return false
-	end
-	if data.EquippedAura ~= nil and type(data.EquippedAura) ~= "string" then
-		return false
+	for _, key in { "ArmTier", "AuraTier" } do
+		if data[key] ~= nil and (not natural(data[key]) or data[key] < 1) then
+			return false
+		end
 	end
 	if data.Geodes ~= nil and not counts(data.Geodes) then
 		return false
@@ -229,12 +221,18 @@ end
 local function hasProgress(data: any): boolean
 	return (type(data.Cash) == "number" and data.Cash > 0)
 		or (type(data.Strength) == "number" and data.Strength > 0)
-		or (type(data.ArmTier) == "number" and data.ArmTier > 1)
+		or (type(data.AuraTier) == "number" and data.AuraTier > 1)
 		or (type(data.Rebirths) == "number" and data.Rebirths > 0)
 		or (type(data.Pets) == "table" and next(data.Pets) ~= nil)
 end
 
 function PlayerData.Migrate(data: any)
+	if data.AuraTier == nil and data.ArmTier ~= nil then
+		data.AuraTier = data.ArmTier
+	end
+	data.ArmTier = nil
+	data.Auras = nil
+	data.EquippedAura = nil
 	if data.Tutorial == nil and hasProgress(data) then
 		data.Tutorial = { Step = Tutorial.Done, Taps = 0, Furthest = Tutorial.FirstRebirth }
 	end

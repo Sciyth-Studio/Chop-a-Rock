@@ -9,18 +9,21 @@ local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
+local ChopHint = require(script.ChopHint)
 local Guide = require(script.Guide)
+local Layout = require(script.Layout)
 local Locks = require(script.Locks)
-local Path = require(script.Path)
 local Spotlight = require(script.Spotlight)
 local Targets = require(script.Targets)
+local Teleports = require(script.Teleports)
 
 type TroveInstance = typeof(Trove.new())
-type Hidden = { Gui: ScreenGui, Wanted: boolean, Connection: RBXScriptConnection, OwnWrites: number }
+type Hidden = { Gui: ScreenGui, Parent: Instance }
 type Session = {
 	Trove: TroveInstance,
 	Guide: Guide.Guide,
-	Path: Path.State,
+	ChopHint: ChopHint.State?,
+	Layout: Layout.State,
 	Spotlight: Spotlight.State?,
 	Locks: Locks.State,
 	LockClock: number,
@@ -73,6 +76,10 @@ local function releaseKey(): string
 	return "Press E"
 end
 
+local function clickVerb(): string
+	return if device() == "Touch" then "Tap" else "Click"
+end
+
 local function isOpen(screen: string): boolean
 	return controllers.UIController:IsOpen(screen) == true
 end
@@ -118,13 +125,13 @@ local function detailFor(step: number, target: Targets.Target?): string?
 		return if near then `{promptKey(adornee, "Train", false)} to train` else "Follow the arrows"
 	elseif Tutorial.IsChopping(step) or step == Tutorial.Crack then
 		if chopController:IsMinigameActive() then
-			return `{releaseKey()} on the rainbow!`
+			return `{releaseKey()} when the line is in the glowing zone!`
 		end
 		local action = if step == Tutorial.Crack then "Crack" else "Chop"
 		local what = if step == Tutorial.Crack then "the geode" else "a Stone"
 		return if near then `{promptKey(adornee, action, true)} to chop {what}` else "Follow the arrows"
-	elseif step == Tutorial.BuyArms then
-		return if isOpen("Shop") then "Buy Wood Arms!" else "Walk onto the yellow pad"
+	elseif step == Tutorial.BuyAura then
+		return if isOpen("Shop") then "Buy Silver Aura!" else "Walk onto the red pad"
 	elseif step == Tutorial.BuyGeode then
 		return if isOpen("GeodeStand") then "Buy one Forest Geode!" else "Walk onto the pad"
 	elseif step == Tutorial.Collect then
@@ -153,9 +160,10 @@ end
 
 local function restoreScreens()
 	for name, entry in hidden do
-		entry.Connection:Disconnect()
-		entry.Gui.Enabled = entry.Wanted
 		hidden[name] = nil
+		pcall(function()
+			entry.Gui.Parent = entry.Parent
+		end)
 	end
 end
 
@@ -169,28 +177,8 @@ local function hideScreens()
 		if hidden[name] or not gui or not gui:IsA("ScreenGui") then
 			continue
 		end
-		local entry: Hidden = {
-			Gui = gui,
-			Wanted = gui.Enabled,
-			Connection = nil :: any,
-			OwnWrites = 0,
-		}
-		local function forceOff()
-			if gui.Enabled then
-				entry.OwnWrites += 1
-				gui.Enabled = false
-			end
-		end
-		entry.Connection = gui:GetPropertyChangedSignal("Enabled"):Connect(function()
-			if not gui.Enabled and entry.OwnWrites > 0 then
-				entry.OwnWrites -= 1
-				return
-			end
-			entry.Wanted = gui.Enabled
-			forceOff()
-		end)
-		hidden[name] = entry
-		forceOff()
+		hidden[name] = { Gui = gui, Parent = playerGui }
+		gui.Parent = nil
 	end
 end
 
@@ -199,11 +187,13 @@ local function isBusy(): boolean
 end
 
 local function hideGuide(current: Session)
-	Path.Clear(current.Path)
 	Guide.HidePath(current.Guide)
 	Guide.HideMarker(current.Guide)
 	if current.Spotlight then
 		Spotlight.Update(current.Spotlight, nil)
+	end
+	if current.ChopHint then
+		ChopHint.Hide(current.ChopHint)
 	end
 end
 
@@ -228,30 +218,44 @@ local function update(dt: number)
 		shownStep = step
 	end
 	local target = Targets.For(step, data)
-	setText(titleFor(step), detailFor(step, target))
-
-	local isDoing = controllers.ChopController:IsMinigameActive()
+	local chopController = controllers.ChopController
+	local isDoing = chopController:IsMinigameActive()
 		or controllers.TrainingController:IsTraining()
-		or (step == Tutorial.BuyArms and isOpen("Shop"))
+		or (step == Tutorial.BuyAura and isOpen("Shop"))
 		or (step == Tutorial.BuyGeode and isOpen("GeodeStand"))
+	local teleport = if isDoing then nil else Teleports.For(step, target, clickVerb())
+	setText(titleFor(step), if teleport then teleport.Text else detailFor(step, target))
+
 	local from = Targets.RootPosition()
 	if target and from and not isDoing then
-		if isNear(target) then
-			Path.Clear(current.Path)
+		if isNear(target) or teleport then
 			Guide.HidePath(current.Guide)
 		else
-			Path.Update(current.Path, from, target.Goal)
-			Guide.DrawPath(current.Guide, Path.From(current.Path, from), dt)
+			Guide.DrawPath(current.Guide, { from, target.Goal }, dt)
 		end
 		Guide.DrawMarker(current.Guide, target.Position, target.Adornee, target.Label, dt)
 	else
-		Path.Clear(current.Path)
 		Guide.HidePath(current.Guide)
 		Guide.HideMarker(current.Guide)
 	end
 
 	if current.Spotlight then
-		Spotlight.Update(current.Spotlight, Spotlight.TargetFor(step, data, controllers.ChopController))
+		Spotlight.Update(
+			current.Spotlight,
+			if teleport then teleport.Button else Spotlight.TargetFor(step, data, chopController)
+		)
+	end
+
+	Layout.Update(current.Layout, not (isOpen("Shop") or isOpen("GeodeStand") or isOpen("SellShop")))
+
+	if current.ChopHint then
+		local isChopStep = Tutorial.IsChopping(step) or step == Tutorial.Crack
+		ChopHint.Update(
+			current.ChopHint,
+			chopController,
+			if isChopStep and chopController:IsMinigameActive() then releaseKey() else nil,
+			dt
+		)
 	end
 
 	current.LockClock += dt
@@ -271,7 +275,8 @@ local function startSession()
 	local current: Session = {
 		Trove = trove,
 		Guide = guide,
-		Path = Path.new(),
+		ChopHint = ChopHint.new(),
+		Layout = Layout.new(),
 		Spotlight = Spotlight.new(),
 		Locks = Locks.new(guide.Folder),
 		LockClock = math.huge,
@@ -283,9 +288,12 @@ local function startSession()
 		if current.Spotlight then
 			Spotlight.Destroy(current.Spotlight)
 		end
+		if current.ChopHint then
+			ChopHint.Destroy(current.ChopHint)
+		end
+		Layout.Restore(current.Layout)
 		Locks.Destroy(current.Locks)
 		Guide.Destroy(current.Guide)
-		Path.Clear(current.Path)
 	end)
 end
 

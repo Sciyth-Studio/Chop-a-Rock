@@ -92,7 +92,7 @@ function Spotlight.TargetFor(step: number, data: any, chopController: any): GuiO
 	local button: GuiObject? = nil
 	if chopController:IsMinigameActive() and Tutorial.ForcesPerfect(step, data) then
 		button = goodZone(chopController)
-	elseif step == Tutorial.BuyArms then
+	elseif step == Tutorial.BuyAura then
 		button = find("Shop", { "Tier2", "BuyButton" })
 	elseif step == Tutorial.BuyGeode then
 		button = find("GeodeStand", { "BuyOne" })
@@ -102,6 +102,9 @@ end
 
 function Spotlight.Update(state: State, target: GuiObject?)
 	if state.Target == target then
+		if target and not state.Spotlight.gui.Enabled then
+			state.Spotlight.gui.Enabled = true
+		end
 		return
 	end
 	state.Target = target

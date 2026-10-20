@@ -29,7 +29,7 @@ The user asked to restyle toward this look on 2026-10-15. These screenshots give
   - Colours: Shop 255,130,0; Roks 0,150,255; Index 170,50,255; Rebirth 255,30,70; template grey 150.
   - Icon 64px at 0.5,0 / 0.42,0 (inside the tile, no overflow; the user said 88 was too large); `IconShadow` 67px, offset 3,4.
   - All at `ZIndex` 0. Grid gap 16 (`MenuButtonConfig.ButtonGapPixels` and both layouts), container x 18. One column.
-  - Notification badge (`IndexButton.Badge`, 2026-10-15), from the reference below: red vertical gradient 255,0,0 → 190,0,0, 3px dark maroon stroke 77,13,13, white "!" (`Chrome`, 3px black stroke). It shows "!" instead of the reward count. While visible it wiggles every 3 s through -16, 14, -10, 6, 0 degrees, 0.08 s per swing (`MenuButtonConfig.IndexBadge`, `MenuButtons.luau`).
+  - Notification badge (`IndexButton.Badge`, 2026-10-15), from the reference below: red vertical gradient 255,0,0 → 190,0,0, 3px dark maroon stroke 77,13,13, white "!" (`Chrome`, 3px black stroke). It shows "!" instead of the reward count. While visible it wiggles every 3 s through -16, 14, -10, 6, 0 degrees, 0.08 s per swing (`MenuButtonConfig.Badge`, `MenuButtons.luau`). Since 2026-10-19 a copy (`RebirthButton.Badge`) shows on the Rebirth button while the player can rebirth; add a button name to `Badge.Buttons` and a rule in `MenuButtons.luau` for more.
 
 ![[Tile Style Ref Badge.png]]
 - Rejected attempts (2026-10-15): (1) a solid charcoal frame ring and a full-size flat shade box, which hid the black outline and read as no shade; (2) the gradient inset inside a dark ring, which put the gradient where the box belongs.

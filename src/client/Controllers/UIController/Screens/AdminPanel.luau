@@ -113,6 +113,9 @@ function AdminPanel.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		input.Text = command.Default or ""
+		if command.Placeholder then
+			input.PlaceholderText = command.Placeholder
+		end
 		setText(runButton, "Label", command.Label)
 		paint(runButton, AdminConfig.Palette.Command)
 		trove:Add(runButton.Activated:Connect(function()
@@ -247,7 +250,7 @@ function AdminPanel.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	for _, command in AdminConfig.Commands do
-		if command.Kind == "Number" then
+		if command.Kind == "Number" or command.Kind == "Text" then
 			addNumberRow(command)
 		elseif command.Kind == "Choice" then
 			addChoiceRow(command)

@@ -47,12 +47,17 @@ local function ensurePit(spot: Attachment, modelKey: string): Types.Pit?
 	return prepared
 end
 
+local function setCracking(player: Player, isCracking: boolean)
+	player:SetAttribute(GeodeConfig.CrackingAttribute, if isCracking then true else nil)
+end
+
 local function endSession(player: Player)
 	local session = sessions[player]
 	if not session then
 		return
 	end
 	sessions[player] = nil
+	setCracking(player, false)
 	Effects.Hide(session.Model, 0)
 end
 
@@ -93,6 +98,7 @@ local function onPitTriggered(spot: Attachment, player: Player)
 	local session = Cracking.Begin(context, player, geodeKey, spot, pit, random)
 	if session then
 		sessions[player] = session
+		setCracking(player, true)
 		refreshPit(player)
 	end
 end
@@ -212,6 +218,9 @@ function GeodeService.Start(_self: any)
 		refreshPit(player)
 		task.delay(lockSeconds, function()
 			if player.Parent then
+				if not sessions[player] then
+					setCracking(player, false)
+				end
 				refreshPit(player)
 			end
 		end)

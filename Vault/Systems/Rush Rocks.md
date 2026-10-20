@@ -11,7 +11,7 @@ Approved 2026-10-09 as proposed. All numbers are drafts in `RushRockConfig`.
 - **Which rock:** the next rock retired (broken) while a rush is due respawns gold, in that rock's zone. Kind is the one the mix wants if the player can break it, otherwise the strongest breakable kind in the zone. If nothing is breakable it spawns normal and stays due.
 - **Where:** random free spot within 60 studs of the player (`SpawnRadiusStuds`), else the nearest free spot.
 - **Countdown:** 20 s from when it finishes rising. If the player is mid-chop on it at 0, the server rechecks every 0.5 s and keeps the x3 until that session ends. Then the rock turns normal and stays in the mix.
-- **Pay:** `Rush.ApplyPayout` multiplies the chop payout x3 before Hot Streak, friend, rebirth and Index multipliers, so they stack.
+- **Pay:** `Rush.PayoutMultiplier` (x3) is added to the storm rock's `WeatherService:GetRockMultiplier` (x3 + x5 - 1 = x7, not x15; since 2026-10-19), and that combined bonus multiplies the chop payout before Hot Streak, friend, rebirth and Index multipliers, which still stack. Added so a max-stack chop can't buy the next stand ([[Balance Pass Oct 18]]).
 
 ## Where things live
 - Server: `RockService/Rush.luau` (timer, kind pick, payout) and the wiring in `RockService/init.luau` (`rushStates`, `expireRush`, `spawnRock(..., isRush)`). `Rock.Modifier = "Rush"` goes out in `RockSpawned`; `RockRushEnded(id)` says it timed out. `Spawner.PickSpotNear` picks the spot.

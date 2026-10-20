@@ -5,86 +5,83 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
+local DataService = require(script.Parent.DataService)
+local NotificationService = require(script.Parent.NotificationService)
+local WalkSpeedService = require(script.Parent.WalkSpeedService)
+
+local trove = Trove.new()
 
 local AuraService = { Name = "AuraService" }
 
-local trove = Trove.new()
-local services: { [string]: any } = {}
-local aurasByKey: { [string]: AuraConfig.Aura } = {}
-
-for _, aura in AuraConfig.Auras do
-	aurasByKey[aura.Key] = aura
-end
-
 local function apply(player: Player)
-	local data = services.DataService:GetData(player)
-	local aura = if data then aurasByKey[data.EquippedAura] else nil
-	if aura and not data.Auras[aura.Key] then
-		aura = nil
-	end
-	services.WalkSpeedService:SetBonus(
-		player,
-		AuraConfig.SpeedSource,
-		if aura then aura.WalkSpeedBonus else 0
-	)
-	player:SetAttribute(AuraConfig.Attribute, if aura then aura.Key else nil)
+	local tierIndex = AuraService:GetTier(player)
+	local tier = AuraConfig.Tiers[tierIndex]
+	WalkSpeedService:SetBonus(player, AuraConfig.SpeedSource, if tier then tier.WalkSpeedBonus else 0)
+	player:SetAttribute(AuraConfig.Attribute, if tier and tier.Color then tierIndex else nil)
 end
 
-function AuraService.Buy(_self: any, player: Player, key: string): boolean
-	local data = services.DataService:GetData(player)
-	local aura = aurasByKey[key]
-	if not data or not aura or data.Auras[key] then
+function AuraService.GetTier(_self: any, player: Player): number
+	local data = DataService:GetData(player)
+	return if data then data.AuraTier else 1
+end
+
+function AuraService.GetTrainingMultiplier(_self: any, player: Player): number
+	local tier = AuraConfig.Tiers[AuraService:GetTier(player)]
+	return if tier then tier.TrainingGainMultiplier else 1
+end
+
+function AuraService.BuyTier(_self: any, player: Player, tierIndex: number): boolean
+	local data = DataService:GetData(player)
+	if
+		not data
+		or tierIndex ~= data.AuraTier + 1
+		or not Tutorial.CanBuyAura(Tutorial.StepOf(data.Tutorial))
+	then
 		return false
 	end
-	if data.Rebirths < aura.RebirthsRequired or data.Cash < aura.Price then
+	local tier = AuraConfig.Tiers[tierIndex]
+	if not tier or data.Cash < tier.Price then
 		return false
 	end
-	if not services.DataService:AdjustCash(player, -aura.Price) then
+	if not DataService:AdjustCash(player, -tier.Price) then
 		return false
 	end
-	services.DataService:Set(player, { "Auras", key }, true)
-	services.DataService:Set(player, { "EquippedAura" }, key)
+	DataService:Set(player, { "AuraTier" }, tierIndex)
 	apply(player)
-	services.NotificationService:Notify(player, "Purchase", `Bought {aura.DisplayName}!`)
-	services.DataService:RequestSave(player)
+	NotificationService:Notify(player, "Purchase", `Bought {tier.DisplayName}!`)
+	DataService:RequestSave(player)
 	return true
 end
 
-function AuraService.Equip(_self: any, player: Player, key: string): boolean
-	local data = services.DataService:GetData(player)
-	if not data or (key ~= "" and not data.Auras[key]) then
+function AuraService.SetTier(_self: any, player: Player, tierIndex: number): boolean
+	if not DataService:GetData(player) or not AuraConfig.Tiers[tierIndex] then
 		return false
 	end
-	services.DataService:Set(player, { "EquippedAura" }, key)
+	DataService:Set(player, { "AuraTier" }, tierIndex)
 	apply(player)
-	services.DataService:RequestSave(player)
+	DataService:RequestSave(player)
 	return true
 end
 
-function AuraService.Init(_self: any, registry: { [string]: any })
-	services = registry
-end
+function AuraService.Init(_self: any, _services: { [string]: any }) end
 
 function AuraService.Start(_self: any)
-	trove:Add(services.DataService.PlayerLoaded:Connect(function(player: Player)
+	trove:Add(DataService.PlayerLoaded:Connect(function(player: Player)
 		apply(player)
 	end))
 	for _, player in Players:GetPlayers() do
-		if services.DataService:GetData(player) then
+		if DataService:GetData(player) then
 			apply(player)
 		end
 	end
-	Packets.BuyAura.OnServerInvoke = function(player: Player, key: string): boolean
-		return AuraService:Buy(player, key)
-	end
-	Packets.EquipAura.OnServerInvoke = function(player: Player, key: string): boolean
-		return AuraService:Equip(player, key)
+	Packets.BuyAura.OnServerInvoke = function(player: Player, tierIndex: number): boolean
+		return AuraService:BuyTier(player, tierIndex)
 	end
 end
 
 function AuraService.Destroy(_self: any)
 	Packets.BuyAura.OnServerInvoke = nil
-	Packets.EquipAura.OnServerInvoke = nil
 	trove:Clean()
 end
 

@@ -15,7 +15,7 @@ local maxArgumentLength = 64
 local AdminService = { Name = "AdminService" }
 
 local trove = Trove.new()
-local context: Types.Context = { Services = {} }
+local context: Types.Context = { Services = {}, PendingResets = {} }
 local autoPresetApplied: { [Player]: boolean } = {}
 
 local function applyAutoPreset(player: Player)
@@ -59,6 +59,7 @@ function AdminService.Start(_self: any)
 	trove:Add(Players.PlayerAdded:Connect(mark))
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		autoPresetApplied[player] = nil
+		context.PendingResets[player] = nil
 	end))
 	trove:Add(context.Services.DataService.PlayerLoaded:Connect(applyAutoPreset))
 	trove:Add(
@@ -82,6 +83,7 @@ end
 function AdminService.Destroy(_self: any)
 	trove:Clean()
 	table.clear(autoPresetApplied)
+	table.clear(context.PendingResets)
 end
 
 return AdminService

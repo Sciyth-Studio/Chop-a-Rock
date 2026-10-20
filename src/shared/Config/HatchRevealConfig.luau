@@ -83,7 +83,7 @@ local HatchRevealConfig: HatchRevealSettings = {
 	PreviewPadding = 0.8,
 	ClickText = "Click to continue",
 	TapText = "Tap to continue",
-	HiddenScreens = { "Hud", "MenuButtons", "HotStreakBar" },
+	HiddenScreens = { "Hud", "MenuButtons", "HotStreakBar", "TeleportBar" },
 }
 
 return table.freeze(HatchRevealConfig)

@@ -300,6 +300,16 @@ local function applyAura(context: Context, stand: Instance, myGeneration: number
 	if bodySource and body and body:IsA("BasePart") then
 		wearAura(context, bodySource, body, spinners)
 	end
+	local tint = stand:GetAttribute("Color")
+	if typeof(tint) == "Color3" then
+		for _, descendant in walker:GetDescendants() do
+			if descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("Beam") then
+				descendant.Color = ColorSequence.new(tint)
+			elseif descendant:IsA("PointLight") then
+				descendant.Color = tint
+			end
+		end
+	end
 	local origin = dummy:GetPivot()
 	local distance = stand:GetAttribute("WalkStuds")
 	local studs = if type(distance) == "number" then distance else 8

@@ -14,7 +14,10 @@ local function percentFor(count: number): number
 	if count <= 0 then
 		return 0
 	end
-	return FriendBoostConfig.FirstFriendPercent + (count - 1) * FriendBoostConfig.AdditionalFriendPercent
+	return math.min(
+		FriendBoostConfig.MaxPercent,
+		FriendBoostConfig.FirstFriendPercent + (count - 1) * FriendBoostConfig.AdditionalFriendPercent
+	)
 end
 
 local function friendCount(player: Player): number

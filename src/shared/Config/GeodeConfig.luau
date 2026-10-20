@@ -23,6 +23,7 @@ export type GeodeSettings = {
 	TooWeakClearSeconds: number,
 	RecrackDelaySeconds: number,
 	AnnouncementKind: string,
+	CrackingAttribute: string,
 	ZoneStrengthRatio: number,
 }
 
@@ -32,7 +33,7 @@ local GeodeConfig: GeodeSettings = {
 			DisplayName = "Forest Geode",
 			TabName = "Forest",
 			Order = 1,
-			Price = 150,
+			Price = 500,
 			StrengthRequired = 10,
 			ModelKey = "Model_Geode_Basic",
 			SplitModelKey = "Model_GeodeSplit_Basic",
@@ -79,12 +80,30 @@ local GeodeConfig: GeodeSettings = {
 				{ PetKey = "Bloomy", Weight = 0.2 },
 			},
 		},
+		Ocean = {
+			DisplayName = "Ocean Geode",
+			TabName = "Ocean",
+			Order = 4,
+			Price = 491520000,
+			StrengthRequired = 39062500,
+			ModelKey = "Model_Geode_Ocean",
+			SplitModelKey = "Model_GeodeSplit_Ocean",
+			Pets = {
+				{ PetKey = "Drip", Weight = 50 },
+				{ PetKey = "Bubbly", Weight = 25 },
+				{ PetKey = "Shelly", Weight = 14 },
+				{ PetKey = "Reefy", Weight = 8 },
+				{ PetKey = "Glowy", Weight = 2.6 },
+				{ PetKey = "Chompy", Weight = 0.4 },
+			},
+		},
 	},
 	BuyAmounts = { 1, 3 },
 	PitPromptRangeStuds = 14,
 	TooWeakClearSeconds = 0.8,
 	RecrackDelaySeconds = 1,
 	AnnouncementKind = "Event",
+	CrackingAttribute = "CrackingGeode",
 	ZoneStrengthRatio = 1,
 }
 

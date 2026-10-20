@@ -24,12 +24,6 @@ local ShopConfig = {
 			Studs = Color3.fromRGB(170, 60, 0),
 		},
 	} :: { [string]: MeterColors },
-	Preview = {
-		ModelKey = "Model_ArmPreview",
-		CameraDirection = Vector3.new(0.25, 0.3, 1),
-		FieldOfView = 30,
-		CameraPadding = 0.8,
-	},
 	PriceLabel = {
 		WithIcon = {
 			Position = UDim2.new(0, 64, 0.5, 0),

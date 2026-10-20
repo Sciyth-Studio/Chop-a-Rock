@@ -2,6 +2,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
@@ -35,10 +36,11 @@ local function refresh(player: Player)
 	end
 	local now = Earnings.Now()
 	local placed = PedestalSlots.Placed(data.Pets)
+	local multiplier = services.IndexService:GetCashMultiplier(player)
 	for _, slot in PedestalConfig.UnlockOrder do
 		local earnings = session.Slots[slot]
 		local petId = placed[slot]
-		local rate = if petId then services.PetService:GetRate(data.Pets[petId]) else 0
+		local rate = if petId then services.PetService:GetRate(data.Pets[petId]) * multiplier else 0
 		if not earnings then
 			earnings = Earnings.New(data.PedestalEarnings[slotKey(slot)] or 0, now)
 			session.Slots[slot] = earnings
@@ -181,9 +183,11 @@ local function start(player: Player, isFirstLoad: boolean)
 		local seconds = Earnings.OfflineSeconds(data.LastSeenAt, os.time())
 		if seconds > 0 then
 			local placed = PedestalSlots.Placed(data.Pets)
+			local multiplier = services.IndexService:GetCashMultiplier(player)
 			for slot, petId in placed do
 				local key = slotKey(slot)
-				local earned = Earnings.Offline(services.PetService:GetRate(data.Pets[petId]), seconds)
+				local earned =
+					Earnings.Offline(services.PetService:GetRate(data.Pets[petId]) * multiplier, seconds)
 				services.DataService:Set(
 					player,
 					{ "PedestalEarnings", key },
@@ -225,6 +229,49 @@ function PedestalService.SetSlots(_self: any, player: Player, count: number): bo
 	return respond(player, true)
 end
 
+function PedestalService.EquipBest(_self: any, player: Player): boolean
+	return respond(player, Placement.EquipBest(context, player))
+end
+
+function PedestalService.EmptySlotCount(_self: any, player: Player): number
+	local data = context.Services.DataService:GetData(player)
+	if not data then
+		return 0
+	end
+	local count = 0
+	local placed = PedestalSlots.Placed(data.Pets)
+	for _, slot in PedestalSlots.Unlocked(data.PedestalSlots) do
+		if not placed[slot] then
+			count += 1
+		end
+	end
+	return count
+end
+
+function PedestalService.SimulateOffline(_self: any, player: Player, seconds: number): number
+	local services = context.Services
+	local data = services.DataService:GetData(player)
+	local session = sessions[player]
+	if not data or not session then
+		return 0
+	end
+	local capped = math.clamp(seconds, 0, EconomyConfig.OfflineCapSeconds)
+	local multiplier = services.IndexService:GetCashMultiplier(player)
+	local total = 0
+	for slot, petId in PedestalSlots.Placed(data.Pets) do
+		local earnings = session.Slots[slot]
+		if earnings then
+			local earned =
+				Earnings.Offline(services.PetService:GetRate(data.Pets[petId]) * multiplier, capped)
+			earnings.Banked += earned
+			total += earned
+		end
+	end
+	flush(player)
+	refresh(player)
+	return total
+end
+
 function PedestalService.ClearEarnings(_self: any, player: Player)
 	local session = sessions[player]
 	if session then
@@ -263,6 +310,7 @@ function PedestalService.Start(_self: any)
 	end))
 	trove:Add(services.PetService.HeldChanged:Connect(refresh))
 	trove:Add(services.PetService.ModifierChanged:Connect(refresh))
+	trove:Add(services.IndexService.CashMultiplierChanged:Connect(refresh))
 	trove:Add(services.PetService.Granted:Connect(function(player: Player)
 		local data = services.DataService:GetData(player)
 		if data and data.Settings.AutoEquip ~= false then

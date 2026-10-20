@@ -55,12 +55,43 @@ function IndexRewards.ZoneId(page: IndexConfig.Page, zone: IndexConfig.Zone): st
 	return page.Key .. IndexConfig.ZoneKeySeparator .. zone.Key
 end
 
-function IndexRewards.Reward(page: IndexConfig.Page, key: string): IndexConfig.Reward?
-	if page.Kind == "Rocks" then
-		return if RockConfig.Rocks[key] then IndexConfig.RockReward else nil
+local function toughestRock(zone: IndexConfig.Zone): RockConfig.Rock?
+	local key = zone.Entries[#zone.Entries]
+	return if key then RockConfig.Rocks[key] else nil
+end
+
+local function zoneScale(zoneKey: string): (number, number)
+	for _, page in IndexConfig.Pages do
+		if page.Kind ~= "Rocks" then
+			continue
+		end
+		local base = page.Zones[1] and toughestRock(page.Zones[1])
+		local zone = IndexRewards.FindZone(page, zoneKey)
+		local rock = if zone then toughestRock(zone) else nil
+		if base and rock then
+			return rock.BasePayout / base.BasePayout, rock.StrengthRequired / base.StrengthRequired
+		end
 	end
-	local pet = PetConfig.Pets[key]
-	return if pet then IndexConfig.PetRewards[pet.Rarity] else nil
+	return 1, 1
+end
+
+function IndexRewards.Reward(page: IndexConfig.Page, key: string): IndexConfig.Reward?
+	local base: IndexConfig.Reward? = nil
+	if page.Kind == "Rocks" then
+		base = if RockConfig.Rocks[key] then IndexConfig.RockReward else nil
+	else
+		local pet = PetConfig.Pets[key]
+		base = if pet then IndexConfig.PetRewards[pet.Rarity] else nil
+	end
+	local zone = IndexRewards.ZoneOf(page, key)
+	if not base or not zone then
+		return base
+	end
+	local cashScale, strengthScale = zoneScale(zone.Key)
+	return {
+		Cash = math.floor(base.Cash * cashScale + 0.5),
+		Strength = math.floor(base.Strength * strengthScale + 0.5),
+	}
 end
 
 function IndexRewards.Count(index: any, page: IndexConfig.Page, key: string): number

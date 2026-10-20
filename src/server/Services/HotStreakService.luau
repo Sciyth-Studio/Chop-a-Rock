@@ -19,6 +19,7 @@ local trove = Trove.new()
 local services: { [string]: any } = {}
 local states: { [Player]: State } = {}
 local characterConnections: { [Player]: RBXScriptConnection } = {}
+local frozen: { [Player]: boolean } = {}
 
 local function tierForCount(count: number): number
 	local tier = 0
@@ -82,12 +83,18 @@ local function onPlayerRemoving(player: Player)
 	end
 	characterConnections[player] = nil
 	states[player] = nil
+	frozen[player] = nil
 end
 
 local function tick()
 	local now = os.clock()
 	for player, state in states do
-		if state.Count > 0 and now - state.LastChopAt >= HotStreakConfig.FadeSeconds then
+		if frozen[player] then
+			if state.Count > 0 and now - state.LastChopAt >= HotStreakConfig.AdminFreezeRefreshSeconds then
+				state.LastChopAt = now
+				publish(player)
+			end
+		elseif state.Count > 0 and now - state.LastChopAt >= HotStreakConfig.FadeSeconds then
 			reset(player)
 		end
 	end
@@ -127,6 +134,29 @@ function HotStreakService.RecordChop(
 	return multiplier
 end
 
+function HotStreakService.SetTier(_self: any, player: Player, tier: number): boolean
+	local state = states[player]
+	if not state or tier < 0 or tier > #HotStreakConfig.Tiers then
+		return false
+	end
+	local definition = HotStreakConfig.Tiers[tier]
+	state.Count = if definition then definition.Chops else 0
+	state.Tier = tierForCount(state.Count)
+	state.LastChopAt = os.clock()
+	publish(player)
+	return true
+end
+
+function HotStreakService.ToggleFreeze(_self: any, player: Player): boolean
+	local isFrozen = frozen[player] ~= true
+	if isFrozen then
+		frozen[player] = true
+	else
+		frozen[player] = nil
+	end
+	return isFrozen
+end
+
 function HotStreakService.ApplyCashMultiplier(_self: any, amount: number, multiplier: number): number
 	return math.floor(amount * multiplier + 0.5)
 end
@@ -151,6 +181,7 @@ function HotStreakService.Destroy(_self: any)
 	end
 	table.clear(characterConnections)
 	table.clear(states)
+	table.clear(frozen)
 end
 
 return HotStreakService

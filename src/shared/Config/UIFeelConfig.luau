@@ -61,7 +61,6 @@ local UIFeelConfig: UIFeelSettings = {
 		Shop = "SFX_UI_ShopBell",
 		GeodeStand = "SFX_UI_ShopBell",
 		SellShop = "SFX_UI_ShopBell",
-		AuraShop = "SFX_UI_ShopBell",
 		RobuxShop = "SFX_UI_ShopBell",
 	}),
 	PanelOpenSound = "SFX_UI_PanelOpen",

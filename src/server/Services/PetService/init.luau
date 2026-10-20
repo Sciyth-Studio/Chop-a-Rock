@@ -130,7 +130,7 @@ function PetService.SyncTools(_self: any, player: Player)
 	end
 end
 
-function PetService.Grant(_self: any, player: Player, petKey: string, modifier: string?): Grant?
+local function add(player: Player, petKey: string, modifier: string?): Grant?
 	local pet = PetConfig.Pets[petKey]
 	local data = services.DataService:GetData(player)
 	local replica = services.DataService:GetReplica(player)
@@ -149,9 +149,6 @@ function PetService.Grant(_self: any, player: Player, petKey: string, modifier: 
 	replica:Set({ "NextPetId" }, data.NextPetId + 1)
 	replica:Set({ "Pets", id }, record)
 	local isNew = services.IndexService:RecordPet(player, petKey)
-	services.DataService:RequestSave(player)
-	PetService:SyncTools(player)
-	PetService.Granted:Fire(player)
 	return {
 		Id = id,
 		PetKey = petKey,
@@ -160,6 +157,92 @@ function PetService.Grant(_self: any, player: Player, petKey: string, modifier: 
 		TraitValue = traitValue,
 		Modifier = record.Modifier,
 	}
+end
+
+local function granted(player: Player)
+	services.DataService:RequestSave(player)
+	PetService:SyncTools(player)
+	PetService.Granted:Fire(player)
+end
+
+function PetService.Grant(_self: any, player: Player, petKey: string, modifier: string?): Grant?
+	local grant = add(player, petKey, modifier)
+	if grant then
+		granted(player)
+	end
+	return grant
+end
+
+function PetService.GrantMany(_self: any, player: Player, petKeys: { string }): { Grant }
+	local grants: { Grant } = {}
+	for _, petKey in petKeys do
+		local grant = add(player, petKey, nil)
+		if not grant then
+			break
+		end
+		table.insert(grants, grant)
+	end
+	if #grants > 0 then
+		granted(player)
+	end
+	return grants
+end
+
+function PetService.NewestPetId(_self: any, player: Player): string?
+	local data = services.DataService:GetData(player)
+	if not data then
+		return nil
+	end
+	local newest: string? = nil
+	for id in data.Pets do
+		if not newest or (tonumber(id) or 0) > (tonumber(newest) or 0) then
+			newest = id
+		end
+	end
+	return newest
+end
+
+function PetService.SetTrait(
+	_self: any,
+	player: Player,
+	petId: string,
+	trait: string?,
+	value: number?
+): boolean
+	local data = services.DataService:GetData(player)
+	local replica = services.DataService:GetReplica(player)
+	local pet = if data then data.Pets[petId] else nil
+	if not pet or not replica or (trait ~= nil and (not PetConfig.Traits[trait] or value == nil)) then
+		return false
+	end
+	replica:Set({ "Pets", petId, "Trait" }, trait)
+	replica:Set({ "Pets", petId, "TraitValue" }, if trait then value else nil)
+	services.DataService:RequestSave(player)
+	PetService:SyncTools(player)
+	PetService.ModifierChanged:Fire(player, petId)
+	return true
+end
+
+function PetService.RemoveUnplaced(_self: any, player: Player): number
+	local data = services.DataService:GetData(player)
+	local replica = services.DataService:GetReplica(player)
+	if not data or not replica then
+		return 0
+	end
+	local ids: { string } = {}
+	for id, pet in data.Pets do
+		if pet.Slot == nil then
+			table.insert(ids, id)
+		end
+	end
+	for _, id in ids do
+		replica:Set({ "Pets", id }, nil)
+	end
+	if #ids > 0 then
+		services.DataService:RequestSave(player)
+		PetService:SyncTools(player)
+	end
+	return #ids
 end
 
 function PetService.SetModifier(

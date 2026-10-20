@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -18,7 +19,7 @@ type Spinner = {
 }
 
 type Worn = {
-	Key: string,
+	Tier: number,
 	Character: Model,
 	Instances: { Instance },
 	Spinners: { Spinner },
@@ -29,30 +30,61 @@ local AuraController = {
 }
 
 local trove = Trove.new()
-local templates: { [string]: Model } = {}
-local missing: { [string]: true } = {}
+local template: Model? = nil
+local isMissing = false
 local worn: { [Player]: Worn } = {}
 local playerTroves: { [Player]: TroveInstance } = {}
-local aurasByKey: { [string]: AuraConfig.Aura } = {}
 
-for _, aura in AuraConfig.Auras do
-	aurasByKey[aura.Key] = aura
-end
-
-local function getTemplate(aura: AuraConfig.Aura): Model?
-	local cached = templates[aura.Key]
-	if cached or missing[aura.Key] then
-		return cached
+local function getTemplate(): Model?
+	if template or isMissing then
+		return template
 	end
-	local asset = AssetRegistry.get(aura.AssetKey)
+	local asset = AssetRegistry.get(AuraConfig.AssetKey)
 	if not asset:IsA("Model") then
 		asset:Destroy()
-		warn(`[AuraController] {aura.AssetKey} is not a Model`)
-		missing[aura.Key] = true
+		warn(`[AuraController] {AuraConfig.AssetKey} is not a Model`)
+		isMissing = true
 		return nil
 	end
-	templates[aura.Key] = asset
+	template = asset
 	return asset
+end
+
+local function tintSequence(sequence: ColorSequence, color: Color3): ColorSequence
+	local keypoints = {}
+	for _, keypoint in sequence.Keypoints do
+		local value = keypoint.Value
+		table.insert(
+			keypoints,
+			ColorSequenceKeypoint.new(
+				keypoint.Time,
+				Color3.new(value.R * color.R, value.G * color.G, value.B * color.B)
+			)
+		)
+	end
+	return ColorSequence.new(keypoints)
+end
+
+local function tintOne(item: Instance, color: Color3)
+	if item:GetAttribute(AuraConfig.TintAttribute) == false then
+		return
+	end
+	if item:IsA("ParticleEmitter") then
+		item.Color = tintSequence(item.Color, color)
+	elseif item:IsA("Beam") then
+		item.Color = tintSequence(item.Color, color)
+	elseif item:IsA("Trail") then
+		item.Color = tintSequence(item.Color, color)
+	elseif item:IsA("PointLight") then
+		item.Color = color
+	end
+end
+
+local function tint(instance: Instance, color: Color3)
+	tintOne(instance, color)
+	for _, item in instance:GetDescendants() do
+		tintOne(item, color)
+	end
 end
 
 local function remove(player: Player)
@@ -66,7 +98,7 @@ local function remove(player: Player)
 	end
 end
 
-local function attach(source: Instance, target: BasePart, emitScale: number, current: Worn)
+local function attach(source: Instance, target: BasePart, emitScale: number, color: Color3, current: Worn)
 	local copies: { [Attachment]: Attachment } = {}
 	for _, child in source:GetChildren() do
 		if child:IsA("Attachment") then
@@ -76,6 +108,7 @@ local function attach(source: Instance, target: BasePart, emitScale: number, cur
 					descendant.Rate *= emitScale
 				end
 			end
+			tint(copy, color)
 			copy.Parent = target
 			copies[child] = copy
 			table.insert(current.Instances, copy)
@@ -93,21 +126,25 @@ local function attach(source: Instance, target: BasePart, emitScale: number, cur
 			local copy = child:Clone()
 			copy.Attachment0 = if child.Attachment0 then copies[child.Attachment0] else nil
 			copy.Attachment1 = if child.Attachment1 then copies[child.Attachment1] else nil
+			tint(copy, color)
 			copy.Parent = target
 			table.insert(current.Instances, copy)
 		elseif child:IsA("Trail") then
 			local copy = child:Clone()
 			copy.Attachment0 = if child.Attachment0 then copies[child.Attachment0] else nil
 			copy.Attachment1 = if child.Attachment1 then copies[child.Attachment1] else nil
+			tint(copy, color)
 			copy.Parent = target
 			table.insert(current.Instances, copy)
 		elseif child:IsA("ParticleEmitter") then
 			local copy = child:Clone()
 			copy.Rate *= emitScale
+			tint(copy, color)
 			copy.Parent = target
 			table.insert(current.Instances, copy)
 		elseif child:IsA("PointLight") then
 			local copy = child:Clone()
+			tint(copy, color)
 			copy.Parent = target
 			table.insert(current.Instances, copy)
 		end
@@ -115,36 +152,38 @@ local function attach(source: Instance, target: BasePart, emitScale: number, cur
 end
 
 local function apply(player: Player)
-	local key = player:GetAttribute(AuraConfig.Attribute)
-	local aura = if type(key) == "string" then aurasByKey[key] else nil
+	local tierIndex = player:GetAttribute(AuraConfig.Attribute)
+	local tier = if type(tierIndex) == "number" then AuraConfig.Tiers[tierIndex] else nil
+	local isCracking = player:GetAttribute(GeodeConfig.CrackingAttribute) == true
+	local color = if tier and not isCracking then tier.Color else nil
 	local character = player.Character
 	local current = worn[player]
-	if current and aura and current.Key == aura.Key and current.Character == character then
+	if current and color and current.Tier == tierIndex and current.Character == character then
 		return
 	end
 	remove(player)
-	if not aura or not character then
+	if not color or not character or type(tierIndex) ~= "number" then
 		return
 	end
-	local template = getTemplate(aura)
-	if not template then
+	local source = getTemplate()
+	if not source then
 		return
 	end
 	local emitScale = if player == Players.LocalPlayer then 1 else LowGraphics.EmitScale()
-	local nextWorn: Worn = { Key = aura.Key, Character = character, Instances = {}, Spinners = {} }
-	local limbSource = template:FindFirstChild(AuraConfig.LimbTemplate)
+	local nextWorn: Worn = { Tier = tierIndex, Character = character, Instances = {}, Spinners = {} }
+	local limbSource = source:FindFirstChild(AuraConfig.LimbTemplate)
 	if limbSource then
 		for _, partName in AuraConfig.LimbParts do
 			local part = character:FindFirstChild(partName)
 			if part and part:IsA("BasePart") then
-				attach(limbSource, part, emitScale, nextWorn)
+				attach(limbSource, part, emitScale, color, nextWorn)
 			end
 		end
 	end
-	local bodySource = template:FindFirstChild(AuraConfig.BodyTemplate)
+	local bodySource = source:FindFirstChild(AuraConfig.BodyTemplate)
 	local body = character:FindFirstChild(AuraConfig.BodyPart)
 	if bodySource and body and body:IsA("BasePart") then
-		attach(bodySource, body, emitScale, nextWorn)
+		attach(bodySource, body, emitScale, color, nextWorn)
 	end
 	worn[player] = nextWorn
 end
@@ -156,6 +195,9 @@ local function track(player: Player)
 	local playerTrove = Trove.new()
 	playerTroves[player] = playerTrove
 	playerTrove:Connect(player:GetAttributeChangedSignal(AuraConfig.Attribute), function()
+		apply(player)
+	end)
+	playerTrove:Connect(player:GetAttributeChangedSignal(GeodeConfig.CrackingAttribute), function()
 		apply(player)
 	end)
 	playerTrove:Connect(player.CharacterAdded, function(character: Model)
@@ -206,11 +248,11 @@ function AuraController.Destroy(_self: any)
 	for player in playerTroves do
 		untrack(player)
 	end
-	for _, template in templates do
+	if template then
 		template:Destroy()
+		template = nil
 	end
-	table.clear(templates)
-	table.clear(missing)
+	isMissing = false
 	trove:Clean()
 end
 

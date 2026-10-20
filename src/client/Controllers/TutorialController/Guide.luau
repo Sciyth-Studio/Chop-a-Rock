@@ -209,7 +209,7 @@ function Guide.HidePath(guide: Guide)
 	end
 end
 
-function Guide.DrawMarker(guide: Guide, position: Vector3, adornee: Instance, text: string, dt: number)
+function Guide.DrawMarker(guide: Guide, position: Vector3, adornee: Instance, text: string?, dt: number)
 	guide.Clock += dt
 	local bob = math.sin(guide.Clock * TutorialConfig.MarkerBobSpeed) * TutorialConfig.MarkerBobStuds
 	guide.Anchor.CFrame = CFrame.new(position + Vector3.new(0, TutorialConfig.MarkerHeight + bob, 0))
@@ -230,8 +230,8 @@ function Guide.DrawMarker(guide: Guide, position: Vector3, adornee: Instance, te
 			label.Adornee = guide.Anchor
 		end
 		label.StudsOffsetWorldSpace = Vector3.new(0, TutorialConfig.MarkerSize * 0.6, 0)
-		label.Enabled = true
-		if guide.NameLabel and guide.NameLabel.Text ~= text then
+		label.Enabled = text ~= nil
+		if text and guide.NameLabel and guide.NameLabel.Text ~= text then
 			guide.NameLabel.Text = text
 		end
 	end

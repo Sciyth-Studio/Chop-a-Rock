@@ -1,7 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ArmConfig = require(ReplicatedStorage.Config.ArmConfig)
+local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 
@@ -14,7 +14,7 @@ export type State = {
 local Tutorial = {
 	Train = 1,
 	Chop = 2,
-	BuyArms = 3,
+	BuyAura = 3,
 	TrainAgain = 4,
 	ChopAgain = 5,
 	BuyGeode = 6,
@@ -28,7 +28,7 @@ local Tutorial = {
 Tutorial.Funnel = {
 	"Train",
 	"Chop",
-	"BuyArms",
+	"BuyAura",
 	"TrainAgain",
 	"ChopAgain",
 	"BuyGeode",
@@ -42,8 +42,8 @@ Tutorial.Funnel = {
 Tutorial.Titles = {
 	[Tutorial.Train] = "Break the boards!",
 	[Tutorial.Chop] = "Chop rocks for cash!",
-	[Tutorial.BuyArms] = "Buy new arms!",
-	[Tutorial.TrainAgain] = "Train with your new arms!",
+	[Tutorial.BuyAura] = "Buy an aura!",
+	[Tutorial.TrainAgain] = "Train with your new aura!",
 	[Tutorial.ChopAgain] = "Chop rocks for cash!",
 	[Tutorial.BuyGeode] = "Buy a geode!",
 	[Tutorial.Crack] = "Crack it at your base!",
@@ -79,7 +79,7 @@ function Tutorial.CanChop(step: number): boolean
 end
 
 function Tutorial.PadScreen(step: number): string?
-	if step == Tutorial.BuyArms then
+	if step == Tutorial.BuyAura then
 		return "Shop"
 	elseif step == Tutorial.BuyGeode then
 		return "GeodeStand"
@@ -91,22 +91,32 @@ function Tutorial.IsPadOpen(step: number, screen: string): boolean
 	return not Tutorial.IsActive(step) or Tutorial.PadScreen(step) == screen
 end
 
-function Tutorial.CanBuyArm(step: number): boolean
-	return not Tutorial.IsActive(step) or step == Tutorial.BuyArms
+function Tutorial.CanBuyAura(step: number): boolean
+	return not Tutorial.IsActive(step) or step == Tutorial.BuyAura
 end
 
 function Tutorial.CanBuyGeode(step: number): boolean
 	return not Tutorial.IsActive(step) or step == Tutorial.BuyGeode
 end
 
-function Tutorial.ArmPrice(): number
-	local tier = ArmConfig.Tiers[2]
+function Tutorial.AuraPrice(): number
+	local tier = AuraConfig.Tiers[2]
 	return if tier then tier.Price else 0
 end
 
 function Tutorial.GeodePrice(): number
-	local geode = GeodeConfig.Geodes[TutorialConfig.GeodeKey]
-	return if geode then geode.Price else 0
+	return TutorialConfig.GeodePrice
+end
+
+function Tutorial.GeodeCost(step: number, geodeKey: string, amount: number): number
+	local geode = GeodeConfig.Geodes[geodeKey]
+	if not geode then
+		return 0
+	end
+	if step == Tutorial.BuyGeode and geodeKey == TutorialConfig.GeodeKey and amount == 1 then
+		return TutorialConfig.GeodePrice
+	end
+	return geode.Price * amount
 end
 
 function Tutorial.StrengthGoal(step: number): number?
@@ -119,8 +129,8 @@ function Tutorial.StrengthGoal(step: number): number?
 end
 
 function Tutorial.CashGoal(step: number): number?
-	if step == Tutorial.Chop or step == Tutorial.BuyArms then
-		return Tutorial.ArmPrice()
+	if step == Tutorial.Chop or step == Tutorial.BuyAura then
+		return Tutorial.AuraPrice()
 	elseif step == Tutorial.ChopAgain or step == Tutorial.BuyGeode then
 		return Tutorial.GeodePrice()
 	end

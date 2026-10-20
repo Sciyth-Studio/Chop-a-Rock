@@ -19,6 +19,7 @@ local DataService = {
 	PlayerReleasing = Signal.new() :: Signal.Signal<(Player, PlayerData.Data)>,
 }
 local sessions: DataSessions.DataSessions? = nil
+local profileStore: any = nil
 local token: any = nil
 local replicas: { [Player]: ReplicaServer.Replica } = {}
 local connections: { { Disconnect: (self: any) -> () } } = {}
@@ -28,6 +29,7 @@ local warnedMock = false
 function DataService.Init(_self: any, _services: { [string]: any })
 	local storeName = if RunService:IsStudio() then "PlayerData_Studio" else "PlayerData"
 	local store = ProfileStore.New(storeName, PlayerData.Template)
+	profileStore = store
 	sessions = DataSessions.new(store :: any, function(player)
 		return player.Parent == Players
 	end)
@@ -162,21 +164,14 @@ function DataService.AdjustCash(_self: any, player: Player, amount: number): boo
 	return DataService:RequestSave(player)
 end
 
-function DataService.ResetData(_self: any, player: Player, overrides: { [string]: any }?): boolean
-	local data = DataService:GetData(player)
-	local replica = DataService:GetReplica(player)
-	if not data or not replica then
-		return false
-	end
+local function resetValues(overrides: { [string]: any }?): { [string]: any }
 	local template = PlayerData.Template
 	local values: { [string]: any } = {
 		Cash = template.Cash,
 		Strength = template.Strength,
-		ArmTier = template.ArmTier,
+		AuraTier = template.AuraTier,
 		TrainingTier = template.TrainingTier,
 		Rebirths = template.Rebirths,
-		Auras = {},
-		EquippedAura = template.EquippedAura,
 		Geodes = {},
 		Pets = {},
 		NextPetId = template.NextPetId,
@@ -190,11 +185,62 @@ function DataService.ResetData(_self: any, player: Player, overrides: { [string]
 			values[key] = value
 		end
 	end
-	replica:SetValues({}, values)
+	return values
+end
+
+function DataService.ResetData(_self: any, player: Player, overrides: { [string]: any }?): boolean
+	local data = DataService:GetData(player)
+	local replica = DataService:GetReplica(player)
+	if not data or not replica then
+		return false
+	end
+	replica:SetValues({}, resetValues(overrides))
 	table.clear(data.Receipts)
 	DataService.PlayerLoaded:Fire(player, data)
 	DataService:RequestSave(player)
 	return true
+end
+
+function DataService.ResetOfflineData(_self: any, userId: number): (boolean, string)
+	if not profileStore or stopped then
+		return false, "data store not ready"
+	end
+	if Players:GetPlayerByUserId(userId) then
+		return false, "that player is in this server"
+	end
+	local key = `Player_{userId}`
+	local found, existing = pcall(function()
+		return profileStore:GetAsync(key)
+	end)
+	if not found then
+		return false, `could not read the save: {existing}`
+	end
+	if existing == nil then
+		return false, `no save for UserId {userId}`
+	end
+	local ok, result = pcall(function()
+		return profileStore:StartSessionAsync(key, {
+			Cancel = function()
+				return stopped or Players:GetPlayerByUserId(userId) ~= nil
+			end,
+		})
+	end)
+	if not ok or result == nil then
+		return false, if ok then "the save is busy, try again" else `could not open the save: {result}`
+	end
+	local profile = result
+	if not PlayerData.Validate(profile.Data) then
+		profile:EndSession()
+		return false, "the save is invalid, left unchanged"
+	end
+	PlayerData.Migrate(profile.Data)
+	profile:Reconcile()
+	for field, value in resetValues(nil) do
+		profile.Data[field] = value
+	end
+	table.clear(profile.Data.Receipts)
+	profile:EndSession()
+	return true, "reset"
 end
 
 function DataService.Destroy(_self: any)

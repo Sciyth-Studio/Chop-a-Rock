@@ -42,15 +42,12 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 	if RebirthConfig.ResetStrength then
 		values.Strength = 0
 	end
-	if RebirthConfig.ResetArmTier then
-		values.ArmTier = 1
-	end
 	replica:SetValues({}, values)
 	if RebirthConfig.ResetCash then
 		services.PedestalService:ClearEarnings(player)
 	end
-	if RebirthConfig.ResetArmTier then
-		services.ArmService.TierChanged:Fire(player, 1)
+	if RebirthConfig.ResetAuraTier then
+		services.AuraService:SetTier(player, 1)
 	end
 	services.DataService:RequestSave(player)
 	print(`[RebirthService] {player.Name} rebirthed: rebirths={data.Rebirths}`)

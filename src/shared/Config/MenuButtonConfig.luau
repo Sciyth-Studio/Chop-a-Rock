@@ -17,8 +17,8 @@ export type MenuButtonSettings = {
 	ButtonSizePixels: number,
 	ButtonGapPixels: number,
 	Buttons: { MenuButton },
-	IndexBadge: {
-		Button: string,
+	Badge: {
+		Buttons: { string },
 		BadgeName: string,
 		LabelName: string,
 		Symbol: string,
@@ -45,8 +45,8 @@ local MenuButtonConfig: MenuButtonSettings = {
 		{ Name = "Index", Screen = "Index" },
 		{ Name = "Rebirth", Screen = "Rebirth" },
 	},
-	IndexBadge = {
-		Button = "Index",
+	Badge = {
+		Buttons = { "Index", "Rebirth" },
 		BadgeName = "Badge",
 		LabelName = "Mark",
 		Symbol = "!",

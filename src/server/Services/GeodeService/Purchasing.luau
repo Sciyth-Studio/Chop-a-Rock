@@ -37,7 +37,7 @@ function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, a
 	if context.Services.PetService:Count(player) + unopened + amount > PetConfig.MaxPets then
 		return false
 	end
-	local price = geode.Price * amount
+	local price = Tutorial.GeodeCost(Tutorial.StepOf(data.Tutorial), geodeKey, amount)
 	if data.Cash < price then
 		return false
 	end

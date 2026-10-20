@@ -40,8 +40,8 @@ Model: reuse `Model_Geode_Basic` / `Model_GeodeSplit_Basic` tinted to the zone, 
 | Forest (exists) | Forest Geode | 10 | 500 |
 | Desert (not in config yet) | Desert Geode | 2,500 | 40,000 |
 | Jungle | Jungle Geode | 312,500 | 2,560,000 |
-| Ocean | Ocean Geode | 39,062,500 | 163,840,000 |
-| Snow | Snow Geode | 4,882,812,500 | 10,485,760,000 |
+| Ocean | Ocean Geode | 39,062,500 | 491,520,000 (x3 since 2026-10-19, [[Balance Pass Oct 18]]) |
+| Snow | Snow Geode | 4,882,812,500 | 36,700,160,000 (x3.5 since 2026-10-19, [[Balance Pass Oct 18]]) |
 
 ## Roks
 Rarity colours as in the master plan. Looks are Bloky body plus one prop on top. The jungle and snow names come from the master plan §03 lineup; the ocean is rewritten for deep ocean (the old Sailor / Matey pirate and beach Roks are dropped, so this also answers the To Do item "Ocean Rok lineup").
@@ -64,7 +64,7 @@ Rarity colours as in the master plan. Looks are Bloky body plus one prop on top.
 | Rare | Shelly | Seashells and a tuft of seaweed on top | 1,638,400 | 14 |
 | Epic | Reefy | Branching coral crown on top | 3,932,160 | 8 |
 | Legendary | Glowy | Anglerfish-style glowing lure: a lamp on a curved stalk from its forehead (user liked this 2026-10-10) | 9,830,400 | 2.6 |
-| Secret | Venty | A small glowing deep-sea vent chimney on top, puffing bubbles (draft; replaces Beamy, whose lamp moved to Glowy) | 49,152,000 | 0.4 |
+| Secret | Chompy | Wears a grey shark-costume hood (dorsal fin, tail fin, open toothy jaw framing its face) with glowing cyan gill stripes (user, 2026-10-19; replaces Venty's vent chimney, which replaced Beamy) | 49,152,000 | 0.4 |
 
 Doubloony (pirate coins) was dropped 2026-10-10 as too pirate for the deep ocean. Glowy's lure is a prop and the body stays a rock (no fish body), per Roks Stay Rocks.
 
@@ -73,7 +73,7 @@ Doubloony (pirate coins) was dropped 2026-10-10 as too pirate for the deep ocean
 |---|---|---|---|---|
 | Common | Hexy | Plain six-sided block, no prop | 20,971,520 | 45 |
 | Uncommon | Beanie | Knitted beanie with a pompom | 41,943,040 | 25 |
-| Rare | Cozy | Scarf and earmuffs | 110,000,000 (was 104,857,600; [[Balance Pass Oct 18]]) | 16 |
+| Rare | Cozy | Scarf and earmuffs | 120,000,000 (was 104,857,600; [[Balance Pass Oct 18]]) | 16 |
 | Epic | Stacky | Two small stacked rocks on top with a little top hat | 251,658,240 | 10 |
 | Legendary | Piney | Pine tree on its back with glowing lights | 629,145,600 | 3.5 |
 | Secret | Starry | Glowing stars floating around it | 3,145,728,000 | 0.5 |

@@ -21,3 +21,4 @@ Gotchas:
 - `screen_capture` does not draw BillboardGuis in Play or Edit (not even the real `RockLabel`), so a sign cannot be checked by eye through the MCP. Check properties and `WorldToViewportPoint` instead.
 
 See [[UI Text Style]], [[Shop Stall Reference]].
+- 2026-10-18: the Arm Shop stall and its sign were deleted at the user's request; the Geode, Sell and Aura Shop signs remain.

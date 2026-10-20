@@ -11,7 +11,7 @@ export type Target = {
 	Position: Vector3,
 	Goal: Vector3,
 	Adornee: Instance,
-	Label: string,
+	Label: string?,
 	ArriveStuds: number,
 }
 
@@ -99,7 +99,7 @@ local function nearestStone(): Target?
 		Position = best.Position,
 		Goal = standOff(best.Position, from),
 		Adornee = best :: Instance,
-		Label = "Stone",
+		Label = nil,
 		ArriveStuds = best.Size.X / 2 + 8,
 	}
 end
@@ -164,8 +164,8 @@ function Targets.For(step: number, data: any): Target?
 		return trainingStand()
 	elseif Tutorial.IsChopping(step) then
 		return nearestStone()
-	elseif step == Tutorial.BuyArms then
-		return shopPad("Shop", "Arms")
+	elseif step == Tutorial.BuyAura then
+		return shopPad("Shop", "Aura")
 	elseif step == Tutorial.BuyGeode then
 		return shopPad("GeodeStand", "Geode")
 	elseif step == Tutorial.Crack then
