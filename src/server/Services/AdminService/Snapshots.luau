@@ -12,6 +12,8 @@ local fields = {
 	"Cash",
 	"Strength",
 	"AuraTier",
+	"Cannons",
+	"EquippedCannon",
 	"TrainingTier",
 	"Rebirths",
 	"Geodes",

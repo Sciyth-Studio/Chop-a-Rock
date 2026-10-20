@@ -19,6 +19,8 @@ export type Data = {
 	Cash: number,
 	Strength: number,
 	AuraTier: number,
+	Cannons: { [string]: boolean },
+	EquippedCannon: string,
 	TrainingTier: number,
 	Rebirths: number,
 	Geodes: { [string]: number },
@@ -48,6 +50,8 @@ PlayerData.Template = {
 	Cash = 0,
 	Strength = 0,
 	AuraTier = 1,
+	Cannons = {},
+	EquippedCannon = "",
 	TrainingTier = 1,
 	Rebirths = 0,
 	Geodes = {},
@@ -140,6 +144,12 @@ function PlayerData.Validate(data: any): boolean
 		if data[key] ~= nil and (not natural(data[key]) or data[key] < 1) then
 			return false
 		end
+	end
+	if data.Cannons ~= nil and not flags(data.Cannons) then
+		return false
+	end
+	if data.EquippedCannon ~= nil and type(data.EquippedCannon) ~= "string" then
+		return false
 	end
 	if data.Geodes ~= nil and not counts(data.Geodes) then
 		return false

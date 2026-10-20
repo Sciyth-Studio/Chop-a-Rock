@@ -170,6 +170,8 @@ local function resetValues(overrides: { [string]: any }?): { [string]: any }
 		Cash = template.Cash,
 		Strength = template.Strength,
 		AuraTier = template.AuraTier,
+		Cannons = {},
+		EquippedCannon = template.EquippedCannon,
 		TrainingTier = template.TrainingTier,
 		Rebirths = template.Rebirths,
 		Geodes = {},

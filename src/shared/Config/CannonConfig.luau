@@ -1,0 +1,92 @@
+--!strict
+
+export type Cannon = {
+	Key: string,
+	DisplayName: string,
+	ZoneName: string,
+	Price: number,
+	StrengthRequired: number,
+	Color: Color3,
+	Marker: string,
+}
+
+export type CannonSettings = {
+	ScreenName: string,
+	CannonName: string,
+	MuzzleName: string,
+	PromptAnchorName: string,
+	TintAttribute: string,
+	PromptActionText: string,
+	PromptObjectText: string,
+	PromptRangeStuds: number,
+	PromptHoldSeconds: number,
+	EmptyMessage: string,
+	EmptyColor: Color3,
+	FlightSeconds: number,
+	CooldownSeconds: number,
+	ArcHeightRatio: number,
+	MinArcHeightStuds: number,
+	MuzzleFallbackHeightStuds: number,
+	StreamTimeoutSeconds: number,
+	Cannons: { Cannon },
+}
+
+local CannonConfig: CannonSettings = {
+	ScreenName = "CannonShop",
+	CannonName = "LobbyCannon",
+	MuzzleName = "Muzzle",
+	PromptAnchorName = "PromptAnchor",
+	TintAttribute = "ZoneTint",
+	PromptActionText = "Fire",
+	PromptObjectText = "Cannon",
+	PromptRangeStuds = 10,
+	PromptHoldSeconds = 0,
+	EmptyMessage = "Buy a cannon to fire!",
+	EmptyColor = Color3.fromRGB(120, 120, 120),
+	FlightSeconds = 2,
+	CooldownSeconds = 3,
+	ArcHeightRatio = 0.25,
+	MinArcHeightStuds = 60,
+	MuzzleFallbackHeightStuds = 6,
+	StreamTimeoutSeconds = 2,
+	Cannons = {
+		{
+			Key = "Desert",
+			DisplayName = "Desert Cannon",
+			ZoneName = "Desert",
+			Price = 80000,
+			StrengthRequired = 500,
+			Color = Color3.fromRGB(255, 170, 0),
+			Marker = "CannonDesert",
+		},
+		{
+			Key = "Jungle",
+			DisplayName = "Jungle Cannon",
+			ZoneName = "Jungle",
+			Price = 5100000,
+			StrengthRequired = 62500,
+			Color = Color3.fromRGB(0, 210, 40),
+			Marker = "CannonJungle",
+		},
+		{
+			Key = "Ocean",
+			DisplayName = "Ocean Cannon",
+			ZoneName = "Ocean",
+			Price = 328000000,
+			StrengthRequired = 7812500,
+			Color = Color3.fromRGB(0, 90, 255),
+			Marker = "CannonOcean",
+		},
+		{
+			Key = "Snow",
+			DisplayName = "Snow Cannon",
+			ZoneName = "Snow",
+			Price = 21000000000,
+			StrengthRequired = 976562500,
+			Color = Color3.fromRGB(140, 220, 255),
+			Marker = "CannonSnow",
+		},
+	},
+}
+
+return table.freeze(CannonConfig)

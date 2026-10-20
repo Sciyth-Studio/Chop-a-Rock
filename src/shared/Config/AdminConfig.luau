@@ -232,6 +232,20 @@ local AdminConfig: AdminSettings = {
 			Alias = "aura",
 		},
 		{
+			Id = "GrantCannons",
+			Label = "Grant All Cannons",
+			Tab = "Stats",
+			Kind = "Button",
+			Alias = "cannons",
+		},
+		{
+			Id = "ResetCannons",
+			Label = "Reset Cannons",
+			Tab = "Stats",
+			Kind = "Button",
+			Alias = "nocannons",
+		},
+		{
 			Id = "SetTrainingTier",
 			Label = "Set Training Tier",
 			Tab = "Stats",

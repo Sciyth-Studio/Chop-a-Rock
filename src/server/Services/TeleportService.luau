@@ -49,6 +49,9 @@ local function onTeleport(player: Player, destinationId: string)
 		notify(player, TeleportConfig.RevealingMessage)
 		return
 	end
+	if services.CannonService:IsLaunching(player) then
+		return
+	end
 	local now = os.clock()
 	local last = lastTeleport[player]
 	if last and now - last < TeleportConfig.CooldownSeconds then
@@ -74,6 +77,10 @@ local function onTeleport(player: Player, destinationId: string)
 		end
 	end)
 	character:PivotTo(destinationCFrame)
+end
+
+function TeleportService.EndActivities(_self: any, player: Player)
+	endActivities(player)
 end
 
 function TeleportService.Init(_self: any, registry: { [string]: any })

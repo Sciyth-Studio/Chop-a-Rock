@@ -10,6 +10,7 @@ type: decision
 - Owned cannons can be equipped and unequipped. The lobby cannon fires the player to the equipped cannon's zone.
 - Replaces the 2026-10-03 free teleport pads, which were never built. The [[Teleport Bar]] is unchanged.
 - Claude's draft, not objected to: each cannon needs the strength of its zone's first rock plus about 25 of that rock's chops in cash (Desert 500 / $80K, Jungle 62,500 / $5.1M, Ocean 7.8M / $328M, Snow 977M / $21B); a ~2 s camera-followed arc landing at the zone entrance; the lobby cannon takes the equipped zone's colour; the Arm Shop stall becomes the Cannon Shop (moot: the user deleted the Arm Shop 2026-10-18, so the Cannon Shop needs a new stall). With nothing equipped, the cannon has nowhere to send you (behaviour still to pick).
+- Picked 2026-10-20 (user): with nothing equipped, the lobby cannon opens the Cannon Shop ("Buy a cannon to fire!"); owned cannons are kept through rebirth and launching never checks strength (only buying does). Buying equips the new cannon. Built 2026-10-20 with placeholder models, see [[Cannon Shop]].
 
 ## Auras take over arms (user)
 - Arms are removed (they looked lame). Auras do both jobs: the training multiplier and walk speed, with less speed than the old auras (+10 to +50).

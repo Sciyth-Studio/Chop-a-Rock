@@ -191,6 +191,16 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, AuraConfig.Tiers[tier].DisplayName)
 		end
 	end,
+	GrantCannons = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.CannonService:SetOwned(player, true) then
+			notify(context, player, "all cannons")
+		end
+	end,
+	ResetCannons = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.CannonService:SetOwned(player, false) then
+			notify(context, player, "no cannons")
+		end
+	end,
 	SetTrainingTier = function(context: Types.Context, player: Player, argument: string)
 		local tier = number(context, player, argument, 1, #TrainingConfig.Stands)
 		if tier and context.Services.TrainingService:SetTier(player, tier) then

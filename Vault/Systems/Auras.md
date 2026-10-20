@@ -27,7 +27,7 @@ Later tiers continue the user's colour order (silver, then the rainbow in half s
 - Shop: the old Arm Shop screen (`Screens/Shop.luau`, `StarterGui.Shop`, screen name `Shop`), retitled "Aura Shop" with the Aura Red header icon. Rows skip the colourless tier, so row names stay `Tier<index>` (the tutorial spotlights `Tier2`). Each row's `Icon` ImageLabel (replaced the arm `Preview` ViewportFrame) is a greyscale copy of the header icon (`assets/Icons/AuraTint/AuraTint.png`) tinted by `ImageColor3`. **It still uses a local preview address** (`rbxasset://textures/vfxpreview/...`) because the upload was blocked; upload it and swap the id before publishing. Old panel in `ServerStorage.UIBackup.Shop.BeforeAuraMerge`, old Aura Shop panel in `UIBackup.AuraShop.BeforeAuraMerge`.
 
 ## World
-- The red `Workspace.AuraShop` stall (x 58) opens `Shop` (its pad's `Screen`). The Arm Shop stall was deleted 2026-10-18 (user); the Cannon Shop will need a new stall.
+- The red `Workspace.AuraShop` stall (x 58) opens `Shop` (its pad's `Screen`). The Arm Shop stall was deleted 2026-10-18 (user); the Cannon Shop got its own stall at x 74 (see [[Cannon Shop]]).
 - Showcase stands `Aura Silver`, `Aura Green`, `Aura Lime`, `Aura Yellow` (`Effect = VFX_Aura`, `Color` attribute). The showcase plugin tints the walker from the stand's `Color` since 2026-10-18 (takes effect after a Studio restart).
 
 Related: [[Cannons And Auras Replace Arms]], [[Balance Pass Oct 18]], [[Shop Pads]], [[Tutorial]], [[VFX Showcase]]
