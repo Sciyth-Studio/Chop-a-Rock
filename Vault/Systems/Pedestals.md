@@ -23,6 +23,7 @@ Plan and decisions: `PetBaseSystemPlan.md` (approved 2026-10-06), Master Game Pl
 - Idle motion (2026-10-14, draft numbers in `RokMotionConfig`): `Display` tags each `PlacedRok` `IdleRok`, sets `PlacedAt` (server time) and makes it `Atomic` for streaming. `Components/IdleRok.luau` makes it breathe (volume-kept Y squash, random phase), blink (parts ending `_Eyes` / `_Pupils` squash in Y) and drop in with a squash bounce when `PlacedAt` is under 1 s old. It resizes and moves parts locally each frame, so it assumes Rok parts are axis-aligned with the pivot at bottom centre (all forest Roks are). Skipped beyond 100 studs from the camera; Low Graphics turns off breathing only. New Roks need their eye meshes named `<Name>_Eyes` / `<Name>_Pupils` to blink.
 
 ## Gotchas
+- Auto Equip on hatch waits for the reveal (2026-10-20). `PetService.Granted` carries an equip delay. `GeodeService/Cracking` passes the impact delay plus `HatchTiming.RevealSeconds(rarity)`, so the Rok drops onto the pedestal at the pop and not mid-animation. Before this, the Rok was placed the moment it was granted, which spoiled the reveal. Admin grants pass no delay.
 - The pedestal prompt range (10) is measured from the pedestal centre; the pad is 8.25 away, so standing on the pad is just inside range.
 - Hotbar icons are empty until the item-icon pipeline (`IconSystemPlan.md`) lands; set `Tool.TextureId` from it then.
 

@@ -144,7 +144,18 @@ function Cracking.Release(
 		return GeodeConfig.RecrackDelaySeconds
 	end
 	services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned - 1)
-	local grant = services.PetService:Grant(player, petKey, services.WeatherService:RollHatchModifier(player))
+	local hatchedPet = PetConfig.Pets[petKey]
+	local equipDelay = (
+		if quality == ChopQuality.Master
+			then MasterChopConfig.ImpactDelaySeconds
+			else ChopConfig.SlowMoPreImpactSeconds
+	) + HatchTiming.RevealSeconds(if hatchedPet then hatchedPet.Rarity else RarityConfig.Order[1])
+	local grant = services.PetService:Grant(
+		player,
+		petKey,
+		services.WeatherService:RollHatchModifier(player),
+		equipDelay
+	)
 	if not grant then
 		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
 		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)

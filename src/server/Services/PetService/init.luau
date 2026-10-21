@@ -25,7 +25,7 @@ export type Grant = {
 local PetService = {
 	Name = "PetService",
 	HeldChanged = Signal.new() :: Signal.Signal<Player>,
-	Granted = Signal.new() :: Signal.Signal<Player>,
+	Granted = Signal.new() :: Signal.Signal<Player, number>,
 	ModifierChanged = Signal.new() :: Signal.Signal<Player, string>,
 }
 
@@ -159,16 +159,22 @@ local function add(player: Player, petKey: string, modifier: string?): Grant?
 	}
 end
 
-local function granted(player: Player)
+local function granted(player: Player, equipDelay: number?)
 	services.DataService:RequestSave(player)
 	PetService:SyncTools(player)
-	PetService.Granted:Fire(player)
+	PetService.Granted:Fire(player, equipDelay or 0)
 end
 
-function PetService.Grant(_self: any, player: Player, petKey: string, modifier: string?): Grant?
+function PetService.Grant(
+	_self: any,
+	player: Player,
+	petKey: string,
+	modifier: string?,
+	equipDelay: number?
+): Grant?
 	local grant = add(player, petKey, modifier)
 	if grant then
-		granted(player)
+		granted(player, equipDelay)
 	end
 	return grant
 end

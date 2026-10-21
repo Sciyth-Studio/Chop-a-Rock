@@ -311,10 +311,17 @@ function PedestalService.Start(_self: any)
 	trove:Add(services.PetService.HeldChanged:Connect(refresh))
 	trove:Add(services.PetService.ModifierChanged:Connect(refresh))
 	trove:Add(services.IndexService.CashMultiplierChanged:Connect(refresh))
-	trove:Add(services.PetService.Granted:Connect(function(player: Player)
+	local function autoEquip(player: Player)
 		local data = services.DataService:GetData(player)
 		if data and data.Settings.AutoEquip ~= false then
 			respond(player, Placement.EquipBest(context, player))
+		end
+	end
+	trove:Add(services.PetService.Granted:Connect(function(player: Player, equipDelay: number)
+		if equipDelay > 0 then
+			task.delay(equipDelay, autoEquip, player)
+		else
+			autoEquip(player)
 		end
 	end))
 	for _, player in Players:GetPlayers() do
