@@ -207,13 +207,13 @@ function GeodeService.Start(_self: any)
 		end
 		return bought
 	end
-	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(function(player: Player)
+	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(function(player: Player, claimed: number)
 		local session = sessions[player]
 		if not session or not Cracking.IsReady(session) then
 			return
 		end
 		sessions[player] = nil
-		local lockSeconds = Cracking.Release(context, player, session, random)
+		local lockSeconds = Cracking.Release(context, player, session, random, claimed)
 		lockedUntil[player] = os.clock() + lockSeconds
 		refreshPit(player)
 		task.delay(lockSeconds, function()

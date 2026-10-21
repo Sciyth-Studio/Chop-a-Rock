@@ -3,7 +3,9 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
@@ -473,7 +475,7 @@ local function onChopRequest(player: Player, id: number)
 	)
 end
 
-local function onRelease(player: Player)
+local function onRelease(player: Player, claimed: number)
 	local session = sessions[player]
 	if not session or not session.StartTime then
 		return
@@ -485,7 +487,7 @@ local function onRelease(player: Player)
 	if geode.IsDone then
 		return
 	end
-	local elapsed = math.max(0, os.clock() - session.StartTime - ChopConfig.LatencyCompensationSeconds)
+	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
 	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
 	local rockService = services.RockService
 	if rockService:ConsumeForcedMaster(player) or rockService:RollMaster(quality, session.StrengthRatio) then

@@ -3,7 +3,9 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
@@ -298,7 +300,7 @@ local function onChopRequest(player: Player, id: number)
 	)
 end
 
-local function onRelease(player: Player)
+local function onRelease(player: Player, claimed: number)
 	local session = sessions[player]
 	if not session or not session.StartTime then
 		return
@@ -321,7 +323,7 @@ local function onRelease(player: Player)
 		return
 	end
 
-	local elapsed = math.max(0, os.clock() - session.StartTime - ChopConfig.LatencyCompensationSeconds)
+	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
 	local position = ChopZones.Position(elapsed)
 	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio)
 	local data = services.DataService:GetData(player)

@@ -2,7 +2,9 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
@@ -110,14 +112,15 @@ function Cracking.Release(
 	context: Types.Context,
 	player: Player,
 	session: Types.Session,
-	random: Random
+	random: Random,
+	claimed: number
 ): number
 	if not session.CanBreak then
 		tooWeak(context, player, session)
 		return GeodeConfig.TooWeakClearSeconds + GeodeConfig.RecrackDelaySeconds
 	end
 	local services = context.Services
-	local elapsed = math.max(0, os.clock() - session.StartTime - ChopConfig.LatencyCompensationSeconds)
+	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
 	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
 	local tutorialData = services.DataService:GetData(player)
 	local isTutorial = tutorialData ~= nil and Tutorial.IsActive(Tutorial.StepOf(tutorialData.Tutorial))

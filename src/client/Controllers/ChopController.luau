@@ -247,8 +247,9 @@ local function bindRelease()
 		end
 		ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
 			if inputState == Enum.UserInputState.Begin then
-				frozenPosition = ChopZones.Position(os.clock() - minigameStartTime)
-				Packets.ChopRelease:Fire()
+				local elapsed = os.clock() - minigameStartTime
+				frozenPosition = ChopZones.Position(elapsed)
+				Packets.ChopRelease:Fire(elapsed)
 				ContextActionService:UnbindAction(RELEASE_ACTION)
 				return Enum.ContextActionResult.Sink
 			end

@@ -51,7 +51,7 @@ local Packets = {
 	ChopEnded = Packet("ChopEnded"),
 	RockSpawnSpots = Packet("RockSpawnSpots", { Packet.Vector3F32 }, { Packet.String }),
 	ChopRoundStart = Packet("ChopRoundStart", Packet.NumberF64):RateLimit(5, 1),
-	ChopRelease = Packet("ChopRelease"):RateLimit(3, 1),
+	ChopRelease = Packet("ChopRelease", Packet.NumberF32):RateLimit(3, 1),
 	ChopLeave = Packet("ChopLeave"):RateLimit(3, 1),
 	ChopResult = Packet(
 		"ChopResult",
