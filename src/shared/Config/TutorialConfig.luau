@@ -1,6 +1,20 @@
 --!strict
 
+export type CannonHintSettings = {
+	Key: string,
+	FurthestKey: string,
+	Cannon: string,
+	MinRebirths: number,
+	EventName: string,
+	SkippedEventName: string,
+	UnlockKind: string,
+	TeleportId: string,
+	ScreenName: string,
+	TargetLabel: string,
+}
+
 export type TutorialSettings = {
+	CannonHint: CannonHintSettings,
 	TrainGoal: number,
 	TrainAgainGoal: number,
 	FinalHoldSeconds: number,
@@ -60,6 +74,18 @@ export type TutorialSettings = {
 }
 
 local TutorialConfig: TutorialSettings = {
+	CannonHint = {
+		Key = "Cannon",
+		FurthestKey = "CannonFurthest",
+		Cannon = "Desert",
+		MinRebirths = 1,
+		EventName = "CannonHint",
+		SkippedEventName = "CannonHintSkipped",
+		UnlockKind = "Unlock",
+		TeleportId = "Cannon",
+		ScreenName = "CannonShop",
+		TargetLabel = "Cannon",
+	},
 	TrainGoal = 4,
 	TrainAgainGoal = 10,
 	FinalHoldSeconds = 3,

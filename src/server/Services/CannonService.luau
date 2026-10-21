@@ -4,10 +4,14 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local Packets = require(ReplicatedStorage.Packets)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local TeleportConfig = require(ReplicatedStorage.Config.TeleportConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
-local CannonService = { Name = "CannonService" }
+local CannonService = {
+	Name = "CannonService",
+	Landed = Signal.new() :: Signal.Signal<Player, string>,
+}
 
 local trove = Trove.new()
 local services: { [string]: any } = {}
@@ -106,6 +110,7 @@ local function launch(player: Player)
 		root.AssemblyLinearVelocity = Vector3.zero
 		root.AssemblyAngularVelocity = Vector3.zero
 		character:PivotTo(destination)
+		CannonService.Landed:Fire(player, cannon.Key)
 	end)
 end
 

@@ -18,6 +18,7 @@ local launches = Trove.new()
 local controllers: { [string]: any } = {}
 local cache: Effects.Cache = {}
 local lastEquipped: string? = nil
+local flyingUntil = 0
 
 local function cannonColor(key: string): Color3
 	for _, cannon in CannonConfig.Cannons do
@@ -125,6 +126,7 @@ local function onLaunch(
 	local mouth = CFrame.lookAt(start, start + axis)
 
 	if isLocal and player.Character then
+		flyingUntil = os.clock() + chargeSeconds + flightSeconds
 		Flight.Fly(flightTrove, player.Character, {
 			Inside = if bore then bore.WorldPosition else start,
 			Start = start,
@@ -172,6 +174,10 @@ local function onLaunch(
 			end)
 		end))
 	end))
+end
+
+function CannonController.IsFlying(_self: any): boolean
+	return os.clock() < flyingUntil
 end
 
 function CannonController.Init(_self: any, registry: { [string]: any })

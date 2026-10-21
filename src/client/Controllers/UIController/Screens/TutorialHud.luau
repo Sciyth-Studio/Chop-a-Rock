@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CannonHint = require(ReplicatedStorage.CannonHint)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
@@ -38,10 +39,17 @@ function TutorialHud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
+	local function isHinting(): boolean
+		local data = context.Controllers.DataController:Get()
+		return CannonHint.IsShown(data) and CannonHint.StageOf(data) >= CannonHint.Buy
+	end
+
 	local function refresh()
 		local step = Tutorial.StepOf(context.Controllers.DataController:Get({ "Tutorial" }))
-		local isShown = Tutorial.IsActive(step) and step < Tutorial.Final
-		gui.Enabled = isShown
+		local isShown = (Tutorial.IsActive(step) and step < Tutorial.Final) or isHinting()
+		if gui.Enabled ~= isShown then
+			gui.Enabled = isShown
+		end
 		if not isShown then
 			reset()
 		end
@@ -62,11 +70,17 @@ function TutorialHud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				return
 			end
 			reset()
-			Packets.TutorialSkip:Fire()
+			if Tutorial.IsActive(Tutorial.StepOf(context.Controllers.DataController:Get({ "Tutorial" }))) then
+				Packets.TutorialSkip:Fire()
+			elseif isHinting() then
+				Packets.CannonHintSkip:Fire()
+			end
 		end)
 	end
 
-	trove:Add(context.Controllers.DataController:Observe({ "Tutorial", "Step" }, refresh))
+	for _, path in { { "Tutorial", "Step" }, { "Hints" }, { "Strength" } } do
+		trove:Add(context.Controllers.DataController:Observe(path, refresh))
+	end
 
 	return {
 		Modal = false,

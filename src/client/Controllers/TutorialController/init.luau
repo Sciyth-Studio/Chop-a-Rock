@@ -4,11 +4,13 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local CannonHint = require(ReplicatedStorage.CannonHint)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
+local CannonHintView = require(script.CannonHint)
 local ChopHint = require(script.ChopHint)
 local Guide = require(script.Guide)
 local Layout = require(script.Layout)
@@ -28,6 +30,13 @@ type Session = {
 	Locks: Locks.State,
 	LockClock: number,
 }
+type HintSession = {
+	Trove: TroveInstance,
+	Guide: Guide.Guide,
+	Layout: Layout.State,
+	Spotlight: Spotlight.State?,
+	Stage: number?,
+}
 
 local TutorialController = {
 	Name = "TutorialController",
@@ -37,6 +46,7 @@ local TutorialController = {
 
 local controllers: { [string]: any } = {}
 local session: Session? = nil
+local hintSession: HintSession? = nil
 local hidden: { [string]: Hidden } = {}
 local shownStep: number? = nil
 local lastTitle: string? = nil
@@ -307,12 +317,117 @@ local function stopSession()
 	setText(nil, nil)
 end
 
-local function onStep(step: number)
-	if Tutorial.IsActive(step) then
-		startSession()
+local hintHelpers: CannonHintView.Helpers = {
+	PromptKey = promptKey,
+	ClickVerb = clickVerb,
+	IsOpen = isOpen,
+	IsNear = isNear,
+}
+
+local function hideHint(current: HintSession)
+	Guide.HidePath(current.Guide)
+	Guide.HideMarker(current.Guide)
+	if current.Spotlight then
+		Spotlight.Update(current.Spotlight, nil)
+	end
+	setText(nil, nil)
+end
+
+local function updateHint(dt: number)
+	local current = hintSession
+	if not current then
+		return
+	end
+	local data = controllers.DataController:Get()
+	if isBusy() or controllers.CannonController:IsFlying() or not CannonHint.IsShown(data) then
+		hideHint(current)
+		return
+	end
+	local stage = CannonHint.StageOf(data)
+	if current.Stage ~= stage then
+		if current.Stage and stage > current.Stage then
+			LocalSound.Play(TutorialConfig.StepSoundKey)
+		end
+		current.Stage = stage
+	end
+	local view = CannonHintView.View(data, hintHelpers)
+	local target = view.Target
+	local isDoing = view.IsDoing
+		or controllers.ChopController:IsMinigameActive()
+		or controllers.TrainingController:IsTraining()
+	local teleport = if isDoing
+		then nil
+		else Teleports.ForDestination(TutorialConfig.CannonHint.TeleportId, target, clickVerb())
+	setText(view.Title, if teleport then teleport.Text else view.Detail)
+
+	local from = Targets.RootPosition()
+	if target and from and not isDoing then
+		if isNear(target) or teleport then
+			Guide.HidePath(current.Guide)
+		else
+			Guide.DrawPath(current.Guide, { from, target.Goal }, dt)
+		end
+		Guide.DrawMarker(current.Guide, target.Position, target.Adornee, target.Label, dt)
 	else
+		Guide.HidePath(current.Guide)
+		Guide.HideMarker(current.Guide)
+	end
+
+	if current.Spotlight then
+		Spotlight.Update(current.Spotlight, if teleport then teleport.Button else view.Button)
+	end
+
+	Layout.Update(current.Layout, not (isOpen(TutorialConfig.CannonHint.ScreenName) or isOpen("Shop")))
+end
+
+local function startHint()
+	if hintSession then
+		return
+	end
+	local trove = Trove.new()
+	local current: HintSession = {
+		Trove = trove,
+		Guide = Guide.new(),
+		Layout = Layout.new(),
+		Spotlight = Spotlight.new(),
+		Stage = nil,
+	}
+	hintSession = current
+	trove:Connect(RunService.RenderStepped, updateHint)
+	trove:Add(function()
+		if current.Spotlight then
+			Spotlight.Destroy(current.Spotlight)
+		end
+		Layout.Restore(current.Layout)
+		Guide.Destroy(current.Guide)
+	end)
+end
+
+local function stopHint()
+	local current = hintSession
+	hintSession = nil
+	if current then
+		current.Trove:Destroy()
+		setText(nil, nil)
+	end
+end
+
+local function refresh()
+	local data = controllers.DataController:Get()
+	local step = Tutorial.StepOf(if type(data) == "table" then data.Tutorial else nil)
+	if Tutorial.IsActive(step) then
+		stopHint()
+		startSession()
+		return
+	end
+	if session then
 		stopSession()
-		shownStep = nil
+	end
+	shownStep = nil
+	if CannonHint.IsActive(CannonHint.StageOf(data)) then
+		startHint()
+	else
+		stopHint()
 	end
 end
 
@@ -328,11 +443,10 @@ end
 
 function TutorialController.Start(self: any)
 	local trove = self._trove :: TroveInstance
-	trove:Add(controllers.DataController:Observe({ "Tutorial", "Step" }, function()
-		local state = controllers.DataController:Get({ "Tutorial" })
-		onStep(Tutorial.StepOf(state))
-	end))
+	trove:Add(controllers.DataController:Observe({ "Tutorial", "Step" }, refresh))
+	trove:Add(controllers.DataController:Observe({ "Hints" }, refresh))
 	trove:Add(stopSession)
+	trove:Add(stopHint)
 end
 
 function TutorialController.Destroy(self: any)

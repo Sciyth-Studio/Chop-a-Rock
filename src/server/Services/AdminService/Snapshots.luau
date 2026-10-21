@@ -23,6 +23,7 @@ local fields = {
 	"PedestalEarnings",
 	"Index",
 	"Tutorial",
+	"Hints",
 }
 
 type Snapshot = {

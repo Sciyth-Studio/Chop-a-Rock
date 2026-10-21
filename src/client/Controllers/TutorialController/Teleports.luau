@@ -82,6 +82,10 @@ end
 
 function Teleports.For(step: number, target: Targets.Target?, verb: string): Hint?
 	local id = destinationFor(step)
+	return if id then Teleports.ForDestination(id, target, verb) else nil
+end
+
+function Teleports.ForDestination(id: string?, target: Targets.Target?, verb: string): Hint?
 	local from = Targets.RootPosition()
 	local landing = if id then landingFor(id) else nil
 	if not id or not target or not from or not landing then

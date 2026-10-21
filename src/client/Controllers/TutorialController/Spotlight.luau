@@ -100,6 +100,11 @@ function Spotlight.TargetFor(step: number, data: any, chopController: any): GuiO
 	return if button and isShown(button) then button else nil
 end
 
+function Spotlight.Button(screenName: string, path: { string }): GuiObject?
+	local button = find(screenName, path)
+	return if button and isShown(button) then button else nil
+end
+
 function Spotlight.Update(state: State, target: GuiObject?)
 	if state.Target == target then
 		if target and not state.Spotlight.gui.Enabled then

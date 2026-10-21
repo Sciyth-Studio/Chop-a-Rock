@@ -78,4 +78,11 @@ Vendored unmodified at `vendor/SpotlightUI` from `Vvshenok/SpotlightUI` commit `
 - `user_mouse_input` with an `instance_path` on `TutorialHud.Container.SkipButton.Button` clicked the middle of the screen. Click by coordinates, with x/y on the down and up steps.
 - Two separate tool calls take longer than the 3 s Skip confirm. Send both taps in one batch.
 
+## Staggered hints
+Systems unlocked long after the tutorial get their own short guide when they unlock, not extra tutorial steps (user agreed 2026-10-20 for the cannon). First one: the Desert Cannon (`CannonHintSystemPlan.md`, approved and built 2026-10-20, passes check.ps1, waiting on the user's playtest), starting after rebirth 1 at 500 Strength (user).
+- Stages in shared `CannonHint.luau`: Locked 0, Save 1, Buy 2, Fire 3, Done 4, stored in `PlayerData.Hints.Cannon` (furthest in `Hints.CannonFurthest`). Settings in `TutorialConfig.CannonHint`.
+- `CannonHintService` re-decides every 0.25 s (later milestones win, Buy falls back to Save when cash drops), logs custom event `CannonHint` (value = stage) once per stage, sends "Desert Cannon unlocked!" on unlock. `CannonService.Landed(player, key)` from any cannon landing sets Done (with "Welcome to the Desert!" only if the hint was showing). Packet `CannonHintSkip` → Done + `CannonHintSkipped`.
+- Client: a second session in `TutorialController` (`HintSession`, child `CannonHint.luau` builds the text, target and spotlight). Quiet while Strength < 500 unless in Fire, during hatches and `CannonController:IsFlying()`. Teleport hints go through `Teleports.ForDestination("Cannon", …)` (the shop is beside the lobby cannon). `TutorialHud` Skip shows during Buy/Fire.
+- Migrate: profiles that own a cannon start Done. `ResetData` and presets set `Hints = {}`, so a preset with rebirths and 500+ Strength shows the hint. Rebirth needs `100 x 125^(n-1)` Strength, so each run after a rebirth is one zone further: run 1 forest, run 2 desert, run 3 jungle. Time later hints by rebirth count the same way. It reuses this controller's guide, spotlight, teleport and pinned-text parts and never locks anything.
+
 Related: [[Shop Pads]], [[Weather]], [[Pedestals]], [[Geode Shop]], [[Rebirth Gated By Strength]], [[UI Feel]]

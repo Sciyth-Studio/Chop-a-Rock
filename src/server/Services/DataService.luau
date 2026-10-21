@@ -181,6 +181,7 @@ local function resetValues(overrides: { [string]: any }?): { [string]: any }
 		PedestalEarnings = {},
 		Index = { Pets = {}, Rocks = {}, Claimed = { Pets = {}, Rocks = {}, Zones = {} } },
 		Tutorial = Tutorial.NewState(),
+		Hints = {},
 	}
 	if overrides then
 		for key, value in overrides do

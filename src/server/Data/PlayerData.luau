@@ -1,9 +1,13 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CannonHint = require(ReplicatedStorage.CannonHint)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Tutorial = require(ReplicatedStorage.Tutorial)
+local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
+
+local cannonHint = TutorialConfig.CannonHint
 
 export type Pet = {
 	Key: string,
@@ -40,6 +44,7 @@ export type Data = {
 	},
 	Settings: { [string]: boolean | number },
 	Tutorial: Tutorial.State,
+	Hints: { [string]: number },
 	LastSeenAt: number,
 	Receipts: { [string]: number },
 }
@@ -79,6 +84,7 @@ PlayerData.Template = {
 		AutoEquip = true,
 	},
 	Tutorial = Tutorial.NewState(),
+	Hints = {},
 	LastSeenAt = 0,
 	Receipts = {},
 } :: Data
@@ -217,6 +223,9 @@ function PlayerData.Validate(data: any): boolean
 	if data.Tutorial ~= nil and not Tutorial.IsValid(data.Tutorial) then
 		return false
 	end
+	if data.Hints ~= nil and not counts(data.Hints) then
+		return false
+	end
 	if data.Receipts ~= nil then
 		if type(data.Receipts) ~= "table" then
 			return false
@@ -247,6 +256,9 @@ function PlayerData.Migrate(data: any)
 	data.EquippedAura = nil
 	if data.Tutorial == nil and hasProgress(data) then
 		data.Tutorial = { Step = Tutorial.Done, Taps = 0, Furthest = Tutorial.FirstRebirth }
+	end
+	if data.Hints == nil and type(data.Cannons) == "table" and next(data.Cannons) ~= nil then
+		data.Hints = { [cannonHint.Key] = CannonHint.Done, [cannonHint.FurthestKey] = CannonHint.Done }
 	end
 	if data.TrainingTier == nil and natural(data.Rebirths) then
 		data.TrainingTier = TrainingStands.IndexForRebirths(data.Rebirths)
