@@ -78,6 +78,7 @@ local TutorialConfig: TutorialSettings = {
 		"MenuButtons",
 		"WeatherPill",
 		"DiamondRockPill",
+		"GeodeFallPill",
 		"HotStreakBar",
 		"TrainingHint",
 		"TrainingMinigame",

@@ -23,6 +23,7 @@ local services: { [string]: any } = {}
 local current: Types.Diamond? = nil
 local sessions: { [Player]: Types.Session } = {}
 local timerGeneration = 0
+local endedAt = -math.huge
 
 local scheduleNext: (delaySeconds: number?) -> ()
 
@@ -49,6 +50,7 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 		return
 	end
 	diamond.IsEnding = true
+	endedAt = os.clock()
 	for player, session in sessions do
 		if session.Diamond ~= diamond then
 			continue
@@ -70,7 +72,7 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 	if not isBroken then
 		Packets.DiamondEnded:FireAllClients()
 	end
-	services.RockService:ReleaseArea()
+	services.RockService:ReleaseArea(DiamondRockConfig.Tag)
 	local cleanup = if isBroken then DiamondRockConfig.BreakCleanupSeconds else DiamondRockConfig.SinkSeconds
 	task.delay(cleanup, function()
 		diamond.Model:Destroy()
@@ -142,6 +144,7 @@ local function spawnDiamond(zone: string?): (boolean, string)
 	}
 	current = diamond
 	services.RockService:ReserveArea(
+		DiamondRockConfig.Tag,
 		pickedZone,
 		position,
 		standDistance + DiamondRockConfig.ReservePaddingStuds
@@ -202,7 +205,11 @@ local function onChopRequest(player: Player)
 	if os.clock() < diamond.UpAt - DiamondRockConfig.RiseSlackSeconds then
 		return
 	end
-	if services.RockService:HasSession(player) or not services.DataService:GetData(player) then
+	if
+		services.RockService:HasSession(player)
+		or services.GeodeFallService:HasSession(player)
+		or not services.DataService:GetData(player)
+	then
 		return
 	end
 	local position = rootPosition(player)
@@ -321,6 +328,14 @@ end
 
 function DiamondRockService.HasSession(_self: any, player: Player): boolean
 	return sessions[player] ~= nil
+end
+
+function DiamondRockService.IsActive(_self: any): boolean
+	return current ~= nil
+end
+
+function DiamondRockService.SecondsSinceEnded(_self: any): number
+	return os.clock() - endedAt
 end
 
 function DiamondRockService.Spawn(_self: any, player: Player?): (boolean, string)

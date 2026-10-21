@@ -174,6 +174,12 @@ function WeatherService.GetActive(_self: any): WeatherConfig.Event?
 	return if active then WeatherClock.Event(active.Key) else nil
 end
 
+function WeatherService.SecondsUntilNext(_self: any): number
+	local time = now()
+	local startsAt = nextStart(time)
+	return startsAt - time
+end
+
 function WeatherService.RollStormRock(_self: any, player: Player?): string?
 	if player and inTutorial(player) then
 		return nil

@@ -1,0 +1,40 @@
+---
+description: Geode Fall (built 2026-10-20, not playtested) - server-wide event, 3-5 geodes crash into one zone, first to chop claims one, Rare+ Rok from that zone's geode; where state lives, claim and anti-teleport rules, admin commands, what's reused.
+type: system
+---
+# Geode Fall
+
+Design and approval: [[Geode Fall Event]]. All numbers are drafts in `GeodeFallConfig`.
+
+## Rules as built
+- **Timer:** every 20-25 min. Skipped (retry in 30 s) while weather is on, when the next weather would start before the fall ends (`WeatherService:SecondsUntilNext`), while a Diamond Rock is out, or within 2 min after one (`DiamondRockService:IsActive` / `SecondsSinceEnded`). Admin starts ignore these checks. A Diamond Rock can still spawn during a fall; its pill sits at y 130 and the Geode Fall pill at y 190, so they don't overlap.
+- **Zone and count:** weighted by players (not in the tutorial) standing in zones that have a `GeodeConfig` geode. Count 3, +1 per 4 players above 4, max 5 (`Spawning.Count`).
+- **Timeline:** warning notice + pill countdown (10 s). 2 s before landing the server parents the geodes; clients hold them 220 studs up, play `VFX_GeodeFall_Marker` (an orange ring closing in on the spot), then drop them over 1.2 s wearing `VFX_GeodeFall_Meteor` (cel fire, smoke trail, embers, glow). On landing: `VFX_GeodeFall_Impact`, the cannon landing sound and a camera shake. Landed geodes get `VFX_GeodeFall_Idle` (zone-coloured glints, rising motes, ground glow, a little smoulder, a 160-stud textured light pillar, a small light) and a "Falling Geode" / "Name's Geode" label with health bar and m:ss, plus a Chop prompt. The idle effect and label go the moment a geode is cracked or times out (`LandTrove`); 90 s after landing the rest sink.
+- **VFX (2026-10-20, user: hero = meteor impact; palette = fiery meteor + zone crystals):** templates in `Assets.VFX.GeodeFall`, all built with `Build` from cleared reference textures (no uploads): cel fire sheets 11395089850 / 11395090403 / 11395118687 (orange baked in, never tinted), dark smoke 10180479311, embers 8068783649, glow 8708637750, rock bits 8132607319, star 3052949762, ring 4609193944, pillar beam 3029306948, and our Diamond flash 137739014780004, shards 75840693106402 and cannon ring 86973755749304. Zone colour goes only on layers with the `ZoneTint` attribute (crystals, glints, motes, ground glow, pillar, light), placeholder purple in the templates. Impact layers: flash body + flare (0-0.12 s), fire bursts and a fire column (to ~0.8 s, growing), ground shockwave, zone crystals and glints, rock bits, embers, warm-to-grey dust (to ~2 s), dark smoke, orange light. Showcase stand "Geode Fall Impact" at Z -131 in the Chop row. Checked held frames at 0.04, 0.35 and 1.0 s from 40 studs in Edit; idle checked once (light and pillar). Not yet seen at full speed or in Play.
+- **Landing height (fixed 2026-10-20):** geode models pivot at their base (PivotOffset -2.64), so the server places the pivot at ground - `SinkStuds`; it used to add half the height and the geodes hovered. The hatch spot uses the pivot too.
+- **Spots:** `RockService:FindRingSpot` with a filter: at least 40 studs from every part in `Workspace.TeleportPoints` (Rocks, shops, cannon landings) and 30 studs from other geodes in the fall. Each geode reserves its own area (`ReserveArea(owner, ...)`, owner `GeodeFall<id>`).
+- **Claiming:** the first chop start claims (`ClaimedBy` / `ClaimedName` attributes); the prompt hides for everyone else. A claim lasts while chopping. Leaving the chop or teleporting keeps it for 3 s so the owner can restart; no release for 3 s after a round starts (+0.3 s input delay) ends the session and frees it at once. Too-weak players (below the zone geode's `StrengthRequired`) get "Get stronger!" and never claim.
+- **Damage:** health = zone geode `StrengthRequired` x Good damage x 6. Hits use your real strength and quality (Master = 5x a Perfect), capped per hit at a share of max health (`MaxShareByQuality`, approved 2026-10-20): Bad 1/12, Mid 1/8, Good 1/6, Great 1/5, Perfect 1/4, Master 1/2. So it takes at least 4 Perfects or 2 Masters however strong you are; at the gate it barely changes. No cash; a hit keeps Hot Streak alive.
+- **Reward:** `HatchOdds.RollAtLeast(geodeKey, "Rare")`, the zone's table with Common/Uncommon removed. Luck does not change it: every Rare+ rarity is `IsLucky`, so luck scales them all by the same factor. Weather hatch modifiers still roll. The normal hatch reveal plays at the geode's `HatchSpot` attachment, facing the winner. Legendary and Secret pulls go to the whole server: "X cracked a Legendary Tiki from a Falling Geode!"
+- **Aura hidden while opening** (user, 2026-10-20): the chopper's aura hides from the first chop through the hatch reveal, the same way as at the base pit. The service sets the player's `CrackingGeode` attribute (`GeodeConfig.CrackingAttribute`), which `AuraController` already watches. It clears when the session ends, on a full-Backpack crack, or after the reveal (`revealDelay` + the rarity's reveal time).
+- **Full Backpack** (`PetService:CanAdd`): warned on claim ("Backpack full! ..."); on crack no Rok, "the Geode flew off somewhere else", and a fresh geode falls at a new spot in the same zone with the same end time.
+- **Anti-teleport:** every 0.25 s during a fall the server samples each root. A horizontal step over WalkSpeed x 1.5 x dt + 12 studs flags the player for 5 s: their chop is ended and claims are ignored. Exempt: cannon flights (`CannonService:IsLaunching`, `Landed`), the teleport bar (`TeleportService` calls `GeodeFallService:AllowMove`), respawns. Admin warps are not exempt.
+
+## Where things live
+- Server: `GeodeFallService` (`init` timer, claims, chop, crack; `Spawning` zone, count, spot filter, model, attributes; `Movement` anti-teleport; `Chopping` damage; `Types`). Model `Workspace.FallingGeode` (Persistent, tag `GeodeFall`), attributes on its part: `GeodeFallId`, `Zone`, `GeodeKey`, `Health`, `MaxHealth`, `StrengthRequired`, `LandsAt`, `EndsAt` (server time), `ClaimedBy`, `ClaimedName`. Workspace attributes for the pill: `GeodeFallZone`, `GeodeFallLandsAt`, `GeodeFallEndsAt`, `GeodeFallLeft`, `GeodeFallTotal`.
+- Packets: `GeodeFallChop(id)` request, `GeodeFallChopped(id, quality, isBroken)` to all; chops reuse `ChopMinigameStart`/`ChopRelease`/`ChopLeave`/`ChopResult`, the reveal reuses `GeodeHatched`.
+- Client: `RockController/GeodeFall.luau` (fall, marker, trail, landing, beacon, label, prompt, hit effects, sink). `Screens/GeodeFallPill` reads the workspace attributes.
+- Studio: `StarterGui.GeodeFallPill`, a copy of `DiamondRockPill` at y 190, 640 wide, purple text (made 2026-10-20 through the MCP; save the place). The label reuses `UI_DiamondLabel` repainted in the zone colour. Effects: `Assets.VFX.GeodeFall.VFX_GeodeFall_{Meteor,Marker,Impact,Idle}` (registered in `AssetRegistry`); sounds reuse `SFX_Cannon_Whoosh` / `SFX_Cannon_Land`.
+- Also changed: `RockService` reserves several areas at once (`ReserveArea(owner, zone, position, radius)`, `ReleaseArea(owner)`; the Diamond Rock passes `DiamondRock`) and `FindRingSpot` takes an optional spot filter. Rock and Diamond chops are refused while a Geode Fall chop runs. `TutorialConfig.HiddenScreens` hides the pill.
+- Admin: "Start Geode Fall" (Ctrl+Shift+F, your zone or the busiest; alias `geodefall`) and "Geode Fall: 10s Left" (alias `geodefallend`).
+
+## Checked
+`check.ps1` passes (format, types, build). Not playtested yet (the user tests).
+
+## Open
+- Not measured in the [[Balance Model]] yet.
+
+## Feedback 2026-10-20 (first playtest)
+"the geodes don't land on the ground (they hover)", "the vfx are lacking", "the beacon and ui timer don't despawn properly". Fixed: landing height (pivot at the base), effects remade as the four templates above, beacon/label cleared on crack or timeout instead of when the model goes 12 s later.
+
+Related: [[Geode Fall Event]], [[Diamond Rock]], [[Geode Shop]], [[Hatch Reveal Reference]], [[Admin Panel]]

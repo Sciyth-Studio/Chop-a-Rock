@@ -449,6 +449,21 @@ local AdminConfig: AdminSettings = {
 			Alias = "diamondend",
 		},
 		{
+			Id = "StartGeodeFall",
+			Label = "Start Geode Fall",
+			Tab = "Chop",
+			Kind = "Button",
+			Shortcut = Enum.KeyCode.F,
+			Alias = "geodefall",
+		},
+		{
+			Id = "GeodeFallTimeLeft",
+			Label = "Geode Fall: 10s Left",
+			Tab = "Chop",
+			Kind = "Button",
+			Alias = "geodefallend",
+		},
+		{
 			Id = "SpawnSpots",
 			Label = "Spawn Spots",
 			Tab = "Chop",

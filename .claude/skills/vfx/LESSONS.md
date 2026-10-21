@@ -157,3 +157,15 @@ dark enough" (2026-10-15).
 (Lighting Brightness about 1.8, a dim OutdoorAmbient, a dark Atmosphere
 Decay) and the cloud layer (near-black blue-grey, Transparency about 0.15).
 Particles alone can't darken the skybox.
+
+## 15. A new event gets its own effects, not borrowed ones
+
+**Why:** the first Geode Fall reused the cannon trail and cannon landing plus a
+neon cylinder beacon and a flat neon disc marker; the user called the VFX
+"lacking" (2026-10-20). It was remade as four of its own templates around one
+hero beat (the meteor impact) the user picked.
+
+**How to apply:** for a new event or reward moment, ask which beat is the hero
+and the palette first, then build that beat's own template. Borrowed effects and
+plain Neon parts (beacons, discs) are placeholders only. A beacon is a textured
+Beam pillar, not a Neon cylinder.

@@ -109,6 +109,7 @@ _One note per game system as they're worked on._
 - [[Settings]] — master Volume with -/+, Music/SFX/Low Graphics/Auto Equip/Notifications toggles; what each does
 - [[Rush Rocks]] — after ~3 min of chopping the next rock rises gold near you, 20 s countdown, x3 pay; `RockService/Rush`, `RushRockConfig`, admin Ctrl+Shift+R
 - [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
+- [[Geode Fall]] — built 2026-10-20, first playtest fixes in (hover, despawn, damage cap, own VFX, aura hidden): 3-5 geodes crash into one zone every 20-25 min, first chop claims, Rare+ Rok; `GeodeFallService`, `RockController/GeodeFall`, `GeodeFallPill`, `GeodeFallConfig`, admin Ctrl+Shift+F; anti-teleport sampling; RockService now reserves several areas
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
 - [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert; equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
@@ -128,6 +129,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; in Luau except Cozy ($120M) and the Snow geode
 - [[Training Minigame Board Slice]] — 2026-10-20: first training minigame is a Fruit Ninja-style 2D swipe game, optional on top of idle reps; server-counted slices fill a power meter that multiplies strength per rep (draft up to x2); bombs empty it
 - [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
+- [[Geode Fall Event]] — 2026-10-20, approved and built (see [[Geode Fall]]): 3-5 geodes crash into one zone every 20-25 min, first to chop claims one (not stealable, no per-player cap), Rare+ from that zone's geode, full Backpack = respawn
 
 ## Inbox
 _Unsorted learnings for the user to review._

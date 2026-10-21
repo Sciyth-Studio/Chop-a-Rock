@@ -37,7 +37,7 @@ local rushStates: { [Player]: Types.RushState } = {}
 local spotViewers: { [Player]: true } = {}
 local warned: { [string]: boolean } = {}
 local areas: { BasePart } = {}
-local reserved: Types.Reserved? = nil
+local reserved: { [string]: Types.Reserved } = {}
 local nextId = 0
 
 local cheatNames: { [string]: boolean } = {
@@ -122,7 +122,12 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 		return true
 	end
 	local position = rootPosition(player)
-	local blocked = if reserved and reserved.Zone == zone then reserved else nil
+	local blocked: { Types.Reserved } = {}
+	for _, area in reserved do
+		if area.Zone == zone then
+			table.insert(blocked, area)
+		end
+	end
 	local spot = if isRush or forcedKey
 		then Spawner.PickSpotNear(
 			random,
@@ -260,7 +265,7 @@ local function onChopRequest(player: Player, id: number)
 	if not rock or sessions[player] or os.clock() < rock.UpAt - RockSpawnConfig.RiseSlackSeconds then
 		return
 	end
-	if services.DiamondRockService:HasSession(player) then
+	if services.DiamondRockService:HasSession(player) or services.GeodeFallService:HasSession(player) then
 		return
 	end
 	local data = services.DataService:GetData(player)
@@ -557,7 +562,8 @@ function RockService.FindRingSpot(
 	size: Vector3,
 	standDistance: number,
 	slots: number,
-	tries: number
+	tries: number,
+	isAllowed: ((position: Vector3) -> boolean)?
 ): Vector3?
 	local zoneSpots = spots[zone]
 	if not zoneSpots or #zoneSpots == 0 then
@@ -571,6 +577,9 @@ function RockService.FindRingSpot(
 	end
 	for _ = 1, math.min(tries, #zoneSpots) do
 		local spot = zoneSpots[random:NextInteger(1, #zoneSpots)]
+		if isAllowed and not isAllowed(spot.Position) then
+			continue
+		end
 		if SpawnPoints.FitsRing(spot.Position, rotation, size, standDistance, slots, excluded) then
 			return spot.Position
 		end
@@ -578,8 +587,8 @@ function RockService.FindRingSpot(
 	return nil
 end
 
-function RockService.ReserveArea(_self: any, zone: string, position: Vector3, radius: number)
-	reserved = { Zone = zone, Position = position, Radius = radius }
+function RockService.ReserveArea(_self: any, owner: string, zone: string, position: Vector3, radius: number)
+	reserved[owner] = { Zone = zone, Position = position, Radius = radius }
 	for player, rocks in owned do
 		for id, rock in rocks do
 			local session = sessions[player]
@@ -598,8 +607,8 @@ function RockService.ReserveArea(_self: any, zone: string, position: Vector3, ra
 	end
 end
 
-function RockService.ReleaseArea(_self: any)
-	reserved = nil
+function RockService.ReleaseArea(_self: any, owner: string)
+	reserved[owner] = nil
 end
 
 function RockService.DamageMultiplier(_self: any, quality: number): number
@@ -668,7 +677,7 @@ function RockService.Destroy(_self: any)
 	table.clear(spotViewers)
 	table.clear(rushStates)
 	table.clear(areas)
-	reserved = nil
+	table.clear(reserved)
 end
 
 return RockService

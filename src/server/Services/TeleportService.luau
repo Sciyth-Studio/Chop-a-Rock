@@ -25,6 +25,7 @@ end
 local function endActivities(player: Player)
 	services.RockService:EndSession(player)
 	services.DiamondRockService:EndSession(player)
+	services.GeodeFallService:EndSession(player)
 	services.GeodeService:EndSession(player)
 	services.TrainingService:Stop(player)
 	Packets.ChopEnded:FireClient(player)
@@ -76,6 +77,7 @@ local function onTeleport(player: Player, destinationId: string)
 			warn(`[TeleportService] Stream request failed: {streamError}`)
 		end
 	end)
+	services.GeodeFallService:AllowMove(player)
 	character:PivotTo(destinationCFrame)
 end
 

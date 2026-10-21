@@ -15,10 +15,12 @@ local function isFree(
 	shape: Types.Shape,
 	rocks: { Types.Rock },
 	avoid: Vector3?,
-	reserved: Types.Reserved?
+	reserved: { Types.Reserved }
 ): boolean
-	if reserved and flatDistance(spot.Position, reserved.Position) < shape.Radius + reserved.Radius then
-		return false
+	for _, area in reserved do
+		if flatDistance(spot.Position, area.Position) < shape.Radius + area.Radius then
+			return false
+		end
 	end
 	if avoid and flatDistance(spot.Position, avoid) < shape.Radius + RockSpawnConfig.PlayerClearanceStuds then
 		return false
@@ -75,7 +77,7 @@ function Spawner.PickSpot(
 	shape: Types.Shape,
 	rocks: { Types.Rock },
 	avoid: Vector3?,
-	reserved: Types.Reserved?
+	reserved: { Types.Reserved }
 ): Types.Spot?
 	local valid: { Types.Spot } = {}
 	for _, spot in spots do
@@ -96,7 +98,7 @@ function Spawner.PickSpotNear(
 	rocks: { Types.Rock },
 	center: Vector3?,
 	radius: number,
-	reserved: Types.Reserved?
+	reserved: { Types.Reserved }
 ): Types.Spot?
 	if not center then
 		return Spawner.PickSpot(random, spots, shape, rocks, nil, reserved)

@@ -34,6 +34,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	HotStreakFx = require(script.Screens.HotStreakFx),
 	HotStreakBar = require(script.Screens.HotStreakBar),
 	DiamondRockPill = require(script.Screens.DiamondRockPill),
+	GeodeFallPill = require(script.Screens.GeodeFallPill),
 	WeatherPill = require(script.Screens.WeatherPill),
 	TeleportBar = require(script.Screens.TeleportBar),
 	TutorialHud = require(script.Screens.TutorialHud),

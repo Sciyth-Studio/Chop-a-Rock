@@ -5,6 +5,7 @@ local AdminConfig = require(ReplicatedStorage.Config.AdminConfig)
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
+local GeodeFallConfig = require(ReplicatedStorage.Config.GeodeFallConfig)
 local HotStreakConfig = require(ReplicatedStorage.Config.HotStreakConfig)
 local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
@@ -283,6 +284,18 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, `Diamond Rock ends in {seconds}s`)
 		else
 			notify(context, player, "no Diamond Rock out")
+		end
+	end,
+	StartGeodeFall = function(context: Types.Context, player: Player, _argument: string)
+		local _started, message = context.Services.GeodeFallService:Spawn(player)
+		notify(context, player, message)
+	end,
+	GeodeFallTimeLeft = function(context: Types.Context, player: Player, _argument: string)
+		local seconds = GeodeFallConfig.AdminLifetimeSeconds
+		if context.Services.GeodeFallService:SetTimeLeft(seconds) then
+			notify(context, player, `Geode Fall ends in {seconds}s`)
+		else
+			notify(context, player, "no landed Geode Fall")
 		end
 	end,
 	SpawnSpots = function(context: Types.Context, player: Player, _argument: string)
