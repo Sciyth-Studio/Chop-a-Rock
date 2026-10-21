@@ -44,7 +44,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Menu Panel Style]] — dark grey stud body, striped gradient header, Chrome title, black outlines, sharp corners
 
 ## Reference
-- [[Balance Model]] — the user's Excel economy model (Downloads, v7), kept in this chat since 2026-10-19: tabs, syncing it to the Luau, editing it via Excel COM
+- [[Balance Model]] — the user's Excel economy model (Downloads, v8), kept in this chat since 2026-10-19: tabs, syncing it to the Luau, editing it via Excel COM
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
 - [[Tile Style Reference]] — 2026-10-15 pilot restyle (HUD tiles + Daily Rewards panel): outline + colour-to-clear gradient + shade box tiles, translucent dark bodies, square corners, stud headers, no stripes; applied to menu buttons and shops, backups in `UIBackup.BeforeTileStyle`
@@ -109,8 +109,8 @@ _One note per game system as they're worked on._
 - [[Shop Pads]] — neon floor rectangles open the Geode, Sell and Aura shops on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
 - [[Settings]] — master Volume with -/+, Music/SFX/Low Graphics/Auto Equip/Notifications toggles; what each does
 - [[Rush Rocks]] — after ~3 min of chopping the next rock rises gold near you, 20 s countdown, x3 pay; `RockService/Rush`, `RushRockConfig`, admin Ctrl+Shift+R
-- [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Geode Fall]] — built 2026-10-20, first playtest fixes in (hover, despawn, damage cap, own VFX, aura hidden): 3-5 geodes crash into one zone every 20-25 min, first chop claims, Rare+ Rok; `GeodeFallService`, `RockController/GeodeFall`, `GeodeFallPill`, `GeodeFallConfig`, admin Ctrl+Shift+F; anti-teleport sampling; RockService now reserves several areas
+- [[Diamond Rock]] — shared server rock every 10-15 min at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
 - [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert; equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
@@ -129,9 +129,9 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Rebirth Gated By Strength]] — 2026-10-13: no levels; rebirth N needs zone N's toughest rock in strength; each rebirth unlocks the next training stand (set strength per 1 s rep); rebirth gives cash + luck only; Robux buys the stand cash, never skips the gate (2026-10-18)
 - [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; all in Luau (Cozy and the Snow geode since 2026-10-20)
 - [[Training Minigame Board Slice]] — 2026-10-20: first training minigame is a Fruit Ninja-style 2D swipe game, optional on top of idle reps; server-counted slices fill a power meter that multiplies strength per rep (draft up to x2); bombs empty it
-- [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 - [[Geode Fall Event]] — 2026-10-20, approved and built (see [[Geode Fall]]): 3-5 geodes crash into one zone every 20-25 min, first to chop claims one (not stealable, no per-player cap), Rare+ from that zone's geode, full Backpack = respawn
 - [[Chop Timing Uses Client Time]] — 2026-10-21: chop quality judged on the client's elapsed time, clamped server-side to a fixed 0.4 s window (draft; not ping-sized); every chop flow uses `Utils/ChopTiming`
+- [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 
 ## Inbox
 _Unsorted learnings for the user to review._

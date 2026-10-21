@@ -1,18 +1,18 @@
 ---
-description: The user's Excel balance model (Downloads/Chop_a_Rock_Balance_Model_v7.xlsx): what each tab checks, that Claude maintains it in this chat since 2026-10-19, and how to edit it without breaking it.
+description: The user's Excel balance model (Downloads/Chop_a_Rock_Balance_Model_v8.xlsx): what each tab checks, that Claude maintains it in this chat since 2026-10-19, and how to edit it without breaking it.
 type: reference
 ---
 # Balance model
 
-The user's spreadsheet model of the economy. It was first built in claude.ai, and since 2026-10-19 the user keeps it with Claude Code ("I'll just stick with this chat"). Latest: `C:\Users\Admin\Downloads\Chop_a_Rock_Balance_Model_v7.xlsx`. Decisions made with it: [[Balance Pass Oct 18]].
+The user's spreadsheet model of the economy. It was first built in claude.ai, and since 2026-10-19 the user keeps it with Claude Code ("I'll just stick with this chat"). Latest: `C:\Users\Admin\Downloads\Chop_a_Rock_Balance_Model_v8.xlsx`. Decisions made with it: [[Balance Pass Oct 18]].
 
 ## Tabs
-- **Checks**: pass/fail per zone against the targets on Inputs. This is the summary to read first. 45 checks; v7 passes 44, and the one failure (Snow has too little to save for) is expected until zone 6.
-- **Zone Model**: training time to each rebirth gate, chop and pet income, offline, walking, and the Index and weather multipliers.
+- **Checks**: pass/fail per zone against the targets on Inputs. This is the summary to read first. 50 checks since v8; v8 passes 49, and the one failure (Snow has too little to save for) is expected until zone 6. Training targets are for idle players; the Board Slice check (columns E-F) only fails when a minigame player is too slow (see [[Training Minigame Board Slice]]).
+- **Zone Model**: training time to each rebirth gate (columns Q-R: with Board Slice), chop and pet income, offline, walking, and the Index and weather multipliers.
 - **Jackpots**: the max chop multiplier stack against the next stand's price.
 - **Collection**: hatch odds after luck, the cost to finish each Roks page, hatch-and-sell worst cases, and pity.
 - **Payback**: minutes of income to afford each aura, cannon, stand, geode and slot in each zone.
-- **Inputs**: assumptions (yellow) and targets. **Config**: values copied from the Luau configs.
+- **Inputs**: assumptions (yellow) and targets. Rows 88-99 (v8): Board Slice numbers from `TrainingMinigameConfig`, share of boards sliced (75%) and share of training time played (100%), giving its training mult. **Config**: values copied from the Luau configs.
 
 ## Keeping it true
 - Config must match the game. To check it, require every config in Studio Edit mode, `HttpService:JSONEncode` them into `_G`, read the result back in chunks, and compare.
