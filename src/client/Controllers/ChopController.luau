@@ -483,6 +483,10 @@ function ChopController.Start(self: any)
 		end
 		zoneCenter = center
 		frozenPosition = nil
+		if masterStartClock then
+			masterStartClock = nil
+			uiController:Close(LETTERBOX_SCREEN)
+		end
 		minigameStartTime = os.clock()
 		bindRelease()
 		self.RoundStarted:Fire()

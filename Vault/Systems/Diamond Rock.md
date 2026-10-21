@@ -24,4 +24,6 @@ Approved 2026-10-09. The user rejected dedicated marker spots, so it picks a ran
 ## Tested 2026-10-09
 Playtest, one player: spawned in the forest, beacon, label, pill and prompt up; snapped to slot 3 at 17.5 studs; Perfect hits did 192.5 damage and paid 1,711; the 10 s timeout ended the chop, turned the time red, sank the rock and showed "+$5,304"; a one-hit break paid 40,000; per-player rocks cleared to 23 studs from centre. Not tested with several players at once.
 
+2026-10-21: a Master on a Diamond Rock left the letterbox up until the rock died (it closed only on chop end). `ChopController` now closes it on the next `ChopRoundStart`. User-tested in the snow zone: a strong save one-shots the forest diamond with a Master, so test multi-hit behaviour in a later zone.
+
 Related: [[Rock Spawning]], [[Rush Rocks]], [[Chop Effects]], [[Admin Panel]]
