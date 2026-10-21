@@ -1,6 +1,6 @@
 # Snow Rok prompts
 
-Body colour: frost blue, RGB 40, 150, 255 (user's pick 2026-10-19). It reads as snow and ice against the near-white floor (240, 245, 255). Props avoid blue so they read on the body: a red beanie with a white pompom, a red-and-white scarf with yellow earmuffs, a black top hat, a green pine with warm glowing lights, and glowing golden stars.
+Body colour: frost blue, RGB 40, 150, 255 (user's pick 2026-10-19). It reads as snow and ice against the near-white floor (240, 245, 255). Props avoid blue so they read on the body: a red beanie with a white pompom, a red-and-white scarf with yellow earmuffs, a black top hat, a climber's glowing yellow lantern with a brown ice axe and orange rope, and glowing golden stars.
 
 Batch run: run the lineup, then all six sheet prompts (each in its own chat), and send the six sheets back together, saying which view is the front. Claude models all six side by side in one Blender scene and renders them together for feedback.
 
@@ -19,7 +19,7 @@ LEFT TO RIGHT:
 2. Beanie (Uncommon): Bloky's cube wearing a snug red knitted beanie with a folded white cuff and a big fluffy white pompom on top.
 3. Cozy (Rare): Bloky's cube with a red-and-white striped knitted scarf wrapped around its lower half, one end hanging down the side, and fluffy yellow earmuffs on a thin band over its top.
 4. Stacky (Epic): Bloky's cube with two smaller frost blue rocks stacked on top of it like a little snowman, the top one wearing a tiny black top hat with a red band. Only the big bottom rock has eyes.
-5. Piney (Legendary): Bloky's cube with a small green pine tree growing from the back of its top, its branches dusted with white snow and dotted with glowing warm yellow, red and green fairy lights, and a glowing golden star on top.
+5. Climby (Legendary): Bloky's cube as a little mountain climber: a glowing warm-yellow lantern hangs from a short pole stuck in the ground beside it, a brown ice axe is strapped diagonally across its back, and a coil of orange climbing rope loops over one shoulder.
 6. Starry (Secret): Bloky's cube circled by a tilted glowing golden ring, like a little planet's ring, with five glowing golden five-pointed stars of different sizes sitting along it, plus one bigger glowing star floating just above its head.
 
 LAYOUT:
@@ -103,16 +103,17 @@ LAYOUT:
 - Plain light-grey background, even lighting, no dramatic shadows. No text, labels, or watermarks.
 ```
 
-## Piney (Legendary)
+## Climby (Legendary)
 
 ```text
-Using the attached snow Rok lineup as the design to match exactly (Piney, the 5th from the left), and the attached Bloky sheet for the body shape and eyes (not its grey colour), generate ONE image: a model reference sheet of that single pet rock for a Roblox game.
+Using the attached snow Rok lineup as the design to match exactly (Climby, the 5th from the left), and the attached Bloky sheet for the body shape and eyes (not its grey colour), generate ONE image: a model reference sheet of that single pet rock for a Roblox game.
 
 SHAPE:
 - The body shape and eyes are exactly Bloky's: a chunky chamfered cube with two chamfered-square cartoon eyes on the front. No mouth, no limbs. The body is bright, saturated frost blue like glacier ice, matching the lineup, NOT grey, white, navy, purple or pale blue.
-- A small bright green pine tree grows from the back half of the top, about as tall as the body: three stacked tiers of faceted cone branches on a short brown trunk, each tier's upper edge capped with white snow.
-- Glowing fairy lights: about nine small round bulbs dotted around the tiers in warm yellow, red and green, all bright and emissive. A glowing golden five-pointed star sits on the tip.
-- Low-poly faceted surfaces: broad flat planes meeting at soft angles. Tree, snow, lights and star together simple enough to model in under 500 triangles.
+- A short dark brown wooden pole stands in the ground just to the front right of the body, a little taller than the body, with a small hook at the top. A chunky square camping lantern hangs from the hook: a dark grey metal frame and handle around glowing warm-yellow glass panels, bright and emissive, the strongest glow on the model.
+- A brown wooden ice axe with a dark grey metal head is strapped diagonally across the back, held by one thin dark grey strap that wraps around the body below the eyes. The axe head pokes up above the top-left corner.
+- A coil of bright orange climbing rope, shown as three or four thick chunky loops, hangs over the left side from the top edge. Nothing covers the eyes.
+- Low-poly faceted surfaces: broad flat planes meeting at soft angles. Pole, lantern, axe, strap and rope together simple enough to model in under 500 triangles.
 - Flat bottom, sitting on the ground. Clean surface with no cracks, studs, or texture. Plain flat-colored faces only.
 
 LAYOUT:

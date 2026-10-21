@@ -1,10 +1,10 @@
 ---
-description: 2026-10-18 balance decisions from the spreadsheet model - stands set training pace, offline doesn't carry progression, spam hatching is fine; numbers in the Luau except Cozy (Snow Roks not in config yet).
+description: 2026-10-18 balance decisions from the spreadsheet model - stands set training pace, offline doesn't carry progression, spam hatching is fine; numbers in the Luau, Cozy and the Snow geode since 2026-10-20.
 type: decision
 ---
 # Balance pass (2026-10-18)
 
-Made with the user's balance model (`Downloads/Chop_a_Rock_Balance_Model_v3.xlsx`, which has a Checks tab testing each zone against targets on Inputs rows 44-49 and models weather and the Index). v3 passes 25 of 25 checks. In the Luau since 2026-10-18 (ArmConfig, TrainingConfig, EconomyConfig, PedestalConfig). Cozy waits for the Snow Roks to go into PetConfig.
+Made with the user's balance model (`Downloads/Chop_a_Rock_Balance_Model_v3.xlsx`, which has a Checks tab testing each zone against targets on Inputs rows 44-49 and models weather and the Index). v3 passes 25 of 25 checks. In the Luau since 2026-10-18 (ArmConfig, TrainingConfig, EconomyConfig, PedestalConfig). Cozy and the Snow Geode went into PetConfig and GeodeConfig on 2026-10-20.
 
 ## Decisions (user, 2026-10-18)
 - **Stands set the training pace; arms are a small boost.** Arms at x16 made every zone's rebirth gate take under a minute. Arms can't fix it alone, because the needed arm boost would shrink in later zones.
@@ -34,7 +34,7 @@ Resulting training to the gate: Forest 1.1 / Desert 3.3 / Jungle 5.2 / Ocean 6.5
 - Model: `Downloads/Chop_a_Rock_Balance_Model_v4.xlsx`, 35 of 35 checks.
 
 ## Geodes (user, 2026-10-19)
-- **Ocean Geode x3 ($491.52M), Snow Geode x3.5 ($36.7B, planned).** In the worst case (10 rebirths, Eclipse hatches) selling paid 1.26x in the Ocean and 1.57x in the Snow, and a Roks page took 2 and 1 minutes. Now selling is 0.42x / 0.45x, and pages take 10 / 7 minutes. Snow is x3.5, not x6, so the Snow geode stays a 1-5 minute purchase in the Ocean.
+- **Ocean Geode x3 ($491.52M), Snow Geode x3.5 ($36.7B, in config 2026-10-20).** In the worst case (10 rebirths, Eclipse hatches) selling paid 1.26x in the Ocean and 1.57x in the Snow, and a Roks page took 2 and 1 minutes. Now selling is 0.42x / 0.45x, and pages take 10 / 7 minutes. Snow is x3.5, not x6, so the Snow geode stays a 1-5 minute purchase in the Ocean.
 - **Forest Geode back to $500, the tutorial's first geode $150.** The $150 price (set for the tutorial 2026-10-16) made Forest hatch-and-sell pay and a Forest page take 1.6 minutes.
 - **No new aura tiers needed for purchases.** Ocean and Snow being short of things to save for is end-of-content and clears as zones are added (user). The model's Snow check is expected to fail until zone 6.
 - Model: v7, 44 of 45 checks (the 1 is Snow's expected purchase gap).

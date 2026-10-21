@@ -85,6 +85,12 @@ local IndexConfig: IndexSettings = {
 					GeodeKey = "Ocean",
 					Entries = { "Drip", "Bubbly", "Shelly", "Reefy", "Glowy", "Chompy" },
 				},
+				{
+					Key = "Snow",
+					DisplayName = "Snow",
+					GeodeKey = "Snow",
+					Entries = { "Hexy", "Beanie", "Cozy", "Stacky", "Climby", "Starry" },
+				},
 			},
 		},
 		{

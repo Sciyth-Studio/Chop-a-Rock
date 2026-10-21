@@ -210,7 +210,7 @@ Pet rocks:
   Desert:  Pointy (pyramid) / Spike (small cactus on top) / Howdy (cowboy hat) / Flowy (desert flower growing on it)
            / Ankhy (pharaoh headdress, glowing gold ankh) / Sunny (crown of glowing sun rays)
   Snow:    Hexy (six-sided block) / Beanie (knitted beanie with pompom) / Cozy (scarf and earmuffs) / Stacky (three
-           stacked rocks, little top hat) / Piney (pine tree on its back with glowing lights) / Starry (glowing stars
+           stacked rocks, little top hat) / Climby (climber with glowing lantern, ice axe, rope) / Starry (glowing stars
            floating around it)
   Jungle:  Roly (chunky round pebble) / Leafy (big leaf on top like an umbrella) / Viney (vines and small flowers) /
            Coco (palm fronds and coconuts) / Tiki (carved stone head, glowing carved marks) / Bloomy (sits in a giant

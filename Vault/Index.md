@@ -79,6 +79,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Desert Rok Sheets]] — 2026-10-14 six-view sheets for all six desert Roks; per-Rok notes on what to take (Sunny = flat sun rays, Ankhy ankh stands upright)
 - [[Jungle Rok Sheets]] — 2026-10-16 six-view sheets for the six dragon-fruit-pink jungle Roks; batch-built in one `JungleRoks.blend`
 - [[Ocean Rok Sheets]] — 2026-10-19 six-view sheets for the six coral orange ocean Roks (Drip, Bubbly, Shelly, Reefy, Glowy, Chompy); batch-built in one `OceanRoks.blend`
+- [[Snow Rok Sheets]] — 2026-10-20 six-view sheets for the six frost blue snow Roks (Hexy, Beanie, Cozy, Stacky, Climby, Starry); batch-built in one `SnowRoks.blend`
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 - [[Training Upgrade Sign Reference]] — 2026-10-14 in-world "Upgrade / Level 2 > Level 3" sign with red cash and purple Robux buttons, for the training stand
 - [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
@@ -126,7 +127,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[VFX From Roqer]] — 2026-10-07 Roqer VFX pipeline; since 2026-10-15 the vfx skill is the MIT `roblox-vfx` skill, runtime at `ReplicatedStorage.VFX` (Emit/Build/Capture/Shapes)
 - [[Coloured Roks After Forest]] — 2026-10-14: only forest Roks are grey; each later zone's six share one saturated body colour (desert golden amber 215, 152, 35)
 - [[Rebirth Gated By Strength]] — 2026-10-13: no levels; rebirth N needs zone N's toughest rock in strength; each rebirth unlocks the next training stand (set strength per 1 s rep); rebirth gives cash + luck only; Robux buys the stand cash, never skips the gate (2026-10-18)
-- [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; in Luau except Cozy ($120M) and the Snow geode
+- [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; all in Luau (Cozy and the Snow geode since 2026-10-20)
 - [[Training Minigame Board Slice]] — 2026-10-20: first training minigame is a Fruit Ninja-style 2D swipe game, optional on top of idle reps; server-counted slices fill a power meter that multiplies strength per rep (draft up to x2); bombs empty it
 - [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 - [[Geode Fall Event]] — 2026-10-20, approved and built (see [[Geode Fall]]): 3-5 geodes crash into one zone every 20-25 min, first to chop claims one (not stealable, no per-player cap), Rare+ from that zone's geode, full Backpack = respawn

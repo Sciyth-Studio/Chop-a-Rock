@@ -12,6 +12,7 @@ Built from `IndexSystemPlan.md` on 2026-10-06. The user picked a purple header a
 - **Studio:** `StarterGui.Index.Panel` (1000x700): `Tabs` (`TabTemplate`), `HeaderBar`, `Sections` scroll (`SectionTemplate` with `ZoneName`, `Grid.CardTemplate`, `ProgressRow.Progress` + `ZoneReward`), `Detail` (`Preview`, `EntryName`, `Rarity`, `Odds`, `Stat`, `Count`, `Rewards.RewardTemplate`, `ClaimButton`), `ClaimAll`. Cards are the Geode card (rarity glow + `WeldTexture`) plus a red `Alert` "!" and a full-card `Select` button. `MenuButtons.Container.IndexButton.Badge` shows the waiting count.
 - **Rock previews:** `Assets/Models/Model_RockPreview_<RockKey>`, copies of the Workspace rock MeshParts with tags, attributes and highlights stripped. A new rock kind needs one plus an `IndexConfig.RockPreviewKeys` entry.
 - **To add a zone:** add it to both pages in `IndexConfig` (geode key and Rok keys; rock keys).
+- **Zones on the Roks page:** Forest, Desert, Jungle, Ocean, Snow (Snow added 2026-10-20: Hexy, Beanie, Cozy, Stacky, Climby, Starry, `GeodeKey` Snow). The Rocks page already had Snow.
 - **Later:** weather-modifier and Golden tabs go in the tab column, with their own `Index` and `Claimed` tables.
 
 Found while testing: when several cash changes landed in one frame (Claim All), the HUD money label could end on an older total, because each floating "+$" animation wrote its own total when it finished. It now writes the latest total.
