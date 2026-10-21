@@ -6,14 +6,18 @@ local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 local UserInputService = game:GetService("UserInputService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local Input = require(ReplicatedStorage.Packages.Input)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local TrainingMinigameConfig = require(ReplicatedStorage.Config.TrainingMinigameConfig)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Types = require(script.Parent.Parent.Types)
+local Effects = require(script.Effects)
 local Pieces = require(script.Pieces)
 local Swipe = require(script.Swipe)
 
@@ -64,13 +68,14 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 	local boardTemplate = findGui(templates, "Board")
 	local bombTemplate = findGui(templates, "Bomb")
 	local trailTemplate = findGui(templates, "Trail")
+	local slashTemplate = findGui(templates, "Slash")
+	local shardTemplate = findGui(templates, "Shard")
+	local gainTemplate = findGui(templates, "Gain")
 	local flash = findGui(gui, "Flash")
 	local panel = findGui(gui, "Panel")
 	local panelScale = if panel then panel:FindFirstChild("ScreenScale") else nil
 	local arena = findGui(panel, "Arena")
-	local meter = findGui(gui, "Meter")
-	local fill = findGui(meter, "Fill")
-	local multiplierLabel = findLabel(gui, "Multiplier")
+	local strengthLabel = findLabel(gui, "Strength")
 	local scoreLabel = findLabel(gui, "Score")
 	local bestLabel = findLabel(gui, "Best")
 	local tip = findLabel(gui, "Tip")
@@ -86,12 +91,15 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 	local isTouch = false
 	local hasSliced = false
 	local flashClock = -math.huge
+	local slashColor = TrainingMinigameConfig.DefaultSlashColor
+	local lastSlicePosition = Vector2.zero
 	local savedTouchControls: boolean? = nil
-	local mouseLast: Vector2? = nil
-	local touchLast: { [InputObject]: Vector2 } = {}
+	local pointerLast: { [any]: Vector2 } = {}
+	local pointerTrail: { [any]: Swipe.Trail } = {}
 	local pieces: { [number]: Pieces.Piece } = {}
 	local halves: { Pieces.Half } = {}
 	local trails: { Swipe.Trail } = {}
+	local effects: { Effects.Effect } = {}
 	local swipeDistance = 0
 	local lastSwipeSoundClock = -math.huge
 	local fuse: Sound? = nil
@@ -135,13 +143,7 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		end
 	end
 
-	local function setPower(power: number, multiplier: number, score: number)
-		if fill then
-			fill.Size = UDim2.fromScale(math.clamp(power, 0, 1), 1)
-		end
-		if multiplierLabel then
-			multiplierLabel.Text = string.format(TrainingMinigameConfig.MultiplierFormat, multiplier)
-		end
+	local function setScore(score: number)
 		if scoreLabel then
 			scoreLabel.Text = string.format(TrainingMinigameConfig.ScoreFormat, score)
 		end
@@ -158,13 +160,17 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		end
 		table.clear(halves)
 		for _, trail in trails do
-			trail.Gui:Destroy()
+			Swipe.Destroy(trail)
 		end
 		table.clear(trails)
+		for _, effect in effects do
+			effect.Gui:Destroy()
+		end
+		table.clear(effects)
 		fuse = nil
 		swipeDistance = 0
-		mouseLast = nil
-		table.clear(touchLast)
+		table.clear(pointerLast)
+		table.clear(pointerTrail)
 		if savedTouchControls ~= nil then
 			GuiService.TouchControlsEnabled = savedTouchControls
 			savedTouchControls = nil
@@ -177,7 +183,7 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		end
 		isPlaying = false
 		clearRound()
-		setPower(0, 1, 0)
+		setScore(0)
 		if shouldTellServer then
 			Packets.TrainingMinigameClose:Fire()
 		end
@@ -196,9 +202,10 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		return Vector2.new(position.X + inset.X, position.Y + inset.Y) - origin
 	end
 
-	local function slice(piece: Pieces.Piece)
+	local function slice(piece: Pieces.Piece, direction: Vector2)
 		pieces[piece.Id] = nil
 		Packets.TrainingMinigameSlice:Fire(piece.Id)
+		lastSlicePosition = piece.Center
 		if piece.Kind == TrainingMinigameConfig.BombKind then
 			LocalSound.Play(TrainingMinigameConfig.BombSound)
 			flashClock = os.clock()
@@ -206,6 +213,17 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 			LocalSound.Play(TrainingMinigameConfig.SliceSound)
 			for _, half in Pieces.Split(piece, playfield) do
 				table.insert(halves, half)
+			end
+			if slashTemplate then
+				table.insert(
+					effects,
+					Effects.Slash(slashTemplate, playfield, piece.Center, direction, slashColor)
+				)
+			end
+			if shardTemplate then
+				for _, shard in Effects.Shards(shardTemplate, playfield, piece.Center, pieceColor()) do
+					table.insert(effects, shard)
+				end
 			end
 		end
 		piece.Gui:Destroy()
@@ -238,15 +256,40 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 			return false
 		end
 		playSwipeSound(distance)
-		if trailTemplate then
-			table.insert(trails, Swipe.CreateTrail(trailTemplate, playfield, from, to))
-		end
 		for _, piece in pieces do
 			if piece.IsFlying and Swipe.DistanceToSegment(piece.Center, from, to) <= piece.Radius then
-				slice(piece)
+				slice(piece, to - from)
 			end
 		end
 		return true
+	end
+
+	local function pointerDown(key: any, position: Vector2)
+		pointerLast[key] = position
+		local trail = Swipe.NewTrail(position, os.clock())
+		pointerTrail[key] = trail
+		table.insert(trails, trail)
+	end
+
+	local function pointerMove(key: any, position: Vector2)
+		local last = pointerLast[key]
+		if last and swipe(last, position) then
+			pointerLast[key] = position
+			local trail = pointerTrail[key]
+			if trail then
+				Swipe.AddPoint(trail, position, os.clock())
+			end
+		end
+	end
+
+	local function pointerUp(key: any)
+		pointerLast[key] = nil
+		local trail = pointerTrail[key]
+		if trail then
+			trail.IsActive = false
+		end
+		pointerTrail[key] = nil
+		swipeDistance = 0
 	end
 
 	local function step(dt: number)
@@ -288,10 +331,18 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 				table.remove(halves, index)
 			end
 		end
-		for index = #trails, 1, -1 do
-			if not Swipe.UpdateTrail(trails[index], dt) then
-				trails[index].Gui:Destroy()
-				table.remove(trails, index)
+		for index = #effects, 1, -1 do
+			if not Effects.Update(effects[index], dt) then
+				effects[index].Gui:Destroy()
+				table.remove(effects, index)
+			end
+		end
+		if trailTemplate then
+			for index = #trails, 1, -1 do
+				if not Swipe.Render(trails[index], trailTemplate, playfield, now, slashColor) then
+					Swipe.Destroy(trails[index])
+					table.remove(trails, index)
+				end
 			end
 		end
 		if flash then
@@ -311,33 +362,23 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		roundTrove:Connect(RunService.RenderStepped, step)
 		roundTrove:Connect(UserInputService.InputBegan, function(input: InputObject)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				mouseLast = toPlayfield(input.Position)
+				pointerDown("Mouse", toPlayfield(input.Position))
 			elseif input.UserInputType == Enum.UserInputType.Touch then
-				touchLast[input] = toPlayfield(input.Position)
+				pointerDown(input, toPlayfield(input.Position))
 			end
 		end)
 		roundTrove:Connect(UserInputService.InputChanged, function(input: InputObject)
 			if input.UserInputType == Enum.UserInputType.MouseMovement then
-				local last = mouseLast
-				local position = toPlayfield(input.Position)
-				if last and swipe(last, position) then
-					mouseLast = position
-				end
+				pointerMove("Mouse", toPlayfield(input.Position))
 			elseif input.UserInputType == Enum.UserInputType.Touch then
-				local last = touchLast[input]
-				local position = toPlayfield(input.Position)
-				if last and swipe(last, position) then
-					touchLast[input] = position
-				end
+				pointerMove(input, toPlayfield(input.Position))
 			end
 		end)
 		roundTrove:Connect(UserInputService.InputEnded, function(input: InputObject)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				mouseLast = nil
-				swipeDistance = 0
+				pointerUp("Mouse")
 			elseif input.UserInputType == Enum.UserInputType.Touch then
-				touchLast[input] = nil
-				swipeDistance = 0
+				pointerUp(input)
 			end
 		end)
 	end
@@ -403,13 +444,20 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		)
 	)
 
-	trove:Add(
-		Packets.TrainingMinigamePower.OnClientEvent:Connect(
-			function(power: number, multiplier: number, score: number)
-				setPower(power, multiplier, score)
-			end
-		)
-	)
+	trove:Add(Packets.TrainingMinigameScore.OnClientEvent:Connect(function(score: number, gain: number)
+		setScore(score)
+		if isPlaying and gain > 0 and gainTemplate and playfield then
+			table.insert(
+				effects,
+				Effects.Gain(
+					gainTemplate,
+					playfield,
+					lastSlicePosition,
+					`+{NumberFormat.Compact(gain)} {TrainingConfig.StrengthUnit}`
+				)
+			)
+		end
+	end))
 
 	if playButton then
 		trove:Connect(playButton.Activated, startPlaying)
@@ -420,11 +468,23 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		end)
 	end
 
+	trove:Add(context.Controllers.DataController:Observe({ "Strength" }, function(strength: any)
+		if strengthLabel then
+			strengthLabel.Text =
+				`{NumberFormat.Compact(if type(strength) == "number" then strength else 0)} {TrainingConfig.StrengthUnit}`
+		end
+	end))
+
 	trove:Add(context.Controllers.DataController:Observe({ "TrainingMinigameBest" }, function(best: any)
 		if bestLabel then
 			bestLabel.Text =
 				string.format(TrainingMinigameConfig.BestFormat, if type(best) == "number" then best else 0)
 		end
+	end))
+
+	trove:Add(context.Controllers.DataController:Observe({ AuraConfig.Attribute }, function(tier: any)
+		local aura = if type(tier) == "number" then AuraConfig.Tiers[tier] else nil
+		slashColor = if aura and aura.Color then aura.Color else TrainingMinigameConfig.DefaultSlashColor
 	end))
 
 	trove:Add(Input.PreferredInput.observe(function(preferred: Enum.PreferredInput)
@@ -434,7 +494,7 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		return nil
 	end))
 
-	setPower(0, 1, 0)
+	setScore(0)
 	refreshVisibility()
 
 	return {

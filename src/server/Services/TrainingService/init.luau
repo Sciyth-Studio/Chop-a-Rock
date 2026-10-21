@@ -8,6 +8,7 @@ local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local Packets = require(ReplicatedStorage.Packets)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
+local TrainingMinigameConfig = require(ReplicatedStorage.Config.TrainingMinigameConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local AuraService = require(script.Parent.AuraService)
@@ -264,6 +265,18 @@ end
 
 local lastStandCheck = 0
 
+local function addTrainingStrength(player: Player, reps: number): (number, number)
+	local data = services.DataService:GetData(player)
+	local stand = TrainingStands.Get(if data then data.TrainingTier else 1)
+	local exact = stand.StrengthPerRep * AuraService:GetTrainingMultiplier(player) * reps
+		+ (strengthCarry[player] or 0)
+	local gain = math.floor(exact)
+	strengthCarry[player] = exact - gain
+	local before = if data then data.Strength else 0
+	local after = StatsService:AddStrength(player, gain)
+	return after - before, after
+end
+
 local function tick()
 	local now = os.clock()
 	if now - lastStandCheck >= TrainingConfig.StandCheckSeconds then
@@ -293,13 +306,7 @@ local function tick()
 			training.LastChopClock = now
 			local data = services.DataService:GetData(player)
 			local stand = TrainingStands.Get(if data then data.TrainingTier else 1)
-			local exact = stand.StrengthPerRep
-					* AuraService:GetTrainingMultiplier(player)
-					* Minigame.Multiplier(minigames[player])
-				+ (strengthCarry[player] or 0)
-			local gain = math.floor(exact)
-			strengthCarry[player] = exact - gain
-			local newStrength = StatsService:AddStrength(player, gain)
+			local _, newStrength = addTrainingStrength(player, 1)
 			playSoundOnPart(stand.BreakSound, training.Board)
 			breakBoard(training.Board, stand.BreakEffect)
 			Packets.TrainingChop:FireClient(player)
@@ -403,7 +410,7 @@ function TrainingService.Start(_self: any)
 			session = Minigame.new(os.clock())
 			minigames[player] = session
 		end
-		Minigame.SendPower(player, session)
+		Minigame.SendScore(player, session, 0)
 		return true
 	end
 
@@ -416,9 +423,15 @@ function TrainingService.Start(_self: any)
 		if not session or not trainings[player] or type(id) ~= "number" then
 			return
 		end
-		if not Minigame.Slice(player, session, id, os.clock()) then
+		local kind = Minigame.Slice(session, id, os.clock())
+		if not kind then
 			return
 		end
+		local gain = 0
+		if kind == TrainingMinigameConfig.BoardKind then
+			gain = addTrainingStrength(player, TrainingMinigameConfig.BonusRepsPerSlice)
+		end
+		Minigame.SendScore(player, session, gain)
 		local data = services.DataService:GetData(player)
 		if data and session.Score > data.TrainingMinigameBest then
 			services.DataService:Set(player, { "TrainingMinigameBest" }, session.Score)

@@ -27,6 +27,26 @@ export type GeodeSettings = {
 	ZoneStrengthRatio: number,
 }
 
+local RockConfig = require(script.Parent.RockConfig)
+local RockSpawnConfig = require(script.Parent.RockSpawnConfig)
+
+local function weakestRock(zone: string): number
+	local weakest = math.huge
+	local spawnZone = RockSpawnConfig.Zones[zone]
+	if spawnZone then
+		for rockKey in spawnZone.Weights do
+			local rock = RockConfig.Rocks[rockKey]
+			if rock then
+				weakest = math.min(weakest, rock.StrengthRequired)
+			end
+		end
+	end
+	if weakest == math.huge then
+		error(`[GeodeConfig] no rocks for zone {zone}`)
+	end
+	return weakest
+end
+
 local GeodeConfig: GeodeSettings = {
 	Geodes = {
 		Forest = {
@@ -34,7 +54,7 @@ local GeodeConfig: GeodeSettings = {
 			TabName = "Forest",
 			Order = 1,
 			Price = 500,
-			StrengthRequired = 10,
+			StrengthRequired = weakestRock("Forest"),
 			ModelKey = "Model_Geode_Basic",
 			SplitModelKey = "Model_GeodeSplit_Basic",
 			Pets = {
@@ -51,7 +71,7 @@ local GeodeConfig: GeodeSettings = {
 			TabName = "Desert",
 			Order = 2,
 			Price = 40000,
-			StrengthRequired = 2500,
+			StrengthRequired = weakestRock("Desert"),
 			ModelKey = "Model_Geode_Desert",
 			SplitModelKey = "Model_GeodeSplit_Desert",
 			Pets = {
@@ -68,7 +88,7 @@ local GeodeConfig: GeodeSettings = {
 			TabName = "Jungle",
 			Order = 3,
 			Price = 2560000,
-			StrengthRequired = 312500,
+			StrengthRequired = weakestRock("Jungle"),
 			ModelKey = "Model_Geode_Jungle",
 			SplitModelKey = "Model_GeodeSplit_Jungle",
 			Pets = {
@@ -85,7 +105,7 @@ local GeodeConfig: GeodeSettings = {
 			TabName = "Ocean",
 			Order = 4,
 			Price = 491520000,
-			StrengthRequired = 39062500,
+			StrengthRequired = weakestRock("Ocean"),
 			ModelKey = "Model_Geode_Ocean",
 			SplitModelKey = "Model_GeodeSplit_Ocean",
 			Pets = {
@@ -102,7 +122,7 @@ local GeodeConfig: GeodeSettings = {
 			TabName = "Snow",
 			Order = 5,
 			Price = 36700160000,
-			StrengthRequired = 976562500,
+			StrengthRequired = weakestRock("Snow"),
 			ModelKey = "Model_Geode_Snow",
 			SplitModelKey = "Model_GeodeSplit_Snow",
 			Pets = {
