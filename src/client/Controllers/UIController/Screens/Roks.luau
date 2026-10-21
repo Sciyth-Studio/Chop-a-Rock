@@ -187,6 +187,16 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	if slotButton then
 		trove:Connect(slotButton.Activated, function()
+			local slotCount = dataController:Get({ "PedestalSlots" })
+			local cash = dataController:Get({ "Cash" })
+			if type(slotCount) == "number" and type(cash) == "number" then
+				local _, price = PedestalSlots.Next(slotCount)
+				if price and price > cash then
+					context.Feedback(slotButton, false)
+					context.Controllers.CashPackController:Prompt(price - cash)
+					return
+				end
+			end
 			request(Packets.BuyPedestalSlot)
 		end)
 	end

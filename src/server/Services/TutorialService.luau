@@ -195,6 +195,17 @@ local function onSkip(player: Player)
 	setStep(player, Tutorial.Done, true)
 end
 
+function TutorialService.Reset(_self: any, player: Player)
+	if not services.DataService:GetData(player) then
+		return
+	end
+	finishing[player] = nil
+	collected[player] = nil
+	setStep(player, Tutorial.Train)
+	services.DataService:Set(player, { "Tutorial", "Taps" }, 0)
+	check(player)
+end
+
 function TutorialService.Init(_self: any, registry: { [string]: any })
 	services = registry
 end

@@ -374,10 +374,6 @@ function TrainingService.SetTier(_self: any, player: Player, tier: number): bool
 	return isSet
 end
 
-function TrainingService.GrantStandCash(_self: any, player: Player, tier: number): boolean
-	return Upgrade.GrantStandCash(services, player, tier)
-end
-
 function TrainingService.Init(_self: any, registry: { [string]: any })
 	services = registry
 end

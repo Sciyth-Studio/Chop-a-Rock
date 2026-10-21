@@ -32,7 +32,9 @@ function Flight.Fly(trove: TroveInstance, character: Model, path: Path)
 	end
 	local flat = Vector3.new(path.Finish.X - path.Start.X, 0, path.Finish.Z - path.Start.Z)
 	local facing = if flat.Magnitude > 0 then flat.Unit else Vector3.zAxis
-	local pullFrom = root.Position
+	local pullFrom = if (root.Position - path.Inside).Magnitude <= CannonConfig.PullRangeStuds
+		then root.Position
+		else path.Inside
 	trove:Add(MovementLock.Acquire(humanoid))
 	humanoid.PlatformStand = true
 	trove:Add(function()

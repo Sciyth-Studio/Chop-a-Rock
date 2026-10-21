@@ -30,12 +30,4 @@ function Upgrade.Buy(services: { [string]: any }, player: Player): string
 	return "Upgraded"
 end
 
-function Upgrade.GrantStandCash(services: { [string]: any }, player: Player, tier: number): boolean
-	local stand = TrainingStands.Get(tier)
-	if stand.Price <= 0 then
-		return true
-	end
-	return services.DataService:AdjustCash(player, stand.Price)
-end
-
 return Upgrade

@@ -1,7 +1,6 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local SharedHint = require(ReplicatedStorage.CannonHint)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -9,7 +8,6 @@ local Spotlight = require(script.Parent.Spotlight)
 local Targets = require(script.Parent.Targets)
 
 export type Helpers = {
-	PromptKey: (adornee: Instance?, action: string, isHold: boolean) -> string,
 	ClickVerb: () -> string,
 	IsOpen: (screen: string) -> boolean,
 	IsNear: (target: Targets.Target?) -> boolean,
@@ -42,35 +40,22 @@ function CannonHint.View(data: any, helpers: Helpers): View
 			IsDoing = true,
 		}
 	end
-	local isShopOpen = helpers.IsOpen(settings.ScreenName)
-	if stage == SharedHint.Buy then
-		local title = `Buy the {cannon.DisplayName}!`
-		if isShopOpen then
-			return {
-				Title = title,
-				Detail = `{helpers.ClickVerb()} the price to buy it!`,
-				Button = Spotlight.Button(settings.ScreenName, { `Cannon{cannon.Key}`, "BuyButton" }),
-				IsDoing = true,
-			}
-		end
-		local target = Targets.ShopPad(settings.ScreenName, settings.TargetLabel)
+	local isBuy = stage == SharedHint.Buy
+	local title = if isBuy then `Buy the {cannon.DisplayName}!` else "Fire the cannon!"
+	if helpers.IsOpen(settings.ScreenName) then
 		return {
 			Title = title,
-			Detail = if helpers.IsNear(target) then "Walk onto the orange pad" else "Follow the arrows",
-			Target = target,
-			IsDoing = false,
+			Detail = if isBuy
+				then `{helpers.ClickVerb()} the price to buy it!`
+				else `{helpers.ClickVerb()} Fire to launch!`,
+			Button = Spotlight.Button(settings.ScreenName, { `Cannon{cannon.Key}`, "BuyButton" }),
+			IsDoing = true,
 		}
 	end
-	if isShopOpen then
-		return { Title = "Fire the cannon!", Detail = "Close the shop, then fire!", IsDoing = true }
-	end
-	local target = Targets.LobbyCannon()
-	local isHold = CannonConfig.PromptHoldSeconds > 0
+	local target = Targets.ShopPad(settings.ScreenName, settings.TargetLabel)
 	return {
-		Title = "Fire the cannon!",
-		Detail = if helpers.IsNear(target)
-			then `{helpers.PromptKey(if target then target.Adornee else nil, "Fire", isHold)} to fire!`
-			else "Follow the arrows",
+		Title = title,
+		Detail = if helpers.IsNear(target) then "Walk onto the orange pad" else "Follow the arrows",
 		Target = target,
 		IsDoing = false,
 	}

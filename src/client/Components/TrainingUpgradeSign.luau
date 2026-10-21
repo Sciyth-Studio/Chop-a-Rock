@@ -1,13 +1,11 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
-local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Component = require(ReplicatedStorage.Packages.Component)
 local BlockButtonConfig = require(ReplicatedStorage.Config.BlockButtonConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
-local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local TrainingSignConfig = require(ReplicatedStorage.Config.TrainingSignConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
@@ -83,7 +81,6 @@ return function(controllers: { [string]: any })
 		local title: TextLabel? = find(gui, TrainingSignConfig.TitleName, "TextLabel")
 		local levels: TextLabel? = find(gui, TrainingSignConfig.LevelsName, "TextLabel")
 		local cashButton: GuiButton? = find(gui, TrainingSignConfig.CashButtonName, "GuiButton")
-		local robuxButton: GuiButton? = find(gui, TrainingSignConfig.RobuxButtonName, "GuiButton")
 		local cashLabel: TextLabel? = if cashButton
 			then find(cashButton, TrainingSignConfig.CashLabelName, "TextLabel")
 			else nil
@@ -92,9 +89,6 @@ return function(controllers: { [string]: any })
 			else nil
 		local rebirthIcon = if cashButton
 			then cashButton:FindFirstChild(TrainingSignConfig.RebirthIconName, true)
-			else nil
-		local robuxLabel: TextLabel? = if robuxButton
-			then find(robuxButton, TrainingSignConfig.RobuxLabelName, "TextLabel")
 			else nil
 
 		local parts: { BasePart } = {}
@@ -142,9 +136,6 @@ return function(controllers: { [string]: any })
 				if cashButton then
 					cashButton.Visible = false
 				end
-				if robuxButton then
-					robuxButton.Visible = false
-				end
 				return
 			end
 			setText(
@@ -153,9 +144,6 @@ return function(controllers: { [string]: any })
 			)
 			if cashButton then
 				cashButton.Visible = true
-			end
-			if robuxButton then
-				robuxButton.Visible = true
 			end
 			local isLocked = readNumber("Rebirths", 0) < nextStand.Rebirths
 			local canAfford = readNumber("Cash", 0) >= nextStand.Price
@@ -171,19 +159,12 @@ return function(controllers: { [string]: any })
 						else TrainingSignConfig.Palette.Unavailable
 				)
 			end
-			paint(
-				robuxButton,
-				if isLocked or canAfford
-					then TrainingSignConfig.Palette.Unavailable
-					else TrainingSignConfig.Palette.Robux
-			)
 			if cashIcon and cashIcon:IsA("GuiObject") then
 				cashIcon.Visible = not isLocked
 			end
 			if rebirthIcon and rebirthIcon:IsA("GuiObject") then
 				rebirthIcon.Visible = isLocked
 			end
-			setText(robuxLabel, tostring(nextStand.RobuxPrice))
 		end
 
 		local function lockedMessage(): string?
@@ -211,8 +192,13 @@ return function(controllers: { [string]: any })
 					notify(TrainingSignConfig.ErrorKind, blocked)
 					return
 				end
-				isBusy = true
 				local nextStand = TrainingStands.Next(dataController:Get({ "TrainingTier" }))
+				local shortfall = if nextStand then nextStand.Price - readNumber("Cash", 0) else 0
+				if shortfall > 0 and controllers.CashPackController then
+					controllers.CashPackController:Prompt(shortfall)
+					return
+				end
+				isBusy = true
 				local result = Packets.UpgradeTraining:Fire()
 				isBusy = false
 				if result == "Upgraded" and nextStand then
@@ -231,57 +217,6 @@ return function(controllers: { [string]: any })
 				end
 			end)
 		end
-
-		if robuxButton then
-			trove:Connect(robuxButton.Activated, function()
-				if not isOwner() then
-					return
-				end
-				local blocked = lockedMessage()
-				if blocked then
-					notify(TrainingSignConfig.ErrorKind, blocked)
-					return
-				end
-				local nextStand = TrainingStands.Next(dataController:Get({ "TrainingTier" }))
-				if not nextStand then
-					return
-				end
-				if readNumber("Cash", 0) >= nextStand.Price then
-					notify(
-						TrainingSignConfig.ErrorKind,
-						string.format(TrainingSignConfig.Messages.HasCash, nextStand.DisplayName)
-					)
-					return
-				end
-				if nextStand.RobuxProductId <= 0 then
-					notify(TrainingSignConfig.ErrorKind, TrainingSignConfig.Messages.RobuxSoon)
-					return
-				end
-				MarketplaceService:PromptProductPurchase(Players.LocalPlayer, nextStand.RobuxProductId)
-			end)
-		end
-
-		trove:Connect(
-			MarketplaceService.PromptProductPurchaseFinished,
-			function(userId: number, productId: number, isPurchased: boolean)
-				if not isPurchased or userId ~= Players.LocalPlayer.UserId or not isOwner() then
-					return
-				end
-				for _, stand in TrainingConfig.Stands do
-					if stand.RobuxProductId == productId then
-						notify(
-							TrainingSignConfig.CashBoughtKind,
-							string.format(
-								TrainingSignConfig.CashBoughtFormat,
-								NumberFormat.Compact(stand.Price, 1e3),
-								stand.DisplayName
-							)
-						)
-						return
-					end
-				end
-			end
-		)
 
 		trove:Connect(plot:GetAttributeChangedSignal(TrainingSignConfig.OwnerAttribute), refresh)
 		for _, key in { "TrainingTier", "Rebirths", "Cash" } do

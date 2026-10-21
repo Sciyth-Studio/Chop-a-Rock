@@ -18,7 +18,6 @@ local services: { [string]: any } = {}
 local cannons: { [string]: CannonConfig.Cannon } = {}
 local flights: { [Player]: thread } = {}
 local lastLaunch: { [Player]: number } = {}
-local prompt: ProximityPrompt? = nil
 
 local function findMarker(cannon: CannonConfig.Cannon): BasePart?
 	local folder = workspace:FindFirstChild(TeleportConfig.PointsFolderName)
@@ -41,42 +40,34 @@ local function muzzlePosition(model: Model): Vector3
 	return model:GetPivot().Position + Vector3.new(0, CannonConfig.MuzzleFallbackHeightStuds, 0)
 end
 
-local function showEmpty(player: Player)
-	services.NotificationService:Notify(player, "Info", CannonConfig.EmptyMessage)
-	Packets.CannonEmpty:FireClient(player)
-end
-
-local function launch(player: Player)
+local function launch(player: Player, key: string): boolean
 	local data = services.DataService:GetData(player)
-	if not data or flights[player] then
-		return
-	end
-	local cannon = cannons[data.EquippedCannon]
-	if not cannon or not data.Cannons[cannon.Key] then
-		showEmpty(player)
-		return
+	local cannon = cannons[key]
+	if not data or flights[player] or not cannon or not data.Cannons[key] then
+		return false
 	end
 	local character = player.Character
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	if not character or not humanoid or humanoid.Health <= 0 or not root or not root:IsA("BasePart") then
-		return
+		return false
 	end
 	if services.GeodeService:IsRevealing(player) then
-		return
+		return false
 	end
 	local now = os.clock()
 	local last = lastLaunch[player]
 	if last and now - last < CannonConfig.CooldownSeconds then
-		return
+		return false
 	end
 	local model = findLobbyCannon()
 	local marker = findMarker(cannon)
 	if not model or not marker then
 		warn(`[CannonService] Missing lobby cannon or marker {cannon.Marker}`)
-		return
+		return false
 	end
 	lastLaunch[player] = now
+	services.DataService:Set(player, { "EquippedCannon" }, key)
 	services.TeleportService:EndActivities(player)
 	local height = marker.Size.Y / 2 + humanoid.HipHeight + root.Size.Y / 2
 	local destination = marker.CFrame * CFrame.new(0, height, 0)
@@ -112,30 +103,7 @@ local function launch(player: Player)
 		character:PivotTo(destination)
 		CannonService.Landed:Fire(player, cannon.Key)
 	end)
-end
-
-local function setupPrompt(model: Model)
-	if prompt and prompt.Parent then
-		return
-	end
-	local anchor = model:FindFirstChild(CannonConfig.PromptAnchorName, true)
-	local parent: Instance? = if anchor and (anchor:IsA("Attachment") or anchor:IsA("BasePart"))
-		then anchor
-		else model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
-	if not parent then
-		warn(`[CannonService] {model:GetFullName()} has no part for the prompt`)
-		return
-	end
-	local newPrompt = trove:Add(Instance.new("ProximityPrompt"))
-	newPrompt.ActionText = CannonConfig.PromptActionText
-	newPrompt.ObjectText = CannonConfig.PromptObjectText
-	newPrompt.HoldDuration = CannonConfig.PromptHoldSeconds
-	newPrompt.Style = Enum.ProximityPromptStyle.Custom
-	newPrompt.MaxActivationDistance = CannonConfig.PromptRangeStuds
-	newPrompt.RequiresLineOfSight = false
-	newPrompt.Parent = parent
-	trove:Connect(newPrompt.Triggered, launch)
-	prompt = newPrompt
+	return true
 end
 
 function CannonService.Find(_self: any, key: string): CannonConfig.Cannon?
@@ -165,12 +133,8 @@ function CannonService.Buy(_self: any, player: Player, key: string): boolean
 	return true
 end
 
-function CannonService.Equip(_self: any, player: Player, key: string): boolean
-	local data = services.DataService:GetData(player)
-	if not data or (key ~= "" and not data.Cannons[key]) then
-		return false
-	end
-	return services.DataService:Set(player, { "EquippedCannon" }, key)
+function CannonService.Fire(_self: any, player: Player, key: string): boolean
+	return launch(player, key)
 end
 
 function CannonService.SetOwned(_self: any, player: Player, owned: boolean): boolean
@@ -197,17 +161,6 @@ function CannonService.Init(_self: any, registry: { [string]: any })
 end
 
 function CannonService.Start(_self: any)
-	local model = findLobbyCannon()
-	if model then
-		setupPrompt(model)
-	else
-		warn(`[CannonService] No Workspace.{CannonConfig.CannonName} yet`)
-	end
-	trove:Connect(workspace.ChildAdded, function(child: Instance)
-		if child.Name == CannonConfig.CannonName and child:IsA("Model") then
-			setupPrompt(child)
-		end
-	end)
 	trove:Connect(Players.PlayerRemoving, function(player: Player)
 		local flight = flights[player]
 		if flight then
@@ -219,21 +172,20 @@ function CannonService.Start(_self: any)
 	Packets.BuyCannon.OnServerInvoke = function(player: Player, key: string): boolean
 		return CannonService:Buy(player, key)
 	end
-	Packets.EquipCannon.OnServerInvoke = function(player: Player, key: string): boolean
-		return CannonService:Equip(player, key)
+	Packets.FireCannon.OnServerInvoke = function(player: Player, key: string): boolean
+		return CannonService:Fire(player, key)
 	end
 end
 
 function CannonService.Destroy(_self: any)
 	Packets.BuyCannon.OnServerInvoke = nil
-	Packets.EquipCannon.OnServerInvoke = nil
+	Packets.FireCannon.OnServerInvoke = nil
 	for _, flight in flights do
 		task.cancel(flight)
 	end
 	table.clear(flights)
 	table.clear(lastLaunch)
 	trove:Clean()
-	prompt = nil
 end
 
 return CannonService

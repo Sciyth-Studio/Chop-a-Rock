@@ -9,8 +9,6 @@ export type Stand = {
 	BreakSound: string,
 	BreakEffect: string,
 	Price: number,
-	RobuxPrice: number,
-	RobuxProductId: number,
 }
 
 export type TrainingSettings = {
@@ -45,8 +43,6 @@ local TrainingConfig: TrainingSettings = {
 			BreakSound = "SFX_Train_Chop",
 			BreakEffect = "",
 			Price = 0,
-			RobuxPrice = 0,
-			RobuxProductId = 0,
 		},
 		{
 			Key = "Brick",
@@ -57,8 +53,6 @@ local TrainingConfig: TrainingSettings = {
 			BreakSound = "SFX_Train_Brick",
 			BreakEffect = "",
 			Price = 50000,
-			RobuxPrice = 25,
-			RobuxProductId = 3719074519,
 		},
 		{
 			Key = "Steel",
@@ -69,8 +63,6 @@ local TrainingConfig: TrainingSettings = {
 			BreakSound = "SFX_Train_Steel",
 			BreakEffect = "",
 			Price = 5000000,
-			RobuxPrice = 49,
-			RobuxProductId = 3719074540,
 		},
 		{
 			Key = "Vault",
@@ -81,8 +73,6 @@ local TrainingConfig: TrainingSettings = {
 			BreakSound = "SFX_Train_Vault",
 			BreakEffect = "",
 			Price = 400000000,
-			RobuxPrice = 79,
-			RobuxProductId = 3719074543,
 		},
 		{
 			Key = "Core",
@@ -93,8 +83,6 @@ local TrainingConfig: TrainingSettings = {
 			BreakSound = "SFX_Train_Core",
 			BreakEffect = "VFX_Train_CoreBreak",
 			Price = 30000000000,
-			RobuxPrice = 99,
-			RobuxProductId = 3719074545,
 		},
 		{
 			Key = "Cosmic",
@@ -105,8 +93,6 @@ local TrainingConfig: TrainingSettings = {
 			BreakSound = "SFX_Train_Cosmic",
 			BreakEffect = "VFX_Train_CosmicBreak",
 			Price = 2400000000000,
-			RobuxPrice = 149,
-			RobuxProductId = 3719074547,
 		},
 	},
 	StandModelName = "TrainingStand",

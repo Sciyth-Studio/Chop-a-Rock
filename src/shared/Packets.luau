@@ -81,7 +81,7 @@ local Packets = {
 	TrainingMinigameScore = Packet("TrainingMinigameScore", Packet.NumberU16, Packet.NumberF64),
 	BuyAura = Packet("BuyAura", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	BuyCannon = Packet("BuyCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
-	EquipCannon = Packet("EquipCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
+	FireCannon = Packet("FireCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
 	CannonLaunch = Packet(
 		"CannonLaunch",
 		Packet.Instance,
@@ -92,7 +92,6 @@ local Packets = {
 		Packet.NumberF32,
 		Packet.NumberF32
 	),
-	CannonEmpty = Packet("CannonEmpty"),
 	Rebirth = Packet("Rebirth"):Response(Packet.Boolean8):RateLimit(2, 1),
 	BuyGeode = Packet("BuyGeode", Packet.String, Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	GeodeHatched = Packet(

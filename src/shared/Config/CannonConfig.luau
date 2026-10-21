@@ -1,9 +1,12 @@
 --!strict
 
+local ShopConfig = require(script.Parent.ShopConfig)
+
 export type Cannon = {
 	Key: string,
 	DisplayName: string,
 	ZoneName: string,
+	ZoneNumber: number,
 	Price: number,
 	StrengthRequired: number,
 	Color: Color3,
@@ -33,17 +36,17 @@ export type CannonSounds = {
 	Equip: string,
 }
 
+export type ShopStyle = {
+	Outline: Color3,
+	EquippedOutline: Color3,
+	FireButton: ShopConfig.MeterColors,
+}
+
 export type CannonSettings = {
 	ScreenName: string,
 	CannonName: string,
 	MuzzleName: string,
-	PromptAnchorName: string,
 	TintAttribute: string,
-	PromptActionText: string,
-	PromptObjectText: string,
-	PromptRangeStuds: number,
-	PromptHoldSeconds: number,
-	EmptyMessage: string,
 	EmptyColor: Color3,
 	FlightSeconds: number,
 	CooldownSeconds: number,
@@ -53,6 +56,7 @@ export type CannonSettings = {
 	StreamTimeoutSeconds: number,
 	ChargeSeconds: number,
 	PullSeconds: number,
+	PullRangeStuds: number,
 	FuseName: string,
 	BoreName: string,
 	LandLeadSeconds: number,
@@ -63,6 +67,7 @@ export type CannonSettings = {
 	LandShake: Shake,
 	Effects: CannonEffects,
 	Sounds: CannonSounds,
+	Shop: ShopStyle,
 	Cannons: { Cannon },
 }
 
@@ -70,13 +75,7 @@ local CannonConfig: CannonSettings = {
 	ScreenName = "CannonShop",
 	CannonName = "LobbyCannon",
 	MuzzleName = "Muzzle",
-	PromptAnchorName = "PromptAnchor",
 	TintAttribute = "ZoneTint",
-	PromptActionText = "Fire",
-	PromptObjectText = "Cannon",
-	PromptRangeStuds = 10,
-	PromptHoldSeconds = 0,
-	EmptyMessage = "Buy a cannon to fire!",
 	EmptyColor = Color3.fromRGB(120, 120, 120),
 	FlightSeconds = 2,
 	CooldownSeconds = 3,
@@ -86,6 +85,7 @@ local CannonConfig: CannonSettings = {
 	StreamTimeoutSeconds = 2,
 	ChargeSeconds = 0.5,
 	PullSeconds = 0.25,
+	PullRangeStuds = 30,
 	FuseName = "Fuse",
 	BoreName = "Bore",
 	LandLeadSeconds = 0.08,
@@ -109,11 +109,21 @@ local CannonConfig: CannonSettings = {
 		Land = "SFX_Cannon_Land",
 		Equip = "SFX_Cannon_Equip",
 	},
+	Shop = {
+		Outline = Color3.fromRGB(0, 0, 0),
+		EquippedOutline = Color3.fromRGB(0, 255, 60),
+		FireButton = {
+			Edge = Color3.fromRGB(225, 0, 0),
+			Center = Color3.fromRGB(255, 110, 90),
+			Studs = Color3.fromRGB(150, 0, 0),
+		},
+	},
 	Cannons = {
 		{
 			Key = "Desert",
 			DisplayName = "Desert Cannon",
 			ZoneName = "Desert",
+			ZoneNumber = 2,
 			Price = 80000,
 			StrengthRequired = 500,
 			Color = Color3.fromRGB(255, 170, 0),
@@ -123,6 +133,7 @@ local CannonConfig: CannonSettings = {
 			Key = "Jungle",
 			DisplayName = "Jungle Cannon",
 			ZoneName = "Jungle",
+			ZoneNumber = 3,
 			Price = 5100000,
 			StrengthRequired = 62500,
 			Color = Color3.fromRGB(0, 210, 40),
@@ -132,6 +143,7 @@ local CannonConfig: CannonSettings = {
 			Key = "Ocean",
 			DisplayName = "Ocean Cannon",
 			ZoneName = "Ocean",
+			ZoneNumber = 4,
 			Price = 328000000,
 			StrengthRequired = 7812500,
 			Color = Color3.fromRGB(0, 90, 255),
@@ -141,6 +153,7 @@ local CannonConfig: CannonSettings = {
 			Key = "Snow",
 			DisplayName = "Snow Cannon",
 			ZoneName = "Snow",
+			ZoneNumber = 5,
 			Price = 21000000000,
 			StrengthRequired = 976562500,
 			Color = Color3.fromRGB(140, 220, 255),

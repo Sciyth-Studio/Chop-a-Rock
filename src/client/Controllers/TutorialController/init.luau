@@ -318,7 +318,6 @@ local function stopSession()
 end
 
 local hintHelpers: CannonHintView.Helpers = {
-	PromptKey = promptKey,
 	ClickVerb = clickVerb,
 	IsOpen = isOpen,
 	IsNear = isNear,

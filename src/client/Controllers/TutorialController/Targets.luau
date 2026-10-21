@@ -3,7 +3,6 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -175,25 +174,6 @@ function Targets.For(step: number, data: any): Target?
 		return earningsPad(data)
 	end
 	return nil
-end
-
-function Targets.LobbyCannon(): Target?
-	local model = workspace:FindFirstChild(CannonConfig.CannonName)
-	if not model or not model:IsA("Model") then
-		return nil
-	end
-	local anchor = model:FindFirstChild(CannonConfig.PromptAnchorName, true)
-	local position = if anchor and anchor:IsA("Attachment")
-		then anchor.WorldPosition
-		elseif anchor and anchor:IsA("BasePart") then anchor.Position
-		else model:GetPivot().Position
-	return {
-		Position = position,
-		Goal = standOff(position, rootPosition()),
-		Adornee = model,
-		Label = TutorialConfig.CannonHint.TargetLabel,
-		ArriveStuds = CannonConfig.PromptRangeStuds - 2,
-	}
 end
 
 Targets.ShopPad = shopPad

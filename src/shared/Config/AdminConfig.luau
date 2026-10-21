@@ -168,6 +168,12 @@ for index, tier in HotStreakConfig.Tiers do
 	table.insert(streakChoices, { Value = tostring(index), Label = `Tier {index} (x{tier.Multiplier})` })
 end
 
+local tutorialChoices: { Choice } = {
+	{ Value = "All", Label = "All" },
+	{ Value = "Main", Label = "Main Tutorial" },
+	{ Value = "Cannon", Label = "Cannon Hint" },
+}
+
 local AdminConfig: AdminSettings = {
 	UserIds = { 467512659, 169380679 },
 	AttributeName = "IsAdmin",
@@ -503,6 +509,14 @@ local AdminConfig: AdminSettings = {
 			Kind = "Button",
 			Shortcut = Enum.KeyCode.Backspace,
 			Alias = "resetme",
+		},
+		{
+			Id = "ResetTutorial",
+			Label = "Reset Tutorial",
+			Tab = "Debug",
+			Kind = "Choice",
+			Choices = tutorialChoices,
+			Alias = "tutorial",
 		},
 		{
 			Id = "ResetPlayerData",

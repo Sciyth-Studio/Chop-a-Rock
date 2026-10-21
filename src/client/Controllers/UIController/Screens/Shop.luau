@@ -131,7 +131,11 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if button then
 				trove:Add(button.Activated:Connect(function()
 					local ownedTier = readNumber("AuraTier", 1)
-					if index == ownedTier + 1 then
+					local shortfall = tier.Price - readNumber("Cash", 0)
+					if index == ownedTier + 1 and shortfall > 0 then
+						context.Feedback(button, false)
+						context.Controllers.CashPackController:Prompt(shortfall)
+					elseif index == ownedTier + 1 then
 						task.spawn(function()
 							local isBought = Packets.BuyAura:Fire(index) == true
 							if isBought then

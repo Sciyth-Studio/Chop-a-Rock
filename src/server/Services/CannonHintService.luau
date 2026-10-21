@@ -81,6 +81,15 @@ local function onSkip(player: Player)
 	setStage(player, data, CannonHint.Done, true)
 end
 
+function CannonHintService.Reset(_self: any, player: Player)
+	local data = services.DataService:GetData(player)
+	if not data then
+		return
+	end
+	setStage(player, data, CannonHint.Locked, true)
+	check(player)
+end
+
 function CannonHintService.Init(_self: any, registry: { [string]: any })
 	services = registry
 end

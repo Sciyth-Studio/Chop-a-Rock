@@ -141,6 +141,11 @@ local function snapshot(action: (Types.Context, Player, string) -> string): Type
 	end
 end
 
+local tutorialServices: { [string]: string } = {
+	Main = "TutorialService",
+	Cannon = "CannonHintService",
+}
+
 local Commands: { [string]: Types.Handler } = {
 	ApplyPreset = function(context: Types.Context, player: Player, argument: string)
 		local preset = Presets.Find(argument)
@@ -306,6 +311,21 @@ local Commands: { [string]: Types.Handler } = {
 		if context.Services.DataService:ResetData(player) then
 			notify(context, player, "data reset")
 		end
+	end,
+	ResetTutorial = function(context: Types.Context, player: Player, argument: string)
+		local keys = sortedKeys(tutorialServices)
+		table.insert(keys, 1, "All")
+		local key = Arguments.Match(argument, keys)
+		if not key then
+			notify(context, player, `no tutorial called {argument}`)
+			return
+		end
+		for name, serviceName in tutorialServices do
+			if key == "All" or key == name then
+				context.Services[serviceName]:Reset(player)
+			end
+		end
+		notify(context, player, `{key} tutorial reset`)
 	end,
 	SimulateOffline = function(context: Types.Context, player: Player, argument: string)
 		local hours = Arguments.Decimal(argument, 0, AdminConfig.Limits.OfflineHours)

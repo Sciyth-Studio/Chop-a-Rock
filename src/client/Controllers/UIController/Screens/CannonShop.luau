@@ -20,7 +20,8 @@ type Row = {
 	Label: TextLabel?,
 	Fill: Instance?,
 	PriceIcon: GuiObject?,
-	Glow: GuiObject?,
+	Check: GuiObject?,
+	Stroke: UIStroke?,
 }
 
 local function find(root: Instance, name: string, className: string, recursive: boolean): any
@@ -55,6 +56,7 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local list: GuiObject? = find(gui, "List", "GuiObject", true)
 	local template: Frame? = find(gui, "RowTemplate", "Frame", true)
 	local closeButton: TextButton? = find(gui, "CloseButton", "TextButton", true)
+	local cashLabel: TextLabel? = find(gui, "CashLabel", "TextLabel", true)
 
 	if template then
 		template.Visible = false
@@ -93,20 +95,24 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local cash = readNumber("Cash")
 		local strength = readNumber("Strength")
 		local equippedKey = equipped()
+		if cashLabel then
+			setText(cashLabel, `${NumberFormat.Compact(cash)}`)
+		end
 		for _, row in rows do
 			local cannon = row.Cannon
-			local isEquipped = cannon.Key == equippedKey
-			local canBuy = not isOwned(cannon.Key)
-				and strength >= cannon.StrengthRequired
-				and cash >= cannon.Price
-			if row.Glow then
-				row.Glow.Visible = isEquipped
+			local owned = isOwned(cannon.Key)
+			local canBuy = not owned and strength >= cannon.StrengthRequired and cash >= cannon.Price
+			if row.Check then
+				row.Check.Visible = owned
+			end
+			if row.Stroke then
+				row.Stroke.Color = if cannon.Key == equippedKey
+					then CannonConfig.Shop.EquippedOutline
+					else CannonConfig.Shop.Outline
 			end
 			row.Button:SetAttribute("Shimmer", canBuy)
-			if isEquipped then
-				present(row, "Unequip", ShopConfig.Palette.Orange, false)
-			elseif isOwned(cannon.Key) then
-				present(row, "Equip", ShopConfig.Palette.Orange, false)
+			if owned then
+				present(row, "Fire", CannonConfig.Shop.FireButton, false)
 			elseif strength < cannon.StrengthRequired then
 				present(
 					row,
@@ -125,22 +131,28 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if isBusy then
 			return
 		end
-		local packet, argument
-		if equipped() == cannon.Key then
-			packet, argument = Packets.EquipCannon, ""
-		elseif isOwned(cannon.Key) then
-			packet, argument = Packets.EquipCannon, cannon.Key
+		local packet
+		if isOwned(cannon.Key) then
+			packet = Packets.FireCannon
 		elseif readNumber("Strength") >= cannon.StrengthRequired and readNumber("Cash") >= cannon.Price then
-			packet, argument = Packets.BuyCannon, cannon.Key
+			packet = Packets.BuyCannon
+		elseif readNumber("Strength") >= cannon.StrengthRequired then
+			context.Feedback(button, false)
+			context.Controllers.CashPackController:Prompt(cannon.Price - readNumber("Cash"))
+			return
 		else
 			context.Feedback(button, false)
 			return
 		end
 		isBusy = true
 		task.spawn(function()
-			local isDone = packet:Fire(argument) == true
+			local isDone = packet:Fire(cannon.Key) == true
 			isBusy = false
-			if isDone and packet == Packets.BuyCannon then
+			if isDone and packet == Packets.FireCannon then
+				context.Close(CannonConfig.ScreenName)
+				return
+			end
+			if isDone then
 				LocalSound.Play("SFX_Money_Gain")
 			end
 			context.Feedback(button, isDone)
@@ -153,10 +165,14 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			row.Name = `Cannon{cannon.Key}`
 			row.LayoutOrder = index
 			row.Visible = true
-			local icon: ImageLabel? = find(row, "Icon", "ImageLabel", false)
+			row.BackgroundColor3 = cannon.Color
+			local preview: GuiObject? = find(row, "Preview", "GuiObject", false)
+			local icon: ImageLabel? = if preview then find(preview, "Icon", "ImageLabel", false) else nil
 			local button: TextButton? = find(row, "BuyButton", "TextButton", true)
 			setText(find(row, "TierName", "TextLabel", false), cannon.DisplayName)
-			setText(find(row, "TierInfo", "TextLabel", false), `Fires you to the {cannon.ZoneName}`)
+			setText(find(row, "TierInfo", "TextLabel", false), `Tier {index}`)
+			setText(find(row, "ZoneNumber", "TextLabel", true), `Zone {cannon.ZoneNumber}`)
+			setText(find(row, "ZoneName", "TextLabel", true), cannon.ZoneName)
 			if icon then
 				icon.ImageColor3 = cannon.Color
 			end
@@ -165,14 +181,15 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					request(button, cannon)
 				end))
 				local priceIcon = button:FindFirstChild("PriceIcon")
-				local glow = row:FindFirstChild("ColorGlow")
+				local check = row:FindFirstChild("Check", true)
 				table.insert(rows, {
 					Cannon = cannon,
 					Button = button,
 					Label = find(button, "Label", "TextLabel", false),
 					Fill = button:FindFirstChild("Fill", true),
 					PriceIcon = if priceIcon and priceIcon:IsA("GuiObject") then priceIcon else nil,
-					Glow = if glow and glow:IsA("GuiObject") then glow else nil,
+					Check = if check and check:IsA("GuiObject") then check else nil,
+					Stroke = row:FindFirstChildOfClass("UIStroke"),
 				})
 			end
 			row.Parent = list

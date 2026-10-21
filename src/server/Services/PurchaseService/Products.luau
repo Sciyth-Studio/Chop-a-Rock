@@ -1,17 +1,24 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
+local CashPackConfig = require(ReplicatedStorage.Config.CashPackConfig)
+local CashPack = require(ReplicatedStorage.Utils.CashPack)
 
 export type Grant = (player: Player, services: { [string]: any }) -> boolean
 
 local Products: { [number]: Grant } = {}
 
-for tier, stand in TrainingConfig.Stands do
-	if stand.RobuxProductId > 0 then
-		Products[stand.RobuxProductId] = function(player: Player, services: { [string]: any }): boolean
-			return services.TrainingService:GrantStandCash(player, tier)
+for _, pack in CashPackConfig.Packs do
+	Products[pack.ProductId] = function(player: Player, services: { [string]: any }): boolean
+		local data = services.DataService:GetData(player)
+		if not data then
+			return false
 		end
+		local amount = CashPack.Value(pack, data.Strength)
+		if amount <= 0 then
+			return false
+		end
+		return services.DataService:AdjustCash(player, amount)
 	end
 end
 

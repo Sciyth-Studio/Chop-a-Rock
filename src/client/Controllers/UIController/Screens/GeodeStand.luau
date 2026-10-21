@@ -352,6 +352,14 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if isBuying or not key then
 				return
 			end
+			local cash = read({ "Cash" })
+			local price = Tutorial.GeodeCost(Tutorial.StepOf(read({ "Tutorial" })), key, button.Amount)
+			local shortfall = price - (if type(cash) == "number" then cash else 0)
+			if shortfall > 0 then
+				context.Feedback(button.Button, false)
+				context.Controllers.CashPackController:Prompt(shortfall)
+				return
+			end
 			isBuying = true
 			task.spawn(function()
 				local isBought = Packets.BuyGeode:Fire(key, button.Amount) == true
