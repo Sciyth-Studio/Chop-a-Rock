@@ -233,6 +233,18 @@ function PedestalService.EquipBest(_self: any, player: Player): boolean
 	return respond(player, Placement.EquipBest(context, player))
 end
 
+function PedestalService.GetIncomeRate(_self: any, player: Player): number
+	local session = sessions[player]
+	if not session then
+		return 0
+	end
+	local total = 0
+	for _, earnings in session.Slots do
+		total += earnings.Rate
+	end
+	return total
+end
+
 function PedestalService.EmptySlotCount(_self: any, player: Player): number
 	local data = context.Services.DataService:GetData(player)
 	if not data then

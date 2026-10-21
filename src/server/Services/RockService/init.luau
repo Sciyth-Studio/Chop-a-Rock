@@ -354,6 +354,9 @@ local function onRelease(player: Player, claimed: number)
 		end
 		damage, payout = Session.Apply(session, chopStrength, quality)
 	end
+	if not isTutorial then
+		services.StatsService:RecordChop(player, quality)
+	end
 	local streakMultiplier = if isTutorial
 		then 1
 		else services.HotStreakService:RecordChop(player, quality, session.StrengthRatio)

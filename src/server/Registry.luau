@@ -30,6 +30,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.CannonService),
 	require(script.Parent.Services.GeodeFallService),
 	require(script.Parent.Services.CannonHintService),
+	require(script.Parent.Services.LeaderboardService),
 	require(script.Parent.Services.AdminService),
 	require(script.Parent.Services.SettingsService),
 }

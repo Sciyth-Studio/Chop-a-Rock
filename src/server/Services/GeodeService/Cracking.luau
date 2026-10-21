@@ -133,6 +133,9 @@ function Cracking.Release(
 	then
 		quality = ChopQuality.Master
 	end
+	if not isTutorial then
+		services.StatsService:RecordChop(player, quality)
+	end
 	local luck = Luck.Total(context, player, quality)
 	local petKey = forcedPet(context, player, session.GeodeKey)
 		or HatchOdds.Roll(random, session.GeodeKey, luck)

@@ -65,6 +65,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Index UI Reference]] — three simulator Index screenshots: zone card grid, detail pane with rewards and Claim, Claim All, variant tabs down the side
 - [[Cannon Shop UI Reference]] — 2026-10-20 inspo for the Cannon Shop (tried, then dropped for the Aura Shop look): zone-tinted tall cards per tier (preview, zone block, cash + Robux price, Unequip), subtitle + cash line, footer line
 - [[Geode Stand UI Reference]] — egg-shop screenshots for the stand's odds/buy modal: header, 3x2 pet cards with %, big buttons; opened by prompt
+- [[Leaderboard Reference]] — 2026-10-21 in-world leaderboard inspo: signpost list with headshots, ranked table with medal rows and pinned "#100+ You", stone arch built from world pieces (the dog in it is that game's HUD)
 - [[Shopkeeper Avatar]] — R6 avatar of user 341574948 leaning on the geode stand; how to import and pose one
 - [[Zone Rocks Reference]] — ChatGPT sheets for the desert, jungle, ocean, snow chop rocks (3 each, with props); open before modelling them
 - [[Diamond Rock Reference]] — 2026-10-13 sheet: the whole Diamond Rock is a cyan crystal cluster on a faceted base, crystals radiating all round
@@ -117,6 +118,7 @@ _One note per game system as they're worked on._
 - [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop, training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 - [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks, Skip; weather ignored while it runs
+- [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; placeholder Part slabs
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
@@ -132,6 +134,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Geode Fall Event]] — 2026-10-20, approved and built (see [[Geode Fall]]): 3-5 geodes crash into one zone every 20-25 min, first to chop claims one (not stealable, no per-player cap), Rare+ from that zone's geode, full Backpack = respawn
 - [[Chop Timing Uses Client Time]] — 2026-10-21: chop quality judged on the client's elapsed time, clamped server-side to a fixed 0.4 s window (draft; not ping-sized); every chop flow uses `Utils/ChopTiming`
 - [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
+- [[Leaderboards Approved]] — 2026-10-21: Strength, Money/s, Perfect Chops, Playtime; global, 60 s; weekly tab, #1 crown, pass toast liked but not built
 
 ## Inbox
 _Unsorted learnings for the user to review._

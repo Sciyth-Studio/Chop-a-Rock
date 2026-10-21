@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local DataService = require(script.Parent.DataService)
@@ -37,6 +38,16 @@ function StatsService.AddStrength(_self: any, player: Player, delta: number): nu
 		end
 	end
 	return after
+end
+
+function StatsService.RecordChop(_self: any, player: Player, quality: number)
+	if quality < ChopQuality.Perfect then
+		return
+	end
+	local data = DataService:GetData(player)
+	if data then
+		DataService:Set(player, { "PerfectChops" }, data.PerfectChops + 1)
+	end
 end
 
 function StatsService.SetStrength(_self: any, player: Player, strength: number): boolean

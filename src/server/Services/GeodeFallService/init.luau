@@ -493,6 +493,7 @@ local function onRelease(player: Player, claimed: number)
 	if rockService:ConsumeForcedMaster(player) or rockService:RollMaster(quality, session.StrengthRatio) then
 		quality = ChopQuality.Master
 	end
+	services.StatsService:RecordChop(player, quality)
 	local strength = services.StatsService:GetStrength(player)
 	local applied = Chopping.Apply(
 		geode,
