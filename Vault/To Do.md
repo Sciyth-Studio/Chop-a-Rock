@@ -15,7 +15,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Zone rock models with props: the user watches a perfect break in each zone. The white snow props glow under bloom; tone them down if that bothers the user. See [[Zone Rocks Reference]]
 - [ ] Geode pity (added 2026-10-15, not started): a pity counter on geode hatches so a rare Rok is guaranteed after enough misses. Thresholds, which rarities count and whether it's per geode or shared aren't decided yet. Not planned yet
 - [ ] Geode upgrades/levels (added 2026-10-15, not started): geodes level up or get upgraded. What a level changes and how you raise it aren't decided yet. Not planned yet
-- [ ] Leaderboards (built and tested 2026-10-21, see [[Leaderboards]]): model the proper slabs (user)
+- [ ] Leaderboards (built and tested 2026-10-21, see [[Leaderboards]]): boulder slab mesh swapped in 2026-10-21. Waiting on the user to look at the boards, set the slabs' CollisionFidelity to Hull and save the place
 - [ ] Leaderboard extras (liked 2026-10-21, not started): weekly reset tab, crown/title over #1, "You passed X!" toast
 
 ## Admin panel (approved 2026-10-08, see [[Admin Panel]])
