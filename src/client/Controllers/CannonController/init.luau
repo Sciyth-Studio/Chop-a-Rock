@@ -131,6 +131,7 @@ local function onLaunch(
 			Inside = if bore then bore.WorldPosition else start,
 			Start = start,
 			Finish = finish,
+			Axis = axis,
 			Height = height,
 			ChargeSeconds = chargeSeconds,
 			FlightSeconds = flightSeconds,
