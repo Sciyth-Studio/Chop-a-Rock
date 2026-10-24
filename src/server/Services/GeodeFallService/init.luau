@@ -272,7 +272,8 @@ local function crack(geode: Types.Geode, player: Player, quality: number)
 			table.find(RarityConfig.Order, pet.Rarity) or 1,
 			grant.IsNew,
 			grant.Trait or "",
-			grant.Modifier or ""
+			grant.Modifier or "",
+			false
 		)
 	end)
 	if GeodeFallConfig.AnnouncedRarities[pet.Rarity] then

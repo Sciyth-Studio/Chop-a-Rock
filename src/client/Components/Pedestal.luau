@@ -46,28 +46,19 @@ return function(_controllers: { [string]: any })
 
 	function Pedestal.Start(self: Pedestal)
 		local pedestal = self.Instance
-		local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
-		local pad = pedestal:FindFirstChild(PedestalConfig.PadPartName)
-		if not part or not part:IsA("BasePart") or not pad or not pad:IsA("BasePart") then
-			return
-		end
 		self.Trove = Trove.new()
-		local padGui = billboard(PedestalConfig.PadTemplateKey, pad, PedestalConfig.PadLabelHeightStuds)
-		local infoGui = billboard(PedestalConfig.InfoTemplateKey, part, PedestalConfig.InfoHeightStuds)
-		if not padGui or not infoGui then
-			warn(
-				`[Pedestal] Missing {PedestalConfig.PadTemplateKey} or {PedestalConfig.InfoTemplateKey} BillboardGui`
-			)
-			return
-		end
-		self.Trove:Add(padGui)
-		self.Trove:Add(infoGui)
-		local amount = findLabel(padGui, "Amount")
-		local title = findLabel(infoGui, "Title")
-		local detail = findLabel(infoGui, "Detail")
-		local modifierLabel = findLabel(infoGui, "Modifier")
+		local mountTrove = self.Trove:Extend()
+		local padGui: BillboardGui?
+		local infoGui: BillboardGui?
+		local amount: TextLabel?
+		local title: TextLabel?
+		local detail: TextLabel?
+		local modifierLabel: TextLabel?
 
 		local function refreshInfo()
+			if not padGui or not infoGui then
+				return
+			end
 			local isOwned = pedestal:GetAttribute("OwnerUserId") ~= nil
 			local state = pedestal:GetAttribute("State")
 			local price = pedestal:GetAttribute("Price")
@@ -108,7 +99,7 @@ return function(_controllers: { [string]: any })
 		end
 
 		local function refreshAmount()
-			if not amount or not padGui.Enabled then
+			if not amount or not padGui or not padGui.Enabled then
 				return
 			end
 			local elapsed =
@@ -118,9 +109,49 @@ return function(_controllers: { [string]: any })
 			amount.Text = `${NumberFormat.Compact(math.floor(value))}`
 		end
 
+		local function mount()
+			mountTrove:Clean()
+			padGui, infoGui, amount, title, detail, modifierLabel = nil, nil, nil, nil, nil, nil
+			local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
+			local pad = pedestal:FindFirstChild(PedestalConfig.PadPartName)
+			if not part or not part:IsA("BasePart") or not pad or not pad:IsA("BasePart") then
+				return
+			end
+			local newPadGui =
+				billboard(PedestalConfig.PadTemplateKey, pad, PedestalConfig.PadLabelHeightStuds)
+			local newInfoGui = billboard(PedestalConfig.InfoTemplateKey, part, PedestalConfig.InfoHeightStuds)
+			if newPadGui then
+				mountTrove:Add(newPadGui)
+			end
+			if newInfoGui then
+				mountTrove:Add(newInfoGui)
+			end
+			if not newPadGui or not newInfoGui then
+				warn(
+					`[Pedestal] Missing {PedestalConfig.PadTemplateKey} or {PedestalConfig.InfoTemplateKey} BillboardGui`
+				)
+				return
+			end
+			padGui, infoGui = newPadGui, newInfoGui
+			amount = findLabel(newPadGui, "Amount")
+			title = findLabel(newInfoGui, "Title")
+			detail = findLabel(newInfoGui, "Detail")
+			modifierLabel = findLabel(newInfoGui, "Modifier")
+			refreshInfo()
+			refreshAmount()
+		end
+
+		local function onChildChanged(child: Instance)
+			if child.Name == PedestalConfig.PedestalPartName or child.Name == PedestalConfig.PadPartName then
+				mount()
+			end
+		end
+
 		for _, name in { "OwnerUserId", "State", "Price", "PetKey", WeatherConfig.ModifierAttribute } do
 			self.Trove:Connect(pedestal:GetAttributeChangedSignal(name), refreshInfo)
 		end
+		self.Trove:Connect(pedestal.ChildAdded, onChildChanged)
+		self.Trove:Connect(pedestal.ChildRemoved, onChildChanged)
 		local elapsed = 0
 		self.Trove:Connect(RunService.Heartbeat, function(dt: number)
 			elapsed += dt
@@ -129,8 +160,7 @@ return function(_controllers: { [string]: any })
 				refreshAmount()
 			end
 		end)
-		refreshInfo()
-		refreshAmount()
+		mount()
 	end
 
 	function Pedestal.Stop(self: Pedestal)

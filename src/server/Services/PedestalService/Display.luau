@@ -69,6 +69,7 @@ function Display.EnsurePrompt(pedestal: Model): ProximityPrompt?
 	prompt:SetAttribute("Active", false)
 	CollectionService:AddTag(prompt, OWNED_PROMPT_TAG)
 	prompt.Parent = part
+	pedestal.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	CollectionService:AddTag(pedestal, PedestalConfig.PedestalTag)
 	return prompt
 end

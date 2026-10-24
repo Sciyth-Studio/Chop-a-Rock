@@ -28,6 +28,24 @@ function RokModifier.Name(petKey: string, modifier: string?): string
 	return if config then `{config.DisplayName} {name}` else name
 end
 
+function RokModifier.PaintLabel(label: TextLabel, modifier: string?)
+	local config = RokModifier.Get(modifier)
+	if not config then
+		return
+	end
+	label.TextColor3 = Color3.new(1, 1, 1)
+	local gradient = label:FindFirstChildWhichIsA("UIGradient")
+	if gradient then
+		gradient.Enabled = true
+		gradient.Rotation = 90
+		gradient.Color = ColorSequence.new(config.LabelTop, config.LabelBottom)
+	end
+	local stroke = label:FindFirstChildWhichIsA("UIStroke")
+	if stroke then
+		stroke.Color = config.LabelBottom:Lerp(Color3.new(0, 0, 0), WeatherConfig.LabelDarkAlpha)
+	end
+end
+
 local function isEye(name: string): boolean
 	for _, suffix in RokMotionConfig.EyePartSuffixes do
 		if string.sub(name, -#suffix) == suffix then

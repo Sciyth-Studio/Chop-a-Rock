@@ -13,6 +13,8 @@ export type Rarity = {
 export type RaritySettings = {
 	Order: { string },
 	Rainbow: ColorSequence,
+	RibbonLighten: number,
+	RibbonDarken: number,
 	Rarities: { [string]: Rarity },
 }
 
@@ -26,6 +28,8 @@ local RarityConfig: RaritySettings = {
 		ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 140, 255)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 0, 255)),
 	}),
+	RibbonLighten = 0.45,
+	RibbonDarken = 0.25,
 	Rarities = {
 		Common = {
 			DisplayName = "Common",

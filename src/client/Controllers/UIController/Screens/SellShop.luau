@@ -9,6 +9,7 @@ local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
+local RarityRibbon = require(ReplicatedStorage.Utils.RarityRibbon)
 local RokModifier = require(ReplicatedStorage.RokModifier)
 local RokValue = require(ReplicatedStorage.RokValue)
 local SellShopConfig = require(ReplicatedStorage.Config.SellShopConfig)
@@ -200,19 +201,21 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				local frame = template:Clone()
 				frame.Name = `Rok{id}`
 				frame.Visible = true
-				local rarity = RarityConfig.Rarities[config.Rarity]
-				local rarityLabel: TextLabel? = find(frame, "Rarity", "TextLabel", true)
-				setText(rarityLabel, if rarity then rarity.DisplayName else "")
-				if rarityLabel and rarity then
-					rarityLabel.TextColor3 = rarity.Color
+				local ribbon: GuiObject? = find(frame, "RarityBar", "GuiObject", true)
+				if ribbon then
+					RarityRibbon.Paint(ribbon, config.Rarity)
 				end
 				local modifier = RokModifier.Get(pet.Modifier)
-				local rateLabel: TextLabel? = find(frame, "Rate", "TextLabel", true)
-				local rateText = `${NumberFormat.Rate(RokModifier.Rate(pet.Key, pet.Modifier))}/s`
-				setText(rateLabel, if modifier then `{modifier.DisplayName} {rateText}` else rateText)
-				if rateLabel and modifier then
-					rateLabel.TextColor3 = modifier.Color
+				local modifierLabel: TextLabel? = find(frame, "Modifier", "TextLabel", true)
+				if modifierLabel then
+					modifierLabel.Visible = modifier ~= nil
+					setText(modifierLabel, if modifier then modifier.DisplayName else "")
+					RokModifier.PaintLabel(modifierLabel, pet.Modifier)
 				end
+				setText(
+					find(frame, "Rate", "TextLabel", true),
+					`${NumberFormat.Rate(RokModifier.Rate(pet.Key, pet.Modifier))}/s`
+				)
 				local value = RokValue.Sell(pet.Key, pet.Modifier)
 				setText(find(frame, "Price", "TextLabel", true), `${NumberFormat.Commas(value)}`)
 				local preview: ViewportFrame? = find(frame, "Preview", "ViewportFrame", true)
