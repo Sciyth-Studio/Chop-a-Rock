@@ -9,9 +9,11 @@ local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local ScaleConfig = require(ReplicatedStorage.Config.ScaleConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local NumberTicker = require(ReplicatedStorage.Utils.NumberTicker)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Input = require(ReplicatedStorage.Packages.Input)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local WaitFor = require(ReplicatedStorage.Packages.WaitFor)
 local Types = require(script.Parent.Parent.Types)
 
 local DELTA_TEMPLATE = "MoneyDelta"
@@ -84,9 +86,18 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if not label then
 			return
 		end
-		setText(label, format(0))
+		local ticker = NumberTicker.new(format, function(text: string)
+			setText(label, text)
+		end)
+		trove:Add(ticker, "Destroy")
+		local hasValue = false
 		trove:Add(dataController:Observe(path, function(value: any)
-			setText(label, format(readNumber(value)))
+			if hasValue then
+				ticker:Set(readNumber(value))
+			else
+				hasValue = value ~= nil
+				ticker:Snap(readNumber(value))
+			end
 		end))
 	end
 
@@ -104,7 +115,10 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 
 		local lastTarget = readNumber(dataController:Get({ "Cash" }))
-		setText(label, formatMoney(lastTarget))
+		local ticker = NumberTicker.new(formatMoney, function(text: string)
+			setText(label, text)
+		end, lastTarget)
+		trove:Add(ticker, "Destroy")
 
 		local function playDelta(delta: number)
 			local source = template :: TextLabel
@@ -145,7 +159,7 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			slide.Completed:Once(function()
 				floating:Destroy()
 				if not isDestroyed then
-					setText(label, formatMoney(lastTarget))
+					ticker:Set(lastTarget)
 				end
 			end)
 			slide:Play()
@@ -161,7 +175,7 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if template then
 				playDelta(delta)
 			else
-				setText(label, formatMoney(target))
+				ticker:Set(target)
 			end
 		end))
 	end
@@ -222,49 +236,69 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
-	local function bindTouchLift()
+	local function bindTouchDock()
 		local container = gui:FindFirstChild(HudConfig.ContainerName)
 		if not container or not container:IsA("GuiObject") then
 			warn(
-				`[Hud] Missing Frame "{HudConfig.ContainerName}" in {gui:GetFullName()}; touch lift disabled`
+				`[Hud] Missing Frame "{HudConfig.ContainerName}" in {gui:GetFullName()}; touch dock disabled`
 			)
 			return
 		end
 		local basePosition = container.Position
+		local baseAnchor = container.AnchorPoint
 		local isTouch = false
+		local dock: GuiObject? = nil
 
 		local function apply()
-			local lift = 0
-			local camera = workspace.CurrentCamera
-			if isTouch and camera then
-				local viewport = camera.ViewportSize
-				local shortSide = math.min(viewport.X, viewport.Y)
-				lift = if shortSide <= HudConfig.TouchSmallScreenMaxShortSidePixels
-					then HudConfig.TouchLiftSmallPixels
-					else HudConfig.TouchLiftLargePixels
+			if isTouch and dock and dock.Parent then
+				local top = dock.AbsolutePosition.Y + dock.AbsoluteSize.Y - gui.AbsolutePosition.Y
+				container.AnchorPoint = Vector2.zero
+				container.Position = UDim2.new(
+					basePosition.X.Scale,
+					basePosition.X.Offset,
+					0,
+					top + HudConfig.TouchDockGapPixels
+				)
+			else
+				container.AnchorPoint = baseAnchor
+				container.Position = basePosition
 			end
-			container.Position = basePosition - UDim2.fromOffset(0, lift)
 		end
 
-		local function watchCamera()
-			local camera = workspace.CurrentCamera
-			if camera then
-				trove:Connect(camera:GetPropertyChangedSignal("ViewportSize"), apply)
-			end
-			apply()
-		end
+		trove:AddPromise(WaitFor.Child(Players.LocalPlayer, "PlayerGui", 15)
+			:andThen(function(playerGui: Instance)
+				return WaitFor.Child(playerGui, HudConfig.TouchDockScreenName, 15)
+			end)
+			:andThen(function(dockGui: Instance)
+				return WaitFor.Child(dockGui, HudConfig.TouchDockFrameName, 15)
+			end)
+			:andThen(function(frame: Instance)
+				if not frame:IsA("GuiObject") then
+					return
+				end
+				dock = frame
+				trove:Connect(frame:GetPropertyChangedSignal("AbsolutePosition"), apply)
+				trove:Connect(frame:GetPropertyChangedSignal("AbsoluteSize"), apply)
+				apply()
+			end)
+			:catch(function(problem: any)
+				warn(
+					`[Hud] Touch dock disabled; needs PlayerGui.{HudConfig.TouchDockScreenName}.{HudConfig.TouchDockFrameName}: {tostring(
+						problem
+					)}`
+				)
+			end))
 
 		trove:Add(Input.PreferredInput.observe(function(preferred: Enum.PreferredInput)
 			isTouch = preferred == Enum.PreferredInput.Touch
 			apply()
 			return nil
 		end))
-		trove:Connect(workspace:GetPropertyChangedSignal("CurrentCamera"), watchCamera)
-		watchCamera()
+		trove:Connect(gui:GetPropertyChangedSignal("AbsolutePosition"), apply)
 	end
 
 	bindMoney()
-	bindTouchLift()
+	bindTouchDock()
 	bindData("Strength", { "Strength" }, function(value: number): string
 		return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
 	end)

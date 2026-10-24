@@ -10,6 +10,7 @@ local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local Input = require(ReplicatedStorage.Packages.Input)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local NumberTicker = require(ReplicatedStorage.Utils.NumberTicker)
 local Packets = require(ReplicatedStorage.Packets)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local TrainingMinigameConfig = require(ReplicatedStorage.Config.TrainingMinigameConfig)
@@ -468,12 +469,18 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		end)
 	end
 
-	trove:Add(context.Controllers.DataController:Observe({ "Strength" }, function(strength: any)
-		if strengthLabel then
-			strengthLabel.Text =
-				`{NumberFormat.Compact(if type(strength) == "number" then strength else 0)} {TrainingConfig.StrengthUnit}`
-		end
-	end))
+	if strengthLabel then
+		local label = strengthLabel
+		local strengthTicker = NumberTicker.new(function(value: number): string
+			return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
+		end, function(text: string)
+			label.Text = text
+		end)
+		trove:Add(strengthTicker, "Destroy")
+		trove:Add(context.Controllers.DataController:Observe({ "Strength" }, function(strength: any)
+			strengthTicker:Set(if type(strength) == "number" then strength else 0)
+		end))
+	end
 
 	trove:Add(context.Controllers.DataController:Observe({ "TrainingMinigameBest" }, function(best: any)
 		if bestLabel then
