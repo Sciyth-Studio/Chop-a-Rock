@@ -96,4 +96,31 @@ function HatchOdds.RollAtLeast(random: Random, geodeKey: string, minRarity: stri
 	return eligible[#eligible].PetKey
 end
 
+function HatchOdds.RollRarity(random: Random, geodeKey: string, rarity: string): string?
+	local geode = GeodeConfig.Geodes[geodeKey]
+	if not geode then
+		return nil
+	end
+	local eligible: { GeodeConfig.GeodePet } = {}
+	local totalWeight = 0
+	for _, entry in geode.Pets do
+		local pet = PetConfig.Pets[entry.PetKey]
+		if pet and pet.Rarity == rarity and entry.Weight > 0 then
+			table.insert(eligible, entry)
+			totalWeight += entry.Weight
+		end
+	end
+	if totalWeight <= 0 then
+		return nil
+	end
+	local roll = random:NextNumber() * totalWeight
+	for _, entry in eligible do
+		roll -= entry.Weight
+		if roll < 0 then
+			return entry.PetKey
+		end
+	end
+	return eligible[#eligible].PetKey
+end
+
 return table.freeze(HatchOdds)

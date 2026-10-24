@@ -17,6 +17,7 @@ local fields = {
 	"TrainingTier",
 	"Rebirths",
 	"Geodes",
+	"Pity",
 	"Pets",
 	"NextPetId",
 	"PedestalSlots",
@@ -24,6 +25,7 @@ local fields = {
 	"Index",
 	"Tutorial",
 	"Hints",
+	"Weekly",
 }
 
 type Snapshot = {

@@ -197,6 +197,7 @@ local map: { [string]: AssetEntry } = {
 	SFX_Rush_Chime = { Category = "Sounds", InstanceName = "SFX_Rush_Chime" },
 	SFX_Rush_Tick = { Category = "Sounds", InstanceName = "SFX_Rush_Tick" },
 	Model_Rock_Diamond = { Category = "Models", InstanceName = "Model_Rock_Diamond" },
+	Model_LeaderboardCrown = { Category = "Models", InstanceName = "Model_LeaderboardCrown" },
 	Model_RockSplit_DiamondRock = { Category = "Models", InstanceName = "Model_RockSplit_DiamondRock" },
 	UI_DiamondLabel = { Category = "VFX", InstanceName = "DiamondLabel" },
 	VFX_Diamond_Glow = { Category = "VFX", InstanceName = "VFX_Diamond_Glow" },

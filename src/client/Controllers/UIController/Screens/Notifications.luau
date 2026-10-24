@@ -6,6 +6,7 @@ local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local Types = require(script.Parent.Parent.Types)
 
@@ -31,6 +32,14 @@ local function findChild(root: Instance, name: string, className: string): Insta
 end
 
 local function style(label: TextLabel, stroke: UIStroke?, kind: string)
+	local textStyle = NotificationConfig.KindStyles[kind]
+	if textStyle then
+		if not label:FindFirstChildWhichIsA("UIGradient") then
+			Instance.new("UIGradient").Parent = label
+		end
+		Typography.ApplyTextStyle(label, textStyle)
+		return
+	end
 	local prefix = WeatherConfig.NoticeKindPrefix
 	if string.sub(kind, 1, #prefix) ~= prefix then
 		return

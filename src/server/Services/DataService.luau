@@ -182,6 +182,7 @@ local function resetValues(overrides: { [string]: any }?): { [string]: any }
 		Index = { Pets = {}, Rocks = {}, Claimed = { Pets = {}, Rocks = {}, Zones = {} } },
 		Tutorial = Tutorial.NewState(),
 		Hints = {},
+		Weekly = table.clone(template.Weekly),
 	}
 	if overrides then
 		for key, value in overrides do

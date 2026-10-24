@@ -23,8 +23,8 @@ local function warnOnce(message: string)
 	warn(`[LeaderboardService] {message}; boards show this server's players only`)
 end
 
-local function get(key: string): OrderedDataStore?
-	local store = stores[key]
+local function get(name: string): OrderedDataStore?
+	local store = stores[name]
 	if store then
 		return store
 	end
@@ -32,14 +32,18 @@ local function get(key: string): OrderedDataStore?
 		then LeaderboardConfig.StudioStorePrefix
 		else LeaderboardConfig.StorePrefix
 	local ok, result = pcall(function()
-		return DataStoreService:GetOrderedDataStore(prefix .. key)
+		return DataStoreService:GetOrderedDataStore(prefix .. name)
 	end)
 	if not ok then
 		warnOnce(tostring(result))
 		return nil
 	end
-	stores[key] = result
+	stores[name] = result
 	return result
+end
+
+function Stores.Name(key: string, week: number?): string
+	return if week then `{LeaderboardConfig.WeeklyStorePrefix}{week}_{key}` else key
 end
 
 function Stores.Encode(value: number): number
@@ -50,8 +54,8 @@ function Stores.Decode(encoded: number): number
 	return math.max(0, 10 ^ (encoded / LeaderboardConfig.EncodeScale) - 1)
 end
 
-function Stores.Write(key: string, userId: number, encoded: number): boolean
-	local store = get(key)
+function Stores.Write(name: string, userId: number, encoded: number): boolean
+	local store = get(name)
 	if not store then
 		return false
 	end
@@ -64,8 +68,8 @@ function Stores.Write(key: string, userId: number, encoded: number): boolean
 	return ok
 end
 
-function Stores.ReadTop(key: string, count: number): { Entry }?
-	local store = get(key)
+function Stores.ReadTop(name: string, count: number): { Entry }?
+	local store = get(name)
 	if not store then
 		return nil
 	end

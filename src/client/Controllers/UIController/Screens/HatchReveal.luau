@@ -77,6 +77,7 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local rarityLabel: TextLabel? = find(gui, "RarityLabel", "TextLabel")
 	local odds: TextLabel? = find(gui, "Odds", "TextLabel")
 	local newBadge: GuiObject? = find(gui, "NewBadge", "GuiObject")
+	local pityBadge: GuiObject? = find(gui, "Pity", "GuiObject")
 	local rays: GuiObject? = find(gui, "Rays", "GuiObject")
 	local preview: ViewportFrame? = find(gui, "Preview", "ViewportFrame")
 	local statValue: TextLabel? = find(gui, "StatValue", "TextLabel")
@@ -114,6 +115,9 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		setText(odds, NumberFormat.Percent(chance))
 		if newBadge then
 			newBadge.Visible = hatch.IsNew == true
+		end
+		if pityBadge then
+			pityBadge.Visible = hatch.IsPity == true
 		end
 		setText(statValue, `{NumberFormat.Rate(RokModifier.Rate(hatch.PetKey, hatch.Modifier))}/s`)
 		if modifierLabel then

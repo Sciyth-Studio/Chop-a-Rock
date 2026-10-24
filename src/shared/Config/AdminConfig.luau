@@ -158,6 +158,11 @@ for _, key in RarityConfig.Order do
 	table.insert(rarityChoices, { Value = key, Label = RarityConfig.Rarities[key].DisplayName })
 end
 
+local pityChoices: { Choice } = {}
+for _, key in GeodeConfig.PityRarities do
+	table.insert(pityChoices, { Value = key, Label = RarityConfig.Rarities[key].DisplayName })
+end
+
 local qualityChoices: { Choice } = {}
 for _, key in { "Perfect", "Great", "Good", "Mid", "Bad" } do
 	table.insert(qualityChoices, { Value = key, Label = key })
@@ -331,6 +336,14 @@ local AdminConfig: AdminSettings = {
 			Choices = rarityChoices,
 			Alias = "rarity",
 		},
+		{
+			Id = "PityDue",
+			Label = "Pity: Next Due",
+			Tab = "Roks",
+			Kind = "Choice",
+			Choices = pityChoices,
+			Alias = "pity",
+		},
 		{ Id = "FillBackpack", Label = "Fill Backpack", Tab = "Roks", Kind = "Button", Alias = "fill" },
 		{ Id = "ClearBackpack", Label = "Clear Backpack", Tab = "Roks", Kind = "Button", Alias = "clear" },
 		{
@@ -501,6 +514,21 @@ local AdminConfig: AdminSettings = {
 			Kind = "Choice",
 			Choices = modifierChoices,
 			Alias = "modifier",
+		},
+		{
+			Id = "LeaderboardRefresh",
+			Label = "Leaderboards: Refresh",
+			Tab = "Debug",
+			Kind = "Button",
+			Alias = "lbrefresh",
+		},
+		{
+			Id = "LeaderboardWeek",
+			Label = "Leaderboards: Week Offset",
+			Tab = "Debug",
+			Kind = "Number",
+			Default = "1",
+			Alias = "lbweek",
 		},
 		{
 			Id = "ResetData",

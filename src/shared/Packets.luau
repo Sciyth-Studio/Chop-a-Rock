@@ -103,7 +103,8 @@ local Packets = {
 		Packet.NumberU8,
 		Packet.Boolean8,
 		Packet.String,
-		Packet.String
+		Packet.String,
+		Packet.Boolean8
 	),
 	UnequipPet = Packet("UnequipPet", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(10, 1),
 	EquipBestPets = Packet("EquipBestPets"):Response(Packet.Boolean8):RateLimit(2, 1),

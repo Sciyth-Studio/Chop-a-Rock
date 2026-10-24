@@ -25,6 +25,7 @@ export type Hatch = {
 	IsNew: boolean,
 	Trait: string?,
 	Modifier: string?,
+	IsPity: boolean,
 }
 
 return {}

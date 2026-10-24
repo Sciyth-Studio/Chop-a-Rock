@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local AdminConfig = require(ReplicatedStorage.Config.AdminConfig)
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -17,6 +18,7 @@ local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local WalkSpeedConfig = require(ReplicatedStorage.Config.WalkSpeedConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
+local HatchPity = require(ReplicatedStorage.HatchPity)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -291,6 +293,25 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, "no Diamond Rock out")
 		end
 	end,
+	LeaderboardRefresh = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.LeaderboardService:Refresh() then
+			notify(context, player, "leaderboards refreshing")
+		else
+			notify(context, player, "a refresh is already running")
+		end
+	end,
+	LeaderboardWeek = function(context: Types.Context, player: Player, argument: string)
+		if not RunService:IsStudio() then
+			notify(context, player, "week offset is Studio only")
+			return
+		end
+		local offset = number(context, player, argument, 0, 52)
+		if offset then
+			context.Services.StatsService:SetWeekOffset(offset)
+			context.Services.LeaderboardService:Refresh()
+			notify(context, player, `leaderboard week offset {offset}`)
+		end
+	end,
 	StartGeodeFall = function(context: Types.Context, player: Player, _argument: string)
 		local _started, message = context.Services.GeodeFallService:Spawn(player)
 		notify(context, player, message)
@@ -397,6 +418,20 @@ local Commands: { [string]: Types.Handler } = {
 		end
 		context.Services.GeodeService:ForceNextRarity(player, rarity)
 		notify(context, player, `next hatch is {rarity}`)
+	end,
+	PityDue = function(context: Types.Context, player: Player, argument: string)
+		local rarity = Arguments.Match(argument, GeodeConfig.PityRarities)
+		local geodeKey = zoneGeode(context, player)
+		local threshold = if rarity and geodeKey then HatchPity.Threshold(geodeKey, rarity) else nil
+		local data = context.Services.DataService:GetData(player)
+		if not rarity or not geodeKey or not threshold or not data then
+			notify(context, player, `no pity called {argument}`)
+			return
+		end
+		local counts = table.clone(data.Pity[geodeKey] or {})
+		counts[rarity] = threshold - 1
+		context.Services.DataService:Set(player, { "Pity", geodeKey }, counts)
+		notify(context, player, `next {geodeKey} Geode crack is a guaranteed {rarity}`)
 	end,
 	FillBackpack = function(context: Types.Context, player: Player, _argument: string)
 		local room = PetConfig.MaxPets - context.Services.PetService:Count(player)

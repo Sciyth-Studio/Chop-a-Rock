@@ -9,6 +9,7 @@ local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
+local HatchPity = require(ReplicatedStorage.HatchPity)
 local HatchTiming = require(ReplicatedStorage.HatchTiming)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
@@ -137,9 +138,13 @@ function Cracking.Release(
 		services.StatsService:RecordChop(player, quality)
 	end
 	local luck = Luck.Total(context, player, quality)
-	local petKey = forcedPet(context, player, session.GeodeKey)
-		or HatchOdds.Roll(random, session.GeodeKey, luck)
 	local data = services.DataService:GetData(player)
+	local pityCounts = if data then data.Pity[session.GeodeKey] else nil
+	local forced = forcedPet(context, player, session.GeodeKey)
+	local due = if forced then nil else HatchPity.Due(session.GeodeKey, pityCounts)
+	local pityKey = if due then HatchOdds.RollRarity(random, session.GeodeKey, due) else nil
+	local petKey = forced or pityKey or HatchOdds.Roll(random, session.GeodeKey, luck)
+	local isPity = pityKey ~= nil
 	local owned = if data then data.Geodes[session.GeodeKey] or 0 else 0
 	if not petKey or owned < 1 or not services.PetService:CanAdd(player, 1) then
 		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
@@ -166,6 +171,11 @@ function Cracking.Release(
 		return GeodeConfig.RecrackDelaySeconds
 	end
 	local pet = PetConfig.Pets[grant.PetKey]
+	services.DataService:Set(
+		player,
+		{ "Pity", session.GeodeKey },
+		HatchPity.After(session.GeodeKey, pityCounts, pet.Rarity)
+	)
 	local rarity = RarityConfig.Rarities[pet.Rarity]
 	local isMaster = quality == ChopQuality.Master
 	Packets.ChopResult:FireClient(player, quality, 0, 1, 0, 1)
@@ -173,7 +183,7 @@ function Cracking.Release(
 		`[GeodeService] {player.Name} cracked {session.GeodeKey}: quality={quality}, luck={string.format(
 			"%.2f",
 			luck
-		)}, pet={grant.PetKey}, new={grant.IsNew}`
+		)}, pet={grant.PetKey}, new={grant.IsNew}, pity={if isPity then due else "none"}`
 	)
 	if isMaster then
 		Effects.MasterStart(session.Part)
@@ -200,7 +210,8 @@ function Cracking.Release(
 			table.find(RarityConfig.Order, pet.Rarity) or 1,
 			grant.IsNew,
 			grant.Trait or "",
-			grant.Modifier or ""
+			grant.Modifier or "",
+			isPity
 		)
 	end)
 	if rarity.Announce then

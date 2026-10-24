@@ -18,6 +18,14 @@ export type Pet = {
 	Slot: number?,
 }
 
+export type Weekly = {
+	Week: number,
+	Strength: number,
+	PerfectChops: number,
+	Playtime: number,
+	MoneyPerSecond: number,
+}
+
 export type Data = {
 	SchemaVersion: number,
 	Cash: number,
@@ -30,7 +38,9 @@ export type Data = {
 	Rebirths: number,
 	PerfectChops: number,
 	Playtime: number,
+	Weekly: Weekly,
 	Geodes: { [string]: number },
+	Pity: { [string]: { [string]: number } },
 	Pets: { [string]: Pet },
 	NextPetId: number,
 	PedestalSlots: number,
@@ -65,7 +75,9 @@ PlayerData.Template = {
 	Rebirths = 0,
 	PerfectChops = 0,
 	Playtime = 0,
+	Weekly = { Week = 0, Strength = 0, PerfectChops = 0, Playtime = 0, MoneyPerSecond = 0 },
 	Geodes = {},
+	Pity = {},
 	Pets = {},
 	NextPetId = 1,
 	PedestalSlots = PedestalConfig.StartingSlots,
@@ -165,8 +177,34 @@ function PlayerData.Validate(data: any): boolean
 	if data.EquippedCannon ~= nil and type(data.EquippedCannon) ~= "string" then
 		return false
 	end
+	if data.Weekly ~= nil then
+		local weekly = data.Weekly
+		if type(weekly) ~= "table" then
+			return false
+		end
+		for _, key in { "Week", "Strength", "PerfectChops", "Playtime" } do
+			if weekly[key] ~= nil and not natural(weekly[key]) then
+				return false
+			end
+		end
+		if
+			weekly.MoneyPerSecond ~= nil and (not finite(weekly.MoneyPerSecond) or weekly.MoneyPerSecond < 0)
+		then
+			return false
+		end
+	end
 	if data.Geodes ~= nil and not counts(data.Geodes) then
 		return false
+	end
+	if data.Pity ~= nil then
+		if type(data.Pity) ~= "table" then
+			return false
+		end
+		for geodeKey, misses in data.Pity do
+			if type(geodeKey) ~= "string" or #geodeKey == 0 or not counts(misses) then
+				return false
+			end
+		end
 	end
 	if data.Pets ~= nil then
 		if type(data.Pets) ~= "table" then

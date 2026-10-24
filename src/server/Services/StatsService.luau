@@ -4,12 +4,57 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
+local Week = require(ReplicatedStorage.Utils.Week)
 local DataService = require(script.Parent.DataService)
 local NotificationService = require(script.Parent.NotificationService)
 
 local StatsService = {
 	Name = "StatsService",
 }
+
+local weekOffset = 0
+
+function StatsService.GetWeek(_self: any): number
+	return Week.Current(nil, weekOffset)
+end
+
+function StatsService.GetWeekEndsAt(_self: any): number
+	return Week.EndsAt(StatsService:GetWeek(), weekOffset)
+end
+
+function StatsService.SetWeekOffset(_self: any, offset: number)
+	weekOffset = offset
+end
+
+function StatsService.GetWeekly(_self: any, player: Player): { [string]: number }?
+	local data = DataService:GetData(player)
+	if not data then
+		return nil
+	end
+	local week = StatsService:GetWeek()
+	if data.Weekly.Week ~= week then
+		DataService:Set(
+			player,
+			{ "Weekly" },
+			{ Week = week, Strength = 0, PerfectChops = 0, Playtime = 0, MoneyPerSecond = 0 }
+		)
+	end
+	return data.Weekly :: any
+end
+
+function StatsService.AddWeekly(_self: any, player: Player, key: string, amount: number)
+	local weekly = StatsService:GetWeekly(player)
+	if weekly and amount > 0 then
+		DataService:Set(player, { "Weekly", key }, weekly[key] + amount)
+	end
+end
+
+function StatsService.RaiseWeekly(_self: any, player: Player, key: string, value: number)
+	local weekly = StatsService:GetWeekly(player)
+	if weekly and value > weekly[key] then
+		DataService:Set(player, { "Weekly", key }, value)
+	end
+end
 
 function StatsService.GetStrength(_self: any, player: Player): number
 	local data = DataService:GetData(player)
@@ -28,6 +73,7 @@ function StatsService.AddStrength(_self: any, player: Player, delta: number): nu
 		return after
 	end
 	DataService:Set(player, { "Strength" }, after)
+	StatsService:AddWeekly(player, "Strength", after - before)
 	if before < cap and after >= cap then
 		NotificationService:Notify(player, "Unlock", "Rebirth ready! Rebirth to keep getting stronger")
 	end
@@ -47,6 +93,7 @@ function StatsService.RecordChop(_self: any, player: Player, quality: number)
 	local data = DataService:GetData(player)
 	if data then
 		DataService:Set(player, { "PerfectChops" }, data.PerfectChops + 1)
+		StatsService:AddWeekly(player, "PerfectChops", 1)
 	end
 end
 
