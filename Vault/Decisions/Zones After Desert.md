@@ -84,3 +84,5 @@ Epic and up roll a trait at hatch (existing 25% rule), so Epic, Legendary and Se
 - Approve or change the rock names, colours and sizes.
 - Money sinks to match the big numbers (needs its own plan).
 - Desert Roks (Pointy, Spike, Howdy, Flowy, Ankhy, Sunny) and the Desert Geode are still not in config; they wait on the user modelling the desert rocks and geodes. Desert Rok income would be forest x80 (80 / 160 / 400 / 960 / 2,400 / 12,000).
+
+**Realistic rock colours (user, 2026-10-23):** the user asked for "more reasonable and realistic" body colours, which replaces the 2026-10-10 "colours stay as they are". Body colours are now Desert 222,180,115 / 196,105,55 / 160,78,48; Jungle 112,128,96 / 88,98,90 / 150,112,72 (Tiki face 95,62,38); Ocean 110,125,135 / 72,86,100 / 200,172,140; Snow 128,138,150 / 88,98,115 / 150,165,180 (First / Second / Third). Props kept their bright colours. Applied to each `Model_Rock_<Key>`, its split pieces, `Model_RockPreview_<Key>` and the Rock Showcase copies. The placeholder colour column above is history.

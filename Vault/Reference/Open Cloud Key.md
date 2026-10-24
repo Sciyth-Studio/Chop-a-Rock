@@ -26,3 +26,5 @@ Related: [[Asset Ownership]], [[Chop a Rock]]
 **VFX textures, 2026-10-13:** 29 Diamond and Aura particle/beam/icon PNGs uploaded as `Image` under the group and work in the templates, so this is the default route for VFX uploads (no `upload_image`, no "share access" clicks). Right after upload, 7 of the larger images reported `AssetFetchStatus.Failure` in `PreloadAsync` though the API already said `Approved`; a minute later all loaded. Retry before assuming a bad id.
 
 **Audio, 2026-10-20:** WAV files upload the same way with `assetType` **Audio** and file part `type=audio/wav` under group 10962733. Nine minigame sounds (0.2-6 s) all came back with ids within a few seconds and loaded in Studio through `PreloadAsync` (`IsLoaded`, correct `TimeLength`). See [[Training Minigame Board Slice]].
+
+**Item icons, 2026-10-23:** `scripts/upload_icons.py` uploads the Rok and rock card icons as `Image` assets with this key (the user chose it over a separate icons key). All 45 icons uploaded and loaded in play (2026-10-24). See [[Item Icons]].

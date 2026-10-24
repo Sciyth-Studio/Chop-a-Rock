@@ -1,7 +1,7 @@
 ---
 description: 2026-10-21 the user approved four global leaderboards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, in-world slabs with medal rows, pinned You row and a #1 statue
 type: decision
-updated: 2026-10-21
+updated: 2026-10-22
 ---
 On 2026-10-21 the user chose these boards from Claude's proposal (built as [[Leaderboards]]):
 - **Strength, Money/s, Perfect Chops, Playtime.** Rebirths and Robux Spent were left out.
@@ -10,3 +10,4 @@ On 2026-10-21 the user chose these boards from Claude's proposal (built as [[Lea
 - **Placeholder slabs:** plain rectangular Parts for now; the user will model properly sized slabs later.
 - **No mascot on the board.** The dog in the reference screenshot was that game's HUD.
 - **Liked, not built yet:** a weekly tab that resets, a crown/title over #1's head, and a "You passed X!" toast. See [[To Do]].
+- **2026-10-22 picks for the extras** (planned in `LeaderboardExtrasPlan.md`, not built): tabs tapped per player (All-time / Weekly), weekly counts gains this week (best Money/s), reset Monday 00:00 UTC; all-time #1 gets an overhead crown + `[#1 Strength]` chat tag; pass toast for players in your server (5 s) and the global top 100 (each refresh).

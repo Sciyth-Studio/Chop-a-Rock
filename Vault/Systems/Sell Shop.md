@@ -18,7 +18,7 @@ Take from it: the sort sidebar with Select All, the card grid (stat on the card,
 ## Code
 - Server: `PetService:Sell(player, ids)` handles the `SellPets` packet (`{ String }` in, total `NumberF64` out). One bad id (unknown, duplicate or placed on a pedestal) rejects the whole sale. Money is added with `AdjustCash`, with no multipliers.
 - Price: `RokValue.Sell(petKey)` = `MoneyPerSecond x PetConfig.SellValueSeconds`: 60 since 2026-10-19 (was 100). At 100, hatching and selling made money in the Ocean and Snow, which would let the planned auto-open gamepass print cash. 60 keeps the Snow at about 0.8x the geode price, or 0.9x during weather ([[Balance Pass Oct 18]]).
-- Client: `Screens/SellShop.luau` + `StarterGui.SellShop` (lime header, 920x640): `Sidebar.SortList.SortTemplate` (`Arrow`, `Label`), `Sidebar.SelectAllButton` (`Box.Tick`), `Grid` (ScrollingFrame, `CardTemplate` with `Rarity`, `Preview`, `Rate`, `PriceBar.Price`, `Select`), `EmptyLabel`, `Footer` (`Total`, `SellButton`).
+- Client: `Screens/SellShop.luau` + `StarterGui.SellShop` (lime header, 920x640): `Sidebar.SortList.SortTemplate` (`Arrow`, `Label`), `Sidebar.SelectAllButton` (`Box.Tick`), `Grid` (ScrollingFrame, `CardTemplate` with `RarityBar.Rarity` (ribbon, see [[Rarity Ribbon And Modifier Tags]]), `Preview`, `Modifier`, `Rate`, `PriceBar.Price`, `Select`), `EmptyLabel`, `Footer` (`Total`, `SellButton`).
 - Sorts are listed in `SellShopConfig.Sorts`: Value, Rarity, Newest. A new sort starts descending, and clicking the active one flips it (▼ / ▲, both render in the game font). Ties fall back to value, then id.
 - Only Roks in the Backpack are listed (`Slot == nil`).
 

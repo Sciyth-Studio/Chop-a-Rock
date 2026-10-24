@@ -55,7 +55,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 - [[Zone Line]] — zone order forest → desert → jungle → ocean → snow; folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
-- [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared
+- [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared; recover a sourceless image via EditableImage pixels
 - [[Open Cloud Key]] — `ROBLOX_API_KEY` user env var; assets + dev products scopes; reaches group assets; never print it
 - [[Shop Stall Reference]] — striped-awning market stall sheet for the lobby shops; three meshes for recolouring
 - [[Stand Name Signs]] — shop / "Wood Training" name billboards (Arm Shop deleted 2026-10-18) above the stands; BillboardGuis don't show in screen_capture
@@ -88,6 +88,10 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Baked Face Shading]] — greyscale per-face vertex colours baked in Blender; no longer used on buildings (see Flat Shading On Buildings)
 - [[Studio Reimport]] — Alt+Shift+R updates an imported Model's meshes in place by mesh name; keeps colours, materials, children
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
+- [[Item Icon Rendering]] — icon spike 2026-10-23: variant tile = StudsPerTile world studs, Roblox (x,y,z) = Blender (-x,z,y), VF lighting is sRGB colour × (0.667 + 0.58 N·L), headless Blender renderer gotchas
+- [[Rok Icon Reference]] — 2026-10-23 target look for Rok icons: near-front bright render, real raised studs, thick black outline following the studs
+- [[Trove Promises]] — `trove:AddPromise`, never `trove:Add`, for Promises; Add throws on a settled one and disables the whole screen (broke the HUD strength counter 2026-10-23)
+- [[Number Ticker]] — `Utils/NumberTicker` counts HUD numbers up over 0.3-0.6 s on one shared Heartbeat, writing text only when the formatted string changes; decreases snap
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
 - [[VFX Showcase]] — `Workspace.VFXShowcase` stands + local plugin loop every effect in Edit; add a stand per new effect
 - [[Rock Showcase]] — `Workspace.RockShowcase` west of the zones: every zone's rocks + exploded splits on EditorOnly plates; `RockShowcase` plugin mirrors template colour edits live; rebuild script in `rock-model`
@@ -103,7 +107,7 @@ _One note per game system as they're worked on._
 - [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands, Reset Player Data (name + press twice), testing-speed commands, Ctrl+Shift+Space command bar, data snapshots; add a command = config entry + `AdminService/Commands` handler
 - [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
-- [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; new zone = config only (no stand)
+- [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; new zone = config only (no stand); pity bars (Legendary + Secret guarantees per geode, built 2026-10-22)
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
@@ -119,7 +123,8 @@ _One note per game system as they're worked on._
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 - [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks, Skip; weather ignored while it runs
 - [[Cash Packs]] — four Robux packs worth 3/12/40/150 of your zone's geode; a can't-afford buy (auras, cannons, geodes, slots, training sign) opens the Robux prompt for the covering pack directly, no popup; `CashPackConfig`, `Utils/CashPack`, `CashPackController`; stand products off sale
-- [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part
+- [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks in Index + Geode Stand cards via `Utils/ItemIcons` (ViewportFrame fallback), generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons (every zone) uploaded and live 2026-10-24
+- [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
@@ -136,6 +141,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Chop Timing Uses Client Time]] — 2026-10-21: chop quality judged on the client's elapsed time, clamped server-side to a fixed 0.4 s window (draft; not ping-sized); every chop flow uses `Utils/ChopTiming`
 - [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 - [[Leaderboards Approved]] — 2026-10-21: Strength, Money/s, Perfect Chops, Playtime; global, 60 s; weekly tab, #1 crown, pass toast liked but not built
+- [[Rarity Ribbon And Modifier Tags]] — 2026-10-23: sell cards show rarity as a gradient ribbon (`Utils/RarityRibbon`) and the modifier as its name in its weather colours (`RokModifier.PaintLabel`)
 
 ## Inbox
 _Unsorted learnings for the user to review._
