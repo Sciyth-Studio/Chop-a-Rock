@@ -1,0 +1,5383 @@
+{
+  "readFrom": "Roblox Studio, place 81877269405934, 2026-10-23",
+  "variants": {
+    "2022 Small Stud": {
+      "base": "Plastic",
+      "studsPerTile": 0.5,
+      "colorMap": "rbxassetid://10509831729",
+      "normalMap": "rbxassetid://10509831753",
+      "kind": "outlet",
+      "texture": "SmallStud.png"
+    },
+    "2022 Inlet": {
+      "base": "Plastic",
+      "studsPerTile": 1,
+      "colorMap": "rbxassetid://10509827175",
+      "normalMap": "rbxassetid://10509827228",
+      "kind": "inlet",
+      "texture": "Inlet.png"
+    }
+  },
+  "icons": {
+    "Pet/Bloky": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Bloky",
+      "boundsSize": [
+        2,
+        1.88,
+        2.036
+      ],
+      "parts": {
+        "Bloky": {
+          "color": [
+            120,
+            120,
+            120
+          ],
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            2,
+            1.88,
+            1.92
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Bloky_Eyes": {
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.4,
+            0.58,
+            0.136
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Bloky_Pupils": {
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.22,
+            0.4,
+            0.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Sprout": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Sprout",
+      "boundsSize": [
+        2,
+        2.7291,
+        2.036
+      ],
+      "parts": {
+        "Sprout": {
+          "color": [
+            120,
+            120,
+            120
+          ],
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            2,
+            1.88,
+            1.92
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Sprout_Eyes": {
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.4,
+            0.58,
+            0.136
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Sprout_Leaves": {
+          "color": [
+            110,
+            205,
+            25
+          ],
+          "position": [
+            0,
+            2.2545,
+            0.1536
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.4275,
+            0.9491,
+            0.6072
+          ],
+          "size": [
+            1.4275,
+            0.9491,
+            0.6072
+          ]
+        },
+        "Sprout_Pupils": {
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.22,
+            0.4,
+            0.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Shroomy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Shroomy",
+      "boundsSize": [
+        2.4188,
+        3.16,
+        1.556
+      ],
+      "parts": {
+        "Shroomy": {
+          "color": [
+            120,
+            120,
+            120
+          ],
+          "position": [
+            0,
+            1.08,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            2,
+            2.16,
+            1.44
+          ],
+          "size": [
+            2,
+            2.16,
+            1.44
+          ]
+        },
+        "Shroomy_Caps": {
+          "color": [
+            235,
+            20,
+            20
+          ],
+          "position": [
+            0.2472,
+            1.922,
+            -0.0393
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            2.3149,
+            2.4759,
+            1.2209
+          ],
+          "size": [
+            2.3149,
+            2.4759,
+            1.2209
+          ]
+        },
+        "Shroomy_Eyes": {
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "position": [
+            0,
+            1.2,
+            -0.768
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.4,
+            0.58,
+            0.136
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Shroomy_Pupils": {
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "position": [
+            0,
+            1.2,
+            -0.8
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.22,
+            0.4,
+            0.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Shroomy_Spots": {
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "position": [
+            0.3141,
+            2.0377,
+            0.0232
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            2.2094,
+            2.2201,
+            1.0192
+          ],
+          "size": [
+            2.2094,
+            2.2201,
+            1.0192
+          ]
+        },
+        "Shroomy_Stems": {
+          "color": [
+            235,
+            225,
+            200
+          ],
+          "position": [
+            0.2363,
+            1.6894,
+            0.0658
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.914,
+            1.7811,
+            0.618
+          ],
+          "size": [
+            1.914,
+            1.7811,
+            0.618
+          ]
+        }
+      }
+    },
+    "Pet/Nesty": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Nesty",
+      "boundsSize": [
+        2.3824,
+        2.9548,
+        2.3706
+      ],
+      "parts": {
+        "Nesty": {
+          "color": [
+            120,
+            120,
+            120
+          ],
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            2,
+            1.88,
+            1.92
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Nesty_Eggs": {
+          "color": [
+            170,
+            210,
+            245
+          ],
+          "position": [
+            -0.0077,
+            2.5674,
+            0.0587
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.1831,
+            0.7748,
+            1.2162
+          ],
+          "size": [
+            1.1831,
+            0.7748,
+            1.2162
+          ]
+        },
+        "Nesty_Eyes": {
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.4,
+            0.58,
+            0.136
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Nesty_Nest": {
+          "color": [
+            150,
+            85,
+            35
+          ],
+          "position": [
+            0.0441,
+            2.186,
+            -0.0521
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            2.3824,
+            0.6921,
+            2.3706
+          ],
+          "size": [
+            2.3824,
+            0.6921,
+            2.3706
+          ]
+        },
+        "Nesty_Pupils": {
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.22,
+            0.4,
+            0.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Berry": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Berry",
+      "boundsSize": [
+        2.3387,
+        2.8182,
+        2.3387
+      ],
+      "parts": {
+        "Berry": {
+          "color": [
+            120,
+            120,
+            120
+          ],
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            2,
+            1.88,
+            1.92
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Berry_Berries": {
+          "color": [
+            255,
+            5,
+            190
+          ],
+          "position": [
+            0,
+            2.06,
+            0
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Neon",
+          "meshSize": [
+            1.6313,
+            0.4,
+            1.976
+          ],
+          "size": [
+            1.6313,
+            0.4,
+            1.976
+          ]
+        },
+        "Berry_Eyes": {
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.4,
+            0.58,
+            0.136
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Berry_Leaves": {
+          "color": [
+            110,
+            205,
+            25
+          ],
+          "position": [
+            0,
+            2.3023,
+            0
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            2.3387,
+            1.0317,
+            2.3387
+          ],
+          "size": [
+            2.3387,
+            1.0317,
+            2.3387
+          ]
+        },
+        "Berry_Pupils": {
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.22,
+            0.4,
+            0.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Treebo": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Treebo",
+      "boundsSize": [
+        2.8632,
+        3.9168,
+        2.4896
+      ],
+      "parts": {
+        "Treebo": {
+          "color": [
+            120,
+            120,
+            120
+          ],
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            2,
+            1.88,
+            1.92
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Treebo_Brows": {
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "position": [
+            0,
+            1.51,
+            -0.99
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.3653,
+            0.229,
+            0.12
+          ],
+          "size": [
+            1.3653,
+            0.229,
+            0.12
+          ]
+        },
+        "Treebo_Eyes": {
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.4,
+            0.58,
+            0.136
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Treebo_Fireflies": {
+          "color": [
+            255,
+            235,
+            60
+          ],
+          "position": [
+            -0.5124,
+            3.1043,
+            0.5659
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Neon",
+          "meshSize": [
+            2.7015,
+            1.6251,
+            1.6953
+          ],
+          "size": [
+            2.7015,
+            1.6251,
+            1.6953
+          ]
+        },
+        "Treebo_Leaves": {
+          "color": [
+            110,
+            205,
+            25
+          ],
+          "position": [
+            -0.5004,
+            3.0688,
+            0.6627
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            2.0195,
+            1.4872,
+            1.2911
+          ],
+          "size": [
+            2.0195,
+            1.4872,
+            1.2911
+          ]
+        },
+        "Treebo_Pupils": {
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.22,
+            0.4,
+            0.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Treebo_Trunk": {
+          "color": [
+            125,
+            75,
+            35
+          ],
+          "position": [
+            -0.4974,
+            2.1916,
+            0.5713
+          ],
+          "variant": "",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "meshSize": [
+            1.1071,
+            1.3429,
+            0.5588
+          ],
+          "size": [
+            1.1071,
+            1.3429,
+            0.5588
+          ]
+        }
+      }
+    },
+    "Rock/Basic": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Forest.Model_RockPreview_Basic",
+      "boundsSize": [
+        6.9514,
+        4.2304,
+        5.9825
+      ],
+      "parts": {
+        "Rock": {
+          "color": [
+            107,
+            107,
+            107
+          ],
+          "position": [
+            0,
+            3.5254,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "orientation": [
+            0,
+            180,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            11.5857,
+            7.0507,
+            9.9708
+          ],
+          "size": [
+            6.9514,
+            4.2304,
+            5.9825
+          ]
+        }
+      }
+    },
+    "Rock/Second": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Forest.Model_RockPreview_Second",
+      "boundsSize": [
+        11.5857,
+        7.0507,
+        9.9708
+      ],
+      "parts": {
+        "Rock": {
+          "color": [
+            89,
+            89,
+            89
+          ],
+          "position": [
+            0,
+            3.5254,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            11.5857,
+            7.0507,
+            9.9708
+          ],
+          "size": [
+            11.5857,
+            7.0507,
+            9.9708
+          ]
+        }
+      }
+    },
+    "Rock/Third": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Forest.Model_RockPreview_Third",
+      "boundsSize": [
+        18.1627,
+        12.8778,
+        16.8198
+      ],
+      "parts": {
+        "Moss": {
+          "color": [
+            18,
+            86,
+            31
+          ],
+          "position": [
+            -0.2903,
+            9.819,
+            -0.3175
+          ],
+          "variant": "2022 Inlet",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            6.4118,
+            2.2397,
+            5.9635
+          ],
+          "size": [
+            17.5135,
+            6.1176,
+            16.2889
+          ]
+        },
+        "Rock": {
+          "color": [
+            111,
+            111,
+            111
+          ],
+          "position": [
+            0,
+            6.002,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "material": "Plastic",
+          "meshSize": [
+            6.6495,
+            4.3947,
+            6.1197
+          ],
+          "size": [
+            18.1627,
+            12.0039,
+            16.7157
+          ]
+        }
+      }
+    },
+    "Pet/Pointy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Pointy",
+      "parts": {
+        "Pointy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            215,
+            152,
+            35
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.98,
+            0
+          ],
+          "size": [
+            2.4,
+            1.96,
+            2.4
+          ]
+        },
+        "Pointy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            0.8806,
+            -0.9117
+          ],
+          "size": [
+            1.4,
+            0.5571,
+            0.345
+          ]
+        },
+        "Pointy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            0.9057,
+            -0.9606
+          ],
+          "size": [
+            1.22,
+            0.3741,
+            0.2183
+          ]
+        }
+      }
+    },
+    "Pet/Spike": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Spike",
+      "parts": {
+        "Spike": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            215,
+            152,
+            35
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Spike_Cactus": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            60,
+            200,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.233,
+            2.38,
+            0
+          ],
+          "size": [
+            1.1681,
+            1.16,
+            0.7021
+          ]
+        },
+        "Spike_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Spike_Flower": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            40,
+            170
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            3.07,
+            0.0363
+          ],
+          "size": [
+            0.7228,
+            0.18,
+            0.6874
+          ]
+        },
+        "Spike_FlowerCentre": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            220,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            3.08,
+            0
+          ],
+          "size": [
+            0.2217,
+            0.12,
+            0.2379
+          ]
+        },
+        "Spike_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Howdy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Howdy",
+      "parts": {
+        "Howdy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            215,
+            152,
+            35
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Howdy_Band": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            230,
+            0,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.12,
+            0
+          ],
+          "size": [
+            1.24,
+            0.2,
+            1.12
+          ]
+        },
+        "Howdy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Howdy_Hat": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            95,
+            45,
+            15
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.2778,
+            0
+          ],
+          "size": [
+            2.6,
+            1.0045,
+            2.2
+          ]
+        },
+        "Howdy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Flowy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Flowy",
+      "parts": {
+        "Flowy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            215,
+            152,
+            35
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Flowy_Centres": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            220,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.016,
+            3.1117,
+            -0.0892
+          ],
+          "size": [
+            1.024,
+            0.5878,
+            0.2352
+          ]
+        },
+        "Flowy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Flowy_Petals": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            0,
+            190
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.0368,
+            3.1742,
+            -0.0739
+          ],
+          "size": [
+            1.6336,
+            1.1149,
+            0.6241
+          ]
+        },
+        "Flowy_Plant": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            70,
+            200,
+            25
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.0147,
+            2.444,
+            0.1649
+          ],
+          "size": [
+            1.5825,
+            1.3519,
+            1.5946
+          ]
+        },
+        "Flowy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Ankhy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Ankhy",
+      "parts": {
+        "Ankhy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            215,
+            152,
+            35
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Ankhy_Ankh": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            200,
+            0
+          ],
+          "material": "Neon",
+          "position": [
+            0,
+            3.13,
+            -0.4
+          ],
+          "size": [
+            0.72,
+            1.38,
+            0.18
+          ]
+        },
+        "Ankhy_Blue": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            0,
+            70,
+            230
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.39,
+            0.1277
+          ],
+          "size": [
+            2.8356,
+            2.28,
+            2.6704
+          ]
+        },
+        "Ankhy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Ankhy_Gold": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            190,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.265,
+            0.1
+          ],
+          "size": [
+            2.88,
+            2.53,
+            2.84
+          ]
+        },
+        "Ankhy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Sunny": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Sunny",
+      "parts": {
+        "Sunny": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            215,
+            152,
+            35
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Sunny_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Sunny_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Sunny_Rays": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            230,
+            0
+          ],
+          "material": "Neon",
+          "position": [
+            0,
+            2.6024,
+            0
+          ],
+          "size": [
+            2.1514,
+            1.2661,
+            1.5299
+          ]
+        },
+        "Sunny_Ring": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            190,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.95,
+            0
+          ],
+          "size": [
+            1.2,
+            0.22,
+            1.2
+          ]
+        }
+      }
+    },
+    "Pet/Roly": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Roly",
+      "parts": {
+        "Roly": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            235,
+            35,
+            130
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.98,
+            0
+          ],
+          "size": [
+            2.24,
+            1.96,
+            2.16
+          ]
+        },
+        "Roly_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.128
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Roly_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.16
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Leafy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Leafy",
+      "parts": {
+        "Leafy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            235,
+            35,
+            130
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Leafy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Leafy_Leaf": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            90,
+            220,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.292,
+            2.6526,
+            -0.014
+          ],
+          "size": [
+            2.8106,
+            0.9588,
+            1.6763
+          ]
+        },
+        "Leafy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Leafy_Stem": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            40,
+            160,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.148,
+            2.27,
+            0
+          ],
+          "size": [
+            0.4369,
+            1.0007,
+            0.2
+          ]
+        }
+      }
+    },
+    "Pet/Viney": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Viney",
+      "parts": {
+        "Viney": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            235,
+            35,
+            130
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Viney_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Viney_Flower_Centers": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            130,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.01,
+            2.22,
+            0.0574
+          ],
+          "size": [
+            1.304,
+            0.24,
+            1.1715
+          ]
+        },
+        "Viney_Flower_Petals": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            220,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.0225,
+            2.1355,
+            0.0505
+          ],
+          "size": [
+            1.7151,
+            0.191,
+            1.6277
+          ]
+        },
+        "Viney_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Viney_Vines": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            50,
+            190,
+            35
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.0007,
+            1.0713,
+            0.0012
+          ],
+          "size": [
+            2.6007,
+            2.1426,
+            2.6843
+          ]
+        }
+      }
+    },
+    "Pet/Coco": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Coco",
+      "parts": {
+        "Coco": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            235,
+            35,
+            130
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Coco_Coconuts": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            125,
+            70,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.2,
+            -0.08
+          ],
+          "size": [
+            1.2467,
+            0.68,
+            0.68
+          ]
+        },
+        "Coco_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Coco_Fronds": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            80,
+            210,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.0762,
+            0.5729
+          ],
+          "size": [
+            3.0814,
+            1.6324,
+            2.4543
+          ]
+        },
+        "Coco_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Tiki": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Tiki",
+      "parts": {
+        "Tiki": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            235,
+            35,
+            130
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Tiki_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Tiki_Head": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            120,
+            120,
+            120
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.73,
+            -0.1
+          ],
+          "size": [
+            1.36,
+            1.74,
+            1.32
+          ]
+        },
+        "Tiki_Marks": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            0,
+            230,
+            255
+          ],
+          "material": "Neon",
+          "position": [
+            0,
+            2.665,
+            -0.16
+          ],
+          "size": [
+            1.26,
+            1.39,
+            0.88
+          ]
+        },
+        "Tiki_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Bloomy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Bloomy",
+      "parts": {
+        "Bloomy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            235,
+            35,
+            130
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            1.54,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Bloomy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.66,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Bloomy_Leaves": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            60,
+            180,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            0.1,
+            0
+          ],
+          "size": [
+            4.72,
+            0.2,
+            4.0876
+          ]
+        },
+        "Bloomy_Petals": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            205,
+            0
+          ],
+          "material": "Neon",
+          "position": [
+            0,
+            1.35,
+            -0.15
+          ],
+          "size": [
+            3.9491,
+            2.7,
+            4.26
+          ]
+        },
+        "Bloomy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.66,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Drip": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Drip",
+      "parts": {
+        "Drip": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            255,
+            95,
+            70
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            1.25,
+            0
+          ],
+          "size": [
+            2.2856,
+            2.5,
+            2.0828
+          ]
+        },
+        "Drip_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.1094
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Drip_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.1414
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Bubbly": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Bubbly",
+      "parts": {
+        "Bubbly": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            255,
+            95,
+            70
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Bubbly_Bubbles": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            0,
+            170,
+            255
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.0424,
+            2.4246,
+            0.0308
+          ],
+          "size": [
+            2.0784,
+            1.4028,
+            1.6504
+          ]
+        },
+        "Bubbly_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Bubbly_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Shelly": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Shelly",
+      "parts": {
+        "Shelly": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            255,
+            95,
+            70
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Shelly_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Shelly_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Shelly_Scallop": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            180,
+            110,
+            255
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.34,
+            2.1202,
+            -0.3369
+          ],
+          "size": [
+            1.0897,
+            0.6511,
+            0.3621
+          ]
+        },
+        "Shelly_Seaweed": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            40,
+            190,
+            40
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.154,
+            2.5818,
+            0.25
+          ],
+          "size": [
+            1.6833,
+            1.6631,
+            0.44
+          ]
+        },
+        "Shelly_Spiral": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            250,
+            238,
+            222
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.4921,
+            2.212,
+            -0.0774
+          ],
+          "size": [
+            0.8486,
+            0.9265,
+            0.8295
+          ]
+        }
+      }
+    },
+    "Pet/Reefy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Reefy",
+      "parts": {
+        "Reefy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            255,
+            95,
+            70
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Reefy_Coral": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            140,
+            50,
+            255
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.0207,
+            2.4907,
+            0.0012
+          ],
+          "size": [
+            2.6537,
+            1.5707,
+            1.4651
+          ]
+        },
+        "Reefy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Reefy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Reefy_Tips": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            40,
+            210
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.0219,
+            3.1475,
+            0.0033
+          ],
+          "size": [
+            2.7107,
+            0.5633,
+            1.5795
+          ]
+        }
+      }
+    },
+    "Pet/Glowy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Glowy",
+      "parts": {
+        "Glowy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            255,
+            95,
+            70
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Glowy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Glowy_Gills": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            0,
+            230,
+            255
+          ],
+          "material": "Neon",
+          "position": [
+            0,
+            0.905,
+            -0.48
+          ],
+          "size": [
+            2.2782,
+            0.7484,
+            0.6162
+          ]
+        },
+        "Glowy_Lure": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            0,
+            230,
+            255
+          ],
+          "material": "Neon",
+          "position": [
+            -0.72,
+            2.12,
+            -1
+          ],
+          "size": [
+            0.64,
+            0.64,
+            0.64
+          ]
+        },
+        "Glowy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Glowy_Stalk": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            25,
+            40,
+            120
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.3545,
+            2.3668,
+            -0.41
+          ],
+          "size": [
+            0.9338,
+            1.1556,
+            1.3193
+          ]
+        }
+      }
+    },
+    "Pet/Chompy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Chompy",
+      "parts": {
+        "Chompy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            255,
+            95,
+            70
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Chompy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Chompy_Fins": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            140,
+            140,
+            140
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.92,
+            0.69
+          ],
+          "size": [
+            0.52,
+            3.04,
+            2.18
+          ]
+        },
+        "Chompy_Glow": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            0,
+            230,
+            255
+          ],
+          "material": "Neon",
+          "position": [
+            0,
+            2.0854,
+            0.07
+          ],
+          "size": [
+            2.84,
+            2.7893,
+            1.34
+          ]
+        },
+        "Chompy_Hood": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            140,
+            140,
+            140
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.1673,
+            -0.02
+          ],
+          "size": [
+            2.64,
+            2.3055,
+            2.44
+          ]
+        },
+        "Chompy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Chompy_SharkEyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.76,
+            -0.8
+          ],
+          "size": [
+            2.9273,
+            0.26,
+            0.2473
+          ]
+        },
+        "Chompy_Teeth": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            250,
+            250,
+            250
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            0.94,
+            -1.245
+          ],
+          "size": [
+            1.9711,
+            1.8112,
+            0.21
+          ]
+        }
+      }
+    },
+    "Pet/Hexy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Hexy",
+      "parts": {
+        "Hexy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            40,
+            150,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            1.18,
+            0
+          ],
+          "size": [
+            2.16,
+            2.36,
+            1.8
+          ]
+        },
+        "Hexy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.26,
+            -0.948
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Hexy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.26,
+            -0.98
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        }
+      }
+    },
+    "Pet/Beanie": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Beanie",
+      "parts": {
+        "Beanie": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            40,
+            150,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Beanie_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Beanie_Hat": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            30,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.48,
+            0
+          ],
+          "size": [
+            2.1378,
+            1.28,
+            2.0982
+          ]
+        },
+        "Beanie_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Beanie_Trim": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            250,
+            250,
+            250
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.56,
+            0
+          ],
+          "size": [
+            2.4185,
+            2.36,
+            2.3789
+          ]
+        }
+      }
+    },
+    "Pet/Cozy": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Cozy",
+      "parts": {
+        "Cozy": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            40,
+            150,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Cozy_Band": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            2.0875,
+            0
+          ],
+          "size": [
+            2.5889,
+            0.6209,
+            0.18
+          ]
+        },
+        "Cozy_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Cozy_Muffs": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            210,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.36,
+            0
+          ],
+          "size": [
+            2.9726,
+            1.16,
+            1.12
+          ]
+        },
+        "Cozy_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Cozy_ScarfRed": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            30,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            0.38,
+            -0.09
+          ],
+          "size": [
+            2.4,
+            0.76,
+            2.5
+          ]
+        },
+        "Cozy_ScarfWhite": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            250,
+            250,
+            250
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            0.49,
+            -0.0775
+          ],
+          "size": [
+            2.4,
+            0.54,
+            2.475
+          ]
+        }
+      }
+    },
+    "Pet/Stacky": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Stacky",
+      "parts": {
+        "Stacky": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            40,
+            150,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            1.02,
+            0
+          ],
+          "size": [
+            2,
+            2.04,
+            1.92
+          ]
+        },
+        "Stacky_Band": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            30,
+            30
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.028,
+            2.9915,
+            -0.0118
+          ],
+          "size": [
+            0.5943,
+            0.2533,
+            0.5608
+          ]
+        },
+        "Stacky_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Stacky_Hat": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.0072,
+            3.1078,
+            -0.0031
+          ],
+          "size": [
+            0.8753,
+            0.6877,
+            0.8398
+          ]
+        },
+        "Stacky_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Stacky_Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            40,
+            150,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            2.44,
+            0
+          ],
+          "size": [
+            1.142,
+            0.88,
+            1.1112
+          ]
+        }
+      }
+    },
+    "Pet/Climby": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Climby",
+      "parts": {
+        "Climby": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            40,
+            150,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Climby_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Climby_Glass": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            200,
+            60
+          ],
+          "material": "Neon",
+          "position": [
+            -1.5,
+            1.65,
+            0
+          ],
+          "size": [
+            0.38,
+            0.5,
+            0.3291
+          ]
+        },
+        "Climby_Lantern": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            60,
+            60,
+            60
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -1.5,
+            1.78,
+            0
+          ],
+          "size": [
+            0.48,
+            0.92,
+            0.4237
+          ]
+        },
+        "Climby_PickHead": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            140,
+            140,
+            140
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.5013,
+            1.9745,
+            1.1
+          ],
+          "size": [
+            1.3056,
+            0.9151,
+            0.18
+          ]
+        },
+        "Climby_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Climby_Rope": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            120,
+            0
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0.8558,
+            1.0132,
+            -0.5305
+          ],
+          "size": [
+            0.8082,
+            2.0263,
+            1.2607
+          ]
+        },
+        "Climby_Strap": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            90,
+            90,
+            90
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            0.5344,
+            0.1
+          ],
+          "size": [
+            2.12,
+            0.3152,
+            2.24
+          ]
+        },
+        "Climby_Wood": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            130,
+            75,
+            35
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            -0.4477,
+            1.2,
+            0.55
+          ],
+          "size": [
+            2.3847,
+            2.4,
+            1.28
+          ]
+        }
+      }
+    },
+    "Pet/Starry": {
+      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Starry",
+      "parts": {
+        "Starry": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Small Stud",
+          "color": [
+            40,
+            150,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            0.94,
+            0
+          ],
+          "size": [
+            2,
+            1.88,
+            1.92
+          ]
+        },
+        "Starry_Eyes": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            245,
+            245,
+            245
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.008
+          ],
+          "size": [
+            1.4,
+            0.58,
+            0.136
+          ]
+        },
+        "Starry_Pupils": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            20,
+            20,
+            20
+          ],
+          "material": "SmoothPlastic",
+          "position": [
+            0,
+            1.06,
+            -1.04
+          ],
+          "size": [
+            1.22,
+            0.4,
+            0.04
+          ]
+        },
+        "Starry_Ring": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            215,
+            0
+          ],
+          "material": "Neon",
+          "position": [
+            0.0001,
+            1.2896,
+            0
+          ],
+          "size": [
+            2.8397,
+            1.6608,
+            2.84
+          ]
+        },
+        "Starry_Stars": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "",
+          "color": [
+            255,
+            215,
+            0
+          ],
+          "material": "Neon",
+          "position": [
+            -0.0406,
+            1.6294,
+            -0.0069
+          ],
+          "size": [
+            3.0074,
+            2.6612,
+            3.2284
+          ]
+        }
+      }
+    },
+    "Rock/DesertFirst": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Desert.Model_RockPreview_DesertFirst",
+      "parts": {
+        "Grass": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            130,
+            200,
+            40
+          ],
+          "material": "Plastic",
+          "position": [
+            -4.203,
+            1.9924,
+            -1.939
+          ],
+          "size": [
+            1.4265,
+            1.7983,
+            1.1019
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            222,
+            180,
+            115
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.3339,
+            0
+          ],
+          "size": [
+            8.1375,
+            4.2,
+            6.9054
+          ]
+        }
+      }
+    },
+    "Rock/DesertSecond": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Desert.Model_RockPreview_DesertSecond",
+      "parts": {
+        "Flowers_Centers": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            220,
+            40
+          ],
+          "material": "Plastic",
+          "position": [
+            -3.2186,
+            2.0391,
+            -3.2504
+          ],
+          "size": [
+            1.7825,
+            0.2576,
+            0.7969
+          ]
+        },
+        "Flowers_Petals": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            90,
+            180
+          ],
+          "material": "Plastic",
+          "position": [
+            -3.267,
+            1.9768,
+            -3.2513
+          ],
+          "size": [
+            2.4791,
+            0.375,
+            1.5824
+          ]
+        },
+        "Leaves": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            60,
+            170,
+            50
+          ],
+          "material": "Plastic",
+          "position": [
+            -3.3386,
+            1.8934,
+            -3.0979
+          ],
+          "size": [
+            1.4166,
+            0.9694,
+            1.2255
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            196,
+            105,
+            55
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.0975,
+            0
+          ],
+          "size": [
+            11.9614,
+            6.9,
+            9.9435
+          ]
+        },
+        "Skull": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            245,
+            235,
+            210
+          ],
+          "material": "Plastic",
+          "position": [
+            -1.852,
+            4.1715,
+            -2.5119
+          ],
+          "size": [
+            4.1596,
+            1.848,
+            3.005
+          ]
+        }
+      }
+    },
+    "Rock/DesertThird": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Desert.Model_RockPreview_DesertThird",
+      "parts": {
+        "CactusShort": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            60,
+            200,
+            60
+          ],
+          "material": "Plastic",
+          "position": [
+            5.7013,
+            7.4425,
+            -2.7139
+          ],
+          "size": [
+            3.1412,
+            5.965,
+            1.9108
+          ]
+        },
+        "CactusTall": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            60,
+            200,
+            60
+          ],
+          "material": "Plastic",
+          "position": [
+            -4.5015,
+            10.4932,
+            -1.2174
+          ],
+          "size": [
+            5.2786,
+            9.25,
+            2.0339
+          ]
+        },
+        "Flower_Centers": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            220,
+            40
+          ],
+          "material": "Plastic",
+          "position": [
+            -4.6,
+            15.149,
+            -1.4897
+          ],
+          "size": [
+            0.504,
+            0.3774,
+            0.4443
+          ]
+        },
+        "Flower_Petals": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            90,
+            180
+          ],
+          "material": "Plastic",
+          "position": [
+            -4.6802,
+            15.252,
+            -1.5583
+          ],
+          "size": [
+            1.5196,
+            0.8021,
+            1.5072
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            160,
+            78,
+            48
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.3807,
+            0
+          ],
+          "size": [
+            18.4983,
+            12.0495,
+            16.8898
+          ]
+        }
+      }
+    },
+    "Rock/JungleFirst": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Jungle.Model_RockPreview_JungleFirst",
+      "parts": {
+        "Fern": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            30,
+            150,
+            45
+          ],
+          "material": "Plastic",
+          "position": [
+            -1.1682,
+            6.9531,
+            -1.341
+          ],
+          "size": [
+            8.1725,
+            2.2894,
+            8.2287
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            112,
+            128,
+            96
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.3937,
+            0
+          ],
+          "size": [
+            7.7891,
+            5.7367,
+            6.6711
+          ]
+        }
+      }
+    },
+    "Rock/JungleSecond": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Jungle.Model_RockPreview_JungleSecond",
+      "parts": {
+        "Flowers_Centers": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            140,
+            0
+          ],
+          "material": "Plastic",
+          "position": [
+            0.6359,
+            5.8921,
+            -0.3251
+          ],
+          "size": [
+            10.4435,
+            3.3511,
+            9.0692
+          ]
+        },
+        "Flowers_Petals": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            220,
+            40
+          ],
+          "material": "Plastic",
+          "position": [
+            0.6085,
+            5.8155,
+            -0.3718
+          ],
+          "size": [
+            11.1191,
+            4.0042,
+            9.9456
+          ]
+        },
+        "Leaves": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            60,
+            190,
+            50
+          ],
+          "material": "Plastic",
+          "position": [
+            -0.0101,
+            4.4316,
+            -0.5823
+          ],
+          "size": [
+            14.3959,
+            8.7296,
+            12.3526
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            88,
+            98,
+            90
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.7762,
+            0
+          ],
+          "size": [
+            13.6757,
+            8.5017,
+            12.0047
+          ]
+        },
+        "Vines": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            40,
+            150,
+            40
+          ],
+          "material": "Plastic",
+          "position": [
+            0.0563,
+            4.122,
+            -0.5975
+          ],
+          "size": [
+            13.8882,
+            8.484,
+            10.5869
+          ]
+        }
+      }
+    },
+    "Rock/JungleThird": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Jungle.Model_RockPreview_JungleThird",
+      "parts": {
+        "Face": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            95,
+            62,
+            38
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.7733,
+            -6.4334
+          ],
+          "size": [
+            10.64,
+            9.025,
+            7.6889
+          ]
+        },
+        "Palm": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            40,
+            180,
+            50
+          ],
+          "material": "Plastic",
+          "position": [
+            -0.2675,
+            11.9536,
+            -1.3654
+          ],
+          "size": [
+            11.4961,
+            4.265,
+            11.9504
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            150,
+            112,
+            72
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.478,
+            0
+          ],
+          "size": [
+            20.7867,
+            13.9052,
+            19.1828
+          ]
+        }
+      }
+    },
+    "Rock/OceanFirst": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Ocean.Model_RockPreview_OceanFirst",
+      "parts": {
+        "Barnacles": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            240,
+            235,
+            215
+          ],
+          "material": "Plastic",
+          "position": [
+            0.2361,
+            3.6563,
+            0.0147
+          ],
+          "size": [
+            8.7774,
+            5.9837,
+            7.8111
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            110,
+            125,
+            135
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.1618,
+            0
+          ],
+          "size": [
+            8.0753,
+            6.2728,
+            8.0187
+          ]
+        }
+      }
+    },
+    "Rock/OceanSecond": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Ocean.Model_RockPreview_OceanSecond",
+      "parts": {
+        "Kelp": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            110,
+            130,
+            30
+          ],
+          "material": "Plastic",
+          "position": [
+            -0.0593,
+            3.9736,
+            0.1085
+          ],
+          "size": [
+            15.1957,
+            7.8417,
+            12.9882
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            72,
+            86,
+            100
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.4156,
+            0
+          ],
+          "size": [
+            15.2854,
+            8.7805,
+            13.7514
+          ]
+        }
+      }
+    },
+    "Rock/OceanThird": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Ocean.Model_RockPreview_OceanThird",
+      "parts": {
+        "Anemone_Base": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            140,
+            0
+          ],
+          "material": "Plastic",
+          "position": [
+            -2.7376,
+            6.0476,
+            0.3233
+          ],
+          "size": [
+            10.1242,
+            3.7864,
+            10.2573
+          ]
+        },
+        "Anemone_Tentacles": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            220,
+            40
+          ],
+          "material": "Plastic",
+          "position": [
+            -3.0678,
+            7.3741,
+            0.4527
+          ],
+          "size": [
+            12.1153,
+            4.1703,
+            13.1848
+          ]
+        },
+        "CoralBlue": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            70,
+            130,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            1.9421,
+            9.896,
+            3.5124
+          ],
+          "size": [
+            4.1691,
+            8.8299,
+            4.455
+          ]
+        },
+        "CoralPink": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            90,
+            170
+          ],
+          "material": "Plastic",
+          "position": [
+            4.0159,
+            9.6356,
+            1.7051
+          ],
+          "size": [
+            5.0815,
+            7.6273,
+            4.8463
+          ]
+        },
+        "CoralYellow": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            210,
+            40
+          ],
+          "material": "Plastic",
+          "position": [
+            -2.7254,
+            9.1327,
+            2.2022
+          ],
+          "size": [
+            3.4489,
+            6.5079,
+            3.187
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            200,
+            172,
+            140
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            1.4117,
+            0
+          ],
+          "size": [
+            22.8966,
+            11.7726,
+            20.7267
+          ]
+        },
+        "Starfish": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            110,
+            30
+          ],
+          "material": "Plastic",
+          "position": [
+            -10.4908,
+            -0.2428,
+            -3.1521
+          ],
+          "size": [
+            1.894,
+            3.3926,
+            3.2416
+          ]
+        },
+        "Starfish2": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            255,
+            110,
+            30
+          ],
+          "material": "Plastic",
+          "position": [
+            3.5064,
+            -0.8625,
+            -8.406
+          ],
+          "size": [
+            2.7422,
+            2.8518,
+            1.3201
+          ]
+        }
+      }
+    },
+    "Rock/SnowFirst": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Snow.Model_RockPreview_SnowFirst",
+      "parts": {
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            128,
+            138,
+            150
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.4596,
+            0
+          ],
+          "size": [
+            9.6041,
+            7.8685,
+            8.7902
+          ]
+        },
+        "Snow": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            245,
+            250,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            -0.347,
+            5.8616,
+            0.7036
+          ],
+          "size": [
+            9.1398,
+            4.5058,
+            8.557
+          ]
+        }
+      }
+    },
+    "Rock/SnowSecond": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Snow.Model_RockPreview_SnowSecond",
+      "parts": {
+        "Icicles": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            185,
+            230,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            2.3029,
+            4.6703,
+            -4.5769
+          ],
+          "size": [
+            13.5317,
+            9.89,
+            6.17
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            88,
+            98,
+            115
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            4.6145,
+            0
+          ],
+          "size": [
+            18.3523,
+            12.1783,
+            15.756
+          ]
+        },
+        "Snow": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            245,
+            250,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            1.3455,
+            6.8673,
+            -0.011
+          ],
+          "size": [
+            17.1385,
+            11.5026,
+            14.0812
+          ]
+        }
+      }
+    },
+    "Rock/SnowThird": {
+      "model": "ReplicatedStorage.Assets.Models.Rocks.Snow.Model_RockPreview_SnowThird",
+      "parts": {
+        "Bricks": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            245,
+            250,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            -0.472,
+            8.475,
+            0.2232
+          ],
+          "size": [
+            25.5219,
+            9.8835,
+            24.3231
+          ]
+        },
+        "Door": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            245,
+            250,
+            255
+          ],
+          "material": "Plastic",
+          "position": [
+            -14.3367,
+            -2.2362,
+            -5.0179
+          ],
+          "size": [
+            6.154,
+            6.4769,
+            8.1172
+          ]
+        },
+        "Door_Hole": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            40,
+            50,
+            110
+          ],
+          "material": "Plastic",
+          "position": [
+            -15.8752,
+            -3.2077,
+            -5.5563
+          ],
+          "size": [
+            2.2864,
+            4.5338,
+            4.4975
+          ]
+        },
+        "Rock": {
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "variant": "2022 Inlet",
+          "color": [
+            150,
+            165,
+            180
+          ],
+          "material": "Plastic",
+          "position": [
+            0,
+            3.521,
+            0
+          ],
+          "size": [
+            27.6702,
+            17.9913,
+            24.7589
+          ]
+        }
+      }
+    }
+  },
+  "preview": {
+    "cameraDirection": [
+      0.35,
+      0.3,
+      -1
+    ],
+    "fieldOfView": 30,
+    "cameraPadding": 0.85,
+    "ambient": [
+      170,
+      170,
+      170
+    ],
+    "lightColor": [
+      255,
+      255,
+      255
+    ],
+    "lightDirection": [
+      -1,
+      -1,
+      -1
+    ]
+  }
+}

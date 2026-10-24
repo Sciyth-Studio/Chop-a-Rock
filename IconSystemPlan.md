@@ -1,6 +1,13 @@
 # Item icons: plan
 
-Status: **proposed 2026-10-06, waiting on the decisions in section 1.**
+Status: **approved 2026-10-23 with every recommended answer (D1-D6).** D1 was then refined the same day to the user's reference look (`Vault/Reference/Rok Icon Reference`): a near-front bright render with real raised studs and a black outline. The user approved the look the same day. Steps 1, 2, 4, 5 and 6 are done: all 9 icons and `contact_sheet.png` are rendered, the `item-icons` skill is written, `ItemIcons` plus the Index and Geode Stand switch (with the ViewportFrame fallback) are playtested, `check.ps1` passes and the docs are written. Step 3 is done too: all 9 were uploaded with the existing `ROBLOX_API_KEY` (the user's choice over D3's separate key), `ItemIconConfig.luau` is generated, and the real icons were playtested.
+
+Spike findings (details in `Vault/Reference/Item Icon Rendering`):
+- The Basic rock's source is `assets/Rocks/Forest/BoulderRock/BoulderRock.fbx` (the Boulder at 0.6x, turned 180°), not BlockRock. Rok bodies use `2022 Small Stud` (0.5), not Inlet.
+- The FBXs have no `FaceShade` colours, so materials are the Studio colour only.
+- One variant tile = `StudsPerTile` world studs (Inlet 1, Small Stud 0.5), measured.
+- Roks get real stud geometry (whole studs per face). Rocks keep a drawn Inlet texture at the measured pitch. Whether rocks should get raised studs too is an open question for the user.
+- Manifest: `.claude/skills/item-icons/manifest.json`. Studio values: `assets/Icons/specs.json`.
 
 Goal: every Rok and every rock kind gets a PNG icon, uploaded once and shown with an `ImageLabel`, so the UI stops building a ViewportFrame per card. Adding a new Rok or rock then means running one skill, not hand-making a picture.
 

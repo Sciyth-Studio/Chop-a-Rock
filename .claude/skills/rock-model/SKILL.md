@@ -160,6 +160,7 @@ Then, with Play stopped, do the wiring through the Studio MCP (`execute_luau`, E
 - `CollisionFidelity` cannot be changed from `execute_luau` (the write is silently ignored), so ask the user to set it to Hull in Properties on the rock and on each split piece. The 3D Importer brings meshes in as default-grey Plastic with fidelity Default; everything else above is set by script.
 - Verify by values (tag, attributes, size, position, registry lookup), then playtest a perfect break following the `studio-playtest` skill and report what was seen versus checked by value.
 - Paste `scripts/build_rock_showcase.luau` into `execute_luau` (Edit) to refresh `Workspace.RockShowcase`, the EditorOnly viewing area of copies of every rock and its split. Add new rock keys or zones to its `ZONES` table first. Colour and material edits to the templates reach the copies live through the local plugin `plugin/RockShowcase.lua` (copied to `%LOCALAPPDATA%\Roblox\Plugins\`, loaded when Studio starts); only shape, size and new props need the rebuild.
+- Render and upload the rock's Index icon with the `item-icons` skill (manifest entry, specs from its `Model_RockPreview_<Key>`, render, `upload_icons.py`).
 - Remind the user to save the place: Studio edits are not in git.
 
 ## Gotchas

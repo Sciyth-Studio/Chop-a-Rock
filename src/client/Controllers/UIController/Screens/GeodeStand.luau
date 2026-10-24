@@ -5,6 +5,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local GeodeStandConfig = require(ReplicatedStorage.Config.GeodeStandConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
+local HatchPity = require(ReplicatedStorage.HatchPity)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
@@ -12,6 +13,7 @@ local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -28,7 +30,7 @@ type Card = {
 	PetKey: string,
 	Odds: TextLabel?,
 	Name: TextLabel?,
-	Preview: ViewportFrame?,
+	Preview: ItemIcons.Visual?,
 }
 
 type Tab = {
@@ -42,6 +44,13 @@ type BuyButton = {
 	Button: TextButton,
 	Label: TextLabel?,
 	Fill: Instance?,
+}
+
+type PityBar = {
+	Rarity: string,
+	Frame: GuiObject,
+	Fill: GuiObject?,
+	Label: TextLabel?,
 }
 
 local function find(root: Instance, name: string, className: string, recursive: boolean): any
@@ -108,6 +117,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local blockerLabel: TextLabel? = if blocker then find(blocker, "Label", "TextLabel", false) else nil
 	local tabsFrame: GuiObject? = find(gui, "Tabs", "GuiObject", true)
 	local tabTemplate: TextButton? = find(gui, "TabTemplate", "TextButton", true)
+	local pityFrame: GuiObject? = find(gui, "Pity", "GuiObject", true)
 
 	for _, hidden in { template, tabTemplate } :: { GuiObject? } do
 		if hidden then
@@ -121,8 +131,39 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local cards: { Card } = {}
 	local buttons: { BuyButton } = {}
 	local tabs: { Tab } = {}
+	local pityBars: { PityBar } = {}
 
 	local orderedKeys = GeodeOrder.Sorted()
+
+	if pityFrame then
+		for _, rarity in GeodeConfig.PityRarities do
+			local frame: GuiObject? = find(pityFrame, rarity, "GuiObject", false)
+			if not frame then
+				continue
+			end
+			local fill: GuiObject? = find(frame, "Fill", "GuiObject", false)
+			local gradient = if fill then fill:FindFirstChildWhichIsA("UIGradient") else nil
+			local rarityConfig = RarityConfig.Rarities[rarity]
+			if gradient and rarityConfig then
+				if rarityConfig.RainbowLabel then
+					gradient.Rotation = 0
+					gradient.Color = RarityConfig.Rainbow
+				else
+					gradient.Rotation = 90
+					gradient.Color = ColorSequence.new(
+						rarityConfig.Color:Lerp(Color3.new(1, 1, 1), GeodeStandConfig.PityFillLighten),
+						rarityConfig.Color
+					)
+				end
+			end
+			table.insert(pityBars, {
+				Rarity = rarity,
+				Frame = frame,
+				Fill = fill,
+				Label = find(frame, "Label", "TextLabel", false),
+			})
+		end
+	end
 
 	for _, entry in { { Name = "BuyOne", Amount = 1 }, { Name = "BuyThree", Amount = 3 } } do
 		local button: TextButton? = find(gui, entry.Name, "TextButton", true)
@@ -189,11 +230,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				and index[card.PetKey] > 0
 			local hidden = rarity ~= nil and rarity.HiddenUntilFound and not found
 			setText(card.Name, if hidden or not pet then GeodeStandConfig.HiddenName else pet.DisplayName)
-			if card.Preview then
-				card.Preview.ImageColor3 = if hidden
-					then GeodeStandConfig.HiddenColor
-					else Color3.new(1, 1, 1)
-			end
+			ItemIcons.Tint(card.Preview, if hidden then GeodeStandConfig.HiddenColor else Color3.new(1, 1, 1))
 		end
 	end
 
@@ -257,11 +294,39 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
+	local function refreshPity()
+		local key = geodeKey
+		if not key then
+			return
+		end
+		local counts = read({ "Pity", key })
+		for _, bar in pityBars do
+			local threshold = HatchPity.Threshold(key, bar.Rarity)
+			local left = HatchPity.Left(key, counts, bar.Rarity)
+			bar.Frame.Visible = threshold ~= nil and left ~= nil
+			if not threshold or not left then
+				continue
+			end
+			setText(
+				bar.Label,
+				string.format(
+					GeodeStandConfig.PityFormat,
+					RarityConfig.Rarities[bar.Rarity].DisplayName,
+					NumberFormat.Commas(left)
+				)
+			)
+			if bar.Fill then
+				bar.Fill.Size = UDim2.fromScale((threshold - left) / threshold, 1)
+			end
+		end
+	end
+
 	local function refresh()
 		refreshTabs()
 		refreshCards()
 		refreshOdds()
 		refreshButtons()
+		refreshPity()
 	end
 
 	local function defaultKey(): string?
@@ -287,10 +352,9 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			frame.Name = entry.PetKey
 			frame.LayoutOrder = order
 			frame.Visible = true
-			local preview: ViewportFrame? = find(frame, "Preview", "ViewportFrame", false)
-			if preview then
-				buildPreview(preview, pet.ModelKey)
-			end
+			local preview = ItemIcons.Apply(frame, "Pet", entry.PetKey, function(viewport)
+				buildPreview(viewport, pet.ModelKey)
+			end)
 			local glow = frame:FindFirstChild("ColorGlow")
 			local gradient = if glow then glow:FindFirstChildWhichIsA("UIGradient") else nil
 			local rarity = RarityConfig.Rarities[pet.Rarity]
@@ -385,7 +449,9 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end))
 	end
 
-	for _, path in { { "Cash" }, { "Strength" }, { "Pets" }, { "Geodes" }, { "Index" }, { "Tutorial" } } do
+	for _, path in
+		{ { "Cash" }, { "Strength" }, { "Pets" }, { "Geodes" }, { "Index" }, { "Tutorial" }, { "Pity" } }
+	do
 		trove:Add(dataController:Observe(path, function()
 			if geodeKey then
 				refresh()

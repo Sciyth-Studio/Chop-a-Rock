@@ -1,0 +1,201 @@
+{
+  "Pet/Bloky": {
+    "fbx": "assets/Roks/Bloky/Bloky.fbx",
+    "objects": {}
+  },
+  "Pet/Sprout": {
+    "fbx": "assets/Roks/Sprout/Sprout.fbx",
+    "objects": {}
+  },
+  "Pet/Shroomy": {
+    "fbx": "assets/Roks/Shroomy/Shroomy.fbx",
+    "objects": {}
+  },
+  "Pet/Nesty": {
+    "fbx": "assets/Roks/Nesty/Nesty.fbx",
+    "objects": {}
+  },
+  "Pet/Berry": {
+    "fbx": "assets/Roks/Berry/Berry.fbx",
+    "objects": {}
+  },
+  "Pet/Treebo": {
+    "fbx": "assets/Roks/Treebo/Treebo.fbx",
+    "objects": {}
+  },
+  "Rock/Basic": {
+    "fbx": "assets/Rocks/Forest/BoulderRock/BoulderRock.fbx",
+    "objects": {
+      "Rock": "BoulderRock"
+    }
+  },
+  "Rock/Second": {
+    "fbx": "assets/Rocks/Forest/BoulderRock/BoulderRock.fbx",
+    "objects": {
+      "Rock": "BoulderRock"
+    }
+  },
+  "Rock/Third": {
+    "fbx": "assets/Rocks/Forest/MossyStoneRock/MossyStoneRock.fbx",
+    "objects": {
+      "Rock": "MossyStoneRock",
+      "Moss": "MossyStoneRock_Moss"
+    }
+  },
+  "Pet/Pointy": {
+    "fbx": "assets/Roks/Pointy/Pointy.fbx",
+    "objects": {}
+  },
+  "Pet/Spike": {
+    "fbx": "assets/Roks/Spike/Spike.fbx",
+    "objects": {}
+  },
+  "Pet/Howdy": {
+    "fbx": "assets/Roks/Howdy/Howdy.fbx",
+    "objects": {}
+  },
+  "Pet/Flowy": {
+    "fbx": "assets/Roks/Flowy/Flowy.fbx",
+    "objects": {}
+  },
+  "Pet/Ankhy": {
+    "fbx": "assets/Roks/Ankhy/Ankhy.fbx",
+    "objects": {}
+  },
+  "Pet/Sunny": {
+    "fbx": "assets/Roks/Sunny/Sunny.fbx",
+    "objects": {}
+  },
+  "Pet/Roly": {
+    "fbx": "assets/Roks/Roly/Roly.fbx",
+    "objects": {}
+  },
+  "Pet/Leafy": {
+    "fbx": "assets/Roks/Leafy/Leafy.fbx",
+    "objects": {}
+  },
+  "Pet/Viney": {
+    "fbx": "assets/Roks/Viney/Viney.fbx",
+    "objects": {}
+  },
+  "Pet/Coco": {
+    "fbx": "assets/Roks/Coco/Coco.fbx",
+    "objects": {}
+  },
+  "Pet/Tiki": {
+    "fbx": "assets/Roks/Tiki/Tiki.fbx",
+    "objects": {}
+  },
+  "Pet/Bloomy": {
+    "fbx": "assets/Roks/Bloomy/Bloomy.fbx",
+    "objects": {}
+  },
+  "Pet/Drip": {
+    "fbx": "assets/Roks/Drip/Drip.fbx",
+    "objects": {}
+  },
+  "Pet/Bubbly": {
+    "fbx": "assets/Roks/Bubbly/Bubbly.fbx",
+    "objects": {}
+  },
+  "Pet/Shelly": {
+    "fbx": "assets/Roks/Shelly/Shelly.fbx",
+    "objects": {}
+  },
+  "Pet/Reefy": {
+    "fbx": "assets/Roks/Reefy/Reefy.fbx",
+    "objects": {}
+  },
+  "Pet/Glowy": {
+    "fbx": "assets/Roks/Glowy/Glowy.fbx",
+    "objects": {}
+  },
+  "Pet/Chompy": {
+    "fbx": "assets/Roks/Chompy/Chompy.fbx",
+    "objects": {}
+  },
+  "Pet/Hexy": {
+    "fbx": "assets/Roks/Hexy/Hexy.fbx",
+    "objects": {}
+  },
+  "Pet/Beanie": {
+    "fbx": "assets/Roks/Beanie/Beanie.fbx",
+    "objects": {}
+  },
+  "Pet/Cozy": {
+    "fbx": "assets/Roks/Cozy/Cozy.fbx",
+    "objects": {}
+  },
+  "Pet/Stacky": {
+    "fbx": "assets/Roks/Stacky/Stacky.fbx",
+    "objects": {}
+  },
+  "Pet/Climby": {
+    "fbx": "assets/Roks/Climby/Climby.fbx",
+    "objects": {}
+  },
+  "Pet/Starry": {
+    "fbx": "assets/Roks/Starry/Starry.fbx",
+    "objects": {}
+  },
+  "Rock/DesertFirst": {
+    "fbx": "assets/Rocks/Desert/Sandstone/Sandstone.fbx",
+    "objects": {},
+    "prefix": "Sandstone"
+  },
+  "Rock/DesertSecond": {
+    "fbx": "assets/Rocks/Desert/CanyonBoulder/CanyonBoulder.fbx",
+    "objects": {},
+    "prefix": "CanyonBoulder"
+  },
+  "Rock/DesertThird": {
+    "fbx": "assets/Rocks/Desert/CactusBoulder/CactusBoulder.fbx",
+    "objects": {},
+    "prefix": "CactusBoulder"
+  },
+  "Rock/JungleFirst": {
+    "fbx": "assets/Rocks/Jungle/FernRock/FernRock.fbx",
+    "objects": {},
+    "prefix": "FernRock"
+  },
+  "Rock/JungleSecond": {
+    "fbx": "assets/Rocks/Jungle/VineBoulder/VineBoulder.fbx",
+    "objects": {},
+    "prefix": "VineBoulder"
+  },
+  "Rock/JungleThird": {
+    "fbx": "assets/Rocks/Jungle/TikiBoulder/TikiBoulder.fbx",
+    "objects": {},
+    "prefix": "TikiBoulder"
+  },
+  "Rock/OceanFirst": {
+    "fbx": "assets/Rocks/Ocean/BarnacleRock/BarnacleRock.fbx",
+    "objects": {},
+    "prefix": "BarnacleRock"
+  },
+  "Rock/OceanSecond": {
+    "fbx": "assets/Rocks/Ocean/KelpBoulder/KelpBoulder.fbx",
+    "objects": {},
+    "prefix": "KelpBoulder"
+  },
+  "Rock/OceanThird": {
+    "fbx": "assets/Rocks/Ocean/ReefBoulder/ReefBoulder.fbx",
+    "objects": {},
+    "prefix": "ReefBoulder"
+  },
+  "Rock/SnowFirst": {
+    "fbx": "assets/Rocks/Snow/SnowyRock/SnowyRock.fbx",
+    "objects": {},
+    "prefix": "SnowyRock"
+  },
+  "Rock/SnowSecond": {
+    "fbx": "assets/Rocks/Snow/DriftBoulder/DriftBoulder.fbx",
+    "objects": {},
+    "prefix": "DriftBoulder"
+  },
+  "Rock/SnowThird": {
+    "fbx": "assets/Rocks/Snow/IglooBoulder/IglooBoulder.fbx",
+    "objects": {},
+    "prefix": "IglooBoulder"
+  }
+}

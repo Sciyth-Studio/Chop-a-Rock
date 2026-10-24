@@ -9,6 +9,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Typography = require(ReplicatedStorage.Utils.Typography)
@@ -25,7 +26,7 @@ type Card = {
 	Key: string,
 	Zone: IndexConfig.Zone,
 	Name: TextLabel?,
-	Preview: ViewportFrame?,
+	Preview: ItemIcons.Visual?,
 	Alert: GuiObject?,
 	Stroke: UIStroke?,
 }
@@ -97,6 +98,12 @@ local function modelKeyOf(page: IndexConfig.Page, key: string): string?
 	return if pet then pet.ModelKey else nil
 end
 
+local function showPreview(holder: Instance, page: IndexConfig.Page, key: string): ItemIcons.Visual?
+	return ItemIcons.Apply(holder, if page.Kind == "Rocks" then "Rock" else "Pet", key, function(frame)
+		buildPreview(frame, modelKeyOf(page, key))
+	end)
+end
+
 local function displayNameOf(page: IndexConfig.Page, key: string): string
 	if page.Kind == "Rocks" then
 		local rock = RockConfig.Rocks[key]
@@ -134,9 +141,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local pageCount: TextLabel? = if headerBar then find(headerBar, "Count", "TextLabel", false) else nil
 	local claimAllLabel: TextLabel? = if claimAll then find(claimAll, "Label", "TextLabel", true) else nil
 
-	local detailPreview: ViewportFrame? = if detail
-		then find(detail, "Preview", "ViewportFrame", false)
-		else nil
+	local detailPreview: ItemIcons.Visual? = nil
 	local detailName: TextLabel? = if detail then find(detail, "EntryName", "TextLabel", false) else nil
 	local detailRarity: TextLabel? = if detail then find(detail, "Rarity", "TextLabel", false) else nil
 	local detailOdds: TextLabel? = if detail then find(detail, "Odds", "TextLabel", false) else nil
@@ -214,12 +219,10 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		local zone = IndexRewards.ZoneOf(page, key)
 		local isFound = IndexRewards.IsFound(index, page, key)
 		local count = IndexRewards.Count(index, page, key)
-		if detailPreview then
-			if shownKey ~= key then
-				buildPreview(detailPreview, modelKeyOf(page, key))
-			end
-			detailPreview.ImageColor3 = if isFound then Color3.new(1, 1, 1) else IndexConfig.HiddenColor
+		if detail and shownKey ~= key then
+			detailPreview = showPreview(detail, page, key)
 		end
+		ItemIcons.Tint(detailPreview, if isFound then Color3.new(1, 1, 1) else IndexConfig.HiddenColor)
 		setText(detailName, if isFound then displayNameOf(page, key) else IndexConfig.HiddenName)
 		local rarity = rarityOf(page, key)
 		if detailRarity then
@@ -291,9 +294,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				card.Name,
 				if isFound then displayNameOf(currentPage, card.Key) else IndexConfig.HiddenName
 			)
-			if card.Preview then
-				card.Preview.ImageColor3 = if isFound then Color3.new(1, 1, 1) else IndexConfig.HiddenColor
-			end
+			ItemIcons.Tint(card.Preview, if isFound then Color3.new(1, 1, 1) else IndexConfig.HiddenColor)
 			if card.Alert then
 				card.Alert.Visible = IndexRewards.CanClaim(index, currentPage, card.Key)
 			end
@@ -376,10 +377,7 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					cardFrame.Name = key
 					cardFrame.LayoutOrder = cardOrder
 					cardFrame.Visible = true
-					local preview: ViewportFrame? = find(cardFrame, "Preview", "ViewportFrame", false)
-					if preview then
-						buildPreview(preview, modelKeyOf(page, key))
-					end
+					local preview = showPreview(cardFrame, page, key)
 					local glow = cardFrame:FindFirstChild("ColorGlow")
 					local gradient = if glow then glow:FindFirstChildWhichIsA("UIGradient") else nil
 					if gradient then

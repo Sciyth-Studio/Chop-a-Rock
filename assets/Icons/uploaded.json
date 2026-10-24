@@ -1,0 +1,182 @@
+{
+  "Pet/Bloky": {
+    "hash": "205b2adb8f59a4a36791ea585b2c4192152f9a49d35513a9d58b5c5b20f14e52",
+    "id": "rbxassetid://114244702896000"
+  },
+  "Pet/Sprout": {
+    "hash": "d5f9a2a85a3c9b7b8db4bc73f7a1b90e85025d6cb0fcdb922954a17e67c47de2",
+    "id": "rbxassetid://110164391344700"
+  },
+  "Pet/Shroomy": {
+    "hash": "c7cfdc634e87e6512f9c8846cf1975d7505d646ebc59a2529b35bec9647c8ce9",
+    "id": "rbxassetid://137046595054659"
+  },
+  "Pet/Nesty": {
+    "hash": "d3044f9907eee3e50f5b1853b56bd59825153ceb29f4221d115c59c93837ac80",
+    "id": "rbxassetid://112717103627919"
+  },
+  "Pet/Berry": {
+    "hash": "a68742f719ccb7c88bb7f5b970f78f39ebe4e4897d912abd18cece1cb02fe7cf",
+    "id": "rbxassetid://99169711196699"
+  },
+  "Pet/Treebo": {
+    "hash": "1a0dc8dd5307a15683a6643385012b827e1c1a6f619a5567ee9bada47650edcb",
+    "id": "rbxassetid://118314217550338"
+  },
+  "Rock/Basic": {
+    "hash": "30850c9bd5ee56e4d6372f084c140fa807ecf9289778640ee80d956aceae6f52",
+    "id": "rbxassetid://90984703285068"
+  },
+  "Rock/Second": {
+    "hash": "759a584dd1beb3f5e822cc87ff46779a9734f1f1a231d1fbf5cf20def5a1edff",
+    "id": "rbxassetid://140187033320422"
+  },
+  "Rock/Third": {
+    "hash": "ecb97f2cb865147b2bb72fe2e4f6ee597641a60031e221f998d2d5502ca98705",
+    "id": "rbxassetid://108483391147092"
+  },
+  "Pet/Pointy": {
+    "hash": "fa4428ed33c2ed0c994099578a0f892661f183edb7ba76a05b49e3605aa72347",
+    "id": "rbxassetid://98649593507269"
+  },
+  "Pet/Spike": {
+    "hash": "cc9c171b44924d3e3be731e519ede3c65096786138528c7c2d049f5ab1024fc8",
+    "id": "rbxassetid://91860931054196"
+  },
+  "Pet/Howdy": {
+    "hash": "a9ebace813ab00d82fd4dcec6b02e3e8cc969cf311b0f6c8663c9d12aad6d3a5",
+    "id": "rbxassetid://109230797621751"
+  },
+  "Pet/Flowy": {
+    "hash": "397a82b6b9dc0cf6ea3eb5ff1249fbbfefe47826b76dc53ad707bd54617b8aaa",
+    "id": "rbxassetid://88751173220674"
+  },
+  "Pet/Ankhy": {
+    "hash": "5fa48ae9a1b29a45bd73623f547b6741f3112e08cb2f2a5cf5d19b8e02556aa8",
+    "id": "rbxassetid://113091077665524"
+  },
+  "Pet/Sunny": {
+    "hash": "9573f536fae68d707fcbd2a8978e0dceb88a53424219c1f4eaf89af9414f150d",
+    "id": "rbxassetid://79525808542300"
+  },
+  "Pet/Roly": {
+    "hash": "6cff1224168b17212301916f8163c54f7b8b5d3fb470e2efe2192129940ab7d8",
+    "id": "rbxassetid://101674689492047"
+  },
+  "Pet/Leafy": {
+    "hash": "851baf144f5c1a4f847c2892f4dfbfbc9063cbe55113a199659ac8d592105312",
+    "id": "rbxassetid://73853600691548"
+  },
+  "Pet/Viney": {
+    "hash": "ff48cbd509989f472c98a9a19a3a79821a433d883c74879562164b9f44c842cb",
+    "id": "rbxassetid://103116609292790"
+  },
+  "Pet/Coco": {
+    "hash": "00898b31974f57381dae7d0b319b99cf15aac657845bab4453e7ae3f68156858",
+    "id": "rbxassetid://133396559624452"
+  },
+  "Pet/Tiki": {
+    "hash": "cf6c9b13376bc76eaa03b2a0d6c2b3be152eab45c83a06cd99e36042703a032d",
+    "id": "rbxassetid://80617556799700"
+  },
+  "Pet/Bloomy": {
+    "hash": "b6a8ba38fab4471a701f7b32c2ed9765b73b28ee1750605af690393410a9b0ce",
+    "id": "rbxassetid://82304708185751"
+  },
+  "Pet/Drip": {
+    "hash": "76d56373248c4906287e942050687e9de14067202a8c432f9ee34e70f36d035e",
+    "id": "rbxassetid://71764353351708"
+  },
+  "Pet/Bubbly": {
+    "hash": "79271d234665fccc04011e7137712a9017f948716e79c3081013f846c5d115da",
+    "id": "rbxassetid://134094625411468"
+  },
+  "Pet/Shelly": {
+    "hash": "178264869c8d602eb6b8d031d40ba1dd7ad245ca104731784c20395c313e9931",
+    "id": "rbxassetid://104179187134086"
+  },
+  "Pet/Reefy": {
+    "hash": "126a5d735c7808912b4282c668fa1087b82699e33ac09aa5b5db8f976595d357",
+    "id": "rbxassetid://116733087054575"
+  },
+  "Pet/Glowy": {
+    "hash": "87fc1c6af04b0167ebc4a520cec772c67126841ae109dd7288a8b0c858f45a15",
+    "id": "rbxassetid://133066561051229"
+  },
+  "Pet/Chompy": {
+    "hash": "3b307f75bf4dd79fee3db08a952141f6189e73a4b135901056ea37a9dbbeb104",
+    "id": "rbxassetid://129825683722989"
+  },
+  "Pet/Hexy": {
+    "hash": "b17b32147180c002dc20a57f097ac75030809d467f5c7837a27dd02cef3dfa25",
+    "id": "rbxassetid://104987298663446"
+  },
+  "Pet/Beanie": {
+    "hash": "caa1193d90906f25c80b9fb014e0448592371794480f09f264b28fc60a60c23c",
+    "id": "rbxassetid://90584897035664"
+  },
+  "Pet/Cozy": {
+    "hash": "ea6b351e268605518140d42ba5ff02640d280a9dfc5a5405a23fb6bd93963fe8",
+    "id": "rbxassetid://74552089873448"
+  },
+  "Pet/Stacky": {
+    "hash": "443dd9569ad2601fd05d1ca3afbd5af11ef3b837b923982fda4a4c755f0729c0",
+    "id": "rbxassetid://102711622029132"
+  },
+  "Pet/Climby": {
+    "hash": "39c95cc8bb1f682e91ada7ae8e8de1da7742932b7ed5e28c95cec60267f0b729",
+    "id": "rbxassetid://122678857103665"
+  },
+  "Pet/Starry": {
+    "hash": "18b0479f8d7c3478f14b0677f3b9c8de4d9f8fb65b2be7b82bbd8f8910a50847",
+    "id": "rbxassetid://104514504165935"
+  },
+  "Rock/DesertFirst": {
+    "hash": "cf50fa202f5de4788cb7168882918c1bc24b718f06ac8765656ab4f49488979d",
+    "id": "rbxassetid://108152302110822"
+  },
+  "Rock/DesertSecond": {
+    "hash": "6b2f07ee9991b2c00db9c96c2dbe1ead35f96fc992daa6d1506b7c883ddcc1ad",
+    "id": "rbxassetid://119282911903105"
+  },
+  "Rock/DesertThird": {
+    "hash": "238f2df92d5c0351d9e8defc02ee821b45ef357b8010d851ef4e0836b74f19e2",
+    "id": "rbxassetid://104874313285983"
+  },
+  "Rock/JungleFirst": {
+    "hash": "8571cff4815ccc4a3191d8c0282ea5483ae26ac29c2a4b89c09bbd1375fffc62",
+    "id": "rbxassetid://116887998402843"
+  },
+  "Rock/JungleSecond": {
+    "hash": "734890a1ab4458fd7dc5ee7dc21d3c55ab2c9361f4d1f01382968a005cb0582f",
+    "id": "rbxassetid://113872693760850"
+  },
+  "Rock/JungleThird": {
+    "hash": "6fff09ee9a94eee0266a956384581ecb0f8e948efbcff7e4abab220b91d22ca7",
+    "id": "rbxassetid://103186146469782"
+  },
+  "Rock/OceanFirst": {
+    "hash": "10802a5bd032e6b0f6bd0270e89dbf85490ae92fa1765a940aaebeb044f1e08e",
+    "id": "rbxassetid://135871413448431"
+  },
+  "Rock/OceanSecond": {
+    "hash": "967240dc787e61c915098c0e75726b1e1fa2a61064249b70af4064175a08791c",
+    "id": "rbxassetid://88211190152566"
+  },
+  "Rock/OceanThird": {
+    "hash": "e972466eae2fbe513b209dad0998f61109ab99e9b6c1bdd65e8f467a71a0b4b2",
+    "id": "rbxassetid://86523797086643"
+  },
+  "Rock/SnowFirst": {
+    "hash": "53f615675cf15ff7ff518b31d97569f1976b5eb283536b28af76a16fa06dc767",
+    "id": "rbxassetid://118802557171293"
+  },
+  "Rock/SnowSecond": {
+    "hash": "6d9b85a8599bf143b8c52ea3094ddc16fe154808a5313c3862dd83e3d1900b2e",
+    "id": "rbxassetid://139369915926759"
+  },
+  "Rock/SnowThird": {
+    "hash": "066493d86709cdd769d8a6b2d50cf6db2cf95a0fb5a88f11ade77347c2bc6783",
+    "id": "rbxassetid://129456812061898"
+  }
+}
