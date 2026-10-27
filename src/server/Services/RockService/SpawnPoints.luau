@@ -55,8 +55,8 @@ local function fits(shape: Types.Shape, ground: RaycastResult, areas: { Instance
 	local lift = RockSpawnConfig.ClearanceLiftStuds
 	local excluded = table.clone(areas)
 	table.insert(excluded, ground.Instance)
-	local rockCFrame = shape.Rotation + ground.Position + Vector3.new(0, shape.Size.Y / 2 + lift, 0)
-	if not isClear(rockCFrame, shape.Size, excluded) then
+	local rockCFrame = CFrame.new(ground.Position + Vector3.new(0, shape.Size.Y / 2 + lift, 0))
+	if not isClear(rockCFrame, Vector3.new(shape.Radius * 2, shape.Size.Y, shape.Radius * 2), excluded) then
 		return false
 	end
 
@@ -128,7 +128,7 @@ function SpawnPoints.Shape(key: string): Types.Shape?
 		Size = size,
 		Rotation = template.CFrame.Rotation,
 		IsRelative = template:GetAttribute(ChopConfig.RelativeOffsetAttribute) == true,
-		Radius = math.max(size.X, size.Z) / 2,
+		Radius = Vector2.new(size.X, size.Z).Magnitude / 2,
 	}
 	template:Destroy()
 	return shape

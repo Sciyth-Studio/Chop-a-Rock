@@ -130,17 +130,20 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 			table.insert(blocked, area)
 		end
 	end
+	local yaw = random:NextNumber(0, math.pi * 2)
+	local rotation = CFrame.Angles(0, yaw, 0) * shape.Rotation
 	local spot = if isRush or forcedKey
 		then Spawner.PickSpotNear(
 			random,
 			spots[zone] or {},
 			shape,
+			rotation,
 			existing,
 			position,
 			RushRockConfig.SpawnRadiusStuds,
 			blocked
 		)
-		else Spawner.PickSpot(random, spots[zone] or {}, shape, existing, position, blocked)
+		else Spawner.PickSpot(random, spots[zone] or {}, shape, rotation, existing, position, blocked)
 	if not spot then
 		warnOnce(`{zone}/{key}`, `[RockService] No free spawn spot for {key} in {zone}`)
 		return false
@@ -151,9 +154,7 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 		Key = key,
 		Config = config,
 		Zone = zone,
-		CFrame = shape.Rotation
-			+ spot.Position
-			+ Vector3.new(0, shape.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0),
+		CFrame = rotation + spot.Position + Vector3.new(0, shape.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0),
 		Size = shape.Size,
 		Modifier = if isRush then RushRockConfig.Modifier else nil,
 		Weather = services.WeatherService:RollStormRock(player),
@@ -169,6 +170,7 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 		rock.Id,
 		key,
 		rock.CFrame.Position,
+		yaw,
 		rock.Modifier or "",
 		rock.Weather or ""
 	)
@@ -370,6 +372,7 @@ local function onRelease(player: Player, claimed: number)
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
+		payout = services.PassService:ApplyCashMultiplier(player, payout)
 		services.DataService:AdjustCash(player, payout)
 	end
 	local isBroken = Session.IsBroken(session)
@@ -600,7 +603,7 @@ function RockService.ReserveArea(_self: any, owner: string, zone: string, positi
 			if rock.Zone ~= zone or rock.Modifier ~= nil or (session and session.Rock == rock) then
 				continue
 			end
-			local rockRadius = math.max(rock.Size.X, rock.Size.Z) / 2
+			local rockRadius = Vector2.new(rock.Size.X, rock.Size.Z).Magnitude / 2
 			local offset = rock.CFrame.Position - position
 			if Vector3.new(offset.X, 0, offset.Z).Magnitude >= radius + rockRadius then
 				continue

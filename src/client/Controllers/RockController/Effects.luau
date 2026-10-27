@@ -10,6 +10,7 @@ local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
+local LiveSplit = require(ReplicatedStorage.Utils.LiveSplit)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 
@@ -351,10 +352,13 @@ local splitPush: SplitModel.Push = {
 	TorqueRadPerSec = ChopConfig.SplitTorqueRadPerSec,
 }
 
-local function splitRock(part: BasePart, piecesSeconds: number)
+local function splitRock(part: BasePart, piecesSeconds: number, prepared: LiveSplit.Prepared?)
 	hide(part)
 
-	local model = SplitModel.Spawn(part, splitPush)
+	local model = if prepared then LiveSplit.Spawn(prepared, splitPush) else nil
+	if not model then
+		model = SplitModel.Spawn(part, splitPush)
+	end
 	if model then
 		task.delay(piecesSeconds, function()
 			if model.Parent then
@@ -470,14 +474,14 @@ function Effects.MasterStart(part: BasePart)
 	)
 end
 
-function Effects.Break(part: BasePart, quality: number, piecesSeconds: number)
+function Effects.Break(part: BasePart, quality: number, piecesSeconds: number, prepared: LiveSplit.Prepared?)
 	if quality ~= ChopQuality.Master then
 		playSound(qualitySoundKey(quality), part)
 	end
 	playSound("SFX_Rock_Break", part)
 	playBreakEffect(part.Position, part.Size, quality, part.Color)
 	if quality == ChopQuality.Master or quality == ChopQuality.Perfect then
-		splitRock(part, piecesSeconds)
+		splitRock(part, piecesSeconds, prepared)
 		return
 	end
 	hide(part)

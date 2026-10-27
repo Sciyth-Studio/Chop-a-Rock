@@ -10,9 +10,15 @@ local function flatDistance(a: Vector3, b: Vector3): number
 	return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
 end
 
+local function extent(rotation: CFrame, size: Vector3, direction: Vector3): number
+	return math.abs(rotation.RightVector:Dot(direction)) * size.X / 2
+		+ math.abs(rotation.LookVector:Dot(direction)) * size.Z / 2
+end
+
 local function isFree(
 	spot: Types.Spot,
 	shape: Types.Shape,
+	rotation: CFrame,
 	rocks: { Types.Rock },
 	avoid: Vector3?,
 	reserved: { Types.Reserved }
@@ -26,11 +32,15 @@ local function isFree(
 		return false
 	end
 	for _, rock in rocks do
-		local radius = math.max(rock.Size.X, rock.Size.Z) / 2
-		if
-			flatDistance(spot.Position, rock.CFrame.Position)
-			< shape.Radius + radius + RockSpawnConfig.RockGapStuds
-		then
+		local offset = rock.CFrame.Position - spot.Position
+		local flat = Vector3.new(offset.X, 0, offset.Z)
+		local distance = flat.Magnitude
+		if distance < 1e-3 then
+			return false
+		end
+		local direction = flat / distance
+		local reach = extent(rotation, shape.Size, direction) + extent(rock.CFrame, rock.Size, direction)
+		if distance < reach + RockSpawnConfig.RockGapStuds then
 			return false
 		end
 	end
@@ -75,13 +85,14 @@ function Spawner.PickSpot(
 	random: Random,
 	spots: { Types.Spot },
 	shape: Types.Shape,
+	rotation: CFrame,
 	rocks: { Types.Rock },
 	avoid: Vector3?,
 	reserved: { Types.Reserved }
 ): Types.Spot?
 	local valid: { Types.Spot } = {}
 	for _, spot in spots do
-		if spot.Fits[shape.Key] and isFree(spot, shape, rocks, avoid, reserved) then
+		if spot.Fits[shape.Key] and isFree(spot, shape, rotation, rocks, avoid, reserved) then
 			table.insert(valid, spot)
 		end
 	end
@@ -95,19 +106,20 @@ function Spawner.PickSpotNear(
 	random: Random,
 	spots: { Types.Spot },
 	shape: Types.Shape,
+	rotation: CFrame,
 	rocks: { Types.Rock },
 	center: Vector3?,
 	radius: number,
 	reserved: { Types.Reserved }
 ): Types.Spot?
 	if not center then
-		return Spawner.PickSpot(random, spots, shape, rocks, nil, reserved)
+		return Spawner.PickSpot(random, spots, shape, rotation, rocks, nil, reserved)
 	end
 	local near: { Types.Spot } = {}
 	local nearest: Types.Spot? = nil
 	local nearestDistance = math.huge
 	for _, spot in spots do
-		if not spot.Fits[shape.Key] or not isFree(spot, shape, rocks, center, reserved) then
+		if not spot.Fits[shape.Key] or not isFree(spot, shape, rotation, rocks, center, reserved) then
 			continue
 		end
 		local distance = flatDistance(spot.Position, center)

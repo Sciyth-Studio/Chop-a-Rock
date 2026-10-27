@@ -2,8 +2,10 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ChopApproach = require(ReplicatedStorage.Utils.ChopApproach)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local LiveSplit = require(ReplicatedStorage.Utils.LiveSplit)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
@@ -28,6 +30,7 @@ type ClientRock = {
 	IsUp: boolean,
 	IsBroken: boolean,
 	Rush: Rush.Look?,
+	Split: LiveSplit.Prepared?,
 }
 
 local ROCK_TAG = "ChopRock"
@@ -65,7 +68,19 @@ local function remove(id: number)
 	if rock.Rush then
 		rock.Rush.End(false)
 	end
+	if rock.Split then
+		LiveSplit.Discard(rock.Split)
+	end
 	rock.Part:Destroy()
+end
+
+local function prepareSplit(id: number, canBreak: boolean)
+	local rock = rocks[id]
+	if not canBreak or not rock or rock.IsBroken or rock.Split then
+		return
+	end
+	rock.Split =
+		LiveSplit.Prepare(rock.Part, rock.Part.Position, ChopApproach.Rotation(rock.Part).RightVector)
 end
 
 local function sinkAway(id: number)
@@ -98,7 +113,14 @@ local function endRush(id: number)
 	look.End(not rock.IsBroken)
 end
 
-local function spawn(id: number, key: string, position: Vector3, modifier: string, weather: string)
+local function spawn(
+	id: number,
+	key: string,
+	position: Vector3,
+	yaw: number,
+	modifier: string,
+	weather: string
+)
 	if rocks[id] or not folder then
 		return
 	end
@@ -106,7 +128,7 @@ local function spawn(id: number, key: string, position: Vector3, modifier: strin
 	if not part then
 		return
 	end
-	local target = part.CFrame.Rotation + position
+	local target = CFrame.Angles(0, yaw, 0) * part.CFrame.Rotation + position
 	part.Name = `Rock_{key}`
 	if weather ~= "" then
 		part:SetAttribute(WeatherConfig.RockWeatherAttribute, weather)
@@ -127,9 +149,18 @@ local function spawn(id: number, key: string, position: Vector3, modifier: strin
 	prompt.Enabled = false
 	prompt.Parent = part
 
-	local rock: ClientRock =
-		{ Id = id, Key = key, Part = part, Prompt = prompt, IsUp = false, IsBroken = false, Rush = nil }
+	local rock: ClientRock = {
+		Id = id,
+		Key = key,
+		Part = part,
+		Prompt = prompt,
+		IsUp = false,
+		IsBroken = false,
+		Rush = nil,
+		Split = nil,
+	}
 	rocks[id] = rock
+	LiveSplit.Preload(part)
 	if modifier == RushRockConfig.Modifier then
 		rock.Rush = Rush.Start(
 			part,
@@ -159,7 +190,7 @@ local function breakRock(rock: ClientRock, quality: number)
 		Rush.Burst(rock.Part)
 		endRush(rock.Id)
 	end
-	Effects.Break(rock.Part, quality, piecesSeconds)
+	Effects.Break(rock.Part, quality, piecesSeconds, rock.Split)
 	task.delay(piecesSeconds, function()
 		remove(rock.Id)
 	end)
@@ -216,6 +247,7 @@ function RockController.Start(self: any)
 
 	trove:Add(Packets.RockSpawned.OnClientEvent:Connect(spawn))
 	trove:Add(Packets.RockChopped.OnClientEvent:Connect(onChopped))
+	trove:Add(Packets.RockMinigameStart.OnClientEvent:Connect(prepareSplit))
 	trove:Add(Packets.RockRushEnded.OnClientEvent:Connect(endRush))
 	trove:Add(Packets.RockRemoved.OnClientEvent:Connect(sinkAway))
 	trove:Add(Packets.RockWeatherSet.OnClientEvent:Connect(setWeather))

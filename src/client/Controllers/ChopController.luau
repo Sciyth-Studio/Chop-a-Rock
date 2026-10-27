@@ -8,6 +8,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local CashPopConfig = require(ReplicatedStorage.Config.CashPopConfig)
+local ChopApproach = require(ReplicatedStorage.Utils.ChopApproach)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
@@ -273,7 +274,8 @@ local function beginMinigame(
 	ratio: number,
 	center: number,
 	health: number,
-	maxHealth: number
+	maxHealth: number,
+	approach: CFrame?
 )
 	if minigameActive then
 		return
@@ -304,6 +306,9 @@ local function beginMinigame(
 	local function offset(vector: Vector3): Vector3
 		if slotRotation then
 			return slotRotation:VectorToWorldSpace(vector)
+		end
+		if approach then
+			return approach:VectorToWorldSpace(vector)
 		end
 		return if isRelative then rock.CFrame:VectorToWorldSpace(vector) else vector
 	end
@@ -469,7 +474,15 @@ function ChopController.Start(self: any)
 			)
 				local rock = rockController:GetPart(id)
 				if rock then
-					beginMinigame(rock, canBreak, ratio, center, health, maxHealth)
+					beginMinigame(
+						rock,
+						canBreak,
+						ratio,
+						center,
+						health,
+						maxHealth,
+						ChopApproach.Rotation(rock)
+					)
 				elseif not minigameActive then
 					Packets.ChopLeave:Fire()
 				end
