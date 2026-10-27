@@ -61,7 +61,7 @@ rojo serve default.project.json --address 127.0.0.1
 
 - Edit code on disk; Rojo syncs it. Code lives directly in the service roots, with no Client/Server/Shared wrapper folders.
 - Rojo owns mapped folders. Unknown children at service roots are preserved. Workspace, lighting, GUI and other art are edited and saved in Studio, not on disk.
-- Tag authoring-only content in Workspace (prefab libraries, reference models, anything the game reads from a copy elsewhere) `EditorOnly`. `Bootstrap.server.luau` moves tagged instances into `ServerStorage.EditorOnly` before any system starts, so they stay editable in Studio but are never replicated to players. Never tag something code reads from Workspace.
+- Tag authoring-only content in Workspace (prefab libraries, reference models, anything the game reads from a copy elsewhere) `EditorOnly`. `Bootstrap.server.luau` moves tagged instances into `ServerStorage.EditorOnly` before any system starts, so they stay editable in Studio but are never replicated to players. Never tag something code reads from Workspace. Tag test content that should run in Studio Play but never reach live servers `StudioOnly`; it is stripped the same way, outside Studio only.
 - Server-only code (secrets, rules, data) belongs in `src/server`. Everything in `src/shared` is visible to clients.
 - Put tunable constants in `src/shared/Config` as frozen tables, or in server modules if clients must not see them.
 - Put pure logic in plain modules (such as `src/server/Data`) with no service dependencies.
@@ -385,5 +385,5 @@ Replica ([MadStudioRoblox/Replica](https://github.com/MadStudioRoblox/Replica)) 
 - Studio edits (UI, rocks, assets) are not in git. Stop Play before editing Studio, wait for Rojo to sync before playing, and remind the user to save the place file.
 - Verify changes with a playtest following the `studio-playtest` skill, and report what was checked by value versus seen on screen.
 - Rocks are parts in `Workspace.Rocks` tagged `ChopRock` with a `RockKey` attribute matching an entry in `RockConfig`. The config holds gameplay values; position, size and color come from the part.
-- A rock part may have a `SplitModel` attribute naming an `AssetRegistry` key of a Model in `Assets/Models` holding its pre-split pieces. Perfect breaks clone, scale and place it on the rock; without it they spawn box halves. Rock meshes and splits are made with the `rock-model` skill.
+- A rock part may have a `SplitModel` attribute naming an `AssetRegistry` key of a Model in `Assets/Models` holding its pre-split pieces. Perfect and Master breaks first try a live slice (`Utils/LiveSplit`, prepared when a breakable chop starts), then clone, scale and place the `SplitModel`, then spawn box halves. Rock meshes and splits are made with the `rock-model` skill.
 - Tunable constants go in `src/shared/Config`; add a config entry instead of hardcoding a number.

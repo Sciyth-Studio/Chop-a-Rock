@@ -1,23 +1,24 @@
 ---
 description: Running task list for Chop a Rock — what's next, what's waiting on the user, what's deferred. Claude keeps it current.
 type: project
-updated: 2026-10-22
+updated: 2026-10-27
 ---
 # To Do
 
-Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off (deletes them) when they're done and verified in code, and adds new ones as the user approves work. Only list things that matter now; see [[Only Surface Blocking Opens]].
+Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off (deletes them) when they're done and verified in code, and adds new ones as the user approves work. Only list things that matter now; see [[Only Surface Blocking Opens]]. Pre-launch work from Hud's Guide lives in [[Launch Checklist]]; move an item here once the user picks it up.
 
 ## Next
-- [ ] Robux shop (added 2026-10-22, not started): one fully finished shop for everything sold for Robux, with every item wired to a real dev product. It should be more enticing than the rest of the UI (bigger, brighter, more motion than the standard menu panels)
-- [ ] Expanded monetization + starter pack (added 2026-10-22, not started): more things to buy with Robux, plus a one-time starter pack offer for new players
+- [ ] Robux shop + expanded monetization + starter pack (added 2026-10-22, in progress, plan approved 2026-10-24 in `RobuxShopPlan.md`, see [[Robux Shop Plan Approved]]): shop screen, starter offer, boosts, Lucky Geodes, gifting, VIP (chat tag, gold name, gold base), exclusive Kingy stand and the 6 game passes on Roblox are built. The user looked at the VIP base and the exclusive stand on 2026-10-27 and both are fine. Gifting and shop motion still haven't been playtested
+- [ ] Champ and Kingy Roks (added 2026-10-25, in progress): models and icons made, exclusive income and modifier fixes tested in Play. Kingy has a gold aura and earns 3x your best Rok's base $/s with no modifiers (2026-10-27)
 - [ ] Tracking funnels (added 2026-10-22, not started): analytics funnels for the player journey (e.g. tutorial steps, first geode, first rebirth, shop opens to purchases)
 - [ ] Intro cutscene (added 2026-10-22, not started): a short cutscene for first-time players before the tutorial
 - [ ] Base floors (added 2026-10-22, not started): extra floors on player bases (more pedestal room as you progress). How floors unlock and what they cost isn't decided yet. See [[Bases]], [[Pedestals]]
 - [ ] Training stands for zones after Snow (not started as of 2026-10-22); tiers and strength-gated rebirth are done, see [[Rebirth Gated By Strength]]
-- [ ] Leaderboard extras (liked 2026-10-21): weekly reset tab, crown/title over #1, "You passed X!" toast. Built 2026-10-22 from `LeaderboardExtrasPlan.md`, not playtested; crown modelled and in Studio 2026-10-22 (see [[Leaderboards]])
+- [ ] Auto-open geodes (added 2026-10-24, planned, not built): a gamepass that keeps cracking geodes for you, each auto-open rolling a random hit quality. Plan approved 2026-10-24 in `AutoOpenGeodePlan.md` ([[Auto Open At The Pit]]): only at your own pit, cracks only geodes you own, uses the model's quality mix, no auto-sell, 199 R$ game pass. Already decided: it cracks through the same `Release` so pity works ([[Balance Pass Oct 18]], `GeodePitySystemPlan.md`), and sell value was cut to 60 s so it can't print cash ([[Sell Shop]])
+- [ ] Improve the toolbar (added 2026-10-24, not started): what to change isn't decided yet
 
 ## Waiting on the user
-- [ ] Item icons: all 45 icons (every zone's Roks and rocks) are uploaded and live in the Index and Geode Stand (2026-10-24, [[Item Icons]]). The zone rocks got realistic colours the same day. The user still needs to save the place (new `Icon` slots and the rock recolour)
+- [ ] Save the place in Studio (2026-10-27): Rok icon swap, collect pad restyle, shop rail, VIP base, Champ and Kingy models, Kingy's aura template
 
 ## Deferred until the user raises it
 - Ascended Chop (1 in 1,000)

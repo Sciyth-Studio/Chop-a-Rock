@@ -25,7 +25,7 @@ Chop a Rock
 
 1 DETAILED Paragraph Description of Game:
 (Rewritten 2026-10-01 to match the current design — see Decision Log.)
-Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up karate chops that whittle down a giant rock's health bar until it splits apart. Players walk up to a blocky, stud-textured rock, hold to wind up, and release as a cursor crosses a power band that moves to a new spot every chop. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are, timing scales the damage and payout of each chop, from sloppy to perfect, and very rarely a secret MASTER CHOP one-shots the rock with an over-the-top cinematic and a server-wide announcement. Each zone has its own material (the first is a forest of mossy rocks) with rocks of increasing size. Players build strength by training with the same chop, and money from rocks buys strict arm upgrades that multiply training gains and visibly change the player's arms. A level, derived from strength, is the kid-readable measure of how strong you are and gates rebirth. Later, money buys geodes that crack open to hatch cute PET ROCKS: a few follow the player and boost their gains, the rest sit on pedestals at the player's base earning money offline, and LUCK improves hatch rarity. Playing with friends boosts your gains, because Roblox rewards co-play. Icon-driven UI, huge buttons, minimal reading. Geodes are bought with in-game money only, never with Robux.
+Chop a Rock is a Roblox game for young kids built around one satisfying action: winding up karate chops that whittle down a giant rock's health bar until it splits apart. Players walk up to a blocky, stud-textured rock, hold to wind up, and release as a cursor crosses a power band that moves to a new spot every chop. If you're not strong enough for that rock it just cracks and you earn nothing, a clear signal to go get stronger; if you are, timing scales the damage and payout of each chop, from sloppy to perfect, and very rarely a secret MASTER CHOP one-shots the rock with an over-the-top cinematic and a server-wide announcement. Each zone has its own material (the first is a forest of mossy rocks) with rocks of increasing size. Players build strength by training with the same chop, and money from rocks buys strict arm upgrades that multiply training gains and visibly change the player's arms. A level, derived from strength, is the kid-readable measure of how strong you are and gates rebirth. Later, money buys geodes that crack open to hatch cute PET ROCKS: a few follow the player and boost their gains, the rest sit on pedestals at the player's base earning money offline, and LUCK improves hatch rarity. Playing with friends boosts your gains, because Roblox rewards co-play. Icon-driven UI, huge buttons, minimal reading. Geodes are bought with in-game money, and Lucky Geodes (Rare or better, odds shown) with Robux.
 
 Game Type:
 Simulator / RNG
@@ -48,10 +48,13 @@ Measurable target: 1,000 concurrent players (CCU).
 
 MONETIZATION NOTE — must be resolved by Section 10:
 Randomness comes from hatching pet rocks out of geodes bought with in-game money (arms are strict upgrades).
-[DECIDED] Geodes are never sold for Robux.
+[DECIDED 2026-10-24] Paid geodes are allowed (user; reverses "geodes are never sold for Robux"). They follow Roblox's
+  paid random item rules: odds shown before buying, never an empty result, hidden where paid random items are
+  restricted (PolicyService). See RobuxShopPlan.md.
 [DECIDED 2026-10-03] Robux may affect hatch luck through one permanent 2x Luck gamepass only. It cannot lift a geode
   past its own rarity cap, and stands show odds both with and without it. No Robux luck potions (consumable,
   chance-linked purchases are the riskiest kind for 6–12); luck potions come free from events/index instead.
+  Exception (2026-10-24): a server-wide Server 2x Luck developer product (RobuxShopPlan.md R8).
   Check Roblox's current paid-random-item policy before shipping.
 
 ================================
@@ -1111,3 +1114,15 @@ DECISION LOG
     than the old auras). The tier count can grow with later zones.
   - The five hand-made auras (Leaf, Wind, Thunder, Spirit, Dragon) are scrapped. Every aura is one shared effect
     whose colour shows its tier. Speeds, colours and names are [PROPOSED] until approved.
+2026-10-24 — Robux shop and monetization (§00, §10; RobuxShopPlan.md):
+  - Paid geodes are allowed (user). This reverses the 2026-10-03 "geodes are never sold for Robux". Draft form: a
+    Lucky Geode per zone (Rare or better, guaranteed weather modifier) sold for Robux, with odds shown, the
+    PolicyService paid-random-item check, and the maturity questionnaire updated. Robux still never skips a rebirth
+    or a stand.
+  - Gifting and server-wide boosts are in (user: server boosts make players keep the chain going, gifting encourages
+    co-play). Server boosts are an approved grant outside the buyer's profile.
+  - Timed boosts are a core product line (user: crucial for turning players into payers).
+  - RobuxShopPlan.md approved the same day (user accepted R1-R13): starter pack 29 R$ with a real 24 h offer, personal
+    and server boosts, Lucky Geodes, gifting, VIP 799, Claim x3 offline, an exclusive Rok stand, Mega cash pack, and
+    Server 2x Luck (server-wide only; personal Robux luck stays the 2x Luck pass). Rebirth Skip removed; no Robux
+    training mats. Prices are [PLAYTEST] drafts in config; the plan's balance checks gate each item going on sale.

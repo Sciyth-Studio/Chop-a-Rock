@@ -18,6 +18,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 ## Project
 - [[Chop a Rock]] — what the game is, repos, design source of truth
 - [[To Do]] — running task list: next, approved, waiting on the user, deferred; phases in `ROADMAP.md`
+- [[Launch Checklist]] — pre-launch actions from Hud's Guide (Downloads): first 5 minutes, analytics, session length, performance, page setup, ad run; "Your call" items need the user's decision
 - [[Trello Board]] — shared Chop A Rock board with the user's brother (faultypunisher); lists, label colours, connector limits
 
 ## Preferences
@@ -44,6 +45,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Menu Panel Style]] — dark grey stud body, striped gradient header, Chrome title, black outlines, sharp corners
 
 ## Reference
+- [[Game Icon Pack]] — the game's icons come from the user's Free Icon Pack v3.1 (Downloads); the ChatGPT style sheet `assets/Icons/Cannon/IconStyleSheet.png` is 8 of them; check the pack before prompting; use "1st" (no outline)
 - [[Balance Model]] — the user's Excel economy model (Downloads, v8), kept in this chat since 2026-10-19: tabs, syncing it to the Luau, editing it via Excel COM
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
@@ -65,6 +67,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Index UI Reference]] — three simulator Index screenshots: zone card grid, detail pane with rewards and Claim, Claim All, variant tabs down the side
 - [[Cannon Shop UI Reference]] — 2026-10-20 inspo for the Cannon Shop (tried, then dropped for the Aura Shop look): zone-tinted tall cards per tier (preview, zone block, cash + Robux price, Unequip), subtitle + cash line, footer line
 - [[Geode Stand UI Reference]] — egg-shop screenshots for the stand's odds/buy modal: header, 3x2 pet cards with %, big buttons; opened by prompt
+- [[Monetization References]] — 2026-10-24: 20 screenshots of other games' Robux UI, the `09 Monetization` notes (Downloads), and the user's calls: timed boosts crucial, paid geodes OK, gifting and server boosts in; feeds `RobuxShopPlan.md`
 - [[Leaderboard Reference]] — 2026-10-21 in-world leaderboard inspo: signpost list with headshots, ranked table with medal rows and pinned "#100+ You", stone arch built from world pieces (the dog in it is that game's HUD)
 - [[Shopkeeper Avatar]] — R6 avatar of user 341574948 leaning on the geode stand; how to import and pose one
 - [[Zone Rocks Reference]] — ChatGPT sheets for the desert, jungle, ocean, snow chop rocks (3 each, with props); open before modelling them
@@ -81,6 +84,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Jungle Rok Sheets]] — 2026-10-16 six-view sheets for the six dragon-fruit-pink jungle Roks; batch-built in one `JungleRoks.blend`
 - [[Ocean Rok Sheets]] — 2026-10-19 six-view sheets for the six coral orange ocean Roks (Drip, Bubbly, Shelly, Reefy, Glowy, Chompy); batch-built in one `OceanRoks.blend`
 - [[Snow Rok Sheets]] — 2026-10-20 six-view sheets for the six frost blue snow Roks (Hexy, Beanie, Cozy, Stacky, Climby, Starry); batch-built in one `SnowRoks.blend`
+- [[Exclusive Rok Sheets]] — 2026-10-25 sheets for the off-white exclusive Roks: Champ (red karate headband, starter pack) and Kingy (gem crown and red cape, exclusive stand); built in `ExclusiveRoks.blend`
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 - [[Training Upgrade Sign Reference]] — 2026-10-14 in-world "Upgrade / Level 2 > Level 3" sign with red cash and purple Robux buttons, for the training stand
 - [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
@@ -95,6 +99,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
 - [[VFX Showcase]] — `Workspace.VFXShowcase` stands + local plugin loop every effect in Edit; add a stand per new effect
 - [[Rock Showcase]] — `Workspace.RockShowcase` west of the zones: every zone's rocks + exploded splits on EditorOnly plates; `RockShowcase` plugin mirrors template colour edits live; rebuild script in `rock-model`
+- [[Slice Test]] — live EditableMesh rock slicing: Perfect/Master breaks use `Utils/LiveSplit` (prepared at chop start, cut square to the chop camera, SplitModel fallback) since 2026-10-24; `Workspace.SliceTest` (StudioOnly) swipe test west of the lobby; only ~8 growable EditableMeshes fit, so pieces are copied to fixed-size ones
 - [[VFX Reference Folder]] — `Workspace.VFXReference`: the user's example effects (aura, tornado, lightning, explosion); the VFX quality bar
 - [[VFX Texture Kit]] — `Downloads/VFX Assets`: 1,935 ready-made particle/flipbook/beam textures, catalogued in its `_catalog/`; the vfx skill checks it before drawing (`kit.py`)
 - [[Studio Assets Folders]] — `ReplicatedStorage.Assets` Models/VFX sorted into feature subfolders (rocks by zone); AssetRegistry looks up recursively
@@ -123,7 +128,7 @@ _One note per game system as they're worked on._
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 - [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks, Skip; weather ignored while it runs
 - [[Cash Packs]] — four Robux packs worth 3/12/40/150 of your zone's geode; a can't-afford buy (auras, cannons, geodes, slots, training sign) opens the Robux prompt for the covering pack directly, no popup; `CashPackConfig`, `Utils/CashPack`, `CashPackController`; stand products off sale
-- [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks in Index + Geode Stand cards via `Utils/ItemIcons` (ViewportFrame fallback), generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons (every zone) uploaded and live 2026-10-24
+- [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks via `Utils/ItemIcons` (ViewportFrame fallback) in Index, Geode Stand, Roks and Sell Shop (HatchReveal stays 3D); generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons live 2026-10-24, Champ and Kingy added 2026-10-25
 - [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)
 
 ## Decisions
@@ -142,6 +147,8 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 - [[Leaderboards Approved]] — 2026-10-21: Strength, Money/s, Perfect Chops, Playtime; global, 60 s; weekly tab, #1 crown, pass toast liked but not built
 - [[Rarity Ribbon And Modifier Tags]] — 2026-10-23: sell cards show rarity as a gradient ribbon (`Utils/RarityRibbon`) and the modifier as its name in its weather colours (`RokModifier.PaintLabel`)
+- [[Robux Shop Plan Approved]] — 2026-10-24: user accepted R1-R13 of `RobuxShopPlan.md`: paid Lucky Geodes, gifting, server boosts incl. Server 2x Luck, 24 h starter offer, VIP, exclusive Rok stand; not built
+- [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, not built
 
 ## Inbox
 _Unsorted learnings for the user to review._
