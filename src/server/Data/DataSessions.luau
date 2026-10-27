@@ -13,9 +13,11 @@ type Profile = {
 	Save: (self: any) -> (),
 	OnSessionEnd: Signal,
 	OnSave: Signal,
+	MessageHandler: (self: any, handler: (message: any, processed: () -> ()) -> ()) -> (),
 }
 type Store = {
 	StartSessionAsync: (self: any, key: string, options: { Cancel: () -> boolean }) -> Profile?,
+	MessageAsync: (self: any, key: string, message: any) -> boolean,
 }
 
 local DataSessions = {}
@@ -108,6 +110,18 @@ function DataSessions.Release(self: DataSessions, player: Player)
 	if profile then
 		profile:EndSession()
 	end
+end
+
+function DataSessions.ListenMessages(self: DataSessions, player: Player, handler: (any, () -> ()) -> ())
+	local profile = self._profiles[player]
+	if profile and profile:IsActive() then
+		profile:MessageHandler(handler)
+	end
+end
+
+function DataSessions.SendMessage(self: DataSessions, userId: number, message: any): boolean
+	local ok, sent = pcall(self._store.MessageAsync, self._store, `Player_{userId}`, message)
+	return ok and sent == true
 end
 
 function DataSessions.WaitForSave(self: DataSessions, player: Player, saved: (any) -> boolean): boolean

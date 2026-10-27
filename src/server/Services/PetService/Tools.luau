@@ -2,9 +2,11 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local RokAura = require(ServerScriptService.Utils.RokAura)
 local RokModifier = require(ReplicatedStorage.RokModifier)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
@@ -12,7 +14,7 @@ local PET_ID_ATTRIBUTE = "PetId"
 
 local Tools = {}
 
-local function build(id: string, petKey: string, modifier: string?): Tool?
+local function build(id: string, petKey: string, modifier: string?, income: number?): Tool?
 	local pet = PetConfig.Pets[petKey]
 	local asset = AssetRegistry.get(pet.ModelKey)
 	if not asset:IsA("Model") or not asset.PrimaryPart then
@@ -21,6 +23,7 @@ local function build(id: string, petKey: string, modifier: string?): Tool?
 		return nil
 	end
 	local model = asset :: Model
+	RokAura.Attach(model, petKey, PetConfig.ToolScale)
 	model:ScaleTo(PetConfig.ToolScale)
 	local handle = model.PrimaryPart :: BasePart
 	for _, part in model:GetDescendants() do
@@ -41,7 +44,7 @@ local function build(id: string, petKey: string, modifier: string?): Tool?
 	handle.Name = "Handle"
 	local tool = Instance.new("Tool")
 	tool.Name = RokModifier.Name(petKey, modifier)
-	tool.ToolTip = `${NumberFormat.Rate(RokModifier.Rate(petKey, modifier))}/s`
+	tool.ToolTip = `${NumberFormat.Rate(RokModifier.Rate(petKey, modifier, income))}/s`
 	tool.CanBeDropped = false
 	tool.Grip = PetConfig.ToolGrip
 	tool:SetAttribute(PET_ID_ATTRIBUTE, id)
@@ -117,7 +120,7 @@ function Tools.Sync(player: Player, pets: { [string]: any })
 		return (tonumber(a) or 0) < (tonumber(b) or 0)
 	end)
 	for _, id in missing do
-		local tool = build(id, pets[id].Key, pets[id].Modifier)
+		local tool = build(id, pets[id].Key, pets[id].Modifier, pets[id].Income)
 		if tool then
 			tool.Parent = backpack
 		end

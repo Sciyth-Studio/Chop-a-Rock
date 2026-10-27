@@ -8,6 +8,7 @@ local BlockButtonConfig = require(ReplicatedStorage.Config.BlockButtonConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local TrainingSignConfig = require(ReplicatedStorage.Config.TrainingSignConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
@@ -81,6 +82,10 @@ return function(controllers: { [string]: any })
 		local title: TextLabel? = find(gui, TrainingSignConfig.TitleName, "TextLabel")
 		local levels: TextLabel? = find(gui, TrainingSignConfig.LevelsName, "TextLabel")
 		local cashButton: GuiButton? = find(gui, TrainingSignConfig.CashButtonName, "GuiButton")
+		local robuxInstance = if cashButton then cashButton:FindFirstChild("RobuxButton") else nil
+		local robuxButton: GuiButton? = if robuxInstance and robuxInstance:IsA("GuiButton")
+			then robuxInstance
+			else nil
 		local cashLabel: TextLabel? = if cashButton
 			then find(cashButton, TrainingSignConfig.CashLabelName, "TextLabel")
 			else nil
@@ -133,6 +138,7 @@ return function(controllers: { [string]: any })
 			setText(title, TrainingSignConfig.TitleText)
 			if not nextStand then
 				setText(levels, TrainingSignConfig.MaxText)
+				RobuxButton.Show(robuxButton, nil)
 				if cashButton then
 					cashButton.Visible = false
 				end
@@ -147,6 +153,13 @@ return function(controllers: { [string]: any })
 			end
 			local isLocked = readNumber("Rebirths", 0) < nextStand.Rebirths
 			local canAfford = readNumber("Cash", 0) >= nextStand.Price
+			local shortfall = nextStand.Price - readNumber("Cash", 0)
+			local pack = if not isLocked
+					and shortfall > 0
+					and controllers.PurchaseController
+				then controllers.PurchaseController:CoveringPack(shortfall)
+				else nil
+			RobuxButton.Show(robuxButton, if pack and pack.ProductId then pack.RobuxPrice else nil)
 			if isLocked then
 				setText(cashLabel, string.format(TrainingSignConfig.LockedFormat, nextStand.Rebirths))
 				paint(cashButton, TrainingSignConfig.Palette.Unavailable)
@@ -180,6 +193,16 @@ return function(controllers: { [string]: any })
 				)
 			end
 			return nil
+		end
+
+		if robuxButton then
+			trove:Connect(robuxButton.Activated, function()
+				local nextStand = TrainingStands.Next(dataController:Get({ "TrainingTier" }))
+				local shortfall = if nextStand then nextStand.Price - readNumber("Cash", 0) else 0
+				if shortfall > 0 and isOwner() and not lockedMessage() and controllers.PurchaseController then
+					controllers.PurchaseController:PromptCash(shortfall)
+				end
+			end)
 		end
 
 		if cashButton then

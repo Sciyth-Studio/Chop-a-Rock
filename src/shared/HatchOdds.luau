@@ -47,6 +47,23 @@ function HatchOdds.Chances(geodeKey: string, luck: number): { Chance }
 		local scale = if isLucky(entry.PetKey) then factor else plainScale
 		table.insert(chances, { PetKey = entry.PetKey, Chance = base * scale })
 	end
+	local minIndex = if geode.MinRarity then table.find(RarityConfig.Order, geode.MinRarity) else nil
+	if minIndex then
+		local kept = 0
+		for _, entry in chances do
+			local pet = PetConfig.Pets[entry.PetKey]
+			local index = if pet then table.find(RarityConfig.Order, pet.Rarity) else nil
+			if not index or index < minIndex then
+				entry.Chance = 0
+			end
+			kept += entry.Chance
+		end
+		if kept > 0 then
+			for _, entry in chances do
+				entry.Chance /= kept
+			end
+		end
+	end
 	return chances
 end
 

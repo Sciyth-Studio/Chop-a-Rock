@@ -7,19 +7,27 @@ local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 
 local CashPack = {}
 
-function CashPack.Value(pack: CashPackConfig.Pack, strength: number): number
+function CashPack.GeodeValue(geodes: number, strength: number): number
 	local key = GeodeOrder.ForStrength(strength)
 	local geode = if key then GeodeConfig.Geodes[key] else nil
-	return if geode then geode.Price * pack.Geodes else 0
+	return if geode then geode.Price * geodes else 0
+end
+
+function CashPack.Value(pack: CashPackConfig.Pack, strength: number): number
+	return CashPack.GeodeValue(pack.Geodes, strength)
 end
 
 function CashPack.Covering(shortfall: number, strength: number): number
+	local last = 1
 	for index, pack in CashPackConfig.Packs do
-		if CashPack.Value(pack, strength) >= shortfall then
-			return index
+		if pack.ProductId then
+			last = index
+			if CashPack.Value(pack, strength) >= shortfall then
+				return index
+			end
 		end
 	end
-	return #CashPackConfig.Packs
+	return last
 end
 
 function CashPack.ByProductId(productId: number): CashPackConfig.Pack?

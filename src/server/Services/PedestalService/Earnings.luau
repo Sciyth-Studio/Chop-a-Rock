@@ -15,24 +15,34 @@ function Earnings.New(banked: number, now: number): Types.SlotEarnings
 	return { Rate = 0, Banked = banked, BankedAt = now }
 end
 
-function Earnings.Current(slot: Types.SlotEarnings, now: number): number
+local function tickedSeconds(slot: Types.SlotEarnings, now: number): number
+	local tick = PedestalConfig.IncomeTickSeconds
+	return math.floor(math.max(0, now - slot.BankedAt) / tick) * tick
+end
+
+function Earnings.Exact(slot: Types.SlotEarnings, now: number): number
 	return slot.Banked + slot.Rate * math.max(0, now - slot.BankedAt)
+end
+
+function Earnings.Current(slot: Types.SlotEarnings, now: number): number
+	return slot.Banked + slot.Rate * tickedSeconds(slot, now)
 end
 
 function Earnings.SetRate(slot: Types.SlotEarnings, rate: number, now: number)
 	if slot.Rate == rate then
 		return
 	end
-	slot.Banked = Earnings.Current(slot, now)
+	slot.Banked = Earnings.Exact(slot, now)
 	slot.BankedAt = now
 	slot.Rate = rate
 end
 
 function Earnings.Take(slot: Types.SlotEarnings, now: number): number
-	local current = Earnings.Current(slot, now)
+	local seconds = tickedSeconds(slot, now)
+	local current = slot.Banked + slot.Rate * seconds
 	local amount = math.floor(current)
 	slot.Banked = current - amount
-	slot.BankedAt = now
+	slot.BankedAt += seconds
 	return amount
 end
 

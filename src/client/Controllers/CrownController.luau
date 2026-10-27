@@ -3,7 +3,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TextChatService = game:GetService("TextChatService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local LeaderboardConfig = require(ReplicatedStorage.Config.LeaderboardConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -141,17 +140,12 @@ local function unwatch(player: Player)
 	end
 end
 
-local function onIncomingMessage(message: TextChatMessage): TextChatMessageProperties?
-	local source = message.TextSource
-	local player = if source then Players:GetPlayerByUserId(source.UserId) else nil
-	local keys = if player then titleKeys(player) else {}
+function CrownController.ChatTag(_self: any, player: Player): string?
+	local keys = titleKeys(player)
 	if #keys == 0 then
 		return nil
 	end
-	local properties = Instance.new("TextChatMessageProperties")
-	properties.PrefixText =
-		`<font color="{LeaderboardConfig.ChatTagColor}">[#1 {boardName(keys[1])}]</font> {message.PrefixText}`
-	return properties
+	return `<font color="{LeaderboardConfig.ChatTagColor}">[#1 {boardName(keys[1])}]</font>`
 end
 
 function CrownController.Init(_self: any, registry: { [string]: any })
@@ -177,7 +171,6 @@ function CrownController.Start(_self: any)
 			crown.Weld.C0 = CFrame.new(0, crown.Offset, 0) * CFrame.Angles(0, angle, 0)
 		end
 	end)
-	TextChatService.OnIncomingMessage = onIncomingMessage
 end
 
 function CrownController.Destroy(_self: any)

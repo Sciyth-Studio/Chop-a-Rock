@@ -19,6 +19,7 @@ local Packets = {
 		Packet.NumberU32,
 		Packet.String,
 		Packet.Vector3F32,
+		Packet.NumberF32,
 		Packet.String,
 		Packet.String
 	),
@@ -125,6 +126,23 @@ local Packets = {
 	Teleport = Packet("Teleport", Packet.String):RateLimit(6, 1),
 	TutorialSkip = Packet("TutorialSkip"):RateLimit(2, 1),
 	CannonHintSkip = Packet("CannonHintSkip"):RateLimit(2, 1),
+	BoostEnded = Packet("BoostEnded", Packet.String),
+	SetLuckyGeodeZone = Packet("SetLuckyGeodeZone", Packet.String):RateLimit(4, 1),
+	SetGiftTarget = Packet("SetGiftTarget", Packet.NumberF64, Packet.String):RateLimit(4, 1),
+	SendGiftCredit = Packet("SendGiftCredit", Packet.NumberF64, Packet.String)
+		:Response(Packet.Boolean8)
+		:RateLimit(2, 1),
+	GiftReceived = Packet("GiftReceived", Packet.String, Packet.String, Packet.NumberF64),
+	StarterOfferShown = Packet("StarterOfferShown"):RateLimit(1, 5),
+	ClaimOffline = Packet("ClaimOffline"):RateLimit(1, 2),
+	ThankGift = Packet("ThankGift", Packet.NumberF64):RateLimit(2, 5),
+	PurchaseAnnounced = Packet(
+		"PurchaseAnnounced",
+		Packet.String,
+		Packet.String,
+		Packet.String,
+		Packet.String
+	),
 }
 
 return Packets

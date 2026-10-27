@@ -26,6 +26,8 @@ export type GeodeStandSettings = {
 	SingleButtonOffsetPixels: number,
 	PairButtonOffsetPixels: number,
 	ButtonCenterOffsetPixels: number,
+	BagFullText: string,
+	BagFullUpsellText: string,
 }
 
 local GeodeStandConfig: GeodeStandSettings = {
@@ -60,6 +62,8 @@ local GeodeStandConfig: GeodeStandSettings = {
 	SingleButtonOffsetPixels = 0,
 	PairButtonOffsetPixels = 162,
 	ButtonCenterOffsetPixels = 92,
+	BagFullText = "Bag Full!",
+	BagFullUpsellText = "Bag Full! Tap for +100 slots",
 }
 
 return table.freeze(GeodeStandConfig)

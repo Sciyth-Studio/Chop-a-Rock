@@ -197,5 +197,13 @@
     "fbx": "assets/Rocks/Snow/IglooBoulder/IglooBoulder.fbx",
     "objects": {},
     "prefix": "IglooBoulder"
+  },
+  "Pet/Champ": {
+    "fbx": "assets/Roks/Champ/Champ.fbx",
+    "objects": {}
+  },
+  "Pet/Kingy": {
+    "fbx": "assets/Roks/Kingy/Kingy.fbx",
+    "objects": {}
   }
 }

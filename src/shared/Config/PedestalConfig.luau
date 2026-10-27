@@ -17,9 +17,8 @@ export type PedestalSettings = {
 	DisplayName: string,
 	PadTemplateKey: string,
 	InfoTemplateKey: string,
-	DisplayRefreshSeconds: number,
+	IncomeTickSeconds: number,
 	InfoHeightStuds: number,
-	PadLabelHeightStuds: number,
 	LabelMaxDistance: number,
 }
 
@@ -46,9 +45,8 @@ local PedestalConfig: PedestalSettings = {
 	DisplayName = "PlacedRok",
 	PadTemplateKey = "UI_PedestalPad",
 	InfoTemplateKey = "UI_PedestalInfo",
-	DisplayRefreshSeconds = 0.1,
+	IncomeTickSeconds = 1,
 	InfoHeightStuds = 7.5,
-	PadLabelHeightStuds = 2.5,
 	LabelMaxDistance = 80,
 }
 

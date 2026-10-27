@@ -16,9 +16,10 @@ function RokModifier.Multiplier(modifier: string?): number
 	return if config then config.Multiplier else 1
 end
 
-function RokModifier.Rate(petKey: string, modifier: string?): number
+function RokModifier.Rate(petKey: string, modifier: string?, income: number?): number
 	local pet = PetConfig.Pets[petKey]
-	return if pet then pet.MoneyPerSecond * RokModifier.Multiplier(modifier) else 0
+	local base = if income then income elseif pet then pet.MoneyPerSecond else 0
+	return base * RokModifier.Multiplier(modifier)
 end
 
 function RokModifier.Name(petKey: string, modifier: string?): string
@@ -66,6 +67,15 @@ function RokModifier.Tint(root: Instance, modifier: string?)
 			part.Color = part.Color:Lerp(tint, config.TintAlpha)
 		end
 	end
+end
+
+function RokModifier.ImageTint(modifier: string?): Color3
+	local config = RokModifier.Get(modifier)
+	local tint = if config then config.Tint else nil
+	if not config or not tint then
+		return Color3.new(1, 1, 1)
+	end
+	return Color3.new(1, 1, 1):Lerp(tint, config.TintAlpha)
 end
 
 function RokModifier.IsBetter(candidate: string, current: string?): boolean

@@ -11,6 +11,8 @@ local factories: { (controllers: { [string]: any }) -> any } = {
 	require(script.Parent.Parent.Components.IdleRok),
 	require(script.Parent.Parent.Components.ModifiedRok),
 	require(script.Parent.Parent.Components.Leaderboard),
+	require(script.Parent.Parent.Components.ExclusiveStand),
+	require(script.Parent.Parent.Components.SliceTest),
 }
 local registry: { [string]: any } = {}
 local components: { any } = {}

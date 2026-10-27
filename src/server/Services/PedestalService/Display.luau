@@ -2,10 +2,12 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local RokAura = require(ServerScriptService.Utils.RokAura)
 local RokModifier = require(ReplicatedStorage.RokModifier)
 local RokMotionConfig = require(ReplicatedStorage.Config.RokMotionConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
@@ -18,6 +20,7 @@ export type SlotView = {
 	State: "Locked" | "Empty" | "Placed",
 	PetKey: string?,
 	Modifier: string?,
+	Income: number?,
 	Price: number?,
 	Earnings: Types.SlotEarnings?,
 	CanPlace: boolean,
@@ -89,7 +92,7 @@ local function setModifier(model: Instance, modifier: string?, isCatch: boolean)
 	end
 end
 
-local function setRok(pedestal: Model, petKey: string?, modifier: string?)
+local function setRok(pedestal: Model, petKey: string?, modifier: string?, scale: number?)
 	local current = pedestal:FindFirstChild(PedestalConfig.DisplayName)
 	if current and current:GetAttribute("PetKey") == petKey then
 		setModifier(current, modifier, true)
@@ -119,7 +122,8 @@ local function setRok(pedestal: Model, petKey: string?, modifier: string?)
 			descendant.CanTouch = false
 		end
 	end
-	model:ScaleTo(PedestalConfig.RokScale)
+	RokAura.Attach(model, petKey :: string, scale or PedestalConfig.RokScale)
+	model:ScaleTo(scale or PedestalConfig.RokScale)
 	local top = part.CFrame * CFrame.new(0, part.Size.Y / 2, 0)
 	model:PivotTo(CFrame.new(top.Position) * pedestal:GetPivot().Rotation)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
@@ -129,12 +133,17 @@ local function setRok(pedestal: Model, petKey: string?, modifier: string?)
 	model.Parent = pedestal
 end
 
+function Display.ShowRok(pedestal: Model, petKey: string?, scale: number?)
+	setRok(pedestal, petKey, nil, scale)
+end
+
 function Display.Render(pedestal: Model, owner: Player, view: SlotView)
 	local pet = if view.PetKey then PetConfig.Pets[view.PetKey] else nil
 	pedestal:SetAttribute("OwnerUserId", owner.UserId)
 	pedestal:SetAttribute("State", view.State)
 	pedestal:SetAttribute("PetKey", if pet then view.PetKey else nil)
 	pedestal:SetAttribute(WeatherConfig.ModifierAttribute, if pet then view.Modifier else nil)
+	pedestal:SetAttribute("Income", if pet then view.Income else nil)
 	pedestal:SetAttribute("Price", view.Price)
 	local earnings = view.Earnings
 	pedestal:SetAttribute("Rate", if earnings then earnings.Rate else 0)

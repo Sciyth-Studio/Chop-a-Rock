@@ -5,6 +5,7 @@ local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -22,6 +23,7 @@ type Row = {
 	PriceIcon: GuiObject?,
 	Check: GuiObject?,
 	Stroke: UIStroke?,
+	Robux: GuiButton?,
 }
 
 local function find(root: Instance, name: string, className: string, recursive: boolean): any
@@ -111,6 +113,12 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					else CannonConfig.Shop.Outline
 			end
 			row.Button:SetAttribute("Shimmer", canBuy)
+			local shortfall = cannon.Price - cash
+			local showRobux = not owned and strength >= cannon.StrengthRequired and shortfall > 0
+			local pack = if showRobux
+				then context.Controllers.PurchaseController:CoveringPack(shortfall)
+				else nil
+			RobuxButton.Show(row.Robux, if pack and pack.ProductId then pack.RobuxPrice else nil)
 			if owned then
 				present(row, "Fire", CannonConfig.Shop.FireButton, false)
 			elseif strength < cannon.StrengthRequired then
@@ -182,6 +190,12 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end))
 				local priceIcon = button:FindFirstChild("PriceIcon")
 				local check = row:FindFirstChild("Check", true)
+				local robux = row:FindFirstChild("RobuxButton", true)
+				if robux and robux:IsA("GuiButton") then
+					trove:Add(robux.Activated:Connect(function()
+						context.Controllers.PurchaseController:PromptCash(cannon.Price - readNumber("Cash"))
+					end))
+				end
 				table.insert(rows, {
 					Cannon = cannon,
 					Button = button,
@@ -190,6 +204,7 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					PriceIcon = if priceIcon and priceIcon:IsA("GuiObject") then priceIcon else nil,
 					Check = if check and check:IsA("GuiObject") then check else nil,
 					Stroke = row:FindFirstChildOfClass("UIStroke"),
+					Robux = if robux and robux:IsA("GuiButton") then robux else nil,
 				})
 			end
 			row.Parent = list

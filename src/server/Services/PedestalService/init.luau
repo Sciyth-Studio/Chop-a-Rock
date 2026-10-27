@@ -16,6 +16,7 @@ local Types = require(script.Types)
 local PedestalService = {
 	Name = "PedestalService",
 	Collected = Signal.new() :: Signal.Signal<Player>,
+	OfflineEarned = Signal.new() :: Signal.Signal<(Player, number, number)>,
 }
 
 local trove = Trove.new()
@@ -62,6 +63,7 @@ local function refresh(player: Player)
 			State = if not isUnlocked then "Locked" elseif petId then "Placed" else "Empty",
 			PetKey = if petId then data.Pets[petId].Key else nil,
 			Modifier = if petId then data.Pets[petId].Modifier else nil,
+			Income = if petId then data.Pets[petId].Income else nil,
 			Price = if slot == nextSlot then nextPrice else nil,
 			Earnings = session.Slots[slot],
 			CanPlace = isHolding,
@@ -80,7 +82,7 @@ local function flush(player: Player)
 			context.Services.DataService:Set(
 				player,
 				{ "PedestalEarnings", slotKey(slot) },
-				Earnings.Current(earnings, now)
+				Earnings.Exact(earnings, now)
 			)
 		end
 	end
@@ -107,7 +109,7 @@ local function collect(player: Player, slot: number)
 		earnings.Banked += amount
 		return
 	end
-	services.DataService:Set(player, { "PedestalEarnings", slotKey(slot) }, earnings.Banked)
+	services.DataService:Set(player, { "PedestalEarnings", slotKey(slot) }, Earnings.Exact(earnings, now))
 	Packets.PadCollected:FireClient(player)
 	PedestalService.Collected:Fire(player)
 	refresh(player)
@@ -184,16 +186,19 @@ local function start(player: Player, isFirstLoad: boolean)
 		if seconds > 0 then
 			local placed = PedestalSlots.Placed(data.Pets)
 			local multiplier = services.IndexService:GetCashMultiplier(player)
+			local total = 0
 			for slot, petId in placed do
 				local key = slotKey(slot)
 				local earned =
 					Earnings.Offline(services.PetService:GetRate(data.Pets[petId]) * multiplier, seconds)
+				total += earned
 				services.DataService:Set(
 					player,
 					{ "PedestalEarnings", key },
 					(data.PedestalEarnings[key] or 0) + earned
 				)
 			end
+			PedestalService.OfflineEarned:Fire(player, total, seconds)
 		end
 	end
 	refresh(player)
@@ -207,7 +212,7 @@ local function release(player: Player, data: any)
 	end
 	local now = Earnings.Now()
 	for slot, earnings in session.Slots do
-		data.PedestalEarnings[slotKey(slot)] = Earnings.Current(earnings, now)
+		data.PedestalEarnings[slotKey(slot)] = Earnings.Exact(earnings, now)
 	end
 end
 
@@ -227,6 +232,24 @@ function PedestalService.SetSlots(_self: any, player: Player, count: number): bo
 	services.DataService:Set(player, { "PedestalSlots" }, count)
 	Placement.Sanitize(context, player)
 	return respond(player, true)
+end
+
+function PedestalService.CollectAll(_self: any, player: Player)
+	local session = sessions[player]
+	if not session then
+		return
+	end
+	for slot in session.Slots do
+		collect(player, slot)
+	end
+end
+
+function PedestalService.Refresh(_self: any, player: Player)
+	refresh(player)
+end
+
+function PedestalService.ShowRok(_self: any, pedestal: Model, petKey: string?, scale: number?)
+	Display.ShowRok(pedestal, petKey, scale)
 end
 
 function PedestalService.EquipBest(_self: any, player: Player): boolean
@@ -279,6 +302,7 @@ function PedestalService.SimulateOffline(_self: any, player: Player, seconds: nu
 			total += earned
 		end
 	end
+	PedestalService.OfflineEarned:Fire(player, total, capped)
 	flush(player)
 	refresh(player)
 	return total

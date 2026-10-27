@@ -1,14 +1,21 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
+local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 
 local EditorOnly = {}
 
 EditorOnly.Tag = "EditorOnly"
+EditorOnly.StudioTag = "StudioOnly"
 
 function EditorOnly.Strip()
 	local tagged = CollectionService:GetTagged(EditorOnly.Tag)
+	if not RunService:IsStudio() then
+		for _, instance in CollectionService:GetTagged(EditorOnly.StudioTag) do
+			table.insert(tagged, instance)
+		end
+	end
 	if #tagged == 0 then
 		return
 	end

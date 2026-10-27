@@ -17,6 +17,7 @@ local DataService = {
 	Name = "DataService",
 	PlayerLoaded = Signal.new() :: Signal.Signal<(Player, PlayerData.Data)>,
 	PlayerReleasing = Signal.new() :: Signal.Signal<(Player, PlayerData.Data)>,
+	MessageReceived = Signal.new() :: Signal.Signal<(Player, any, () -> ())>,
 }
 local sessions: DataSessions.DataSessions? = nil
 local profileStore: any = nil
@@ -76,6 +77,9 @@ local function load(player: Player)
 		replica:Subscribe(player)
 	end
 	DataService.PlayerLoaded:Fire(player, data)
+	activeSessions:ListenMessages(player, function(message: any, processed: () -> ())
+		DataService.MessageReceived:Fire(player, message, processed)
+	end)
 end
 
 function DataService.GetData(_self: any, player: Player): PlayerData.Data?
@@ -139,6 +143,11 @@ end
 function DataService.RequestSave(_self: any, player: Player): boolean
 	local activeSessions = sessions
 	return if activeSessions then activeSessions:RequestSave(player) else false
+end
+
+function DataService.SendMessage(_self: any, userId: number, message: any): boolean
+	local activeSessions = sessions
+	return if activeSessions then activeSessions:SendMessage(userId, message) else false
 end
 
 function DataService.WaitForSave(_self: any, player: Player, saved: (any) -> boolean): boolean

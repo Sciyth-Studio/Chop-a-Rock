@@ -102,7 +102,11 @@ local function rollCatches(event: WeatherConfig.Event)
 		end
 		local candidates: { string } = {}
 		for petId, pet in data.Pets do
-			if pet.Slot ~= nil and RokModifier.IsBetter(event.Modifier, pet.Modifier) then
+			if
+				pet.Slot ~= nil
+				and services.PetService:CanTakeModifier(pet.Key)
+				and RokModifier.IsBetter(event.Modifier, pet.Modifier)
+			then
 				table.insert(candidates, petId)
 			end
 		end
@@ -208,6 +212,25 @@ function WeatherService.RollHatchModifier(_self: any, player: Player?): string?
 	local event = WeatherService:GetActive()
 	if event and random:NextNumber() < WeatherConfig.HatchChance then
 		return event.Modifier
+	end
+	return nil
+end
+
+function WeatherService.RollAnyModifier(_self: any): string?
+	local event = WeatherService:GetActive()
+	if event then
+		return event.Modifier
+	end
+	local totalWeight = 0
+	for _, entry in WeatherConfig.Events do
+		totalWeight += entry.Weight
+	end
+	local roll = random:NextNumber() * totalWeight
+	for _, entry in WeatherConfig.Events do
+		roll -= entry.Weight
+		if roll < 0 then
+			return entry.Modifier
+		end
 	end
 	return nil
 end

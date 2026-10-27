@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -219,8 +220,13 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				local value = RokValue.Sell(pet.Key, pet.Modifier)
 				setText(find(frame, "Price", "TextLabel", true), `${NumberFormat.Commas(value)}`)
 				local preview: ViewportFrame? = find(frame, "Preview", "ViewportFrame", true)
-				if preview then
-					buildPreview(preview, config.ModelKey, pet.Modifier)
+				if preview and preview.Parent then
+					local shown = ItemIcons.Apply(preview.Parent, "Pet", pet.Key, function(viewport)
+						buildPreview(viewport, config.ModelKey, pet.Modifier)
+					end)
+					if shown and shown:IsA("ImageLabel") then
+						ItemIcons.Tint(shown, RokModifier.ImageTint(pet.Modifier))
+					end
 				end
 				local stroke = frame:FindFirstChild("OuterStroke")
 				cards[id] = {

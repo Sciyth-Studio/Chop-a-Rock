@@ -15,6 +15,10 @@ export type Geode = {
 	SplitModelKey: string,
 	Pets: { GeodePet },
 	Pity: { [string]: number }?,
+	RobuxOnly: boolean?,
+	BaseKey: string?,
+	MinRarity: string?,
+	GuaranteedModifier: boolean?,
 }
 
 export type GeodeSettings = {
@@ -27,6 +31,8 @@ export type GeodeSettings = {
 	AnnouncementKind: string,
 	CrackingAttribute: string,
 	ZoneStrengthRatio: number,
+	LuckyKeyPrefix: string,
+	LuckyMinRarity: string,
 }
 
 local RockConfig = require(script.Parent.RockConfig)
@@ -150,6 +156,30 @@ local GeodeConfig: GeodeSettings = {
 	AnnouncementKind = "Event",
 	CrackingAttribute = "CrackingGeode",
 	ZoneStrengthRatio = 1,
+	LuckyKeyPrefix = "Lucky",
+	LuckyMinRarity = "Rare",
 }
+
+local baseKeys: { string } = {}
+for key in GeodeConfig.Geodes do
+	table.insert(baseKeys, key)
+end
+for _, key in baseKeys do
+	local geode = GeodeConfig.Geodes[key]
+	GeodeConfig.Geodes[GeodeConfig.LuckyKeyPrefix .. key] = {
+		DisplayName = `Lucky {geode.TabName} Geode`,
+		TabName = geode.TabName,
+		Order = geode.Order,
+		Price = 0,
+		StrengthRequired = geode.StrengthRequired,
+		ModelKey = geode.ModelKey,
+		SplitModelKey = geode.SplitModelKey,
+		Pets = geode.Pets,
+		RobuxOnly = true,
+		BaseKey = key,
+		MinRarity = GeodeConfig.LuckyMinRarity,
+		GuaranteedModifier = true,
+	}
+end
 
 return table.freeze(GeodeConfig)

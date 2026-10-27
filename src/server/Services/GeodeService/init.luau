@@ -1,12 +1,11 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
-local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
-local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
+local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Cracking = require(script.Cracking)
@@ -20,12 +19,13 @@ local OWNED_PROMPT_TAG = "OwnedPrompt"
 local GeodeService = { Name = "GeodeService" }
 
 local trove = Trove.new()
-local context: Types.Context = { Services = {}, GamepassOwners = {}, ForcedRarities = {} }
+local context: Types.Context = { Services = {}, ForcedRarities = {} }
 local random = Random.new()
 local sessions: { [Player]: Types.Session } = {}
 local pitPrompts: { [Attachment]: ProximityPrompt } = {}
 local pits: { [Attachment]: Types.Pit } = {}
 local lockedUntil: { [Player]: number } = {}
+local luckyZones: { [Player]: string } = {}
 
 local function isLocked(player: Player): boolean
 	return os.clock() < (lockedUntil[player] or 0)
@@ -134,20 +134,6 @@ local function clearPit(plot: Model)
 	end
 end
 
-local function cacheGamepass(player: Player)
-	local gamepassId = LuckConfig.GamepassId
-	if not gamepassId then
-		return
-	end
-	task.spawn(function()
-		local ok, owns =
-			pcall(MarketplaceService.UserOwnsGamePassAsync, MarketplaceService, player.UserId, gamepassId)
-		if ok and player.Parent then
-			context.GamepassOwners[player] = owns == true
-		end
-	end)
-end
-
 function GeodeService.GrantGeodes(_self: any, player: Player, geodeKey: string, amount: number): boolean
 	local data = context.Services.DataService:GetData(player)
 	if not data or not GeodeConfig.Geodes[geodeKey] then
@@ -157,6 +143,24 @@ function GeodeService.GrantGeodes(_self: any, player: Player, geodeKey: string, 
 	context.Services.DataService:RequestSave(player)
 	refreshPit(player)
 	return true
+end
+
+local function luckyKeyFor(player: Player, data: any): string?
+	local chosen = luckyZones[player]
+	local chosenGeode = if chosen then GeodeConfig.Geodes[chosen] else nil
+	local baseKey = if chosenGeode and data.Strength >= chosenGeode.StrengthRequired
+		then chosen
+		else GeodeOrder.ForStrength(data.Strength)
+	return if baseKey then GeodeOrder.LuckyKey(baseKey) else nil
+end
+
+function GeodeService.GrantLucky(_self: any, player: Player, amount: number): string?
+	local data = context.Services.DataService:GetData(player)
+	local luckyKey = if data then luckyKeyFor(player, data) else nil
+	if not luckyKey or not GeodeService:GrantGeodes(player, luckyKey, amount) then
+		return nil
+	end
+	return luckyKey
 end
 
 function GeodeService.EndSession(_self: any, player: Player)
@@ -196,7 +200,6 @@ function GeodeService.Start(_self: any)
 		end
 	end
 	services.DataService.PlayerLoaded:Connect(function(player: Player)
-		cacheGamepass(player)
 		refreshPit(player)
 	end)
 
@@ -225,6 +228,12 @@ function GeodeService.Start(_self: any)
 			end
 		end)
 	end))
+	trove:Add(Packets.SetLuckyGeodeZone.OnServerEvent:Connect(function(player: Player, baseKey: string)
+		local geode = if type(baseKey) == "string" then GeodeConfig.Geodes[baseKey] else nil
+		if geode and not geode.RobuxOnly then
+			luckyZones[player] = baseKey
+		end
+	end))
 	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(function(player: Player)
 		if sessions[player] then
 			endSession(player)
@@ -234,7 +243,7 @@ function GeodeService.Start(_self: any)
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		endSession(player)
 		lockedUntil[player] = nil
-		context.GamepassOwners[player] = nil
+		luckyZones[player] = nil
 		context.ForcedRarities[player] = nil
 	end))
 end
@@ -250,7 +259,6 @@ function GeodeService.Destroy(_self: any)
 	table.clear(pits)
 	trove:Clean()
 	table.clear(pitPrompts)
-	table.clear(context.GamepassOwners)
 end
 
 return GeodeService

@@ -5,6 +5,10 @@ export type Pet = {
 	Rarity: string,
 	ModelKey: string,
 	MoneyPerSecond: number,
+	Exclusive: boolean?,
+	IncomeRule: string?,
+	IncomeMultiplier: number?,
+	AuraKey: string?,
 }
 
 export type Trait = {
@@ -16,6 +20,7 @@ export type Trait = {
 export type PetSettings = {
 	Pets: { [string]: Pet },
 	MaxPets: number,
+	PendingCheckSeconds: number,
 	SellValueSeconds: number,
 	ToolScale: number,
 	ToolGrip: CFrame,
@@ -206,8 +211,26 @@ local PetConfig: PetSettings = {
 			ModelKey = "Model_Rok_Starry",
 			MoneyPerSecond = 3145728000,
 		},
+		Champ = {
+			DisplayName = "Champ",
+			Rarity = "Legendary",
+			ModelKey = "Model_Rok_Champ",
+			MoneyPerSecond = 100,
+			Exclusive = true,
+		},
+		Kingy = {
+			DisplayName = "Kingy",
+			Rarity = "Secret",
+			ModelKey = "Model_Rok_Kingy",
+			MoneyPerSecond = 100,
+			Exclusive = true,
+			IncomeRule = "BestTimes",
+			IncomeMultiplier = 3,
+			AuraKey = "VFX_Rok_GoldAura",
+		},
 	},
 	MaxPets = 100,
+	PendingCheckSeconds = 5,
 	SellValueSeconds = 60,
 	ToolScale = 0.6,
 	ToolGrip = CFrame.new(0, -0.3, 0.6),

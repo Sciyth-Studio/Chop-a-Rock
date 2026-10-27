@@ -24,6 +24,11 @@ local modules: { [string]: Types.ScreenModule } = {
 	Roks = require(script.Screens.Roks),
 	SellShop = require(script.Screens.SellShop),
 	RobuxShop = require(script.Screens.RobuxShop),
+	GiftPicker = require(script.Screens.GiftPicker),
+	StarterOffer = require(script.Screens.StarterOffer),
+	WelcomeBack = require(script.Screens.WelcomeBack),
+	OfferRail = require(script.Screens.OfferRail),
+	PurchaseBanner = require(script.Screens.PurchaseBanner),
 	HatchReveal = require(script.Screens.HatchReveal),
 	Rebirth = require(script.Screens.Rebirth),
 	Notifications = require(script.Screens.Notifications),
@@ -36,6 +41,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	DiamondRockPill = require(script.Screens.DiamondRockPill),
 	GeodeFallPill = require(script.Screens.GeodeFallPill),
 	WeatherPill = require(script.Screens.WeatherPill),
+	BoostPills = require(script.Screens.BoostPills),
 	TeleportBar = require(script.Screens.TeleportBar),
 	TutorialHud = require(script.Screens.TutorialHud),
 }
@@ -111,6 +117,15 @@ end
 
 function UIController.IsOpen(_self: any, name: string): boolean
 	return opened[name] == true
+end
+
+function UIController.IsModalOpen(_self: any): boolean
+	for name in opened do
+		if screens[name] and screens[name].Modal then
+			return true
+		end
+	end
+	return false
 end
 
 function UIController.Start(_self: any)

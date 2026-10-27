@@ -268,7 +268,10 @@ local lastStandCheck = 0
 local function addTrainingStrength(player: Player, reps: number): (number, number)
 	local data = services.DataService:GetData(player)
 	local stand = TrainingStands.Get(if data then data.TrainingTier else 1)
-	local exact = stand.StrengthPerRep * AuraService:GetTrainingMultiplier(player) * reps
+	local exact = stand.StrengthPerRep
+			* AuraService:GetTrainingMultiplier(player)
+			* services.PassService:GetMultiplier(player, "Strength")
+			* reps
 		+ (strengthCarry[player] or 0)
 	local gain = math.floor(exact)
 	strengthCarry[player] = exact - gain
@@ -353,6 +356,10 @@ local function setupBoard(instance: Instance)
 		end
 		startTraining(player, part, plot)
 	end)
+end
+
+function TrainingService.IsTraining(_self: any, player: Player): boolean
+	return trainings[player] ~= nil
 end
 
 function TrainingService.Stop(_self: any, player: Player)

@@ -16,6 +16,7 @@ export type Pet = {
 	TraitValue: number?,
 	Modifier: string?,
 	Slot: number?,
+	Income: number?,
 }
 
 export type Weekly = {
@@ -24,6 +25,17 @@ export type Weekly = {
 	PerfectChops: number,
 	Playtime: number,
 	MoneyPerSecond: number,
+}
+
+export type StarterPack = {
+	Bought: boolean,
+	OfferEndsAt: number,
+	SecondChanceUsed: boolean,
+}
+
+export type Offline = {
+	LastAmount: number,
+	LastAt: number,
 }
 
 export type Data = {
@@ -57,6 +69,15 @@ export type Data = {
 	Settings: { [string]: boolean | number },
 	Tutorial: Tutorial.State,
 	Hints: { [string]: number },
+	Passes: { [string]: boolean },
+	Boosts: { [string]: number },
+	Offers: { [string]: boolean },
+	StarterPack: StarterPack,
+	Offline: Offline,
+	PendingRoks: { [string]: number },
+	Exclusives: { [string]: boolean },
+	GiftsReceived: { [string]: number },
+	GiftCredits: { [string]: number },
 	LastSeenAt: number,
 	Receipts: { [string]: number },
 }
@@ -101,6 +122,15 @@ PlayerData.Template = {
 	},
 	Tutorial = Tutorial.NewState(),
 	Hints = {},
+	Passes = {},
+	Boosts = {},
+	Offers = {},
+	StarterPack = { Bought = false, OfferEndsAt = 0, SecondChanceUsed = false },
+	Offline = { LastAmount = 0, LastAt = 0 },
+	PendingRoks = {},
+	Exclusives = {},
+	GiftsReceived = {},
+	GiftCredits = {},
 	LastSeenAt = 0,
 	Receipts = {},
 } :: Data
@@ -150,6 +180,7 @@ local function validPet(pet: any): boolean
 		and (pet.TraitValue == nil or finite(pet.TraitValue))
 		and (pet.Modifier == nil or type(pet.Modifier) == "string")
 		and (pet.Slot == nil or (natural(pet.Slot) and pet.Slot >= 1))
+		and (pet.Income == nil or (finite(pet.Income) and pet.Income >= 0))
 end
 
 function PlayerData.Validate(data: any): boolean
@@ -269,6 +300,53 @@ function PlayerData.Validate(data: any): boolean
 	end
 	if data.Hints ~= nil and not counts(data.Hints) then
 		return false
+	end
+	if data.Passes ~= nil and not flags(data.Passes) then
+		return false
+	end
+	if data.Boosts ~= nil and not counts(data.Boosts) then
+		return false
+	end
+	if data.Offers ~= nil and not flags(data.Offers) then
+		return false
+	end
+	if data.StarterPack ~= nil then
+		local starter = data.StarterPack
+		if type(starter) ~= "table" then
+			return false
+		end
+		for _, key in { "Bought", "SecondChanceUsed" } do
+			if starter[key] ~= nil and type(starter[key]) ~= "boolean" then
+				return false
+			end
+		end
+		if starter.OfferEndsAt ~= nil and not natural(starter.OfferEndsAt) then
+			return false
+		end
+	end
+	if data.PendingRoks ~= nil and not counts(data.PendingRoks) then
+		return false
+	end
+	if data.Exclusives ~= nil and not flags(data.Exclusives) then
+		return false
+	end
+	if data.GiftsReceived ~= nil and not counts(data.GiftsReceived) then
+		return false
+	end
+	if data.GiftCredits ~= nil and not counts(data.GiftCredits) then
+		return false
+	end
+	if data.Offline ~= nil then
+		local offline = data.Offline
+		if type(offline) ~= "table" then
+			return false
+		end
+		if offline.LastAmount ~= nil and (not finite(offline.LastAmount) or offline.LastAmount < 0) then
+			return false
+		end
+		if offline.LastAt ~= nil and not natural(offline.LastAt) then
+			return false
+		end
 	end
 	if data.Receipts ~= nil then
 		if type(data.Receipts) ~= "table" then

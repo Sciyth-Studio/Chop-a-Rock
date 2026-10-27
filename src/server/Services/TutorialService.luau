@@ -4,11 +4,15 @@ local AnalyticsService = game:GetService("AnalyticsService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packets = require(ReplicatedStorage.Packets)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 
-local TutorialService = { Name = "TutorialService" }
+local TutorialService = {
+	Name = "TutorialService",
+	Finished = Signal.new() :: Signal.Signal<Player>,
+}
 
 local trove = Trove.new()
 local services: { [string]: any } = {}
@@ -62,6 +66,9 @@ local function setStep(player: Player, step: number, isSkip: boolean?)
 	end
 	print(`[TutorialService] {player.Name} step {previous} -> {step}`)
 	services.DataService:RequestSave(player)
+	if step == Tutorial.Done and previous ~= Tutorial.Done then
+		TutorialService.Finished:Fire(player)
+	end
 end
 
 local function geodeCount(data: any): number

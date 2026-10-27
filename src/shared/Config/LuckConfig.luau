@@ -6,7 +6,6 @@ export type LuckSettings = {
 	TimingBonusByQuality: { [number]: number },
 	PerRebirthBonus: number,
 	LuckyShareCap: number,
-	GamepassId: number?,
 	GamepassMultiplier: number,
 }
 
@@ -21,7 +20,6 @@ local LuckConfig: LuckSettings = {
 	},
 	PerRebirthBonus = 0.1,
 	LuckyShareCap = 0.9,
-	GamepassId = nil,
 	GamepassMultiplier = 2,
 }
 

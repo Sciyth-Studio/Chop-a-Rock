@@ -2,7 +2,6 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
-local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local Types = require(script.Parent.Types)
 
@@ -27,14 +26,20 @@ function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, a
 	local geode = GeodeConfig.Geodes[geodeKey]
 	local dataService = context.Services.DataService
 	local data = dataService:GetData(player)
-	if not geode or not data or not Tutorial.CanBuyGeode(Tutorial.StepOf(data.Tutorial)) then
+	if
+		not geode
+		or geode.RobuxOnly
+		or not data
+		or not Tutorial.CanBuyGeode(Tutorial.StepOf(data.Tutorial))
+	then
 		return false
 	end
 	if data.Strength < geode.StrengthRequired then
 		return false
 	end
 	local unopened = Purchasing.UnopenedCount(data)
-	if context.Services.PetService:Count(player) + unopened + amount > PetConfig.MaxPets then
+	local size = context.Services.PassService:GetBackpackSize(player)
+	if context.Services.PetService:Count(player) + unopened + amount > size then
 		return false
 	end
 	local price = Tutorial.GeodeCost(Tutorial.StepOf(data.Tutorial), geodeKey, amount)

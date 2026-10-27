@@ -4,8 +4,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packets = require(ReplicatedStorage.Packets)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 
-local RebirthService = { Name = "RebirthService" }
+local RebirthService = {
+	Name = "RebirthService",
+	Reborn = Signal.new() :: Signal.Signal<(Player, number)>,
+}
 local services: { [string]: any } = {}
 
 local function current(player: Player): RebirthConfig.Rebirth?
@@ -51,6 +55,7 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 	end
 	services.DataService:RequestSave(player)
 	print(`[RebirthService] {player.Name} rebirthed: rebirths={data.Rebirths}`)
+	RebirthService.Reborn:Fire(player, data.Rebirths)
 	return true
 end
 

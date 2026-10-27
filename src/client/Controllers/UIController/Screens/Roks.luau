@@ -3,7 +3,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
@@ -76,6 +78,10 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local slotButton: TextButton? = find(gui, "SlotButton", "TextButton", true)
 	local slotLabel: TextLabel? = if slotButton then find(slotButton, "Label", "TextLabel", true) else nil
 	local slotFill = if slotButton then slotButton:FindFirstChild("Fill", true) else nil
+	local slotRobuxInstance = if slotButton then slotButton:FindFirstChild("RobuxButton") else nil
+	local slotRobux: GuiButton? = if slotRobuxInstance and slotRobuxInstance:IsA("GuiButton")
+		then slotRobuxInstance
+		else nil
 	local equipBestButton: TextButton? = find(gui, "EquipBestButton", "TextButton", true)
 	local closeButton: TextButton? = find(gui, "CloseButton", "TextButton", true)
 
@@ -116,6 +122,11 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if price then
 			setText(slotLabel, `+1 Slot ${NumberFormat.Compact(price)}`)
 			local canAfford = type(cash) == "number" and cash >= price
+			local shortfall = price - (if type(cash) == "number" then cash else 0)
+			local pack = if shortfall > 0
+				then context.Controllers.PurchaseController:CoveringPack(shortfall)
+				else nil
+			RobuxButton.Show(slotRobux, if pack and pack.ProductId then pack.RobuxPrice else nil)
 			paint(
 				slotFill,
 				if canAfford then RoksConfig.Palette.Affordable else RoksConfig.Palette.Unavailable
@@ -164,15 +175,20 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			setText(
 				nameLabel,
 				`{RokModifier.Name(record.Key, record.Modifier)} (${NumberFormat.Rate(
-					RokModifier.Rate(record.Key, record.Modifier)
+					RokModifier.Rate(record.Key, record.Modifier, record.Income)
 				)}/s)`
 			)
 			if nameLabel and modifier then
 				nameLabel.TextColor3 = modifier.Color
 			end
 			local preview: ViewportFrame? = find(row, "Preview", "ViewportFrame", true)
-			if preview then
-				buildPreview(preview, pet.ModelKey, record.Modifier)
+			if preview and preview.Parent then
+				local shown = ItemIcons.Apply(preview.Parent, "Pet", record.Key, function(viewport)
+					buildPreview(viewport, pet.ModelKey, record.Modifier)
+				end)
+				if shown and shown:IsA("ImageLabel") then
+					ItemIcons.Tint(shown, RokModifier.ImageTint(record.Modifier))
+				end
 			end
 			local unequip: TextButton? = find(row, "UnequipButton", "TextButton", true)
 			if unequip then
@@ -185,6 +201,18 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
+	if slotRobux then
+		trove:Connect(slotRobux.Activated, function()
+			local slotCount = dataController:Get({ "PedestalSlots" })
+			local cash = dataController:Get({ "Cash" })
+			if type(slotCount) == "number" and type(cash) == "number" then
+				local _, price = PedestalSlots.Next(slotCount)
+				if price and price > cash then
+					context.Controllers.PurchaseController:PromptCash(price - cash)
+				end
+			end
+		end)
+	end
 	if slotButton then
 		trove:Connect(slotButton.Activated, function()
 			local slotCount = dataController:Get({ "PedestalSlots" })

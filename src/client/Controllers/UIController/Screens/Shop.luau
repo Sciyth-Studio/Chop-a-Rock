@@ -5,6 +5,7 @@ local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -22,6 +23,7 @@ type Row = {
 	Fill: Instance?,
 	PriceIcon: GuiObject?,
 	Glow: GuiObject?,
+	Robux: GuiButton?,
 }
 
 local function warnMissing(className: string, name: string, root: Instance)
@@ -96,6 +98,11 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				row.Glow.Visible = row.Index == ownedTier
 			end
 			row.Button:SetAttribute("Shimmer", row.Index == ownedTier + 1 and cash >= row.Price)
+			local shortfall = row.Price - cash
+			local pack = if row.Index == ownedTier + 1 and shortfall > 0
+				then context.Controllers.PurchaseController:CoveringPack(shortfall)
+				else nil
+			RobuxButton.Show(row.Robux, if pack and pack.ProductId then pack.RobuxPrice else nil)
 			if row.Index < ownedTier then
 				present(row, "Owned", ShopConfig.Palette.Orange, false)
 			elseif row.Index == ownedTier then
@@ -149,6 +156,12 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end))
 				local priceIcon = button:FindFirstChild("PriceIcon")
 				local glow = row:FindFirstChild("ColorGlow")
+				local robux = button:FindFirstChild("RobuxButton")
+				if robux and robux:IsA("GuiButton") then
+					trove:Add(robux.Activated:Connect(function()
+						context.Controllers.PurchaseController:PromptCash(tier.Price - readNumber("Cash", 0))
+					end))
+				end
 				table.insert(rows, {
 					Index = index,
 					Price = tier.Price,
@@ -157,6 +170,7 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					Fill = button:FindFirstChild("Fill", true),
 					PriceIcon = if priceIcon and priceIcon:IsA("GuiObject") then priceIcon else nil,
 					Glow = if glow and glow:IsA("GuiObject") then glow else nil,
+					Robux = if robux and robux:IsA("GuiButton") then robux else nil,
 				})
 			end
 			row.Parent = list

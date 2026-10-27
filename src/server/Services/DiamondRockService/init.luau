@@ -287,6 +287,7 @@ local function onRelease(player: Player, claimed: number)
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
+		payout = services.PassService:ApplyCashMultiplier(player, payout)
 		services.DataService:AdjustCash(player, payout)
 		diamond.Earned[player] = (diamond.Earned[player] or 0) + payout
 	end

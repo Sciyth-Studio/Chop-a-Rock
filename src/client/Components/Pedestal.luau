@@ -37,6 +37,21 @@ local function billboard(key: string, adornee: BasePart, height: number): Billbo
 	return template
 end
 
+local function surface(key: string, adornee: BasePart): SurfaceGui?
+	local template = AssetRegistry.get(key)
+	if not template:IsA("SurfaceGui") then
+		template:Destroy()
+		return nil
+	end
+	Typography.Apply(template)
+	template.Adornee = adornee
+	template.Face = Enum.NormalId.Top
+	template.MaxDistance = PedestalConfig.LabelMaxDistance
+	template.Enabled = false
+	template.Parent = adornee
+	return template
+end
+
 local function number(value: any): number
 	return if type(value) == "number" then value else 0
 end
@@ -48,7 +63,7 @@ return function(_controllers: { [string]: any })
 		local pedestal = self.Instance
 		self.Trove = Trove.new()
 		local mountTrove = self.Trove:Extend()
-		local padGui: BillboardGui?
+		local padGui: SurfaceGui?
 		local infoGui: BillboardGui?
 		local amount: TextLabel?
 		local title: TextLabel?
@@ -68,6 +83,8 @@ return function(_controllers: { [string]: any })
 			infoGui.Enabled = isOwned and (state == "Locked" or pet ~= nil)
 			local modifierValue = pedestal:GetAttribute(WeatherConfig.ModifierAttribute)
 			local modifier = if type(modifierValue) == "string" then modifierValue else nil
+			local incomeValue = pedestal:GetAttribute("Income")
+			local income = if type(incomeValue) == "number" then incomeValue else nil
 			local modifierConfig = RokModifier.Get(modifier)
 			if title then
 				title.Text = if state == "Locked" then "Locked" elseif pet then pet.DisplayName else ""
@@ -92,20 +109,30 @@ return function(_controllers: { [string]: any })
 			if detail then
 				detail.Text = if state == "Locked"
 					then (if type(price) == "number" then `${NumberFormat.Compact(price)}` else "")
-					elseif pet then `${NumberFormat.Rate(RokModifier.Rate(petKey :: string, modifier))}/s`
+					elseif pet then `${NumberFormat.Rate(
+						RokModifier.Rate(petKey :: string, modifier, income)
+					)}/s`
 					else ""
 				detail.Visible = detail.Text ~= ""
 			end
+		end
+
+		local shownTicks: number? = nil
+
+		local function currentTicks(): number
+			local elapsed =
+				math.max(0, workspace:GetServerTimeNow() - number(pedestal:GetAttribute("BankedAt")))
+			return math.floor(elapsed / PedestalConfig.IncomeTickSeconds)
 		end
 
 		local function refreshAmount()
 			if not amount or not padGui or not padGui.Enabled then
 				return
 			end
-			local elapsed =
-				math.max(0, workspace:GetServerTimeNow() - number(pedestal:GetAttribute("BankedAt")))
+			local ticks = currentTicks()
+			shownTicks = ticks
 			local value = number(pedestal:GetAttribute("Banked"))
-				+ number(pedestal:GetAttribute("Rate")) * elapsed
+				+ number(pedestal:GetAttribute("Rate")) * ticks * PedestalConfig.IncomeTickSeconds
 			amount.Text = `${NumberFormat.Compact(math.floor(value))}`
 		end
 
@@ -117,8 +144,7 @@ return function(_controllers: { [string]: any })
 			if not part or not part:IsA("BasePart") or not pad or not pad:IsA("BasePart") then
 				return
 			end
-			local newPadGui =
-				billboard(PedestalConfig.PadTemplateKey, pad, PedestalConfig.PadLabelHeightStuds)
+			local newPadGui = surface(PedestalConfig.PadTemplateKey, pad)
 			local newInfoGui = billboard(PedestalConfig.InfoTemplateKey, part, PedestalConfig.InfoHeightStuds)
 			if newPadGui then
 				mountTrove:Add(newPadGui)
@@ -128,7 +154,7 @@ return function(_controllers: { [string]: any })
 			end
 			if not newPadGui or not newInfoGui then
 				warn(
-					`[Pedestal] Missing {PedestalConfig.PadTemplateKey} or {PedestalConfig.InfoTemplateKey} BillboardGui`
+					`[Pedestal] Missing {PedestalConfig.PadTemplateKey} SurfaceGui or {PedestalConfig.InfoTemplateKey} BillboardGui`
 				)
 				return
 			end
@@ -147,16 +173,21 @@ return function(_controllers: { [string]: any })
 			end
 		end
 
-		for _, name in { "OwnerUserId", "State", "Price", "PetKey", WeatherConfig.ModifierAttribute } do
-			self.Trove:Connect(pedestal:GetAttributeChangedSignal(name), refreshInfo)
+		for _, name in
+			{ "OwnerUserId", "State", "Price", "PetKey", "Income", WeatherConfig.ModifierAttribute }
+		do
+			self.Trove:Connect(pedestal:GetAttributeChangedSignal(name), function()
+				refreshInfo()
+				refreshAmount()
+			end)
+		end
+		for _, name in { "Banked", "BankedAt", "Rate" } do
+			self.Trove:Connect(pedestal:GetAttributeChangedSignal(name), refreshAmount)
 		end
 		self.Trove:Connect(pedestal.ChildAdded, onChildChanged)
 		self.Trove:Connect(pedestal.ChildRemoved, onChildChanged)
-		local elapsed = 0
-		self.Trove:Connect(RunService.Heartbeat, function(dt: number)
-			elapsed += dt
-			if elapsed >= PedestalConfig.DisplayRefreshSeconds then
-				elapsed = 0
+		self.Trove:Connect(RunService.Heartbeat, function()
+			if amount and padGui and padGui.Enabled and currentTicks() ~= shownTicks then
 				refreshAmount()
 			end
 		end)

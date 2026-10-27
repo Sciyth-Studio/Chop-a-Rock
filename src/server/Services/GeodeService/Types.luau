@@ -2,7 +2,6 @@
 
 export type Context = {
 	Services: { [string]: any },
-	GamepassOwners: { [Player]: boolean },
 	ForcedRarities: { [Player]: string },
 }
 

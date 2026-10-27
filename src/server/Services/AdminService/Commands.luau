@@ -9,6 +9,7 @@ local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local GeodeFallConfig = require(ReplicatedStorage.Config.GeodeFallConfig)
 local HotStreakConfig = require(ReplicatedStorage.Config.HotStreakConfig)
 local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
+local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
@@ -209,6 +210,87 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, "no cannons")
 		end
 	end,
+	ToggleFakePass = function(context: Types.Context, player: Player, argument: string)
+		local passService = context.Services.PassService
+		local pass = passService:GetPass(argument)
+		if not pass then
+			notify(context, player, "choose a pass")
+			return
+		end
+		local isOwned = not passService:Owns(player, pass.Key)
+		if passService:SetFake(player, pass.Key, isOwned) then
+			local state = if passService:Owns(player, pass.Key) then "on" else "off"
+			notify(context, player, `{pass.DisplayName} {state} (fake)`)
+		else
+			notify(context, player, "fake passes are Studio only")
+		end
+	end,
+	GiveBoost = function(context: Types.Context, player: Player, argument: string)
+		for _, boost in MonetizationConfig.Boosts do
+			local seconds = boost.Products[1].Seconds
+			if
+				boost.Key == argument
+				and context.Services.BoostService:AddPersonal(player, boost.Key, seconds)
+			then
+				local total = context.Services.BoostService:GetPersonalSeconds(player, boost.Key)
+				notify(context, player, `{boost.DisplayName}, {math.ceil(total / 60)} min left`)
+				return
+			end
+		end
+		notify(context, player, "choose a boost")
+	end,
+	GiveServerBoost = function(context: Types.Context, player: Player, argument: string)
+		for _, boost in MonetizationConfig.ServerBoosts do
+			if
+				boost.Key == argument
+				and context.Services.BoostService:AddServer(boost.Key, boost.Seconds, player)
+			then
+				notify(context, player, `{boost.DisplayName} +{math.floor(boost.Seconds / 60)} min`)
+				return
+			end
+		end
+		notify(context, player, "choose a server boost")
+	end,
+	GrantStarterPack = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.OfferService:GrantStarterPack(player) then
+			notify(context, player, "starter pack granted")
+		end
+	end,
+	ResetStarterPack = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.OfferService:ResetStarterPack(player) then
+			context.Services.OfferService:OpenStarterWindow(player)
+			notify(context, player, "starter pack reset, offer open for 24 h")
+		end
+	end,
+	GrantExclusive = function(context: Types.Context, player: Player, argument: string)
+		if context.Services.ExclusiveService:Grant(player, argument) then
+			notify(context, player, `{argument} granted`)
+		else
+			notify(context, player, "choose an exclusive Rok")
+		end
+	end,
+	ResetExclusive = function(context: Types.Context, player: Player, argument: string)
+		if context.Services.ExclusiveService:ResetOwned(player, argument) then
+			notify(context, player, `{argument} can be bought again`)
+		else
+			notify(context, player, "choose an exclusive Rok")
+		end
+	end,
+	SimulateGift = function(context: Types.Context, player: Player, argument: string)
+		notify(context, player, context.Services.PurchaseService:SimulateGift(player, argument))
+	end,
+	GrantOfflineClaim = function(context: Types.Context, player: Player, _argument: string)
+		local data = context.Services.DataService:GetData(player)
+		local amount = if data then data.Offline.LastAmount else 0
+		if context.Services.OfferService:GrantOfflineClaim(player) then
+			notify(context, player, `Claim x3: +{NumberFormat.Compact(amount * 2)}`)
+		end
+	end,
+	ClearBoosts = function(context: Types.Context, player: Player, _argument: string)
+		context.Services.BoostService:ClearPersonal(player)
+		context.Services.BoostService:ClearServer()
+		notify(context, player, "all boosts cleared")
+	end,
 	SetTrainingTier = function(context: Types.Context, player: Player, argument: string)
 		local tier = number(context, player, argument, 1, #TrainingConfig.Stands)
 		if tier and context.Services.TrainingService:SetTier(player, tier) then
@@ -237,6 +319,12 @@ local Commands: { [string]: Types.Handler } = {
 		local geodeKey = zoneGeode(context, player)
 		if geodeKey and context.Services.GeodeService:GrantGeodes(player, geodeKey, 1) then
 			notify(context, player, `+1 {GeodeConfig.Geodes[geodeKey].DisplayName}`)
+		end
+	end,
+	GrantLuckyGeode = function(context: Types.Context, player: Player, _argument: string)
+		local luckyKey = context.Services.GeodeService:GrantLucky(player, 1)
+		if luckyKey then
+			notify(context, player, `+1 {GeodeConfig.Geodes[luckyKey].DisplayName}`)
 		end
 	end,
 	ForceSecret = function(context: Types.Context, player: Player, _argument: string)
@@ -346,6 +434,7 @@ local Commands: { [string]: Types.Handler } = {
 				context.Services[serviceName]:Reset(player)
 			end
 		end
+		context.Services.DataService:Set(player, { "Offers", MonetizationConfig.TasteOfferKey }, nil)
 		notify(context, player, `{key} tutorial reset`)
 	end,
 	SimulateOffline = function(context: Types.Context, player: Player, argument: string)
@@ -434,7 +523,8 @@ local Commands: { [string]: Types.Handler } = {
 		notify(context, player, `next {geodeKey} Geode crack is a guaranteed {rarity}`)
 	end,
 	FillBackpack = function(context: Types.Context, player: Player, _argument: string)
-		local room = PetConfig.MaxPets - context.Services.PetService:Count(player)
+		local room = context.Services.PassService:GetBackpackSize(player)
+			- context.Services.PetService:Count(player)
 		local grants = context.Services.PetService:GrantMany(player, rollZoneRoks(context, player, room))
 		notify(context, player, `+{#grants} Roks (Backpack full)`)
 	end,

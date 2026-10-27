@@ -5,6 +5,7 @@ local GeodeConfig = require(script.Parent.GeodeConfig)
 local GeodeOrder = require(script.Parent.Parent.Utils.GeodeOrder)
 local HotStreakConfig = require(script.Parent.HotStreakConfig)
 local IndexConfig = require(script.Parent.IndexConfig)
+local MonetizationConfig = require(script.Parent.MonetizationConfig)
 local PetConfig = require(script.Parent.PetConfig)
 local RarityConfig = require(script.Parent.RarityConfig)
 local RockConfig = require(script.Parent.RockConfig)
@@ -104,6 +105,31 @@ export type AdminSettings = {
 local auraChoices: { Choice } = {}
 for index, tier in AuraConfig.Tiers do
 	table.insert(auraChoices, { Value = tostring(index), Label = tier.DisplayName })
+end
+
+local passChoices: { Choice } = {}
+for _, pass in MonetizationConfig.Passes do
+	table.insert(passChoices, { Value = pass.Key, Label = pass.DisplayName })
+end
+
+local exclusiveChoices: { Choice } = {}
+for _, item in MonetizationConfig.Exclusives.Items do
+	table.insert(exclusiveChoices, { Value = item.Key, Label = item.Key })
+end
+
+local giftChoices: { Choice } = {}
+for _, gift in MonetizationConfig.Gifts do
+	table.insert(giftChoices, { Value = gift.Key, Label = gift.Key })
+end
+
+local boostChoices: { Choice } = {}
+for _, boost in MonetizationConfig.Boosts do
+	table.insert(boostChoices, { Value = boost.Key, Label = boost.DisplayName })
+end
+
+local serverBoostChoices: { Choice } = {}
+for _, boost in MonetizationConfig.ServerBoosts do
+	table.insert(serverBoostChoices, { Value = boost.Key, Label = boost.DisplayName })
 end
 
 local weatherChoices: { Choice } = {}
@@ -257,6 +283,82 @@ local AdminConfig: AdminSettings = {
 			Alias = "nocannons",
 		},
 		{
+			Id = "ToggleFakePass",
+			Label = "Fake Pass (Studio)",
+			Tab = "Stats",
+			Kind = "Choice",
+			Choices = passChoices,
+			Alias = "pass",
+		},
+		{
+			Id = "GiveBoost",
+			Label = "Give Boost (+15 min)",
+			Tab = "Stats",
+			Kind = "Choice",
+			Choices = boostChoices,
+			Alias = "boost",
+		},
+		{
+			Id = "GiveServerBoost",
+			Label = "Server Boost (+15 min)",
+			Tab = "Stats",
+			Kind = "Choice",
+			Choices = serverBoostChoices,
+			Alias = "serverboost",
+		},
+		{
+			Id = "GrantStarterPack",
+			Label = "Grant Starter Pack",
+			Tab = "Stats",
+			Kind = "Button",
+			Alias = "starter",
+		},
+		{
+			Id = "ResetStarterPack",
+			Label = "Reset Starter Pack",
+			Tab = "Stats",
+			Kind = "Button",
+			Alias = "nostarter",
+		},
+		{
+			Id = "GrantExclusive",
+			Label = "Grant Exclusive Rok",
+			Tab = "Stats",
+			Kind = "Choice",
+			Choices = exclusiveChoices,
+			Alias = "exclusive",
+		},
+		{
+			Id = "ResetExclusive",
+			Label = "Reset Exclusive Owned",
+			Tab = "Stats",
+			Kind = "Choice",
+			Choices = exclusiveChoices,
+			Alias = "noexclusive",
+		},
+		{
+			Id = "SimulateGift",
+			Label = "Gift To Another Player",
+			Tab = "Stats",
+			Kind = "Choice",
+			Choices = giftChoices,
+			Alias = "gift",
+		},
+		{
+			Id = "GrantOfflineClaim",
+			Label = "Grant Claim x3",
+			Tab = "Stats",
+			Kind = "Button",
+			Alias = "claimx3",
+		},
+		{
+			Id = "ClearBoosts",
+			Label = "Clear All Boosts",
+			Tab = "Stats",
+			Kind = "Button",
+			Alias = "noboosts",
+		},
+		{
 			Id = "SetTrainingTier",
 			Label = "Set Training Tier",
 			Tab = "Stats",
@@ -303,6 +405,13 @@ local AdminConfig: AdminSettings = {
 			Kind = "Choice",
 			Choices = traitChoices,
 			Alias = "trait",
+		},
+		{
+			Id = "GrantLuckyGeode",
+			Label = "+1 Lucky Geode",
+			Tab = "Roks",
+			Kind = "Button",
+			Alias = "lucky",
 		},
 		{
 			Id = "GrantGeode",

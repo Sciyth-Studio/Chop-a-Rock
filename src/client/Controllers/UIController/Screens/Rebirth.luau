@@ -2,7 +2,6 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
-local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -72,7 +71,6 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local fill: Frame? = if levelBar then find(levelBar, "Fill", "Frame") else nil
 	local rebirthButton: TextButton? = find(gui, "RebirthButton", "TextButton")
 	local closeButton: TextButton? = find(gui, "CloseButton", "TextButton")
-	local skipPrice: TextLabel? = find(gui, "SkipPrice", "TextLabel")
 	local comingSoon: TextLabel? = find(gui, "ComingSoon", "TextLabel")
 	local hiddenWhenMaxed: { GuiObject } = {}
 	for _, name in { "Comparison", "Warning", "LevelBar", "Buttons" } do
@@ -81,8 +79,6 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			table.insert(hiddenWhenMaxed, object)
 		end
 	end
-
-	setText(skipPrice, tostring(RebirthConfig.SkipRobuxPrice))
 
 	local isReady = false
 	local isBusy = false

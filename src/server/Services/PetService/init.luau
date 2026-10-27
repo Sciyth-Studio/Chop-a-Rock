@@ -2,6 +2,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -33,6 +34,7 @@ local services: { [string]: any } = {}
 local random = Random.new()
 local trove = Trove.new()
 local playerTroves: { [Player]: any } = {}
+local lastPendingCheck = 0
 
 local function rollTrait(rarity: string): (string?, number?)
 	if not PetConfig.TraitRarities[rarity] or random:NextNumber() >= PetConfig.TraitChance then
@@ -50,6 +52,23 @@ local function rollTrait(rarity: string): (string?, number?)
 	local trait = PetConfig.Traits[key]
 	local value = math.floor(random:NextNumber(trait.MinValue, trait.MaxValue) * 100 + 0.5) / 100
 	return key, value
+end
+
+local function isExclusive(petKey: string): boolean
+	local pet = PetConfig.Pets[petKey]
+	return pet ~= nil and pet.Exclusive == true
+end
+
+local function clearExclusiveModifiers(player: Player)
+	local data = services.DataService:GetData(player)
+	if not data then
+		return
+	end
+	for id, pet in data.Pets do
+		if pet.Modifier ~= nil and isExclusive(pet.Key) then
+			services.DataService:Set(player, { "Pets", id, "Modifier" }, nil)
+		end
+	end
 end
 
 local function watchCharacter(player: Player, character: Model, characterTrove: any)
@@ -108,11 +127,11 @@ function PetService.CanAdd(_self: any, player: Player, amount: number): boolean
 	if not services.DataService:GetData(player) then
 		return false
 	end
-	return PetService:Count(player) + amount <= PetConfig.MaxPets
+	return PetService:Count(player) + amount <= services.PassService:GetBackpackSize(player)
 end
 
 function PetService.GetRate(_self: any, pet: PlayerData.Pet): number
-	return RokModifier.Rate(pet.Key, pet.Modifier)
+	return RokModifier.Rate(pet.Key, pet.Modifier, pet.Income)
 end
 
 function PetService.GetHeldPetId(_self: any, player: Player): string?
@@ -144,7 +163,7 @@ local function add(player: Player, petKey: string, modifier: string?): Grant?
 		HatchedAt = os.time(),
 		Trait = trait,
 		TraitValue = traitValue,
-		Modifier = if RokModifier.Get(modifier) then modifier else nil,
+		Modifier = if RokModifier.Get(modifier) and not isExclusive(petKey) then modifier else nil,
 	}
 	replica:Set({ "NextPetId" }, data.NextPetId + 1)
 	replica:Set({ "Pets", id }, record)
@@ -159,10 +178,76 @@ local function add(player: Player, petKey: string, modifier: string?): Grant?
 	}
 end
 
+local function updateIncome(player: Player)
+	local data = services.DataService:GetData(player)
+	if not data then
+		return
+	end
+	local best = 0
+	for _, pet in data.Pets do
+		local config = PetConfig.Pets[pet.Key]
+		if config and not config.Exclusive then
+			best = math.max(best, config.MoneyPerSecond)
+		end
+	end
+	local changed = false
+	for id, pet in data.Pets do
+		local config = PetConfig.Pets[pet.Key]
+		if config and config.IncomeRule == "BestTimes" then
+			local income = math.max(config.MoneyPerSecond, best * (config.IncomeMultiplier or 1))
+			if pet.Income ~= income then
+				services.DataService:Set(player, { "Pets", id, "Income" }, income)
+				changed = true
+			end
+		end
+	end
+	if changed then
+		services.PedestalService:Refresh(player)
+	end
+end
+
 local function granted(player: Player, equipDelay: number?)
+	updateIncome(player)
 	services.DataService:RequestSave(player)
 	PetService:SyncTools(player)
 	PetService.Granted:Fire(player, equipDelay or 0)
+end
+
+local function grantPending(player: Player)
+	local data = services.DataService:GetData(player)
+	if not data or next(data.PendingRoks) == nil then
+		return
+	end
+	for petKey, count in data.PendingRoks do
+		local left = count
+		while left > 0 and PetService:CanAdd(player, 1) do
+			if not PetService:Grant(player, petKey) then
+				break
+			end
+			left -= 1
+			local pet = PetConfig.Pets[petKey]
+			services.NotificationService:Notify(
+				player,
+				"Purchase",
+				`{if pet then pet.DisplayName else petKey} joined your Backpack!`
+			)
+		end
+		if left ~= count then
+			services.DataService:Set(player, { "PendingRoks", petKey }, if left > 0 then left else nil)
+		end
+	end
+end
+
+function PetService.GrantOrQueue(_self: any, player: Player, petKey: string): boolean
+	local data = services.DataService:GetData(player)
+	if not data or not PetConfig.Pets[petKey] then
+		return false
+	end
+	if PetService:CanAdd(player, 1) and PetService:Grant(player, petKey) then
+		return true
+	end
+	services.DataService:Set(player, { "PendingRoks", petKey }, (data.PendingRoks[petKey] or 0) + 1)
+	return true
 end
 
 function PetService.Grant(
@@ -246,9 +331,14 @@ function PetService.RemoveUnplaced(_self: any, player: Player): number
 	end
 	if #ids > 0 then
 		services.DataService:RequestSave(player)
+		updateIncome(player)
 		PetService:SyncTools(player)
 	end
 	return #ids
+end
+
+function PetService.CanTakeModifier(_self: any, petKey: string): boolean
+	return PetConfig.Pets[petKey] ~= nil and not isExclusive(petKey)
 end
 
 function PetService.SetModifier(
@@ -261,7 +351,7 @@ function PetService.SetModifier(
 	local data = services.DataService:GetData(player)
 	local replica = services.DataService:GetReplica(player)
 	local pet = if data then data.Pets[petId] else nil
-	if not pet or not replica or not RokModifier.Get(modifier) then
+	if not pet or not replica or not RokModifier.Get(modifier) or isExclusive(pet.Key) then
 		return false
 	end
 	if isCatch and not RokModifier.IsBetter(modifier, pet.Modifier) then
@@ -305,6 +395,9 @@ function PetService.Sell(_self: any, player: Player, petIds: { string }): number
 		if sold[petId] or not pet or pet.Slot ~= nil or not PetConfig.Pets[pet.Key] then
 			return 0
 		end
+		if PetConfig.Pets[pet.Key].Exclusive then
+			continue
+		end
 		sold[petId] = true
 		total += RokValue.Sell(pet.Key, pet.Modifier)
 		count += 1
@@ -317,6 +410,7 @@ function PetService.Sell(_self: any, player: Player, petIds: { string }): number
 	end
 	services.DataService:AdjustCash(player, total)
 	services.DataService:RequestSave(player)
+	updateIncome(player)
 	PetService:SyncTools(player)
 	return total
 end
@@ -328,11 +422,27 @@ end
 function PetService.Start(_self: any)
 	services.DataService.PlayerLoaded:Connect(function(player: Player)
 		track(player)
+		clearExclusiveModifiers(player)
+		updateIncome(player)
 		PetService:SyncTools(player)
+	end)
+	lastPendingCheck = os.clock()
+	trove:Connect(RunService.Heartbeat, function()
+		local clock = os.clock()
+		if clock - lastPendingCheck >= PetConfig.PendingCheckSeconds then
+			lastPendingCheck = clock
+			for _, player in Players:GetPlayers() do
+				grantPending(player)
+			end
+		end
 	end)
 	trove:Connect(Players.PlayerRemoving, untrack)
 	Packets.SellPets.OnServerInvoke = function(player: Player, petIds: { string }): number
-		if type(petIds) ~= "table" or #petIds == 0 or #petIds > PetConfig.MaxPets then
+		if
+			type(petIds) ~= "table"
+			or #petIds == 0
+			or #petIds > services.PassService:GetBackpackSize(player)
+		then
 			return 0
 		end
 		for _, petId in petIds do

@@ -178,5 +178,13 @@
   "Rock/SnowThird": {
     "hash": "066493d86709cdd769d8a6b2d50cf6db2cf95a0fb5a88f11ade77347c2bc6783",
     "id": "rbxassetid://129456812061898"
+  },
+  "Pet/Champ": {
+    "hash": "8fb7670be400d7dbfcbeef0e23589c450402a29974ba9cad4cac734dd5f1e1b7",
+    "id": "rbxassetid://106981353856481"
+  },
+  "Pet/Kingy": {
+    "hash": "e00a9d7b91dec5de91e50a195faf7280efc500644d800e6b74c2161180bd1fc5",
+    "id": "rbxassetid://117002415230870"
   }
 }

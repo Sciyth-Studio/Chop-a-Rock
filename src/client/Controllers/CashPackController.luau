@@ -23,8 +23,9 @@ function CashPackController.Prompt(_self: any, shortfall: number)
 		return
 	end
 	local pack = CashPackConfig.Packs[CashPack.Covering(shortfall, strength())]
-	if pack then
-		MarketplaceService:PromptProductPurchase(Players.LocalPlayer, pack.ProductId)
+	local productId = if pack then pack.ProductId else nil
+	if productId then
+		MarketplaceService:PromptProductPurchase(Players.LocalPlayer, productId)
 	end
 end
 

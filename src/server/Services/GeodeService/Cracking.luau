@@ -25,14 +25,24 @@ local Types = require(script.Parent.Types)
 local Cracking = {}
 
 function Cracking.PickGeode(data: any): string?
-	local keys = GeodeOrder.Sorted()
-	for index = #keys, 1, -1 do
-		local key = keys[index]
-		if (data.Geodes[key] or 0) > 0 then
-			return key
+	for _, keys in { GeodeOrder.SortedLucky(), GeodeOrder.Sorted() } do
+		for index = #keys, 1, -1 do
+			local key = keys[index]
+			if (data.Geodes[key] or 0) > 0 then
+				return key
+			end
 		end
 	end
 	return nil
+end
+
+local function rollModifier(context: Types.Context, player: Player, geodeKey: string): string?
+	local weather = context.Services.WeatherService
+	local modifier = weather:RollHatchModifier(player)
+	if modifier or not GeodeConfig.Geodes[geodeKey].GuaranteedModifier then
+		return modifier
+	end
+	return weather:RollAnyModifier()
 end
 
 function Cracking.Begin(
@@ -139,9 +149,10 @@ function Cracking.Release(
 	end
 	local luck = Luck.Total(context, player, quality)
 	local data = services.DataService:GetData(player)
-	local pityCounts = if data then data.Pity[session.GeodeKey] else nil
+	local pityGeodeKey = GeodeConfig.Geodes[session.GeodeKey].BaseKey or session.GeodeKey
+	local pityCounts = if data then data.Pity[pityGeodeKey] else nil
 	local forced = forcedPet(context, player, session.GeodeKey)
-	local due = if forced then nil else HatchPity.Due(session.GeodeKey, pityCounts)
+	local due = if forced then nil else HatchPity.Due(pityGeodeKey, pityCounts)
 	local pityKey = if due then HatchOdds.RollRarity(random, session.GeodeKey, due) else nil
 	local petKey = forced or pityKey or HatchOdds.Roll(random, session.GeodeKey, luck)
 	local isPity = pityKey ~= nil
@@ -158,12 +169,8 @@ function Cracking.Release(
 			then MasterChopConfig.ImpactDelaySeconds
 			else ChopConfig.SlowMoPreImpactSeconds
 	) + HatchTiming.RevealSeconds(if hatchedPet then hatchedPet.Rarity else RarityConfig.Order[1])
-	local grant = services.PetService:Grant(
-		player,
-		petKey,
-		services.WeatherService:RollHatchModifier(player),
-		equipDelay
-	)
+	local grant =
+		services.PetService:Grant(player, petKey, rollModifier(context, player, session.GeodeKey), equipDelay)
 	if not grant then
 		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
 		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
@@ -173,8 +180,8 @@ function Cracking.Release(
 	local pet = PetConfig.Pets[grant.PetKey]
 	services.DataService:Set(
 		player,
-		{ "Pity", session.GeodeKey },
-		HatchPity.After(session.GeodeKey, pityCounts, pet.Rarity)
+		{ "Pity", pityGeodeKey },
+		HatchPity.After(pityGeodeKey, pityCounts, pet.Rarity)
 	)
 	local rarity = RarityConfig.Rarities[pet.Rarity]
 	local isMaster = quality == ChopQuality.Master
