@@ -103,6 +103,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[VFX Reference Folder]] — `Workspace.VFXReference`: the user's example effects (aura, tornado, lightning, explosion); the VFX quality bar
 - [[VFX Texture Kit]] — `Downloads/VFX Assets`: 1,935 ready-made particle/flipbook/beam textures, catalogued in its `_catalog/`; the vfx skill checks it before drawing (`kit.py`)
 - [[Studio Assets Folders]] — `ReplicatedStorage.Assets` Models/VFX sorted into feature subfolders (rocks by zone); AssetRegistry looks up recursively
+- [[Meshlab]] — MIT kit in `tools/meshlab` (Luau-built stud props → Lune → Blender preview); export_fbx.py → upload_model.ps1 → LoadAsset at 1 unit = 1 stud; Blender 5.2 path, absolute paths; `ForestTree` used for the intro trees
 - [[Chop Dummy]] — chop is two clips in `Assets/Animations` (WindUp loop + Strike) played by `Utils/ChopAnimation`; tag an R15 rig `ChopDummy` to loop it
 
 ## Systems

@@ -14,3 +14,5 @@
 
 *.blend1
 __pycache__/
+
+/tools/meshlab/out/
