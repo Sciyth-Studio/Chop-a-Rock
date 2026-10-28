@@ -3,6 +3,8 @@
 #   blender -b -P tools/meshlab/tools/export_fbx.py -- <out.fbx> <a.obj> [b.obj ...]
 # Pass absolute paths. Each OBJ becomes an object named after its file ("ForestTree_s1"), keeping its
 # vertex colours, stud UVs and normals, left at the origin (Studio re-places them).
+# The OBJ's front (-Z) is imported onto Blender -Y, which the Roblox importer reads back as -Z.
+# render.py's axes (front onto +Y) came out turned 180° in Roblox (intro car, 2026-10-27).
 import bpy, sys, os
 
 argv = sys.argv[sys.argv.index("--") + 1:]
@@ -12,7 +14,7 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 objs = []
 for src in srcs:
     bpy.ops.object.select_all(action="DESELECT")
-    bpy.ops.wm.obj_import(filepath=src, forward_axis="NEGATIVE_Z", up_axis="Y")
+    bpy.ops.wm.obj_import(filepath=src, forward_axis="Z", up_axis="Y")
     obj = bpy.context.selected_objects[0]
     name = os.path.splitext(os.path.basename(src))[0]
     obj.name = name

@@ -6,6 +6,7 @@ local ChopApproach = require(ReplicatedStorage.Utils.ChopApproach)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local LiveSplit = require(ReplicatedStorage.Utils.LiveSplit)
+local LoadingCoverConfig = require(ReplicatedStorage.Config.LoadingCoverConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
@@ -40,11 +41,19 @@ local rocks: { [number]: ClientRock } = {}
 local folder: Folder? = nil
 local chopController: any = nil
 local dataController: any = nil
+local uiController: any = nil
+local introController: any = nil
 
 local RockController = {
 	Name = "RockController",
 	_trove = nil :: TroveInstance?,
 }
+
+local function isQuiet(): boolean
+	local isCovered = uiController ~= nil and uiController:IsOpen(LoadingCoverConfig.ScreenName)
+	local isIntro = introController ~= nil and introController:IsPlaying()
+	return isCovered or isIntro
+end
 
 local function refreshPrompt(rock: ClientRock)
 	rock.Prompt.Enabled = rock.IsUp
@@ -180,7 +189,7 @@ local function spawn(
 		rock.IsUp = true
 		CollectionService:AddTag(part, ROCK_TAG)
 		refreshPrompt(rock)
-	end)
+	end, isQuiet())
 end
 
 local function breakRock(rock: ClientRock, quality: number)
@@ -227,18 +236,24 @@ function RockController.GetPart(_self: any, id: number): BasePart?
 	return if rock and not rock.IsBroken then rock.Part else nil
 end
 
-function RockController.PlayMasterWindUp(_self: any, part: BasePart)
-	Effects.MasterStart(part)
+function RockController.PlayMasterWindUp(_self: any, part: BasePart, isSilent: boolean?)
+	Effects.MasterStart(part, isSilent)
 end
 
 function RockController.PlayBreak(_self: any, part: BasePart, quality: number, piecesSeconds: number)
 	Effects.Break(part, quality, piecesSeconds, nil)
 end
 
+function RockController.PlayBreakBurst(_self: any, part: BasePart, quality: number)
+	Effects.BreakBurst(part, quality)
+end
+
 function RockController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
 	chopController = controllers.ChopController
 	dataController = controllers.DataController
+	uiController = controllers.UIController
+	introController = controllers.IntroController
 end
 
 function RockController.Start(self: any)

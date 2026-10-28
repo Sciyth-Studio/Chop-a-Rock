@@ -6,6 +6,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local IntroConfig = require(ReplicatedStorage.Config.IntroConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local RockTemplate = require(ReplicatedStorage.RockTemplate)
+local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 local Types = require(script.Parent.Types)
 
 local Stage = {}
@@ -14,6 +15,7 @@ local FOLDER_NAME = "IntroStage"
 local PLAYER_CLIPS = { "Drive", "LookUp", "BoingOut", "Dazed", "Awe" }
 local MASTER_CLIPS = { "Idle", "Leap", "Chop", "Point" }
 local FALLBACK_EMIT_COUNT = 20
+local NO_PUSH: SplitModel.Push = { OutwardStuds = 0, UpStuds = 0, TorqueRadPerSec = 0 }
 
 local function prepareRig(model: Model, clips: { string }, parent: Instance): Types.Actor?
 	local root = model:FindFirstChild("HumanoidRootPart")
@@ -29,6 +31,7 @@ local function prepareRig(model: Model, clips: { string }, parent: Instance): Ty
 			or descendant:IsA("ForceField")
 			or descendant:IsA("ParticleEmitter")
 			or descendant:IsA("BillboardGui")
+			or descendant:IsA("Highlight")
 		then
 			descendant:Destroy()
 		end
@@ -83,6 +86,17 @@ local function cloneCharacter(character: Model): Model?
 	return copy
 end
 
+function Stage.SetVisible(actor: Types.Actor, isVisible: boolean)
+	local modifier = if isVisible then 0 else 1
+	for _, descendant in actor.Model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.LocalTransparencyModifier = modifier
+		elseif descendant:IsA("Decal") then
+			descendant.LocalTransparencyModifier = modifier
+		end
+	end
+end
+
 function Stage.Build(character: Model): Types.Stage?
 	local setAsset = AssetRegistry.get(IntroConfig.SetKey)
 	if not setAsset:IsA("Model") then
@@ -119,7 +133,7 @@ function Stage.Build(character: Model): Types.Stage?
 			end
 		end
 	end
-	for _, name in { "CarStart", "CarStop", "Boulder", "MasterStart" } do
+	for _, name in { "CarStart", "CarStop", "Boulder", "BoulderStart", "BoulderEdge", "MasterStart" } do
 		if not markers[name] then
 			return fail(`Missing marker "{name}" in {IntroConfig.SetKey}`)
 		end
@@ -152,13 +166,10 @@ function Stage.Build(character: Model): Types.Stage?
 	boulder.Color = IntroConfig.BoulderColor
 	boulder.Anchored = true
 	boulder.CanCollide = false
-	local glow = Instance.new("Highlight")
-	glow.FillTransparency = 1
-	glow.OutlineColor = IntroConfig.BoulderGlowColor
-	glow.DepthMode = Enum.HighlightDepthMode.Occluded
-	glow.Parent = boulder
 	local rest = markers.Boulder * CFrame.new(0, boulder.Size.Y / 2, 0) * CFrame.Angles(0, math.rad(25), 0)
-	boulder.CFrame = rest + Vector3.new(0, IntroConfig.BoulderDropStuds, 0)
+	boulder.CFrame = rest.Rotation
+		+ markers.BoulderStart.Position
+		+ Vector3.yAxis * IntroConfig.BoulderRollHeightStuds
 	boulder.Parent = folder
 
 	local shadow = Instance.new("Part")
@@ -191,14 +202,23 @@ function Stage.Build(character: Model): Types.Stage?
 		return fail("Could not set up the actors")
 	end
 	master.Root.CFrame = markers.MasterStart
+	Stage.SetVisible(master, false)
 
 	local stars: { BasePart } = {}
 	for index = 1, IntroConfig.StarCount do
-		local star = Instance.new("Part")
+		local asset = AssetRegistry.get(IntroConfig.StarKey)
+		local star: BasePart
+		if asset:IsA("BasePart") then
+			star = asset
+		else
+			asset:Destroy()
+			local ball = Instance.new("Part")
+			ball.Shape = Enum.PartType.Ball
+			ball.Size = Vector3.new(0.45, 0.45, 0.45)
+			ball.Material = Enum.Material.Neon
+			star = ball
+		end
 		star.Name = `Star{index}`
-		star.Shape = Enum.PartType.Ball
-		star.Size = Vector3.new(0.45, 0.45, 0.45)
-		star.Material = Enum.Material.Neon
 		star.Color = IntroConfig.StarColor
 		star.Anchored = true
 		star.CanCollide = false
@@ -218,6 +238,7 @@ function Stage.Build(character: Model): Types.Stage?
 		Seat = seat,
 		Boulder = boulder,
 		BoulderRest = rest,
+		Pieces = {},
 		Shadow = shadow,
 		Player = player,
 		Master = master,
@@ -301,6 +322,158 @@ function Stage.Emit(key: string, cframe: CFrame, lifetimeSeconds: number)
 	end)
 end
 
+function Stage.Teleport(actor: Types.Actor, isArriving: boolean)
+	local flash = Instance.new("Part")
+	flash.Name = "TeleportFlash"
+	flash.Shape = Enum.PartType.Ball
+	flash.Material = Enum.Material.Neon
+	flash.Color = IntroConfig.TeleportFlashColor
+	flash.Anchored = true
+	flash.CanCollide = false
+	flash.CanQuery = false
+	flash.CanTouch = false
+	flash.CastShadow = false
+	flash.Size = Vector3.one * 0.5
+	flash.CFrame = actor.Root.CFrame
+	flash.Parent = actor.Model.Parent
+	local half = IntroConfig.TeleportFlashSeconds / 2
+	local grow =
+		TweenService:Create(flash, TweenInfo.new(half, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = Vector3.one * IntroConfig.TeleportFlashStuds,
+		})
+	grow.Completed:Once(function()
+		if not flash.Parent then
+			return
+		end
+		local shrink = TweenService:Create(
+			flash,
+			TweenInfo.new(half, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{ Size = Vector3.one * 0.5, Transparency = 1 }
+		)
+		shrink.Completed:Once(function()
+			flash:Destroy()
+		end)
+		shrink:Play()
+	end)
+	grow:Play()
+	local steps = IntroConfig.TeleportFlickers * 2
+	for step = 1, steps do
+		task.delay(IntroConfig.TeleportFlashSeconds * step / steps, function()
+			if not actor.Model.Parent then
+				return
+			end
+			local isShown = if step == steps then isArriving else (step % 2 == 1) == isArriving
+			Stage.SetVisible(actor, isShown)
+		end)
+	end
+end
+
+local function rollAxis(stage: Types.Stage): (Vector3, number)
+	local start = stage.Markers.BoulderStart.Position
+	local edge = stage.Markers.BoulderEdge.Position
+	local flat = Vector3.new(edge.X - start.X, 0, edge.Z - start.Z)
+	local direction = if flat.Magnitude > 0.01 then flat.Unit else -Vector3.xAxis
+	return Vector3.yAxis:Cross(direction), (edge - start).Magnitude
+end
+
+function Stage.PlaceBoulder(stage: Types.Stage, elapsed: number)
+	local height = IntroConfig.BoulderRollHeightStuds
+	local lift = Vector3.yAxis * height
+	local start = stage.Markers.BoulderStart.Position + lift
+	local edge = stage.Markers.BoulderEdge.Position + lift
+	local rest = stage.BoulderRest
+	local base = rest.Rotation
+	local axis, distance = rollAxis(stage)
+	local landAt = IntroConfig.BoingAt + 0.1
+	local rollSeconds = IntroConfig.BoulderFallAt - IntroConfig.BoulderRollAt
+	local boulder = stage.Boulder
+	if elapsed < IntroConfig.BoulderRollAt then
+		local since = math.max(0, elapsed - IntroConfig.RumbleAt)
+		local growth = math.clamp(since / (IntroConfig.BoulderRollAt - IntroConfig.RumbleAt), 0, 1)
+		local angle = math.rad(IntroConfig.BoulderTeeterDegrees)
+			* growth
+			* math.sin(since * IntroConfig.BoulderTeeterSpeed)
+		boulder.CFrame = CFrame.fromAxisAngle(axis, angle) * base + start
+	elseif elapsed < IntroConfig.BoulderFallAt then
+		local alpha = (elapsed - IntroConfig.BoulderRollAt) / rollSeconds
+		local eased = alpha * alpha
+		boulder.CFrame = CFrame.fromAxisAngle(axis, distance * eased / height) * base
+			+ start:Lerp(edge, eased)
+	elseif elapsed < landAt then
+		local since = elapsed - IntroConfig.BoulderFallAt
+		local alpha = since / (landAt - IntroConfig.BoulderFallAt)
+		local spin = (distance + 2 * distance / rollSeconds * since) / height
+		local flat = edge:Lerp(rest.Position, alpha)
+		local y = edge.Y + (rest.Position.Y - edge.Y) * alpha * alpha
+		boulder.CFrame = CFrame.fromAxisAngle(axis, spin) * base + Vector3.new(flat.X, y, flat.Z)
+	else
+		boulder.CFrame = rest
+	end
+end
+
+function Stage.Split(stage: Types.Stage, across: Vector3)
+	local boulder = stage.Boulder
+	local folder = stage.Set.Parent
+	local parts: { BasePart } = {}
+	local model = SplitModel.Spawn(boulder, NO_PUSH)
+	if model then
+		model.Parent = folder
+		for _, child in model:GetChildren() do
+			if child:IsA("BasePart") then
+				table.insert(parts, child)
+			end
+		end
+	else
+		for _, side in { -1, 1 } do
+			local half = Instance.new("Part")
+			half.Name = "MegaBoulder_Half"
+			half.Size = Vector3.new(boulder.Size.X / 2, boulder.Size.Y, boulder.Size.Z)
+			half.CFrame = boulder.CFrame * CFrame.new(side * boulder.Size.X / 4, 0, 0)
+			half.Color = boulder.Color
+			half.Material = boulder.Material
+			half.MaterialVariant = boulder.MaterialVariant
+			half.Parent = folder
+			table.insert(parts, half)
+		end
+	end
+	boulder.Transparency = 1
+	local center = boulder.Position
+	table.sort(parts, function(a: BasePart, b: BasePart)
+		return (a.Position - center):Dot(across) < (b.Position - center):Dot(across)
+	end)
+	for index, part in parts do
+		part.Anchored = true
+		part.CanCollide = false
+		part.CanQuery = false
+		part.CanTouch = false
+		local side = if index <= #parts / 2 then -1 else 1
+		table.insert(stage.Pieces, {
+			Part = part,
+			Start = part.CFrame,
+			Velocity = across * side * IntroConfig.PieceSpeedStuds
+				+ Vector3.yAxis * IntroConfig.PieceLiftStuds * (0.85 + math.random() * 0.3),
+			Spin = Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5).Unit
+				* IntroConfig.PieceSpinRadPerSec,
+		})
+	end
+end
+
+function Stage.UpdatePieces(stage: Types.Stage, since: number)
+	for _, piece in stage.Pieces do
+		if not piece.Part.Parent then
+			continue
+		end
+		if since > IntroConfig.PiecesSeconds then
+			piece.Part:Destroy()
+			continue
+		end
+		local drop = Vector3.yAxis * (0.5 * IntroConfig.PieceGravity * since * since)
+		local spin = piece.Spin * since
+		piece.Part.CFrame = CFrame.Angles(spin.X, spin.Y, spin.Z) * piece.Start.Rotation
+			+ (piece.Start.Position + piece.Velocity * since - drop)
+	end
+end
+
 local function tweenCar(stage: Types.Stage, scale: Vector3, seconds: number, style: Enum.EasingStyle)
 	local pivot = stage.Markers.CarStop
 	local groundY = stage.Markers.Boulder.Position.Y
@@ -341,7 +514,7 @@ function Stage.UpdateStars(stage: Types.Stage, isShown: boolean, clock: number)
 					IntroConfig.StarHeightStuds,
 					math.sin(angle) * IntroConfig.StarRadiusStuds
 				)
-		)
+		) * CFrame.Angles(0, -angle * 2, 0)
 	end
 end
 

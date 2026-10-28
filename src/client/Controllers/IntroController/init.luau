@@ -1,14 +1,18 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
 local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
+local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local IntroConfig = require(ReplicatedStorage.Config.IntroConfig)
+local LoadingCoverConfig = require(ReplicatedStorage.Config.LoadingCoverConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -24,7 +28,7 @@ type Event = { At: number, Run: () -> () }
 
 local IntroController = {
 	Name = "IntroController",
-	CaptionChanged = nil :: any,
+	LoadProgressed = nil :: any,
 }
 
 local HIDDEN_CORE_GUIS = { Enum.CoreGuiType.Backpack, Enum.CoreGuiType.PlayerList }
@@ -33,11 +37,20 @@ local DUST_KEY = "VFX_Rock_Dust"
 local CRASH_KEY = "VFX_GeodeFall_Impact"
 local LAND_KEY = "VFX_Cannon_Land"
 local EFFECT_LIFETIME_SECONDS = 4
+local MUSIC_PREFIX = "MUS_"
+local MUSIC_GROUP = "Music"
 
 local controllers: { [string]: any } = {}
 local trove: TroveInstance? = nil
 local isPlaying = false
 local finishActive: (() -> ())? = nil
+
+local function closeCover()
+	local uiController = controllers.UIController
+	if uiController then
+		uiController:Close(LoadingCoverConfig.ScreenName)
+	end
+end
 
 local function shouldPlay(): boolean
 	local state = controllers.DataController:Get({ "Tutorial" })
@@ -105,6 +118,7 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 	local rockController = controllers.RockController
 	local camera = workspace.CurrentCamera
 	if not camera then
+		closeCover()
 		return
 	end
 	isPlaying = true
@@ -124,8 +138,8 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 	local promptsWereEnabled = ProximityPromptService.Enabled
 	ProximityPromptService.Enabled = false
 	local unlockMovement = MovementLock.Acquire(humanoid)
+	local releaseMusic = controllers.MusicController:Hold()
 	uiController:Open(IntroConfig.LetterboxScreen)
-	uiController:Open(IntroConfig.CaptionScreen)
 
 	local stage: Types.Stage? = nil
 	local shots: Shots.State? = nil
@@ -145,8 +159,6 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		if stage then
 			Stage.Destroy(stage)
 		end
-		IntroController.CaptionChanged:Fire(nil, nil)
-		uiController:Close(IntroConfig.CaptionScreen)
 		uiController:Close(IntroConfig.LetterboxScreen)
 		for _, name in reopen do
 			uiController:Open(name)
@@ -156,11 +168,13 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		end
 		ProximityPromptService.Enabled = promptsWereEnabled
 		unlockMovement()
+		releaseMusic()
 		if realRoot.Parent then
 			camera.CFrame = arrivalCamera(realRoot, stand)
 		end
 		camera.CameraType = Enum.CameraType.Custom
 		isPlaying = false
+		closeCover()
 	end
 	finishActive = finish
 	runTrove:Connect(humanoid.Died, finish)
@@ -170,12 +184,31 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		end
 	end)
 
+	local cueSounds: { [number]: Sound } = {}
+	for index, cue in IntroConfig.Cues do
+		local asset = AssetRegistry.get(cue.Key)
+		if asset:IsA("Sound") then
+			if string.sub(cue.Key, 1, #MUSIC_PREFIX) == MUSIC_PREFIX then
+				local group = SoundService:FindFirstChild(MUSIC_GROUP)
+				if group and group:IsA("SoundGroup") then
+					asset.SoundGroup = group
+				end
+			end
+			asset.Parent = SoundService
+			cueSounds[index] = asset
+			runTrove:Add(asset)
+		else
+			asset:Destroy()
+		end
+	end
+
 	local built = Stage.Build(character)
 	if not built then
 		finish()
 		return
 	end
 	stage = built
+	IntroController.LoadProgressed:Fire("StageBuilt")
 	local loadStart = os.clock()
 	while not Stage.IsLoaded(built) and os.clock() - loadStart < IntroConfig.LoadTimeoutSeconds do
 		if isFinished then
@@ -191,6 +224,37 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		finish()
 		return
 	end
+	IntroController.LoadProgressed:Fire("AnimationsLoaded")
+	local isPreloaded = false
+	local preloadTargets: { Instance } = { built.Set, built.Master.Model, built.Player.Model, built.Boulder }
+	for _, sound in cueSounds do
+		table.insert(preloadTargets, sound)
+	end
+	task.spawn(function()
+		ContentProvider:PreloadAsync(preloadTargets)
+		isPreloaded = true
+	end)
+	local preloadStart = os.clock()
+	while not isPreloaded and os.clock() - preloadStart < IntroConfig.PreloadTimeoutSeconds do
+		if isFinished then
+			return
+		end
+		task.wait(0.05)
+	end
+	if isFinished then
+		return
+	end
+	IntroController.LoadProgressed:Fire("Preloaded")
+	local firstShot = built.Markers.CamDriveFront or built.Markers.CarStop
+	camera.CameraType = Enum.CameraType.Scriptable
+	camera.CFrame = CFrame.lookAt(firstShot.Position, built.Car:GetPivot().Position + Vector3.yAxis * 1.5)
+	for _ = 1, IntroConfig.WarmupFrames do
+		RunService.RenderStepped:Wait()
+		if isFinished then
+			return
+		end
+	end
+	closeCover()
 	stand = standPosition()
 	task.spawn(function()
 		local found = waitForStand()
@@ -213,10 +277,12 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 	local carStop = markers.CarStop
 	local isSeated = true
 	local starsShown = false
+	local isBoulderLanded = false
+	local splitAt: number? = nil
 	local darken: ColorCorrectionEffect? = nil
 	local fade: ColorCorrectionEffect? = nil
-	local caption: IntroConfig.Caption? = nil
 	local up = Vector3.yAxis
+	local engine: Sound? = nil
 
 	local function carPosition(elapsed: number): CFrame
 		local alpha = math.clamp(elapsed / IntroConfig.CarDriveSeconds, 0, 1)
@@ -243,6 +309,9 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 	end
 
 	onMarker(player.Tracks.BoingOut, "Boing", function()
+		if engine then
+			engine:Stop()
+		end
 		Stage.Squash(built)
 		built.Shadow.Transparency = 1
 		Stage.Emit(
@@ -284,7 +353,11 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		Shots.Flash(cameraState)
 		Shots.Punch(cameraState)
 		Shots.Shake(cameraState, IntroConfig.ImpactShakeStuds, IntroConfig.ImpactShakeSeconds)
-		rockController:PlayBreak(built.Boulder, ChopQuality.Master, IntroConfig.PiecesSeconds)
+		rockController:PlayBreakBurst(built.Boulder, ChopQuality.Master)
+		Stage.Split(built, master.Root.CFrame.RightVector)
+		splitAt = clock()
+		LocalSound.Play(IntroConfig.Sounds.Crash)
+		LocalSound.Play(IntroConfig.Sounds.FlyAway)
 		task.delay(0.3, function()
 			if not isFinished then
 				Stage.PopBack(built)
@@ -298,6 +371,16 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 			At = 0,
 			Run = function()
 				Stage.Play(player, "Drive", true)
+				local asset = AssetRegistry.get(IntroConfig.Sounds.Drive)
+				if asset:IsA("Sound") then
+					asset.Looped = true
+					asset.Parent = SoundService
+					asset:Play()
+					engine = asset
+					runTrove:Add(asset)
+				else
+					asset:Destroy()
+				end
 				local front = markers.CamDriveFront or carStop
 				Shots.Set(cameraState, lookAtFrom(front.Position, carTarget))
 			end,
@@ -313,15 +396,36 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 			end,
 		},
 		{
-			At = IntroConfig.LookUpAt,
+			At = IntroConfig.HonkAt,
 			Run = function()
-				Stage.Play(player, "LookUp")
+				LocalSound.Play(IntroConfig.Sounds.Honk)
+			end,
+		},
+		{
+			At = IntroConfig.RumbleAt,
+			Run = function()
 				LocalSound.Play(IntroConfig.Sounds.Rumble)
 				Shots.Shake(
 					cameraState,
 					IntroConfig.RumbleShakeStuds,
-					IntroConfig.BoingAt - IntroConfig.LookUpAt
+					IntroConfig.BoingAt - IntroConfig.RumbleAt
 				)
+				local cliff = markers.CamCliff or carStop
+				Shots.Set(cameraState, function()
+					return CFrame.lookAt(cliff.Position, built.Boulder.Position)
+				end)
+			end,
+		},
+		{
+			At = IntroConfig.BoulderRollAt,
+			Run = function()
+				LocalSound.Play(IntroConfig.Sounds.Roll)
+			end,
+		},
+		{
+			At = IntroConfig.LookUpAt,
+			Run = function()
+				Stage.Play(player, "LookUp")
 				local sky = markers.CamSky or carStop
 				local skyTarget = sky.Position + sky.LookVector * 30
 				local tiltStart = clock()
@@ -342,18 +446,9 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 			end,
 		},
 		{
-			At = IntroConfig.BoulderFallAt,
+			At = IntroConfig.GulpAt,
 			Run = function()
-				local impact = IntroConfig.BoingAt + 0.1
-				TweenService:Create(
-					built.Boulder,
-					TweenInfo.new(
-						impact - IntroConfig.BoulderFallAt,
-						Enum.EasingStyle.Quad,
-						Enum.EasingDirection.In
-					),
-					{ CFrame = built.BoulderRest }
-				):Play()
+				LocalSound.Play(IntroConfig.Sounds.Gulp)
 			end,
 		},
 		{
@@ -380,12 +475,15 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 				player.Root.CFrame *= IntroConfig.BoingRootOffset
 				Stage.Play(player, "Dazed", true)
 				starsShown = true
+				LocalSound.Play(IntroConfig.Sounds.Dizzy)
 			end,
 		},
 		{
-			At = IntroConfig.MasterIdleAt,
+			At = IntroConfig.TeleportAt,
 			Run = function()
 				Stage.Play(master, "Idle", true)
+				Stage.Teleport(master, true)
+				LocalSound.Play(IntroConfig.Sounds.Teleport)
 			end,
 		},
 		{
@@ -419,7 +517,7 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		{
 			At = IntroConfig.ChopSideAt,
 			Run = function()
-				rockController:PlayMasterWindUp(built.Boulder)
+				rockController:PlayMasterWindUp(built.Boulder, true)
 				darken = Shots.Darken(cameraState, 2)
 				local root = master.Root
 				local side = root.CFrame:VectorToWorldSpace(IntroConfig.ChopSideOffset)
@@ -463,15 +561,22 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		{
 			At = IntroConfig.AweCutAt,
 			Run = function()
-				local root = player.Root
+				Stage.SetVisible(master, false)
+				local masterHead = master.Head
+				local eye = if masterHead then masterHead.Position else master.Root.Position + up * 1.5
+				local function target(): Vector3
+					local head = player.Head
+					return if head then head.Position else player.Root.Position + up * 1.5
+				end
+				local offset = target() - eye
+				local look = if offset.Magnitude > 0.01 then offset.Unit else master.Root.CFrame.LookVector
+				local push = math.min(IntroConfig.PovPushStuds, offset.Magnitude * 0.5)
+				local start = eye + look * IntroConfig.PovForwardStuds
 				local pushStart = clock()
 				Shots.Set(cameraState, function(elapsed: number)
-					local head = player.Head
-					local focus = if head then head.Position else root.Position + up * 1.5
-					local alpha = Shots.Ease((elapsed - pushStart) / 1)
-					local distance = IntroConfig.AweDistanceStart
-						+ (IntroConfig.AweDistanceEnd - IntroConfig.AweDistanceStart) * alpha
-					return CFrame.lookAt(focus + root.CFrame.LookVector * distance + up * 0.4, focus)
+					local alpha =
+						Shots.Ease((elapsed - pushStart) / (IntroConfig.PointCutAt - IntroConfig.AweCutAt))
+					return CFrame.lookAt(start + look * push * alpha, target())
 				end)
 			end,
 		},
@@ -484,6 +589,7 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 		{
 			At = IntroConfig.PointCutAt,
 			Run = function()
+				Stage.SetVisible(master, true)
 				local root = master.Root
 				Shots.Set(cameraState, function()
 					local head = master.Head
@@ -496,9 +602,16 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 			end,
 		},
 		{
+			At = IntroConfig.GoTrainAt,
+			Run = function()
+				LocalSound.Play(IntroConfig.Sounds.GoTrain)
+			end,
+		},
+		{
 			At = IntroConfig.WhooshAt,
 			Run = function()
-				LocalSound.Play(IntroConfig.Sounds.Whoosh)
+				LocalSound.Play(IntroConfig.Sounds.Teleport)
+				Stage.Teleport(master, false)
 				fade = Shots.FadeIn(cameraState)
 				local from = camera.CFrame
 				local root = master.Root
@@ -534,12 +647,39 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 			Run = finish,
 		},
 	}
+	for index, cue in IntroConfig.Cues do
+		local sound = cueSounds[index]
+		if not sound then
+			continue
+		end
+		table.insert(events, {
+			At = cue.At,
+			Run = function()
+				sound.TimePosition = cue.StartSeconds
+				sound:Play()
+			end,
+		})
+		table.insert(events, {
+			At = cue.Until,
+			Run = function()
+				if cue.FadeSeconds <= 0 then
+					sound:Stop()
+					return
+				end
+				local fadeOut = TweenService:Create(sound, TweenInfo.new(cue.FadeSeconds), { Volume = 0 })
+				fadeOut.Completed:Once(function()
+					sound:Stop()
+				end)
+				fadeOut:Play()
+			end,
+		})
+	end
 	table.sort(events, function(a: Event, b: Event)
 		return a.At < b.At
 	end)
 
 	local nextEvent = 1
-	runTrove:Connect(RunService.Heartbeat, function()
+	runTrove:Connect(RunService.PreAnimation, function()
 		if isFinished then
 			return
 		end
@@ -556,6 +696,14 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 			built.Car:PivotTo(carPosition(elapsed))
 			Stage.SeatPlayer(built)
 		end
+		if not isBoulderLanded then
+			Stage.PlaceBoulder(built, elapsed)
+			isBoulderLanded = elapsed >= IntroConfig.BoingAt + 0.1
+		end
+		local split = splitAt
+		if split then
+			Stage.UpdatePieces(built, elapsed - split)
+		end
 		Stage.UpdateStars(built, starsShown, elapsed)
 		for _, actor in { player, master } do
 			for _, track in actor.Tracks do
@@ -564,23 +712,6 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 						track:AdjustSpeed(0)
 					end
 				end
-			end
-		end
-		local current: IntroConfig.Caption? = nil
-		for _, entry in IntroConfig.Captions do
-			if elapsed >= entry.At and elapsed < entry.Until then
-				current = entry
-			end
-		end
-		if current ~= caption then
-			caption = current
-			if current then
-				IntroController.CaptionChanged:Fire(current.Text, current.Style)
-				if current.Text == IntroConfig.Captions[#IntroConfig.Captions].Text then
-					LocalSound.Play(IntroConfig.Sounds.Point)
-				end
-			else
-				IntroController.CaptionChanged:Fire(nil, nil)
 			end
 		end
 	end)
@@ -592,6 +723,7 @@ local function begin()
 		dataController.Loaded:Wait()
 	end
 	if not shouldPlay() then
+		closeCover()
 		return
 	end
 	local localPlayer = Players.LocalPlayer
@@ -599,9 +731,11 @@ local function begin()
 	local humanoid = character:WaitForChild("Humanoid", IntroConfig.LoadTimeoutSeconds)
 	local root = character:WaitForChild("HumanoidRootPart", IntroConfig.LoadTimeoutSeconds)
 	if not (humanoid and humanoid:IsA("Humanoid") and root and root:IsA("BasePart")) then
+		closeCover()
 		return
 	end
 	if not shouldPlay() then
+		closeCover()
 		return
 	end
 	play(character, humanoid, root)
@@ -613,7 +747,7 @@ end
 
 function IntroController.Init(_self: any, registry: { [string]: any })
 	controllers = registry
-	IntroController.CaptionChanged = Signal.new()
+	IntroController.LoadProgressed = Signal.new()
 end
 
 function IntroController.Start(_self: any)
@@ -631,9 +765,9 @@ function IntroController.Destroy(_self: any)
 		trove:Destroy()
 		trove = nil
 	end
-	if IntroController.CaptionChanged then
-		IntroController.CaptionChanged:Destroy()
-		IntroController.CaptionChanged = nil
+	if IntroController.LoadProgressed then
+		IntroController.LoadProgressed:Destroy()
+		IntroController.LoadProgressed = nil
 	end
 end
 

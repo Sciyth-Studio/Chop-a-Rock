@@ -1,6 +1,6 @@
 ---
 name: model-workflow
-description: Use whenever the user asks to get something modelled for the game (a rock, prop, tree, building, character piece, any 3D asset), or asks how to make a model. Lays out the six-step pipeline (idea, ChatGPT reference, ChatGPT design prompt, Claude models it in Blender, feedback loop, import) and says which step they are on. Rocks also use the rock-model skill for step 4 and 6.
+description: Use whenever the user asks to get something modelled for the game (a rock, prop, tree, vehicle, building, character piece, any 3D asset), asks how to make a model, or mentions meshlab or modelling in code. Lays out the six-step pipeline (idea, ChatGPT reference, ChatGPT design prompt, Claude models it in Blender or as meshlab Luau code, feedback loop, import) and says which step they are on. Rocks also use the rock-model skill for step 4 and 6.
 ---
 
 # Model workflow
@@ -10,9 +10,28 @@ Every model goes through the same six steps. When the user brings up a model, st
 1. **Idea.** The user says what it is, where it goes (zone), roughly how big (studs), and the look (low-poly faceted, plain colours, no baked texture unless asked). Ask for what is missing; recommend defaults. For anything chopped, also ask whether it needs a split.
 2. **ChatGPT reference.** The user collects 2 to 4 reference images (existing game assets, screenshots, Pinterest) and gives them to ChatGPT. Tell them to use references only for colour palette, lighting and finish, never for shape.
 3. **ChatGPT design prompt.** Claude writes the prompt that makes ChatGPT produce one multi-view reference sheet (front, back, left, right, top, one 3/4 view). Start from `references/reference-sheet-prompt.md`, fill in the SHAPE block for this model, and keep it short: do not pad it with detail the model does not need. The user runs it and sends the image back.
-4. **Claude models it.** Claude builds the mesh in Blender through the Blender MCP from the reference sheet. Ask which view is the front (front faces Roblox -Z). Rocks: use the `rock-model` skill (builder, quality checks, split). Everything: one watertight mesh, flat bottom if it sits on the ground, pivot at bottom centre, low tri count (rock boulders about 100 to 500), plain colour set on the part in Roblox.
+4. **Claude models it.** Two routes: Blender (below) or meshlab (see "The meshlab route"); pick one with the user before building. Claude builds the mesh in Blender through the Blender MCP from the reference sheet. Ask which view is the front (front faces Roblox -Z). Rocks: use the `rock-model` skill (builder, quality checks, split). Everything: one watertight mesh, flat bottom if it sits on the ground, pivot at bottom centre, low tri count (rock boulders about 100 to 500), plain colour set on the part in Roblox.
 5. **Feedback loop.** Claude renders previews (several angles, and the split pulled apart if there is one) and shows them. The user says what to change; Claude adjusts and re-renders until the user approves. Player-facing looks need approval before they are final. Do not export until approved.
 6. **Import.** Claude exports FBX files to `assets/<Category>/<Name>/` (`rock_builder.export_fbx` scales vertices 2x so 1 Blender unit imports as 2 studs; Roblox ignores the FBX unit option). The user imports them in Studio with 3D Importer (Claude cannot), sets `CollisionFidelity` to Hull, and says when they are in. Then Claude wires them in through the Studio MCP (names, parent, tags, attributes, registry entries, colour, material, position), verifies by values, and the user playtests and saves the place. Rocks follow the wiring steps in `rock-model`. A new Rok or chop rock also gets its card icon: render and upload it with the `item-icons` skill.
+
+## The meshlab route
+
+meshlab (`tools/meshlab/`, MIT, vault note Meshlab) builds stud-style props as Luau code: a model is a function in `tools/meshlab/models/<Name>.luau` that builds an EditableMesh from boxes, lathes, tubes and lofts. Lune runs it into an `.obj`, and headless Blender renders it with Studio-like lighting. First used 2026-10-27 for the intro trees (`ForestTree`) and car (`IntroCar`).
+
+- **When it fits:** blocky, chunky props made of boxes and cylinders (trees, vehicles, crates, signs, decor), and families of variants: `lib.seed` makes each seed a different tree. It is cheap to iterate: a change is an edited line and a re-render. **When it doesn't:** curved or bubbly shapes (the car sheet's soft fenders became blocks and arches), faceted boulders and anything that splits (use Blender and `rock-model`), and Roks (Blender, reused eyes).
+- **References:** a sheet still helps for anything seen up close. Measure proportions from its flat views and take the parts list and colours from it. Background decor can skip steps 2 and 3 and restyle an existing model instead (the trees were TreeBlob restyled to the set's colours).
+- **Build and look:** from `tools/`, run `lune run meshlab/run <Name> [seed]`, then `"/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b -P meshlab/render.py -- <abs .obj> <abs .png> hero 1.3` (views: hero, front, side, rear). Pass absolute paths, because with relative ones Blender "renders" to nowhere. Read `tools/meshlab/BRIEF.md` and two models before writing one.
+- **House rules in a model:**
+  - Set `Shapes.PITCH = 1.0` so the stud UVs line up with `2022 Stud` / `2022 Inlet`.
+  - Wrap round details (lights, wheels, knobs) in a `plain(fn)` helper that points their UVs at (0.03, 0.03). Studs wrapped round small curves look bad (see `IntroCar.luau`).
+  - Use `beginBake({ cell = 2-2.5 })`, because smaller cells split faces and add triangles.
+  - Keep the footprint of whatever the model replaces, so code that seats or animates against it keeps working.
+- **Import (step 6, Claude does it all):**
+  1. `blender -b -P tools/meshlab/tools/export_fbx.py -- <abs out.fbx> <abs a.obj> ...` gives one object per OBJ, named after the file, so copy an OBJ to `Body.obj` to get a part named `Body`.
+  2. Upload with `.claude/skills/rock-model/scripts/upload_model.ps1 -Path <fbx> -Name "<Name With Spaces>"` (ask first: it uploads to the group).
+  3. In Edit, `InsertService:LoadAsset(id)` gives MeshParts at 1 unit = 1 stud, with no 2x scaling.
+  4. Set `Color` white (it multiplies the vertex colours), Plastic and the stud variant.
+- **Facing:** `export_fbx.py` imports the OBJ with `forward_axis="Z"` so the front (-Z) lands on Roblox -Z. Uploads made before 2026-10-27 came in turned 180°. Check the facing in Studio against the code that drives the model.
 
 ## Sets of models
 

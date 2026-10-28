@@ -39,6 +39,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Roks Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
 - [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
 - [[Keep Decor Simple]] — zone decor is few, primitive-shape props; reuse and recolour; Studio parts and particles over Blender models
+- [[Decor In ForestTree Style]] — decor is built like the JungleTree (crossed-box stud courses, alternating shades, chunky trunks, root fins); greens match their zone floor; settled 2026-10-28
 - [[Decor Without References]] — decor reference prompts are run with no images attached; the look is written into the prompt
 - [[User Playtests Changes]] — the user playtests in Studio; Claude runs check.ps1 and lists what to try, and playtests only when asked
 - [[Ask The User To Look]] — need eyes on something in Studio? Ask the user instead of long screenshot loops
@@ -68,6 +69,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Cannon Shop UI Reference]] — 2026-10-20 inspo for the Cannon Shop (tried, then dropped for the Aura Shop look): zone-tinted tall cards per tier (preview, zone block, cash + Robux price, Unequip), subtitle + cash line, footer line
 - [[Geode Stand UI Reference]] — egg-shop screenshots for the stand's odds/buy modal: header, 3x2 pet cards with %, big buttons; opened by prompt
 - [[Monetization References]] — 2026-10-24: 20 screenshots of other games' Robux UI, the `09 Monetization` notes (Downloads), and the user's calls: timed boosts crucial, paid geodes OK, gifting and server boosts in; feeds `RobuxShopPlan.md`
+- [[LihFolk Vault]] — 2026-10-28 third-party Roblox vault in Downloads (825 notes); read-only, don't run its installer; odds-disclosure, receipt, pity, onboarding notes worth checking against
 - [[Leaderboard Reference]] — 2026-10-21 in-world leaderboard inspo: signpost list with headshots, ranked table with medal rows and pinned "#100+ You", stone arch built from world pieces (the dog in it is that game's HUD)
 - [[Shopkeeper Avatar]] — R6 avatar of user 341574948 leaning on the geode stand; how to import and pose one
 - [[Zone Rocks Reference]] — ChatGPT sheets for the desert, jungle, ocean, snow chop rocks (3 each, with props); open before modelling them
@@ -104,6 +106,8 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[VFX Texture Kit]] — `Downloads/VFX Assets`: 1,935 ready-made particle/flipbook/beam textures, catalogued in its `_catalog/`; the vfx skill checks it before drawing (`kit.py`)
 - [[Studio Assets Folders]] — `ReplicatedStorage.Assets` Models/VFX sorted into feature subfolders (rocks by zone); AssetRegistry looks up recursively
 - [[Animation Uploads]] — Claude makes R15 clips itself: pose data → .rbxmx → Open Cloud upload as `model/x-rbxm`; Edit preview needs unanchored limbs + `StepAnimations`; uploads can't be archived
+- [[Intro Car Reference]] — 2026-10-27 six-view sheet for the intro's red toy convertible (stripe, round headlights, tucked wheels); body lowered to ~3 studs to keep the seat and Boing Out clip
+- [[Decor Lineups]] — 2026-10-28 cartoon lineup sheets for the 12 zone decor props (A forest/desert, B jungle/ocean/snow); built as meshlab `Decor*` models
 - [[Meshlab]] — MIT kit in `tools/meshlab` (Luau-built stud props → Lune → Blender preview); export_fbx.py → upload_model.ps1 → LoadAsset at 1 unit = 1 stud; Blender 5.2 path, absolute paths; `ForestTree` used for the intro trees
 - [[Chop Dummy]] — chop is two clips in `Assets/Animations` (WindUp loop + Strike) played by `Utils/ChopAnimation`; tag an R15 rig `ChopDummy` to loop it
 
@@ -130,6 +134,7 @@ _One note per game system as they're worked on._
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 - [[Tutorial]] — 5-step first-time tutorial, no Skip (2026-10-27), then a staggered aura hint (`AuraHintService`); `TutorialService` owns the step in PlayerData and logs a 13-step onboarding funnel to 60 min played; `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks; weather ignored while it runs
 - [[Intro Cutscene]] — 17 s "The Master" intro on first load (2026-10-27, not playtested): boulder squashes your car, the Master's chop, "Go train, kid!", lands facing your stand; client-only set, `IntroController`, `IntroConfig`
+- [[Loading Cover]] — 2026-10-28 join cover for everyone (stud backdrop, Gold title, bouncing Bloky, progress bar built on progress-bar psychology: head start, real milestones, creep, end dash, backwards ribs, stage text); closed by `IntroController` after data, or after the intro's preload + first-shot warm-up (fixed the intro's start-up hitches); `LoadingCoverConfig`
 - [[Analytics]] — 2026-10-27: cash economy events on every server cash change (`AnalyticsConfig` Sources/Sinks, `Utils/Analytics`, `AdjustCash(..., flow, detail)`) and a 3-step `RobuxShop` funnel (`RobuxShopFunnelService`); onboarding funnel stays in Tutorial
 - [[Cash Packs]] — four Robux packs worth 3/12/40/150 of your zone's geode; a can't-afford buy (auras, cannons, geodes, slots, training sign) opens the Robux prompt for the covering pack directly, no popup; `CashPackConfig`, `Utils/CashPack`, `CashPackController`; stand products off sale
 - [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks via `Utils/ItemIcons` (ViewportFrame fallback) in Index, Geode Stand, Roks and Sell Shop (HatchReveal stays 3D); generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons live 2026-10-24, Champ and Kingy added 2026-10-25

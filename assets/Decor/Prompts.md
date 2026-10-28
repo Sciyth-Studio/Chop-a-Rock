@@ -1,6 +1,8 @@
 # Zone decor prompts
 
-Twelve simple props, shown in two lineups of six so each prop stays big and clear. Run each prompt in its own chat with no images attached; the look is described in the prompt. Every colour region is a separate piece, coloured on the part in Roblox, so the colours here are only the defaults.
+Twelve simple props, shown in two lineups of six so each prop stays big and clear. Run each prompt in its own chat with no images attached; the look is described in the prompt.
+
+Rewritten 2026-10-28: cartoon versions of the real things, not blocky or brick-built (the user: the blocky sheets "look like legos"). Built with meshlab (lathes, lofts, tubes, smooth Organic blobs) with the colours baked in. Studs come from the Studio material, so the sheets show none. The snowy pine is the forest pine recoloured, so it has no slot.
 
 **Lineup A: shared, forest, desert**
 
@@ -8,27 +10,23 @@ Twelve simple props, shown in two lineups of six so each prop stays big and clea
 Generate ONE image: a lineup of six simple decoration props for a bright, cartoony Roblox game, left to right.
 
 STYLE:
-- Clean 3D render of smooth matte plastic toys, like official Roblox game props.
+- Stylised cartoon versions of the real things, like props in a polished Roblox simulator game or an animated kids' film: simple, chunky, slightly exaggerated proportions, soft rounded forms, clean silhouettes. Not built from blocks or bricks, not voxel, not realistic.
 - Highly saturated, vivid colours: pure grass green, bright chocolate brown, fire-engine red, sunny orange, hot pink. No muted, pastel, dusty or greyish tones.
-- Soft, even studio lighting with a gentle shade on each face so the flat planes read clearly.
-
-ALL SIX:
-- Built from a few chunky basic shapes (boxes, cylinders, cones, spheres). Very simple, toy-like, low-poly faceted surfaces with broad flat planes. Each prop is simple enough to model in under 300 triangles.
-- Bright, saturated, flat colours, one solid colour per part. No cracks, studs, texture, gradients, or fine detail.
-- Each sits flat on the ground.
+- Smooth matte plastic finish, flat colour per part with gentle shading. No texture, studs, cracks, gradients or fine detail.
+- Soft, even studio lighting. Each prop sits flat on the ground.
 
 LEFT TO RIGHT:
-1. Tree: a short square brown trunk topped by a stack of three green cones, each smaller than the one below, like a blocky pine.
-2. Bush: four or five rounded green cube-like lumps clumped together, wider than tall.
-3. Tree stump: a short, wide brown cylinder with a light tan top face and a slightly flared base.
-4. Mushroom: a thick cream cylinder stem with a wide flattened red dome cap and four or five round white spots on the cap.
-5. Cactus: a green saguaro, one tall rounded column with two bent arms going up, one higher than the other.
-6. Prickly pear: four or five flat green oval pads stacked on each other at angles, with two small pink flowers on the top edges.
+1. Pine tree: a short brown trunk and three stacked green cone tiers with soft rounded edges, each smaller than the one below, slightly wavy bottom rims.
+2. Bush: a round, puffy green bush made of four or five soft overlapping balls, wider than tall.
+3. Tree stump: a short wide brown stump, flared at the base with a few roots, a light tan cut top with growth rings.
+4. Mushroom: a thick cream stem, a big round red dome cap with round white spots.
+5. Cactus: a classic cartoon saguaro, a tall rounded green column with two bent arms going up, one higher than the other, soft vertical ribs.
+6. Prickly pear: four or five flat oval green pads growing out of each other at angles, with two pink flowers on the top edges.
 
 LAYOUT:
 - Top row: all six from the front, side by side, standing on one ground line. Bottom row: the same six in the same order from a 3/4 view.
 - Props are NOT to scale: each one fills its own slot so its shape is clear.
-- Plain light-grey background, even lighting, no dramatic shadows. No text, labels, or watermarks.
+- Plain light-grey background, even lighting, no dramatic shadows. No text, labels or watermarks.
 ```
 
 **Lineup B: jungle, ocean, snow**
@@ -37,27 +35,23 @@ LAYOUT:
 Generate ONE image: a lineup of six simple decoration props for a bright, cartoony Roblox game, left to right.
 
 STYLE:
-- Clean 3D render of smooth matte plastic toys, like official Roblox game props.
-- Highly saturated, vivid colours: pure grass green, bright chocolate brown, fire-engine red, sunny orange, hot pink. No muted, pastel, dusty or greyish tones.
-- Soft, even studio lighting with a gentle shade on each face so the flat planes read clearly.
-
-ALL SIX:
-- Built from a few chunky basic shapes (boxes, cylinders, cones, flat blades, spheres). Very simple, toy-like, low-poly faceted surfaces with broad flat planes. Each prop is simple enough to model in under 300 triangles.
-- Bright, saturated, flat colours, one solid colour per part. No cracks, studs, texture, gradients, or fine detail.
-- Each sits flat on the ground.
+- Stylised cartoon versions of the real things, like props in a polished Roblox simulator game or an animated kids' film: simple, chunky, slightly exaggerated proportions, soft rounded forms, clean silhouettes. Not built from blocks or bricks, not voxel, not realistic.
+- Highly saturated, vivid colours: pure grass green, bright chocolate brown, hot pink, sunny orange, snow white. No muted, pastel, dusty or greyish tones.
+- Smooth matte plastic finish, flat colour per part with gentle shading. No texture, studs, cracks, gradients or fine detail.
+- Soft, even studio lighting. Each prop sits flat on the ground.
 
 LEFT TO RIGHT:
-1. Palm tree: a gently curved brown trunk made of four or five stacked blocky segments, with five or six long flat pointed green leaf blades drooping from the top.
-2. Leaf plant: five or six of the same flat pointed green leaf blades fanning up and out from one spot on the ground, waist height.
-3. Kelp: three tall flat olive-green strips rising from the ground, each with a gentle wave, different heights.
-4. Coral: a hot pink branching coral, a short trunk splitting into four or five rounded cylinder branches pointing up.
-5. Starfish: a flat orange five-point star lying on the ground, slightly raised in the middle.
-6. Snow pile: a low, wide, lumpy white mound made of three or four flattened rounded lumps.
+1. Palm tree: a gently curved, ringed brown trunk with a crown of six or seven big drooping green fronds and a few coconuts.
+2. Leaf plant: a tropical plant of five or six big broad pointed green leaves fanning up and out from the ground, waist height.
+3. Kelp: three tall wavy olive-green kelp ribbons rising from the ground, different heights, a few small float bulbs.
+4. Coral: a hot pink branching coral, a short trunk splitting into rounded finger-like branches pointing up.
+5. Starfish: a plump orange five-point starfish lying flat, raised in the middle, small lighter dots on top.
+6. Snow pile: a low, wide, soft white snow drift made of three or four rounded lumps, faint icy blue in the shadows.
 
 LAYOUT:
 - Top row: all six from the front, side by side, standing on one ground line. Bottom row: the same six in the same order from a 3/4 view.
 - Props are NOT to scale: each one fills its own slot so its shape is clear.
-- Plain light-grey background, even lighting, no dramatic shadows. No text, labels, or watermarks.
+- Plain light-grey background, even lighting, no dramatic shadows. No text, labels or watermarks.
 ```
 
-The front and 3/4 views are enough to model props this simple, so no six-view sheet per prop unless one comes out unclear.
+The front and 3/4 views are enough to model props this simple, so no six-view sheet per prop unless one comes out unclear. Models: `tools/meshlab/models/Decor*.luau` (first pass was blocky; rework to the sheets).

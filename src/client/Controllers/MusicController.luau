@@ -15,6 +15,9 @@ local MusicController = {
 	_trove = nil :: TroveInstance?,
 }
 
+local holds = 0
+local applyPause: () -> () = function() end
+
 local function getTracks(folder: Instance): { Sound }
 	local tracks: { Sound } = {}
 	for _, child in folder:GetChildren() do
@@ -47,6 +50,7 @@ function MusicController.Start(self: any)
 	local folder = ReplicatedStorage:WaitForChild("Assets"):WaitForChild(MusicConfig.FolderName)
 
 	local current: Sound? = nil
+	local currentVolume = 0
 	local last: Sound? = nil
 	local token = 0
 	local isStopped = false
@@ -102,11 +106,15 @@ function MusicController.Start(self: any)
 		end
 		sound.Parent = SoundService
 		current = sound
+		currentVolume = track.Volume
 		sound.Ended:Connect(function()
 			if playing == token then
 				playNext()
 			end
 		end)
+		if holds > 0 then
+			return
+		end
 		sound:Play()
 		TweenService:Create(sound, TweenInfo.new(MusicConfig.FadeInSeconds), { Volume = track.Volume }):Play()
 		task.delay(MusicConfig.LoadTimeoutSeconds, function()
@@ -117,11 +125,51 @@ function MusicController.Start(self: any)
 		end)
 	end
 
+	applyPause = function()
+		local sound = current
+		if not sound then
+			return
+		end
+		if holds > 0 then
+			local fadeOut =
+				TweenService:Create(sound, TweenInfo.new(MusicConfig.FadeInSeconds), { Volume = 0 })
+			fadeOut.Completed:Once(function()
+				if holds > 0 and current == sound then
+					sound:Pause()
+				end
+			end)
+			fadeOut:Play()
+			return
+		end
+		if sound.IsPaused or not sound.IsPlaying then
+			sound:Resume()
+		end
+		TweenService:Create(sound, TweenInfo.new(MusicConfig.FadeInSeconds), { Volume = currentVolume })
+			:Play()
+	end
+
 	trove:Add(function()
 		isStopped = true
+		applyPause = function() end
 		stopCurrent()
 	end)
 	playNext()
+end
+
+function MusicController.Hold(_self: any): () -> ()
+	holds += 1
+	applyPause()
+	local isReleased = false
+	return function()
+		if isReleased then
+			return
+		end
+		isReleased = true
+		holds -= 1
+		if holds == 0 then
+			applyPause()
+		end
+	end
 end
 
 function MusicController.Destroy(self: any)

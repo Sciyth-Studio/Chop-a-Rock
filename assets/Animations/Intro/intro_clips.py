@@ -537,13 +537,6 @@ def master_chop():
     )
     bow = merge(palms, UpperTorso=[(-15, 0, 0)], Head=[(-8, 0, 0)])
 
-    def tremble(frame):
-        if frame < 80 or frame >= 150:
-            return {}
-        amount = 1.0 + (frame - 80) / 70
-        v = amount * (1 if (frame // 2) % 2 == 0 else -1)
-        return {"RightUpperArm": [v, 0, 0], "UpperTorso": [0, 0, v * 0.6], "Head": [v * 0.5, 0, 0]}
-
     keys = [
         (0, start),
         (20, turned, "smooth"),
@@ -554,7 +547,7 @@ def master_chop():
         (200, palms, "smooth"),
         (210, bow, "out"),
     ]
-    return build("Intro_Master_Chop", 210, keys, [tremble], events={160: ["Impact"]}, holds=(150, 151, 153, 156, 159, 160))
+    return build("Intro_Master_Chop", 210, keys, events={160: ["Impact"]}, holds=(150, 151, 153, 156, 159, 160))
 
 
 def master_point():

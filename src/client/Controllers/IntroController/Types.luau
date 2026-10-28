@@ -8,6 +8,13 @@ export type Actor = {
 	Tracks: { [string]: AnimationTrack },
 }
 
+export type Piece = {
+	Part: BasePart,
+	Start: CFrame,
+	Velocity: Vector3,
+	Spin: Vector3,
+}
+
 export type Stage = {
 	Set: Model,
 	Markers: { [string]: CFrame },
@@ -16,6 +23,7 @@ export type Stage = {
 	Seat: Attachment,
 	Boulder: BasePart,
 	BoulderRest: CFrame,
+	Pieces: { Piece },
 	Shadow: BasePart,
 	Player: Actor,
 	Master: Actor,

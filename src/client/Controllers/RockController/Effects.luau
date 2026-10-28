@@ -403,7 +403,7 @@ local function splitRock(part: BasePart, piecesSeconds: number, prepared: LiveSp
 	end)
 end
 
-function Effects.Rise(part: BasePart, target: CFrame, onRisen: () -> ())
+function Effects.Rise(part: BasePart, target: CFrame, onRisen: () -> (), isQuiet: boolean?)
 	local bottom = target.Position - Vector3.new(0, part.Size.Y / 2, 0)
 	local anchor = anchorAt(bottom, RockSpawnConfig.DustLifetimeSeconds)
 	emit(
@@ -412,7 +412,9 @@ function Effects.Rise(part: BasePart, target: CFrame, onRisen: () -> ())
 		RockSpawnConfig.DustEmitCount,
 		RockSpawnConfig.DustLifetimeSeconds
 	)
-	playSound(RockSpawnConfig.RiseSoundKey, anchor, nil, RockSpawnConfig.RiseSoundStartSeconds)
+	if not isQuiet then
+		playSound(RockSpawnConfig.RiseSoundKey, anchor, nil, RockSpawnConfig.RiseSoundStartSeconds)
+	end
 	local info = TweenInfo.new(RockSpawnConfig.RiseSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local tween = TweenService:Create(part, info, { CFrame = target })
 	tween.Completed:Once(function()
@@ -464,14 +466,21 @@ function Effects.Hit(part: BasePart, quality: number)
 	)
 end
 
-function Effects.MasterStart(part: BasePart)
-	playSound(MasterChopConfig.SoundKey, part)
+function Effects.MasterStart(part: BasePart, isSilent: boolean?)
+	if not isSilent then
+		playSound(MasterChopConfig.SoundKey, part)
+	end
 	playEffect(
 		ChopEffectConfig.MasterWindUpKey,
 		baseCFrame(part.Position, part.Size.Y),
 		scaleFor(part.Size.X),
 		{ Quality = ChopQuality.Master, Rock = part.Color }
 	)
+end
+
+function Effects.BreakBurst(part: BasePart, quality: number)
+	playSound("SFX_Rock_Break", part)
+	playBreakEffect(part.Position, part.Size, quality, part.Color)
 end
 
 function Effects.Break(part: BasePart, quality: number, piecesSeconds: number, prepared: LiveSplit.Prepared?)
