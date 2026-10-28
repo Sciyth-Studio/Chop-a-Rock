@@ -5,6 +5,7 @@ local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 
 type TroveInstance = typeof(Trove.new())
 
@@ -41,6 +42,14 @@ end
 
 function NotificationController.Notify(self: any, kind: string, message: string)
 	if self._controllers.DataController:Get({ "Settings", "Notifications" }) == false then
+		return
+	end
+	local tutorial = self._controllers.TutorialController
+	if tutorial and tutorial:IsActive() then
+		return
+	end
+	local ui = self._controllers.UIController
+	if ui and ui:IsOpen(TutorialConfig.CompleteScreen) then
 		return
 	end
 	if not NotificationConfig.Kinds[kind] then

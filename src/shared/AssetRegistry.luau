@@ -244,6 +244,17 @@ local map: { [string]: AssetEntry } = {
 	VFX_Aura = { Category = "VFX", InstanceName = "VFX_Aura" },
 	Anim_Chop_WindUp = { Category = "Animations", InstanceName = "Anim_Chop_WindUp" },
 	Anim_Chop_Strike = { Category = "Animations", InstanceName = "Anim_Chop_Strike" },
+	Anim_Intro_Player_Drive = { Category = "Animations", InstanceName = "Anim_Intro_Player_Drive" },
+	Anim_Intro_Player_LookUp = { Category = "Animations", InstanceName = "Anim_Intro_Player_LookUp" },
+	Anim_Intro_Player_BoingOut = { Category = "Animations", InstanceName = "Anim_Intro_Player_BoingOut" },
+	Anim_Intro_Player_Dazed = { Category = "Animations", InstanceName = "Anim_Intro_Player_Dazed" },
+	Anim_Intro_Player_Awe = { Category = "Animations", InstanceName = "Anim_Intro_Player_Awe" },
+	Anim_Intro_Master_Idle = { Category = "Animations", InstanceName = "Anim_Intro_Master_Idle" },
+	Anim_Intro_Master_Leap = { Category = "Animations", InstanceName = "Anim_Intro_Master_Leap" },
+	Anim_Intro_Master_Chop = { Category = "Animations", InstanceName = "Anim_Intro_Master_Chop" },
+	Anim_Intro_Master_Point = { Category = "Animations", InstanceName = "Anim_Intro_Master_Point" },
+	Model_IntroSet = { Category = "Models", InstanceName = "IntroSet" },
+	Model_IntroMaster = { Category = "Models", InstanceName = "IntroMaster" },
 }
 
 local soundGroupName = "SoundEffects"

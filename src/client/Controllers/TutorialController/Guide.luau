@@ -17,6 +17,7 @@ export type Guide = {
 	Params: RaycastParams,
 	Scroll: number,
 	Clock: number,
+	IsUrgent: boolean,
 }
 
 local Guide = {}
@@ -134,6 +135,7 @@ function Guide.new(): Guide
 		Params = params,
 		Scroll = 0,
 		Clock = 0,
+		IsUrgent = false,
 	}
 end
 
@@ -179,11 +181,11 @@ local function park(part: BasePart)
 	end
 end
 
-function Guide.DrawPath(guide: Guide, points: { Vector3 }, dt: number)
+function Guide.DrawPath(guide: Guide, points: { Vector3 }, dt: number, stopStuds: number?)
 	local total = lengthOf(points)
 	local spacing = TutorialConfig.ChevronSpacing
 	guide.Scroll = (guide.Scroll + dt * TutorialConfig.ChevronScrollSpeed) % spacing
-	local stop = total - TutorialConfig.ChevronStopDistance
+	local stop = total - (stopStuds or TutorialConfig.ChevronStopDistance)
 	local distance = TutorialConfig.ChevronStartDistance + guide.Scroll
 	local yaw = CFrame.Angles(0, math.rad(TutorialConfig.ChevronYawDegrees), 0)
 	for _, chevron in guide.Chevrons do
@@ -214,13 +216,20 @@ function Guide.DrawMarker(guide: Guide, position: Vector3, adornee: Instance, te
 	local bob = math.sin(guide.Clock * TutorialConfig.MarkerBobSpeed) * TutorialConfig.MarkerBobStuds
 	guide.Anchor.CFrame = CFrame.new(position + Vector3.new(0, TutorialConfig.MarkerHeight + bob, 0))
 	guide.Marker.Enabled = true
+	local markerSize = TutorialConfig.MarkerSize
+		* (if guide.IsUrgent then TutorialConfig.IdleMarkerScale else 1)
+	if guide.Marker.Size.X.Scale ~= markerSize then
+		guide.Marker.Size = UDim2.fromScale(markerSize, markerSize)
+	end
 
 	local highlight = guide.Highlight
 	if highlight.Adornee ~= adornee then
 		highlight.Adornee = adornee
 	end
 	highlight.Enabled = true
-	local pulse = (math.sin(guide.Clock * TutorialConfig.HighlightPulseSpeed) + 1) / 2
+	local pulseSpeed = TutorialConfig.HighlightPulseSpeed
+		* (if guide.IsUrgent then TutorialConfig.IdlePulseScale else 1)
+	local pulse = (math.sin(guide.Clock * pulseSpeed) + 1) / 2
 	highlight.FillTransparency = TutorialConfig.HighlightFillMin
 		+ (TutorialConfig.HighlightFillMax - TutorialConfig.HighlightFillMin) * pulse
 
@@ -235,6 +244,10 @@ function Guide.DrawMarker(guide: Guide, position: Vector3, adornee: Instance, te
 			guide.NameLabel.Text = text
 		end
 	end
+end
+
+function Guide.SetUrgent(guide: Guide, isUrgent: boolean)
+	guide.IsUrgent = isUrgent
 end
 
 function Guide.HideMarker(guide: Guide)

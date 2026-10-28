@@ -2,6 +2,9 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
+local Analytics = require(ServerScriptService.Utils.Analytics)
 local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
@@ -109,6 +112,18 @@ local function collect(player: Player, slot: number)
 		earnings.Banked += amount
 		return
 	end
+	local data = services.DataService:GetData(player)
+	local pending = session.Offline[slot] or 0
+	local offline = math.min(amount, math.floor(pending))
+	if pending - offline >= 1 then
+		session.Offline[slot] = pending - offline
+	else
+		session.Offline[slot] = nil
+	end
+	if data then
+		Analytics.LogCash(player, AnalyticsConfig.Sources.Offline, offline, data.Cash - (amount - offline))
+		Analytics.LogCash(player, AnalyticsConfig.Sources.Pad, amount - offline, data.Cash)
+	end
 	services.DataService:Set(player, { "PedestalEarnings", slotKey(slot) }, Earnings.Exact(earnings, now))
 	Packets.PadCollected:FireClient(player)
 	PedestalService.Collected:Fire(player)
@@ -180,7 +195,8 @@ local function start(player: Player, isFirstLoad: boolean)
 		return
 	end
 	Placement.Sanitize(context, player)
-	sessions[player] = { Slots = {}, LastCollect = {} }
+	local session: Types.Session = { Slots = {}, LastCollect = {}, Offline = {} }
+	sessions[player] = session
 	if isFirstLoad then
 		local seconds = Earnings.OfflineSeconds(data.LastSeenAt, os.time())
 		if seconds > 0 then
@@ -192,6 +208,7 @@ local function start(player: Player, isFirstLoad: boolean)
 				local earned =
 					Earnings.Offline(services.PetService:GetRate(data.Pets[petId]) * multiplier, seconds)
 				total += earned
+				session.Offline[slot] = earned
 				services.DataService:Set(
 					player,
 					{ "PedestalEarnings", key },
@@ -299,6 +316,7 @@ function PedestalService.SimulateOffline(_self: any, player: Player, seconds: nu
 			local earned =
 				Earnings.Offline(services.PetService:GetRate(data.Pets[petId]) * multiplier, capped)
 			earnings.Banked += earned
+			session.Offline[slot] = (session.Offline[slot] or 0) + earned
 			total += earned
 		end
 	end
@@ -316,6 +334,7 @@ function PedestalService.ClearEarnings(_self: any, player: Player)
 			earnings.Banked = 0
 			earnings.BankedAt = now
 		end
+		table.clear(session.Offline)
 	end
 	context.Services.DataService:Set(player, { "PedestalEarnings" }, {})
 	refresh(player)

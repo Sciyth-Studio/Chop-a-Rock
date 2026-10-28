@@ -2,6 +2,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -123,7 +124,7 @@ function CannonService.Buy(_self: any, player: Player, key: string): boolean
 	if data.Strength < cannon.StrengthRequired or data.Cash < cannon.Price then
 		return false
 	end
-	if not services.DataService:AdjustCash(player, -cannon.Price) then
+	if not services.DataService:AdjustCash(player, -cannon.Price, AnalyticsConfig.Sinks.Cannon, key) then
 		return false
 	end
 	services.DataService:Set(player, { "Cannons", key }, true)

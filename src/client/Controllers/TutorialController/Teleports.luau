@@ -19,8 +19,6 @@ local function destinationFor(step: number): string?
 		return "Base"
 	elseif Tutorial.IsChopping(step) then
 		return "Rocks"
-	elseif step == Tutorial.BuyAura then
-		return "Aura"
 	elseif step == Tutorial.BuyGeode then
 		return "Geode"
 	end
@@ -80,12 +78,33 @@ local function shopsFanOpen(): boolean
 	return fan ~= nil and fan:IsA("GuiObject") and fan.Visible
 end
 
-function Teleports.For(step: number, target: Targets.Target?, verb: string): Hint?
+function Teleports.For(step: number, target: Targets.Target?, verb: string, isForced: boolean?): Hint?
 	local id = destinationFor(step)
-	return if id then Teleports.ForDestination(id, target, verb) else nil
+	return if id then Teleports.ForDestination(id, target, verb, isForced) else nil
 end
 
-function Teleports.ForDestination(id: string?, target: Targets.Target?, verb: string): Hint?
+function Teleports.DestinationFor(step: number): string?
+	return destinationFor(step)
+end
+
+function Teleports.IsWorthUsing(id: string?, target: Targets.Target?): boolean
+	local from = Targets.RootPosition()
+	local landing = if id then landingFor(id) else nil
+	if not id or not target or not from or not landing then
+		return false
+	end
+	local saved = flatDistance(from, target.Position) - flatDistance(landing.Position, target.Position)
+	local isOutsideZone = id == TutorialConfig.ZoneTeleport and isBehind(from, landing)
+	return isOutsideZone
+		or saved >= TutorialConfig.TeleportSavingStuds * TutorialConfig.CameraTurnTeleportShare
+end
+
+function Teleports.ForDestination(
+	id: string?,
+	target: Targets.Target?,
+	verb: string,
+	isForced: boolean?
+): Hint?
 	local from = Targets.RootPosition()
 	local landing = if id then landingFor(id) else nil
 	if not id or not target or not from or not landing then
@@ -93,20 +112,20 @@ function Teleports.ForDestination(id: string?, target: Targets.Target?, verb: st
 	end
 	local saved = flatDistance(from, target.Position) - flatDistance(landing.Position, target.Position)
 	local isOutsideZone = id == TutorialConfig.ZoneTeleport and isBehind(from, landing)
-	if saved < TutorialConfig.TeleportSavingStuds and not isOutsideZone then
+	if saved < TutorialConfig.TeleportSavingStuds and not isOutsideZone and not (isForced and saved > 0) then
 		return nil
 	end
 	local fanSettings = TeleportConfig.ShopFan
 	if table.find(fanSettings.Options, id) then
 		if shopsFanOpen() then
 			local option = barButton(id .. fanSettings.OptionSuffix)
-			return if option then { Button = option, Text = `{verb} {id} to teleport there!` } else nil
+			return if option then { Button = option, Text = `{verb} {id}!` } else nil
 		end
 		local shops = barButton(fanSettings.Button .. TeleportConfig.ButtonSuffix)
-		return if shops then { Button = shops, Text = `{verb} Shops at the top!` } else nil
+		return if shops then { Button = shops, Text = `{verb} Shops!` } else nil
 	end
 	local button = barButton(id .. TeleportConfig.ButtonSuffix)
-	return if button then { Button = button, Text = `{verb} {id} to teleport there!` } else nil
+	return if button then { Button = button, Text = `{verb} {id}!` } else nil
 end
 
 return Teleports

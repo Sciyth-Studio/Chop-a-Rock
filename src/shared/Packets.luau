@@ -124,11 +124,12 @@ local Packets = {
 	Notify = Packet("Notify", Packet.String, Packet.String),
 	AdminRun = Packet("AdminRun", Packet.String, Packet.String):RateLimit(5, 1),
 	Teleport = Packet("Teleport", Packet.String):RateLimit(6, 1),
-	TutorialSkip = Packet("TutorialSkip"):RateLimit(2, 1),
 	CannonHintSkip = Packet("CannonHintSkip"):RateLimit(2, 1),
 	BoostEnded = Packet("BoostEnded", Packet.String),
 	SetLuckyGeodeZone = Packet("SetLuckyGeodeZone", Packet.String):RateLimit(4, 1),
 	SetGiftTarget = Packet("SetGiftTarget", Packet.NumberF64, Packet.String):RateLimit(4, 1),
+	RobuxShopOpened = Packet("RobuxShopOpened"):RateLimit(3, 1),
+	RobuxShopPrompted = Packet("RobuxShopPrompted", Packet.String, Packet.NumberF64):RateLimit(4, 1),
 	SendGiftCredit = Packet("SendGiftCredit", Packet.NumberF64, Packet.String)
 		:Response(Packet.Boolean8)
 		:RateLimit(2, 1),

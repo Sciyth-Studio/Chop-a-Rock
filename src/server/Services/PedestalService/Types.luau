@@ -9,6 +9,7 @@ export type SlotEarnings = {
 export type Session = {
 	Slots: { [number]: SlotEarnings },
 	LastCollect: { [number]: number },
+	Offline: { [number]: number },
 }
 
 export type Context = {

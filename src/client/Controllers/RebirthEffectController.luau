@@ -15,6 +15,7 @@ local RebirthEffectController = {
 	Name = "RebirthEffectController",
 	_trove = nil :: TroveInstance?,
 	_controllers = {} :: { [string]: any },
+	_template = nil :: Model?,
 }
 
 local function feetCFrame(): CFrame?
@@ -64,6 +65,14 @@ local function stopAll()
 	table.clear(active)
 end
 
+function RebirthEffectController.PlayBurst(self: any)
+	local template = self._template
+	if template then
+		play(template)
+	end
+	LocalSound.Play(RebirthConfig.RebirthSoundKey, RebirthConfig.RebirthSoundStartSeconds)
+end
+
 function RebirthEffectController.Init(self: any, controllers: { [string]: any })
 	self._controllers = controllers
 	self._trove = Trove.new()
@@ -77,6 +86,7 @@ function RebirthEffectController.Start(self: any)
 		return
 	end
 	local template = asset
+	self._template = template
 	trove:Add(template)
 	trove:Add(stopAll)
 

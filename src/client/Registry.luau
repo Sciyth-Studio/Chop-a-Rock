@@ -32,6 +32,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.AuraController),
 	require(script.Parent.Controllers.CannonController),
 	require(script.Parent.Controllers.WeatherController),
+	require(script.Parent.Controllers.IntroController),
 	require(script.Parent.Controllers.TutorialController),
 }
 

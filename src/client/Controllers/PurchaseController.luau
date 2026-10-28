@@ -8,9 +8,13 @@ local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local CashPack = require(ReplicatedStorage.Utils.CashPack)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Packets = require(ReplicatedStorage.Packets)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
-local PurchaseController = { Name = "PurchaseController" }
+local PurchaseController = {
+	Name = "PurchaseController",
+	Prompted = Signal.new() :: Signal.Signal<(string, number)>,
+}
 local controllers: { [string]: any } = {}
 local trove = Trove.new()
 
@@ -27,6 +31,7 @@ local function promptProduct(productId: number?): boolean
 		return false
 	end
 	MarketplaceService:PromptProductPurchase(Players.LocalPlayer, productId)
+	PurchaseController.Prompted:Fire("Product", productId)
 	return true
 end
 
@@ -58,6 +63,7 @@ function PurchaseController.PromptPass(_self: any, key: string): boolean
 		return false
 	end
 	MarketplaceService:PromptGamePassPurchase(Players.LocalPlayer, pass.GamepassId)
+	PurchaseController.Prompted:Fire("Pass", pass.GamepassId)
 	return true
 end
 

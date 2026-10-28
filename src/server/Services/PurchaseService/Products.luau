@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local CashPackConfig = require(ReplicatedStorage.Config.CashPackConfig)
 local CashPack = require(ReplicatedStorage.Utils.CashPack)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
@@ -23,7 +24,7 @@ for _, pack in CashPackConfig.Packs do
 		if amount <= 0 then
 			return false
 		end
-		return services.DataService:AdjustCash(player, amount)
+		return services.DataService:AdjustCash(player, amount, AnalyticsConfig.Sources.CashPack, pack.Key)
 	end
 end
 

@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local CashPack = require(ReplicatedStorage.Utils.CashPack)
 local Packets = require(ReplicatedStorage.Packets)
@@ -45,7 +46,7 @@ function OfferService.GrantStarterPack(_self: any, player: Player): boolean
 	local geodes = starter.Geodes + if isRestricted then starter.RestrictedExtraGeodes else 0
 	local cash = CashPack.GeodeValue(geodes, data.Strength)
 	if cash > 0 then
-		services.DataService:AdjustCash(player, cash)
+		services.DataService:AdjustCash(player, cash, AnalyticsConfig.Sources.StarterPack)
 	end
 	services.BoostService:AddPersonal(player, starter.BoostKey, starter.BoostSeconds)
 	if not isRestricted then
@@ -68,7 +69,11 @@ function OfferService.GrantOfflineClaim(_self: any, player: Player): boolean
 	player:SetAttribute(offline.DueAttribute, nil)
 	services.PedestalService:CollectAll(player)
 	if amount > 0 then
-		services.DataService:AdjustCash(player, math.floor(amount + 0.5))
+		services.DataService:AdjustCash(
+			player,
+			math.floor(amount + 0.5),
+			AnalyticsConfig.Sources.OfflineClaim
+		)
 	end
 	return true
 end
@@ -100,7 +105,7 @@ function OfferService.Init(_self: any, registry: { [string]: any })
 end
 
 function OfferService.Start(_self: any)
-	trove:Add(services.TutorialService.Finished:Connect(function(player: Player)
+	trove:Add(services.RockHintService.Finished:Connect(function(player: Player)
 		local data = services.DataService:GetData(player)
 		if data and data.StarterPack.OfferEndsAt == 0 then
 			openStarterWindow(player)

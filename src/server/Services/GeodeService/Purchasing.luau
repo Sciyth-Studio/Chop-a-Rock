@@ -1,6 +1,9 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
+local Analytics = require(ServerScriptService.Utils.Analytics)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local Types = require(script.Parent.Types)
@@ -48,6 +51,7 @@ function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, a
 	end
 	local isFirst = unopened == 0 and next(data.Index.Pets) == nil
 	dataService:Set(player, { "Cash" }, data.Cash - price)
+	Analytics.LogCash(player, AnalyticsConfig.Sinks.Geode, -price, data.Cash, geodeKey)
 	dataService:Set(player, { "Geodes", geodeKey }, (data.Geodes[geodeKey] or 0) + amount)
 	dataService:RequestSave(player)
 	local notifications = context.Services.NotificationService

@@ -1,6 +1,9 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
+local Analytics = require(ServerScriptService.Utils.Analytics)
 local Packets = require(ReplicatedStorage.Packets)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
@@ -40,6 +43,7 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 		return false
 	end
 	local values: { [string]: any } = { Rebirths = data.Rebirths + 1 }
+	local lostCash = if RebirthConfig.ResetCash then data.Cash else 0
 	if RebirthConfig.ResetCash then
 		values.Cash = 0
 	end
@@ -47,6 +51,7 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 		values.Strength = 0
 	end
 	replica:SetValues({}, values)
+	Analytics.LogCash(player, AnalyticsConfig.Sinks.Rebirth, -lostCash, data.Cash, tostring(data.Rebirths))
 	if RebirthConfig.ResetCash then
 		services.PedestalService:ClearEarnings(player)
 	end

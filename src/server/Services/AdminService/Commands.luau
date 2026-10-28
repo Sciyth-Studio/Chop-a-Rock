@@ -146,6 +146,9 @@ end
 
 local tutorialServices: { [string]: string } = {
 	Main = "TutorialService",
+	Aura = "AuraHintService",
+	Rock = "RockHintService",
+	Rebirth = "RebirthHintService",
 	Cannon = "CannonHintService",
 }
 

@@ -87,7 +87,7 @@ local PlayerData = {}
 PlayerData.Template = {
 	SchemaVersion = 1,
 	Cash = 0,
-	Strength = 0,
+	Strength = TutorialConfig.StartStrength,
 	AuraTier = 1,
 	Cannons = {},
 	EquippedCannon = "",
@@ -377,7 +377,7 @@ function PlayerData.Migrate(data: any)
 	data.Auras = nil
 	data.EquippedAura = nil
 	if data.Tutorial == nil and hasProgress(data) then
-		data.Tutorial = { Step = Tutorial.Done, Taps = 0, Furthest = Tutorial.FirstRebirth }
+		data.Tutorial = { Step = Tutorial.Done, Taps = 0, Furthest = Tutorial.LastMilestone }
 	end
 	if data.Hints == nil and type(data.Cannons) == "table" and next(data.Cannons) ~= nil then
 		data.Hints = { [cannonHint.Key] = CannonHint.Done, [cannonHint.FurthestKey] = CannonHint.Done }

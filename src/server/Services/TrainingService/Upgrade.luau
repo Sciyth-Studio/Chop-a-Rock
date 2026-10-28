@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 
 local Upgrade = {}
@@ -21,7 +22,14 @@ function Upgrade.Buy(services: { [string]: any }, player: Player): string
 	if data.Cash < nextStand.Price then
 		return "Cash"
 	end
-	if not services.DataService:AdjustCash(player, -nextStand.Price) then
+	if
+		not services.DataService:AdjustCash(
+			player,
+			-nextStand.Price,
+			AnalyticsConfig.Sinks.TrainingUpgrade,
+			tostring(tier + 1)
+		)
+	then
 		return "Cash"
 	end
 	if not services.DataService:Set(player, { "TrainingTier" }, tier + 1) then

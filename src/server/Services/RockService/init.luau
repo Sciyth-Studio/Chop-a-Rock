@@ -4,6 +4,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -373,7 +374,11 @@ local function onRelease(player: Player, claimed: number)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
 		payout = services.PassService:ApplyCashMultiplier(player, payout)
-		services.DataService:AdjustCash(player, payout)
+		local flow = if rock.Modifier == RushRockConfig.Modifier
+			then AnalyticsConfig.Sources.RushRock
+			elseif rock.Weather then AnalyticsConfig.Sources.StormRock
+			else AnalyticsConfig.Sources.Chop
+		services.DataService:AdjustCash(player, payout, flow, rock.Key)
 	end
 	local isBroken = Session.IsBroken(session)
 	if isBroken or quality == ChopQuality.Master then

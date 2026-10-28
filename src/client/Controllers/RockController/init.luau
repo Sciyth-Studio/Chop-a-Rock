@@ -227,6 +227,14 @@ function RockController.GetPart(_self: any, id: number): BasePart?
 	return if rock and not rock.IsBroken then rock.Part else nil
 end
 
+function RockController.PlayMasterWindUp(_self: any, part: BasePart)
+	Effects.MasterStart(part)
+end
+
+function RockController.PlayBreak(_self: any, part: BasePart, quality: number, piecesSeconds: number)
+	Effects.Break(part, quality, piecesSeconds, nil)
+end
+
 function RockController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
 	chopController = controllers.ChopController

@@ -11,6 +11,8 @@ export type Helpers = {
 	ClickVerb: () -> string,
 	IsOpen: (screen: string) -> boolean,
 	IsNear: (target: Targets.Target?) -> boolean,
+	IsTraining: () -> boolean,
+	PromptKey: (adornee: Instance?, action: string, isHold: boolean) -> string,
 }
 
 export type View = {
@@ -18,6 +20,7 @@ export type View = {
 	Detail: string?,
 	Target: Targets.Target?,
 	Button: GuiObject?,
+	Teleport: string?,
 	IsDoing: boolean,
 }
 
@@ -36,7 +39,7 @@ function CannonHint.View(data: any, helpers: Helpers): View
 		local current = NumberFormat.Compact(math.min(cash, cannon.Price))
 		return {
 			Title = `{cannon.DisplayName} unlocked!`,
-			Detail = `Save up for it: ${current}/${NumberFormat.Compact(cannon.Price)}`,
+			Detail = `Save up! ${current}/${NumberFormat.Compact(cannon.Price)}`,
 			IsDoing = true,
 		}
 	end
@@ -45,9 +48,7 @@ function CannonHint.View(data: any, helpers: Helpers): View
 	if helpers.IsOpen(settings.ScreenName) then
 		return {
 			Title = title,
-			Detail = if isBuy
-				then `{helpers.ClickVerb()} the price to buy it!`
-				else `{helpers.ClickVerb()} Fire to launch!`,
+			Detail = if isBuy then `{helpers.ClickVerb()} Buy!` else `{helpers.ClickVerb()} Fire to launch!`,
 			Button = Spotlight.Button(settings.ScreenName, { `Cannon{cannon.Key}`, "BuyButton" }),
 			IsDoing = true,
 		}
@@ -55,8 +56,9 @@ function CannonHint.View(data: any, helpers: Helpers): View
 	local target = Targets.ShopPad(settings.ScreenName, settings.TargetLabel)
 	return {
 		Title = title,
-		Detail = if helpers.IsNear(target) then "Walk onto the orange pad" else "Follow the arrows",
+		Detail = if helpers.IsNear(target) then "Step on orange pad" else nil,
 		Target = target,
+		Teleport = settings.TeleportId,
 		IsDoing = false,
 	}
 end

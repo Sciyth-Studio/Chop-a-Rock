@@ -14,6 +14,7 @@ local RokModifier = require(ReplicatedStorage.RokModifier)
 local CashPack = require(ReplicatedStorage.Utils.CashPack)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local Packets = require(ReplicatedStorage.Packets)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
@@ -509,6 +510,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				local productId = pack.ProductId
 				if productId then
 					game:GetService("MarketplaceService"):PromptProductPurchase(player, productId)
+					purchases.Prompted:Fire("Product", productId)
 				else
 					notify(texts.ComingSoon)
 				end
@@ -571,6 +573,10 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		Open = function(_self: Types.Screen)
 			gui.Enabled = true
 			refreshAll()
+			Packets.RobuxShopOpened:Fire()
+			openTrove:Connect(purchases.Prompted, function(kind: string, id: number)
+				Packets.RobuxShopPrompted:Fire(kind, id)
+			end)
 			openTrove:Connect(RunService.RenderStepped, function()
 				local now = workspace:GetServerTimeNow()
 				for _, timer in timers do

@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local IndexRewards = require(ReplicatedStorage.IndexRewards)
 local Packets = require(ReplicatedStorage.Packets)
@@ -26,9 +27,9 @@ local function record(player: Player, kind: "Pets" | "Rocks", key: string): bool
 	return count == 0
 end
 
-local function grant(player: Player, reward: IndexConfig.Reward)
+local function grant(player: Player, reward: IndexConfig.Reward, kind: string)
 	if reward.Cash > 0 then
-		services.DataService:AdjustCash(player, reward.Cash)
+		services.DataService:AdjustCash(player, reward.Cash, AnalyticsConfig.Sources.IndexClaim, kind)
 	end
 	if reward.Strength > 0 then
 		services.StatsService:AddStrength(player, reward.Strength)
@@ -60,7 +61,7 @@ function IndexService.Claim(_self: any, player: Player, pageKey: string, key: st
 		return false
 	end
 	services.DataService:Set(player, { "Index", "Claimed", page.Kind, key }, true)
-	grant(player, reward)
+	grant(player, reward, page.Kind)
 	services.DataService:RequestSave(player)
 	return true
 end

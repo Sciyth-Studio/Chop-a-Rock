@@ -10,6 +10,8 @@ local Signal = require(ReplicatedStorage.Packages.Signal)
 local PlayerData = require(script.Parent.Parent.Data.PlayerData)
 local DataSessions = require(script.Parent.Parent.Data.DataSessions)
 local Tutorial = require(ReplicatedStorage.Tutorial)
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
+local Analytics = require(script.Parent.Parent.Utils.Analytics)
 
 type Path = { string | number }
 
@@ -155,7 +157,13 @@ function DataService.WaitForSave(_self: any, player: Player, saved: (any) -> boo
 	return if activeSessions then activeSessions:WaitForSave(player, saved) else false
 end
 
-function DataService.AdjustCash(_self: any, player: Player, amount: number): boolean
+function DataService.AdjustCash(
+	_self: any,
+	player: Player,
+	amount: number,
+	flow: AnalyticsConfig.CashFlow?,
+	detail: string?
+): boolean
 	if amount ~= amount or math.abs(amount) == math.huge or amount % 1 ~= 0 then
 		return false
 	end
@@ -169,6 +177,9 @@ function DataService.AdjustCash(_self: any, player: Player, amount: number): boo
 	end
 	if not DataService:Set(player, { "Cash" }, nextBalance) then
 		return false
+	end
+	if flow then
+		Analytics.LogCash(player, flow, amount, nextBalance, detail)
 	end
 	return DataService:RequestSave(player)
 end

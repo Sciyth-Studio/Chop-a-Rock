@@ -4,7 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CannonHint = require(ReplicatedStorage.CannonHint)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local Tutorial = require(ReplicatedStorage.Tutorial)
 local Types = require(script.Parent.Parent.Types)
 
 local TutorialHud = {}
@@ -45,8 +44,7 @@ function TutorialHud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function refresh()
-		local step = Tutorial.StepOf(context.Controllers.DataController:Get({ "Tutorial" }))
-		local isShown = (Tutorial.IsActive(step) and step < Tutorial.Final) or isHinting()
+		local isShown = isHinting()
 		if gui.Enabled ~= isShown then
 			gui.Enabled = isShown
 		end
@@ -70,9 +68,7 @@ function TutorialHud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				return
 			end
 			reset()
-			if Tutorial.IsActive(Tutorial.StepOf(context.Controllers.DataController:Get({ "Tutorial" }))) then
-				Packets.TutorialSkip:Fire()
-			elseif isHinting() then
+			if isHinting() then
 				Packets.CannonHintSkip:Fire()
 			end
 		end)

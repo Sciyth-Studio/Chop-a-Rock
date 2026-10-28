@@ -1,7 +1,6 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 
@@ -14,40 +13,43 @@ export type State = {
 local Tutorial = {
 	Train = 1,
 	Chop = 2,
-	BuyAura = 3,
-	TrainAgain = 4,
-	ChopAgain = 5,
-	BuyGeode = 6,
-	Crack = 7,
-	Collect = 8,
-	Final = 9,
-	Done = 10,
+	BuyGeode = 3,
+	Crack = 4,
+	Collect = 5,
+	Final = 6,
+	Done = 7,
+	AuraBought = 8,
+	AuraTrained = 9,
+	SecondRok = 10,
 	FirstRebirth = 11,
+	Played30Min = 12,
+	Played60Min = 13,
 }
+
+Tutorial.LastMilestone = Tutorial.Played60Min
 
 Tutorial.Funnel = {
 	"Train",
 	"Chop",
-	"BuyAura",
-	"TrainAgain",
-	"ChopAgain",
 	"BuyGeode",
 	"Crack",
 	"Collect",
 	"Final",
 	"Done",
+	"AuraBought",
+	"AuraTrained",
+	"SecondRok",
 	TutorialConfig.FirstRebirthFunnelName,
+	"Played30Min",
+	"Played60Min",
 }
 
 Tutorial.Titles = {
 	[Tutorial.Train] = "Break the boards!",
 	[Tutorial.Chop] = "Chop rocks for cash!",
-	[Tutorial.BuyAura] = "Buy an aura!",
-	[Tutorial.TrainAgain] = "Train with your new aura!",
-	[Tutorial.ChopAgain] = "Chop rocks for cash!",
 	[Tutorial.BuyGeode] = "Buy a geode!",
-	[Tutorial.Crack] = "Crack it at your base!",
-	[Tutorial.Collect] = "Grab your Rok's cash!",
+	[Tutorial.Crack] = "Crack your geode!",
+	[Tutorial.Collect] = "Step on green pad!",
 	[Tutorial.Final] = "You're ready! Go chop!",
 }
 
@@ -67,11 +69,11 @@ function Tutorial.IsActive(step: number): boolean
 end
 
 function Tutorial.IsTraining(step: number): boolean
-	return step == Tutorial.Train or step == Tutorial.TrainAgain
+	return step == Tutorial.Train
 end
 
 function Tutorial.IsChopping(step: number): boolean
-	return step == Tutorial.Chop or step == Tutorial.ChopAgain
+	return step == Tutorial.Chop
 end
 
 function Tutorial.CanChop(step: number): boolean
@@ -79,9 +81,7 @@ function Tutorial.CanChop(step: number): boolean
 end
 
 function Tutorial.PadScreen(step: number): string?
-	if step == Tutorial.BuyAura then
-		return "Shop"
-	elseif step == Tutorial.BuyGeode then
+	if step == Tutorial.BuyGeode then
 		return "GeodeStand"
 	end
 	return nil
@@ -92,16 +92,11 @@ function Tutorial.IsPadOpen(step: number, screen: string): boolean
 end
 
 function Tutorial.CanBuyAura(step: number): boolean
-	return not Tutorial.IsActive(step) or step == Tutorial.BuyAura
+	return not Tutorial.IsActive(step)
 end
 
 function Tutorial.CanBuyGeode(step: number): boolean
 	return not Tutorial.IsActive(step) or step == Tutorial.BuyGeode
-end
-
-function Tutorial.AuraPrice(): number
-	local tier = AuraConfig.Tiers[2]
-	return if tier then tier.Price else 0
 end
 
 function Tutorial.GeodePrice(): number
@@ -122,16 +117,12 @@ end
 function Tutorial.StrengthGoal(step: number): number?
 	if step == Tutorial.Train then
 		return TutorialConfig.TrainGoal
-	elseif step == Tutorial.TrainAgain then
-		return TutorialConfig.TrainAgainGoal
 	end
 	return nil
 end
 
 function Tutorial.CashGoal(step: number): number?
-	if step == Tutorial.Chop or step == Tutorial.BuyAura then
-		return Tutorial.AuraPrice()
-	elseif step == Tutorial.ChopAgain or step == Tutorial.BuyGeode then
+	if step == Tutorial.Chop or step == Tutorial.BuyGeode then
 		return Tutorial.GeodePrice()
 	end
 	return nil

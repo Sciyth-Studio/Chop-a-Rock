@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local Types = require(script.Parent.Types)
@@ -130,7 +131,14 @@ function Placement.BuySlot(context: Types.Context, player: Player): boolean
 		services.NotificationService:Notify(player, "Error", "Not enough money!")
 		return false
 	end
-	if not services.DataService:AdjustCash(player, -price) then
+	if
+		not services.DataService:AdjustCash(
+			player,
+			-price,
+			AnalyticsConfig.Sinks.PedestalSlot,
+			tostring(slot)
+		)
+	then
 		return false
 	end
 	services.DataService:Set(player, { "PedestalSlots" }, data.PedestalSlots + 1)

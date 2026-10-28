@@ -89,7 +89,7 @@ local function setNow(state: State, isNow: boolean, key: string)
 		return
 	end
 	state.IsNow = isNow
-	local text = if isNow then `Now! {key}!` else `{key} when the line is here`
+	local text = if isNow then `Now! {key}!` else `{key} here`
 	for _, label in state.Labels do
 		label.Text = text
 		if label.Name == "Label" then

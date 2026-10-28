@@ -3,7 +3,7 @@
 local AnalyticsService = game:GetService("AnalyticsService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Packets = require(ReplicatedStorage.Packets)
+local AuraHint = require(ReplicatedStorage.AuraHint)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
@@ -43,7 +43,7 @@ local function logFurthest(player: Player, data: any, upTo: number)
 	services.DataService:Set(player, { "Tutorial", "Furthest" }, upTo)
 end
 
-local function setStep(player: Player, step: number, isSkip: boolean?)
+local function setStep(player: Player, step: number)
 	local data = services.DataService:GetData(player)
 	if not data or data.Tutorial.Step == step then
 		return
@@ -52,13 +52,7 @@ local function setStep(player: Player, step: number, isSkip: boolean?)
 	services.DataService:Set(player, { "Tutorial", "Step" }, step)
 	services.DataService:Set(player, { "Tutorial", "Taps" }, 0)
 	collected[player] = nil
-	if isSkip then
-		services.DataService:Set(
-			player,
-			{ "Tutorial", "Furthest" },
-			math.max(data.Tutorial.Furthest or 0, Tutorial.Done)
-		)
-	elseif step > previous then
+	if step > previous then
 		logFurthest(player, data, math.min(step, Tutorial.Done))
 	end
 	if Tutorial.IsTraining(previous) and not Tutorial.IsTraining(step) then
@@ -109,26 +103,43 @@ local function decide(player: Player, data: any, step: number): number
 	if step == Tutorial.Crack or step == Tutorial.Collect then
 		return Tutorial.BuyGeode
 	end
-	if data.AuraTier >= 2 and step < Tutorial.TrainAgain then
-		return Tutorial.TrainAgain
-	end
 	local taps = data.Tutorial.Taps or 0
 	if step == Tutorial.Train then
 		return if data.Strength >= TutorialConfig.TrainGoal and taps > 0 then Tutorial.Chop else step
 	elseif step == Tutorial.Chop then
-		return if data.Cash >= Tutorial.AuraPrice() then Tutorial.BuyAura else step
-	elseif step == Tutorial.BuyAura then
-		return if data.Cash < Tutorial.AuraPrice() then Tutorial.Chop else step
-	elseif step == Tutorial.TrainAgain then
-		return if data.Strength >= TutorialConfig.TrainAgainGoal and taps > 0
-			then Tutorial.ChopAgain
-			else step
-	elseif step == Tutorial.ChopAgain then
 		return if data.Cash >= Tutorial.GeodePrice() then Tutorial.BuyGeode else step
 	elseif step == Tutorial.BuyGeode then
-		return if data.Cash < Tutorial.GeodePrice() then Tutorial.ChopAgain else step
+		return if data.Cash < Tutorial.GeodePrice() then Tutorial.Chop else step
 	end
 	return step
+end
+
+local function rokKinds(data: any): number
+	local index = data.Index
+	local pets = if type(index) == "table" then index.Pets else nil
+	local total = 0
+	if type(pets) == "table" then
+		for _ in pets do
+			total += 1
+		end
+	end
+	return total
+end
+
+local function milestone(data: any): number
+	local playtime = data.Playtime or 0
+	if playtime >= TutorialConfig.Played60MinSeconds then
+		return Tutorial.Played60Min
+	elseif playtime >= TutorialConfig.Played30MinSeconds then
+		return Tutorial.Played30Min
+	elseif (data.Rebirths or 0) > 0 then
+		return Tutorial.FirstRebirth
+	elseif rokKinds(data) >= TutorialConfig.SecondRokCount then
+		return Tutorial.SecondRok
+	elseif (data.AuraTier or 1) >= TutorialConfig.AuraHint.Tier then
+		return if AuraHint.StageOf(data) == AuraHint.Done then Tutorial.AuraTrained else Tutorial.AuraBought
+	end
+	return Tutorial.Done
 end
 
 local function finish(player: Player)
@@ -152,9 +163,7 @@ local function check(player: Player)
 	end
 	local step = Tutorial.StepOf(data.Tutorial)
 	if not Tutorial.IsActive(step) then
-		if data.Rebirths > 0 then
-			logFurthest(player, data, Tutorial.FirstRebirth)
-		end
+		logFurthest(player, data, milestone(data))
 		return
 	end
 	logFurthest(player, data, step)
@@ -184,24 +193,6 @@ local function onCollected(player: Player)
 	end
 end
 
-local function onSkip(player: Player)
-	local data = services.DataService:GetData(player)
-	if not data then
-		return
-	end
-	local step = Tutorial.StepOf(data.Tutorial)
-	if not Tutorial.IsActive(step) or step == Tutorial.Final then
-		return
-	end
-	local ok, err = pcall(function()
-		AnalyticsService:LogCustomEvent(player, TutorialConfig.SkippedEventName, step)
-	end)
-	if not ok then
-		warn(`[TutorialService] Skip event failed: {err}`)
-	end
-	setStep(player, Tutorial.Done, true)
-end
-
 function TutorialService.Reset(_self: any, player: Player)
 	if not services.DataService:GetData(player) then
 		return
@@ -225,7 +216,6 @@ function TutorialService.Start(_self: any)
 		collected[player] = nil
 		check(player)
 	end))
-	trove:Add(Packets.TutorialSkip.OnServerEvent:Connect(onSkip))
 	trove:Connect(Players.PlayerRemoving, function(player: Player)
 		finishing[player] = nil
 		collected[player] = nil

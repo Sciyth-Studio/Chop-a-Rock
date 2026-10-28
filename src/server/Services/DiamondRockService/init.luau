@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -288,7 +289,7 @@ local function onRelease(player: Player, claimed: number)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
 		payout = services.PassService:ApplyCashMultiplier(player, payout)
-		services.DataService:AdjustCash(player, payout)
+		services.DataService:AdjustCash(player, payout, AnalyticsConfig.Sources.DiamondRock)
 		diamond.Earned[player] = (diamond.Earned[player] or 0) + payout
 	end
 	local isBroken = Chopping.IsBroken(diamond)

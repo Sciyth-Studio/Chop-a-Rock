@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -408,7 +409,7 @@ function PetService.Sell(_self: any, player: Player, petIds: { string }): number
 	for petId in sold do
 		replica:Set({ "Pets", petId }, nil)
 	end
-	services.DataService:AdjustCash(player, total)
+	services.DataService:AdjustCash(player, total, AnalyticsConfig.Sources.SellRoks)
 	services.DataService:RequestSave(player)
 	updateIncome(player)
 	PetService:SyncTools(player)

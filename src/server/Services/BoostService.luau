@@ -223,9 +223,8 @@ function BoostService.Start(_self: any)
 		end
 		services.DataService:Set(player, { "Offers", offerKey }, true)
 		local boost = boostsByKey[MonetizationConfig.TasteBoostKey]
-		if boost and BoostService:AddPersonal(player, boost.Key, MonetizationConfig.TasteSeconds) then
-			local minutes = math.floor(MonetizationConfig.TasteSeconds / 60)
-			services.NotificationService:Notify(player, "Info", `Free {boost.DisplayName} for {minutes} min!`)
+		if boost then
+			BoostService:AddPersonal(player, boost.Key, MonetizationConfig.TasteSeconds)
 		end
 	end))
 	lastTick = os.clock()

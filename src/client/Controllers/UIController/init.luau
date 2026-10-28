@@ -44,6 +44,8 @@ local modules: { [string]: Types.ScreenModule } = {
 	BoostPills = require(script.Screens.BoostPills),
 	TeleportBar = require(script.Screens.TeleportBar),
 	TutorialHud = require(script.Screens.TutorialHud),
+	TutorialComplete = require(script.Screens.TutorialComplete),
+	IntroCaption = require(script.Screens.IntroCaption),
 }
 
 local UIController = { Name = "UIController" }

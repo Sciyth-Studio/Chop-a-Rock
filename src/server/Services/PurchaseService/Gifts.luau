@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local CashPackConfig = require(ReplicatedStorage.Config.CashPackConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
@@ -104,7 +105,13 @@ function Gifts.Apply(services: { [string]: any }, recipient: Player, gift: Monet
 	elseif gift.Kind == "CashPack" then
 		local pack = packOf(gift)
 		local amount = if pack then CashPack.Value(pack, data.Strength) else 0
-		return amount > 0 and services.DataService:AdjustCash(recipient, amount)
+		return amount > 0
+			and services.DataService:AdjustCash(
+				recipient,
+				amount,
+				AnalyticsConfig.Sources.GiftCashPack,
+				if pack then pack.Key else nil
+			)
 	elseif gift.Kind == "Exclusive" then
 		return services.ExclusiveService:Grant(recipient, gift.Target)
 	end

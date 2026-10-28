@@ -13,6 +13,7 @@ export type Target = {
 	Adornee: Instance,
 	Label: string?,
 	ArriveStuds: number,
+	StopStuds: number?,
 }
 
 local Targets = {}
@@ -74,7 +75,7 @@ local function trainingStand(): Target?
 	}
 end
 
-local function nearestStone(): Target?
+local function nearestRock(key: string): Target?
 	local folder = workspace:FindFirstChild("Rocks")
 	local from = rootPosition()
 	if not folder or not from then
@@ -82,7 +83,7 @@ local function nearestStone(): Target?
 	end
 	local best: BasePart? = nil
 	local bestDistance = math.huge
-	local name = `Rock_{TutorialConfig.FirstChopRockKey}`
+	local name = `Rock_{key}`
 	for _, child in folder:GetChildren() do
 		if child.Name == name and child:IsA("BasePart") and CollectionService:HasTag(child, "ChopRock") then
 			local distance = (child.Position - from).Magnitude
@@ -114,6 +115,7 @@ local function shopPad(screen: string, label: string): Target?
 				Adornee = adornee,
 				Label = label,
 				ArriveStuds = math.max(pad.Size.X, pad.Size.Z) / 2,
+				StopStuds = TutorialConfig.PadStopStuds,
 			}
 		end
 	end
@@ -152,6 +154,7 @@ local function earningsPad(data: any): Target?
 					Adornee = pad :: Instance,
 					Label = "Cash",
 					ArriveStuds = math.max(pad.Size.X, pad.Size.Z) / 2,
+					StopStuds = TutorialConfig.PadStopStuds,
 				}
 			end
 		end
@@ -163,9 +166,7 @@ function Targets.For(step: number, data: any): Target?
 	if Tutorial.IsTraining(step) then
 		return trainingStand()
 	elseif Tutorial.IsChopping(step) then
-		return nearestStone()
-	elseif step == Tutorial.BuyAura then
-		return shopPad("Shop", "Aura")
+		return nearestRock(TutorialConfig.FirstChopRockKey)
 	elseif step == Tutorial.BuyGeode then
 		return shopPad("GeodeStand", "Geode")
 	elseif step == Tutorial.Crack then
@@ -177,6 +178,8 @@ function Targets.For(step: number, data: any): Target?
 end
 
 Targets.ShopPad = shopPad
+Targets.TrainingStand = trainingStand
+Targets.NearestRock = nearestRock
 Targets.RootPosition = rootPosition
 
 return Targets

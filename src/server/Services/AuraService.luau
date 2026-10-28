@@ -2,6 +2,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -44,7 +45,7 @@ function AuraService.BuyTier(_self: any, player: Player, tierIndex: number): boo
 	if not tier or data.Cash < tier.Price then
 		return false
 	end
-	if not DataService:AdjustCash(player, -tier.Price) then
+	if not DataService:AdjustCash(player, -tier.Price, AnalyticsConfig.Sinks.Aura, tostring(tierIndex)) then
 		return false
 	end
 	DataService:Set(player, { "AuraTier" }, tierIndex)

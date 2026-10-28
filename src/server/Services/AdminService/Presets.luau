@@ -81,7 +81,7 @@ function Presets.Apply(context: Types.Context, player: Player, preset: AdminConf
 		and next(pets) == nil
 	overrides.Tutorial = if isFresh
 		then Tutorial.NewState()
-		else { Step = Tutorial.Done, Taps = 0, Furthest = Tutorial.FirstRebirth }
+		else { Step = Tutorial.Done, Taps = 0, Furthest = Tutorial.LastMilestone }
 	return context.Services.DataService:ResetData(player, overrides)
 end
 
