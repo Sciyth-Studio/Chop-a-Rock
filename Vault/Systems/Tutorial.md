@@ -1,27 +1,27 @@
 ---
-description: 9-step first-time tutorial (train, chop, aura, train, chop, geode, crack, collect, final); server owns the step in PlayerData, client draws pinned notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, a chop-meter pointer and red pad locks. Built 2026-10-16.
+description: 5-step first-time tutorial (train, chop, geode, crack, collect, then a 3 s finish) since 2026-10-27, no Skip, followed by a staggered aura hint; server owns the step in PlayerData, client draws pinned notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, a chop-meter pointer and red pad locks. Built 2026-10-16.
 type: system
-updated: 2026-10-19
+updated: 2026-10-27
 ---
 # Tutorial
 
 Plan and decisions: `TutorialSystemPlan.md` (approved 2026-10-16). Pacing rule from the user: a training step lasts at most ~5 s, and a chopping step needs at most 3 rocks.
 
 ## Steps
-`Tutorial.luau` (shared) numbers them: Train 1, Chop 2, BuyAura 3 (was BuyArms), TrainAgain 4, ChopAgain 5, BuyGeode 6, Crack 7, Collect 8, Final 9, Done 10, FirstRebirth 11 (funnel only). Goals are in `TutorialConfig` (Strength 4 and 10). The cash goals read `AuraConfig.Tiers[2].Price` (Silver Aura) and `TutorialConfig.GeodePrice` ($150 each since 2026-10-16), so changing a price moves the step. Since 2026-10-19 the Forest Geode costs $500 everywhere else; during the BuyGeode step a single Forest geode costs `TutorialConfig.GeodePrice` instead (`Tutorial.GeodeCost`, used by `GeodeService/Purchasing` and the Geode Shop's price label, which also watches `Tutorial` data). Buying 3 costs full price. The $150 Forest geode had made hatch-and-sell pay ([[Balance Pass Oct 18]]).
+`Tutorial.luau` (shared) numbers them: Train 1, Chop 2, BuyGeode 3, Crack 4, Collect 5, Final 6, Done 7, then funnel-only milestones AuraBought 8, AuraTrained 9, SecondRok 10, FirstRebirth 11, Played30Min 12, Played60Min 13 (`Tutorial.LastMilestone`). 2026-10-27 (user, from Hud's Guide via the [[Launch Checklist]]): the aura, train-again and chop-again steps moved out to the staggered [[#Aura hint]], so the core is about a minute. Goals are in `TutorialConfig` (Strength 4). The chop cash goal is `TutorialConfig.GeodePrice` ($150), so changing it moves the step. Since 2026-10-19 the Forest Geode costs $500 everywhere else; during the BuyGeode step a single Forest geode costs `TutorialConfig.GeodePrice` instead (`Tutorial.GeodeCost`, used by `GeodeService/Purchasing` and the Geode Shop's price label, which also watches `Tutorial` data). Buying 3 costs full price. The $150 Forest geode had made hatch-and-sell pay ([[Balance Pass Oct 18]]).
 
 ## Server: `TutorialService`
 - Owns `Tutorial = { Step, Taps, Furthest }` in `PlayerData`. New profiles start at 1. Old profiles with any progress are migrated to Done in `PlayerData.Migrate`. `DataService:ResetData` restarts it, and admin presets set Done unless the preset is fresh.
 - `check(player)` runs every 0.25 s for every player:
-  - Later milestones win: a hatched Rok goes to Collect, a held geode to Crack, `ArmTier` 2 to TrainAgain.
+  - Later milestones win: a hatched Rok goes to Collect, a held geode to Crack.
   - Cash dropping below the goal sends the step back.
   - Training steps need a rep made during the step (`TrainingService.Trained` adds to `Taps`).
   - Collect waits for `PedestalService.Collected`.
   - Final turns into Done after 3 s.
-- Funnel: `LogOnboardingFunnelStepEvent` logs each step once, tracked by `Furthest`. Step 1 is logged on join. FirstRebirth is logged for done players with `Rebirths > 0`. The `TutorialSkip` packet logs the custom event `TutorialSkipped` (value = step) and sets `Furthest` without logging the skipped steps.
+- Funnel: `LogOnboardingFunnelStepEvent` logs each step once, tracked by `Furthest`, filling in every step up to the furthest reached. Step 1 is logged on join. After Done, `milestone(data)` picks the highest milestone reached (60 / 30 min of `Playtime`, a rebirth, 2 Rok kinds in `Index.Pets`, Silver Aura bought, then aura hint Done) and logs up to it, so out-of-order milestones count as passed. Migrated old profiles and non-fresh admin presets start at `LastMilestone`. Thresholds in `TutorialConfig` (`SecondRokCount`, `Played30MinSeconds`, `Played60MinSeconds`). Economy events and the Robux shop funnel are in [[Analytics]].
 - Gates, all through the shared module:
   - Chopping is refused outside the chop steps (`RockService`).
-  - `AuraService.BuyTier` and `GeodeService/Purchasing` only work on their own step.
+  - Auras can't be bought at all during the tutorial, and `GeodeService/Purchasing` only works on BuyGeode.
   - The first Basic rock in step Chop is forced Perfect on every hit, with no Master roll.
   - No Rush rock while the tutorial runs.
 - Weather is ignored for tutorial players:
@@ -35,7 +35,7 @@ Plan and decisions: `TutorialSystemPlan.md` (approved 2026-10-16). Pacing rule f
   - Pins never time out, bypass the Notifications setting, and sit at the top of the `Notifications` container.
   - Detail text adapts to the device: "Press E", "Tap Train" or "Press X" for training; "Hold E to chop a Stone" then "Press E when the line is in the glowing zone!" (gamepad R2, touch "Tap Chop").
   - While the tutorial runs it hides `MenuButtons`, `WeatherPill`, `DiamondRockPill`, `HotStreakBar` and `TrainingHint` by taking them out of PlayerGui (`Parent = nil`) and puts them back at Done. The `TeleportBar` stays visible since 2026-10-19.
-- `Teleports` (2026-10-19, user: "use teleport buttons as much as possible"): each step has a teleport (Train/TrainAgain/Crack/Collect → Base, chop steps → Rocks, BuyAura → Aura, BuyGeode → Geode). When it would save at least `TeleportSavingStuds` (40) of walking, or for Rocks whenever the player is behind the `TeleportPoints.Rocks` marker (lobby side of the gateway; the nearest Stone can be closer to the base through the zone wall), the spotlight goes on that bar button, the detail reads "Click Rocks to teleport there!" ("Tap" on touch), and the ground arrows hide. Shop teleports spotlight `ShopsButton` ("Click Shops at the top!") until the fan is open, then the `AuraOption` / `GeodeOption` slot.
+- `Teleports` (2026-10-19, user: "use teleport buttons as much as possible"): each step has a teleport (Train/Crack/Collect → Base, Chop → Rocks, BuyGeode → Geode). When it would save at least `TeleportSavingStuds` (40) of walking, or for Rocks whenever the player is behind the `TeleportPoints.Rocks` marker (lobby side of the gateway; the nearest Stone can be closer to the base through the zone wall), the spotlight goes on that bar button, the detail reads "Click Rocks to teleport there!" ("Tap" on touch), and the ground arrows hide. Shop teleports spotlight `ShopsButton` ("Click Shops at the top!") until the fan is open, then the `GeodeOption` slot (`AuraOption` for the aura hint).
 - `Layout` keeps the pinned text under the bar while the tutorial runs: it offsets `Notifications.Container` to `NotificationGapPixels` below the bar, or below the lowest Shops fan slot while the fan is open, so the fan never covers "Click Aura to teleport there!". It leaves the text in place while Shop, GeodeStand or SellShop is open, and restores it at Done. The bar keeps DisplayOrder 0 so shop panels and the hatch reveal draw over it (a 2026-10-19 try at 11 put the bar over the panels).
 - `Targets` finds each step's target:
   - Own plot = `BasePlots` child whose `OwnerUserId` matches.
@@ -58,7 +58,7 @@ Plan and decisions: `TutorialSystemPlan.md` (approved 2026-10-16). Pacing rule f
 - Hidden screens are reparented, never forced `Enabled = false` (2026-10-19). Forcing `Enabled` lost the screen's own state: when TrainingHint closed while already forced off, no change event fired, so it came back on at Done with "Press Space to stop training" stuck (seen twice: 2026-10-17 and 2026-10-19). Out of PlayerGui, screens keep writing their own `Enabled`. Tested in Play: train, stop, Skip → TrainingHint back with `Enabled = false`.
 - Spotlight hide then show within the fade (teleport button → buy button after a teleport onto a shop pad): SpotlightUI's `Hide()` disables its gui after a delayed fade, which turned off the next spotlight. `Spotlight.Update` re-enables the gui every frame while it has a target.
 - `Locks` puts a red Neon box and a "Aura first!"-style billboard over every pad that's closed for the step. `ShopPad` won't open a closed pad, and `RockController` hides chop prompts when chopping is locked.
-- `StarterGui.TutorialHud` (a copy of a Teleport Bar button, top right) has the Skip button. The first tap shows "Sure?" for 3 s and the second sends `TutorialSkip`. It shows until Final.
+- No Skip in the tutorial since 2026-10-27 (user, Hud's Guide: players skip by accident and get lost). The `TutorialSkip` packet and `TutorialSkipped` event are gone. `StarterGui.TutorialHud` (Skip with "Sure?" confirm) now shows only for the cannon hint.
 
 ## SpotlightUI
 Vendored unmodified at `vendor/SpotlightUI` from `Vvshenok/SpotlightUI` commit `614cc28` (MIT, no releases published), mapped to `ReplicatedStorage.SpotlightUI` in `default.project.json`. It ships its own Janitor and GoodSignal and prints a banner on require.
@@ -86,3 +86,55 @@ Systems unlocked long after the tutorial get their own short guide when they unl
 - Migrate: profiles that own a cannon start Done. `ResetData` and presets set `Hints = {}`, so a preset with rebirths and 500+ Strength shows the hint. Rebirth needs `100 x 125^(n-1)` Strength, so each run after a rebirth is one zone further: run 1 forest, run 2 desert, run 3 jungle. Time later hints by rebirth count the same way. It reuses this controller's guide, spotlight, teleport and pinned-text parts and never locks anything.
 
 Related: [[Shop Pads]], [[Weather]], [[Pedestals]], [[Geode Shop]], [[Rebirth Gated By Strength]], [[UI Feel]]
+
+## Aura hint
+Built 2026-10-27, the staggered half of the old aura steps (user approved the preview: core tutorial, then the aura hint, cannon hint unchanged). The user playtested the new tutorial and hint on 2026-10-27.
+- Stages in shared `AuraHint.luau`: Locked 0, Save 1, Buy 2, Train 3, Done 4, in `PlayerData.Hints.Aura` (furthest in `Hints.AuraFurthest`, reps in `Hints.AuraReps`). Settings in `TutorialConfig.AuraHint` (tier 2 = Silver Aura, 3 reps).
+- `AuraHintService` re-decides every 0.25 s once the tutorial is Done: Save until cash covers the aura, Buy, then Train after the buy, Done after 3 training reps (`TrainingService.Trained`). Any rebirth, or owning the aura before the hint ever started, goes straight to Done silently. Sends "Silver Aura unlocked!" on unlock, logs custom event `AuraHint` (value = stage) once per stage. No Skip.
+- Client: shares the cannon hint's `HintSession`. `hintKinds` lists aura then cannon; the first active one shows. Child `AuraHint.luau` builds the text: "Save up for it: $x/$150", arrows and the Aura teleport to the red pad then a spotlight on `Shop.Tier2.BuyButton`, then "Train with your new aura! n/3" with the Base teleport and "Your aura gives x1.25 strength per rep!" while training. Views now carry their own `Teleport` id.
+- Admin: Reset Tutorial has an "Aura Hint" choice.
+
+## Good-zone spotlight
+`Spotlight.TargetFor` spotlights the chop meter's Good band (a `Frame` made inside `ChopMeter.Bar`) during the first forced-Perfect Stone and, since 2026-10-27 (user, after playtesting), during the Crack step's minigame too, so the first geode open shows where to release. The crack isn't forced Perfect.
+
+## Boulder hint
+Built 2026-10-27 (user: "a staggered tutorial step for the first rock upgrade after you've trained to reach it"; picked the version with a training goal). Not playtested yet.
+- Stages in shared `RockHint.luau`: Locked 0, Train 1, Chop 2, Done 3, in `PlayerData.Hints.Rock` (furthest in `Hints.RockFurthest`). Settings in `TutorialConfig.RockHint` (`RockKey = "Second"`, the Boulder).
+- `RockHintService` re-decides every 0.25 s: Train starts once the aura hint is Done ("Train to unlock the Boulder! x/20", arrows and the Base teleport to your stand); at the Boulder's `StrengthRequired` it goes to Chop with a "Boulder unlocked!" notice ("Chop a Boulder! 4x cash", the multiple is Boulder ÷ Stone `BasePayout`, arrows to the nearest `Rock_Second`, Rocks teleport). Done on the first Boulder break (`Index.Rocks.Second`), or any rebirth. Already broken or rebirthed before it started = silent Done. Logs custom event `RockHint` per stage.
+- Client: first in `hintKinds` (Boulder, then aura, then cannon), so its Chop stage shows over a waiting aura hint. Child `RockHint.luau`; `Targets.NearestRock(key)` replaced the Stone-only finder.
+- Admin: Reset Tutorial has a "Boulder Hint" choice.
+
+## Polish pass (2026-10-27)
+Built from `TutorialPolishPlan.md` (user approved all six). Passes check.ps1, not playtested.
+- **4 words max** (user rule, stricter than the guide's 5) for every title and detail line in the tutorial and all hints. Key names count, counters don't. The plan has the full before/after table.
+- **Head start:** `TutorialConfig.StartStrength = 1` is the `PlayerData.Template` Strength, so the boards read 1/4 on join. The Chop title hides its cash counter until cash is above $0. Entering the aura hint's Train stage sets `Hints.AuraReps = 1` (buying counts as the first rep).
+- **Praise removed (2026-10-27, user, after the playtest).** No step or hint praise; only the step sound plays.
+- **Idle forgiveness:** `checkIdle` in `TutorialController`. After `IdleSeconds` (20) with no input (`UserInputService.InputBegan`), no movement (`Humanoid.MoveDirection`) and no step change, the guide goes urgent: `Guide.SetUrgent` doubles the marker and triples the highlight pulse, `SFX_Notification` pings every 20 s, the detail reads "Click here!"/"Tap here!" with a spotlighted button or "Over here!" with a world target, and teleports ignore the 40-stud rule (`Teleports.For(..., isForced)`). Runs in the core tutorial (not Final, not mid-chop or training) and in hint stages listed in `IdleStages` (aura Buy, cannon Buy, rebirth Ready).
+- **Completion:** when the client sees the tutorial go to Done it calls `RebirthEffectController:PlayBurst()` (rebirth `VFX_LevelUp` + `SFX_Level_Up`) and opens `StarterGui.TutorialComplete` ("Tutorial complete!" Chrome, "Free 2x Strength!" Green, cloned from the WelcomeBack card labels; built in Studio 2026-10-27, needs a place save) for `CompleteSeconds` (2.5). The banner's reward text comes from the `TasteBoostKey` boost. The old "Free 2x Strength for 5 min!" notification is gone; the 5 min boost itself is unchanged.
+- **Starter Offer hold:** `OfferService` opens the 24 h starter window on `RockHintService.Finished` (Boulder hint Done) instead of `TutorialService.Finished` (user, guide's "first give, then ask"). The rebirth second chance is unchanged.
+
+## Rebirth hint
+Built 2026-10-27 with the polish pass. Not playtested.
+- Shared `RebirthHint.luau`: Locked 0, Ready 1, Done 2 in `Hints.Rebirth` (furthest `Hints.RebirthFurthest`), settings `TutorialConfig.RebirthHint`. Ready once the Boulder hint is Done and Strength reaches `RebirthStats.Get(1).StrengthRequired` (100). Done on the first rebirth (silent if already rebirthed). `RebirthHintService` logs `RebirthHint` per stage.
+- Client `RebirthHint.luau`: "Rebirth for x1.25 cash!" / "Click Rebirth!", spotlight on `MenuButtons.Container.RebirthButton`, then `Rebirth…Buttons.RebirthButton` once the panel is open. Kept positive (user): no reset warning, the panel explains.
+- Hint order in `hintKinds`: Boulder, rebirth, aura, cannon. Chain: tutorial → aura → Boulder → rebirth → cannon. Admin Reset Tutorial has a "Rebirth Hint" choice.
+
+## One line of text (2026-10-27)
+User rule after the playtest: **at most one line of tutorial/hint text on screen at a time.**
+- Title and detail share one pinned notification (`TitleId`; `DetailId` is always unpinned). For `TitleSeconds` (2) after a step or hint stage starts, or after the line was hidden, it shows the title (the goal); after that the detail (the action), or the title when there's no detail. "Follow the arrows" and "Keep going!" are gone: the title shows instead.
+- Hidden: during a tutorial chop/crack round (the meter arrow is the line, shown only after the pin's `FadeOutSeconds` fade so they never overlap); while GeodeStand, Shop or SellShop is open (the spotlight shows the button), or the hint's own panel; while the `TutorialComplete` banner is open; and while a normal notification is showing (`NotificationController.Notified`, ~3.25 s).
+- `NotificationController.Notify` drops normal notifications while the tutorial runs and while the completion banner is open. This removed "Stone unlocked!", "Bought a Forest Geode!" and "Crack it at your base!" (and admin notices) during the tutorial, and "Silver Aura unlocked!" during the banner.
+- The banner shows "Tutorial complete!" then "Free 2x Strength!" one after the other (`CompleteSeconds` 3.5, swap halfway); Reward sits where Title is.
+- `RockHintService` no longer sends "Boulder unlocked!" (StatsService already does).
+- Claude's playtest 2026-10-27, logged every 0.1 s: one line throughout the tutorial except a 0.4 s overlap at chop start (fixed afterwards, not re-run) and the aura notice during the banner (fixed afterwards, not re-run). Idle "Click here!" fired after 20 s. The user took over testing after that.
+- Other text seen on screen during the tutorial (not changed; the user's call): the "#1 on 4 boards" crown title over your head (solo test only), pedestal "Locked"/"$1,000" labels, rock name + strength labels, prompt text ("E / Training Board / Train"), "Geode first!" lock labels, the "Stand"/"Pit" target labels, the leaderboard boards, the paused 2x Strength boost pill, the full Geode Stand panel and the hatch reveal.
+
+## Playtest fixes (2026-10-27, from the user's playtest)
+Pass check.ps1; the user is testing.
+- **Geode step waits for the rock:** if the Chop step's cash goal is reached mid-rock, the client keeps showing the Chop step (line, meter arrow, sound) until the chop minigame ends (`ChopEnded` when the rock breaks). The server only gates starting a chop, so finishing the rock is allowed.
+- **One collect line:** the Collect title is "Step on green pad!" and it has no detail line (the user said the two lines said the same thing).
+- **Floor arrows to pads:** arrows used to stop `ChevronStopDistance` (9) studs short of every target, so the short pit-to-pad walk showed almost none. Pad targets (earnings pads, shop pads) now carry `StopStuds = PadStopStuds` (1) and `Guide.DrawPath` takes it.
+- **Shops close on the next step:** the aura hint's `CloseStages` closes the Shop when it reaches Train (buying the aura), so the Base spotlight isn't under the open shop. The core tutorial closes GeodeStand when BuyGeode is done.
+- **Camera turns to walk targets** (user: little kids don't rotate the camera): `TutorialController/CameraTurn` eases the Custom camera's yaw around `camera.Focus` over `CameraTurnSeconds` (0.5), bound at `RenderPriority.Camera + 1`. It fires once each time a walk target appears (new target, or a jump of more than `CameraTurnJumpStuds` (20) such as a teleport), only while the player has to walk (target not near, no teleport hint, not chopping or training). It runs in the core tutorial and every hint. Not checked in Play.
+- **No turn when a teleport would help** (user, 2026-10-27): the turn is skipped while `Teleports.IsWorthUsing(destination, target)` is true, i.e. the step's teleport would save at least `CameraTurnTeleportShare` (0.5) of `TeleportSavingStuds` (20 studs), or the player is outside the zone for Rocks. This also covers the moments the teleport hint flickers off. After landing, the turn to the walk target still happens.
+

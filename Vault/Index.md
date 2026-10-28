@@ -13,7 +13,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - Images the user pastes into chat arrive as files Claude can open and copy into `Attachments/`.
 - Images live in `Attachments/`. Every image is embedded in a note that says what to take from it; open images only through those notes.
 - Keep [[To Do]] current: remove items once done and checked in code, add new ones when the user approves work. Read it when the user asks what's next. Update the [[Trello Board]] only when the user asks ([[Trello Sync On Request]]).
-- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `batch-model` (a whole set in one Blender file), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`, `new-zone`.
+- Procedures belong in skills (`.claude/skills/`), not here: `model-workflow` (start of any modelling request), `batch-model` (a whole set in one Blender file), `rock-model`, `studio-ui`, `studio-playtest`, `vfx`, `new-zone`, `studify` (builds made from Studio parts: fit, stud variants, blockouts, part recipes).
 
 ## Project
 - [[Chop a Rock]] — what the game is, repos, design source of truth
@@ -103,6 +103,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[VFX Reference Folder]] — `Workspace.VFXReference`: the user's example effects (aura, tornado, lightning, explosion); the VFX quality bar
 - [[VFX Texture Kit]] — `Downloads/VFX Assets`: 1,935 ready-made particle/flipbook/beam textures, catalogued in its `_catalog/`; the vfx skill checks it before drawing (`kit.py`)
 - [[Studio Assets Folders]] — `ReplicatedStorage.Assets` Models/VFX sorted into feature subfolders (rocks by zone); AssetRegistry looks up recursively
+- [[Animation Uploads]] — Claude makes R15 clips itself: pose data → .rbxmx → Open Cloud upload as `model/x-rbxm`; Edit preview needs unanchored limbs + `StepAnimations`; uploads can't be archived
 - [[Meshlab]] — MIT kit in `tools/meshlab` (Luau-built stud props → Lune → Blender preview); export_fbx.py → upload_model.ps1 → LoadAsset at 1 unit = 1 stud; Blender 5.2 path, absolute paths; `ForestTree` used for the intro trees
 - [[Chop Dummy]] — chop is two clips in `Assets/Animations` (WindUp loop + Strike) played by `Utils/ChopAnimation`; tag an R15 rig `ChopDummy` to loop it
 
@@ -127,7 +128,9 @@ _One note per game system as they're worked on._
 - [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert; equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
 - [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop, training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Weather]] — events on a shared :00/:30 clock for 5 min, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
-- [[Tutorial]] — 9-step first-time tutorial; `TutorialService` owns the step in PlayerData, `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks, Skip; weather ignored while it runs
+- [[Tutorial]] — 5-step first-time tutorial, no Skip (2026-10-27), then a staggered aura hint (`AuraHintService`); `TutorialService` owns the step in PlayerData and logs a 13-step onboarding funnel to 60 min played; `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks; weather ignored while it runs
+- [[Intro Cutscene]] — 17 s "The Master" intro on first load (2026-10-27, not playtested): boulder squashes your car, the Master's chop, "Go train, kid!", lands facing your stand; client-only set, `IntroController`, `IntroConfig`
+- [[Analytics]] — 2026-10-27: cash economy events on every server cash change (`AnalyticsConfig` Sources/Sinks, `Utils/Analytics`, `AdjustCash(..., flow, detail)`) and a 3-step `RobuxShop` funnel (`RobuxShopFunnelService`); onboarding funnel stays in Tutorial
 - [[Cash Packs]] — four Robux packs worth 3/12/40/150 of your zone's geode; a can't-afford buy (auras, cannons, geodes, slots, training sign) opens the Robux prompt for the covering pack directly, no popup; `CashPackConfig`, `Utils/CashPack`, `CashPackController`; stand products off sale
 - [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks via `Utils/ItemIcons` (ViewportFrame fallback) in Index, Geode Stand, Roks and Sell Shop (HatchReveal stays 3D); generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons live 2026-10-24, Champ and Kingy added 2026-10-25
 - [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)

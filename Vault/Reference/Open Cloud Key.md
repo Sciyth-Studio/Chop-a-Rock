@@ -32,3 +32,5 @@ Related: [[Asset Ownership]], [[Chop a Rock]]
 **Audio, 2026-10-20:** WAV files upload the same way with `assetType` **Audio** and file part `type=audio/wav` under group 10962733. Nine minigame sounds (0.2-6 s) all came back with ids within a few seconds and loaded in Studio through `PreloadAsync` (`IsLoaded`, correct `TimeLength`). See [[Training Minigame Board Slice]].
 
 **Item icons, 2026-10-23:** `scripts/upload_icons.py` uploads the Rok and rock card icons as `Image` assets with this key (the user chose it over a separate icons key). All 45 icons uploaded and loaded in play (2026-10-24). See [[Item Icons]].
+
+**Animations, 2026-10-27:** `assetType` **Animation** uploads work with an `.rbxmx` KeyframeSequence sent as `type=model/x-rbxm`. They can't be archived. See [[Animation Uploads]].
