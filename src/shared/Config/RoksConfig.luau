@@ -12,6 +12,8 @@ export type RoksSettings = {
 		FieldOfView: number,
 		CameraPadding: number,
 	},
+	EmptyText: string,
+	NoMatchText: string,
 }
 
 local RoksConfig: RoksSettings = {
@@ -24,6 +26,8 @@ local RoksConfig: RoksSettings = {
 		FieldOfView = 30,
 		CameraPadding = 0.85,
 	},
+	EmptyText = "No Roks yet! Crack a geode",
+	NoMatchText = "No Roks found",
 }
 
 return table.freeze(RoksConfig)

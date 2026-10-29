@@ -31,7 +31,7 @@ local IntroController = {
 	LoadProgressed = nil :: any,
 }
 
-local HIDDEN_CORE_GUIS = { Enum.CoreGuiType.Backpack, Enum.CoreGuiType.PlayerList }
+local HIDDEN_CORE_GUIS = { Enum.CoreGuiType.PlayerList }
 local HOLD_MARGIN_SECONDS = 1 / 30
 local DUST_KEY = "VFX_Rock_Dust"
 local CRASH_KEY = "VFX_GeodeFall_Impact"

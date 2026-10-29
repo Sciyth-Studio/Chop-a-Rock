@@ -1,29 +1,25 @@
 --!strict
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
-local HudConfig = require(ReplicatedStorage.Config.HudConfig)
-local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
-local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
+local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
-local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
-local PetConfig = require(ReplicatedStorage.Config.PetConfig)
-local RokModifier = require(ReplicatedStorage.RokModifier)
-local RokSize = require(ReplicatedStorage.RokSize)
+local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
 local RoksConfig = require(ReplicatedStorage.Config.RoksConfig)
-local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
+local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
+local RokStacks = require(script.Parent.Parent.RokStacks)
 local Types = require(script.Parent.Parent.Types)
 
 local Roks = {}
 
-local function find(root: Instance, name: string, className: string, recursive: boolean): any
-	local found = root:FindFirstChild(name, recursive)
+local function find(root: Instance, name: string, className: string): any
+	local found = root:FindFirstChild(name, true)
 	if found and found:IsA(className) then
 		return found
 	end
@@ -44,47 +40,27 @@ local function setText(label: TextLabel?, text: string)
 	end
 end
 
-local function paint(fill: Instance?, colors: ShopConfig.MeterColors)
-	BlockButton.Paint(fill, colors)
-end
-
-local function buildPreview(frame: ViewportFrame, modelKey: string, modifier: string?)
-	local model = AssetRegistry.get(modelKey)
-	if not model:IsA("Model") then
-		model:Destroy()
-		return
-	end
-	RokModifier.Tint(model, modifier)
-	local settings = RoksConfig.Preview
-	local camera = Instance.new("Camera")
-	camera.FieldOfView = settings.FieldOfView
-	camera.Parent = frame
-	model.Parent = frame
-	local center, size = model:GetBoundingBox()
-	local distance = size.Magnitude / 2 / math.tan(math.rad(camera.FieldOfView / 2)) * settings.CameraPadding
-	camera.CFrame = CFrame.lookAt(center.Position + settings.CameraDirection.Unit * distance, center.Position)
-	frame.CurrentCamera = camera
-end
-
 function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local dataController = context.Controllers.DataController
+	local player = Players.LocalPlayer
 	local trove = Trove.new()
 	ViewportScale.Bind(gui, trove)
-	local rowTrove = trove:Extend()
+	local cardTrove = trove:Extend()
 
-	local title: TextLabel? = find(gui, "Title", "TextLabel", true)
-	local list: GuiObject? = find(gui, "List", "GuiObject", true)
-	local template: Frame? = find(gui, "RowTemplate", "Frame", true)
-	local emptyLabel: TextLabel? = find(gui, "EmptyLabel", "TextLabel", true)
-	local slotButton: TextButton? = find(gui, "SlotButton", "TextButton", true)
-	local slotLabel: TextLabel? = if slotButton then find(slotButton, "Label", "TextLabel", true) else nil
+	local countLabel: TextLabel? = find(gui, "CountLabel", "TextLabel")
+	local search: TextBox? = find(gui, "Search", "TextBox")
+	local grid: GuiObject? = find(gui, "Grid", "GuiObject")
+	local template: Frame? = find(gui, "CardTemplate", "Frame")
+	local emptyLabel: TextLabel? = find(gui, "EmptyLabel", "TextLabel")
+	local slotButton: TextButton? = find(gui, "SlotButton", "TextButton")
+	local slotLabel: TextLabel? = if slotButton then find(slotButton, "Label", "TextLabel") else nil
 	local slotFill = if slotButton then slotButton:FindFirstChild("Fill", true) else nil
 	local slotRobuxInstance = if slotButton then slotButton:FindFirstChild("RobuxButton") else nil
 	local slotRobux: GuiButton? = if slotRobuxInstance and slotRobuxInstance:IsA("GuiButton")
 		then slotRobuxInstance
 		else nil
-	local equipBestButton: TextButton? = find(gui, "EquipBestButton", "TextButton", true)
-	local closeButton: TextButton? = find(gui, "CloseButton", "TextButton", true)
+	local equipBestButton: TextButton? = find(gui, "EquipBestButton", "TextButton")
+	local closeButton: GuiButton? = find(gui, "CloseButton", "GuiButton")
 
 	if template then
 		template.Visible = false
@@ -128,7 +104,7 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				then context.Controllers.PurchaseController:CoveringPack(shortfall)
 				else nil
 			RobuxButton.Show(slotRobux, if pack and pack.ProductId then pack.RobuxPrice else nil)
-			paint(
+			BlockButton.Paint(
 				slotFill,
 				if canAfford then RoksConfig.Palette.Affordable else RoksConfig.Palette.Unavailable
 			)
@@ -141,64 +117,67 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if type(pets) ~= "table" or type(slotCount) ~= "number" then
 			return
 		end
-		local placed = PedestalSlots.Placed(pets)
-		local unlocked = PedestalSlots.Unlocked(slotCount)
+		local stacks = RokStacks.Build(pets)
+		local total = 0
 		local placedCount = 0
-		for _, slot in unlocked do
-			if placed[slot] then
-				placedCount += 1
+		for _, stack in stacks do
+			total += #stack.PetIds
+			if stack.IsPlaced then
+				placedCount += #stack.PetIds
 			end
 		end
-		setText(title, `{placedCount}/{#unlocked} Placed`)
-
+		setText(
+			countLabel,
+			`{string.format(ToolbarConfig.CountFormat, total)}   {string.format(
+				ToolbarConfig.PlacedFormat,
+				placedCount,
+				#PedestalSlots.Unlocked(slotCount)
+			)}`
+		)
 		refreshSlotButton()
 
-		rowTrove:Clean()
-		if emptyLabel then
-			emptyLabel.Visible = placedCount == 0
-		end
-		if not list or not template then
+		cardTrove:Clean()
+		if not grid or not template then
 			return
 		end
-		for order, slot in PedestalConfig.UnlockOrder do
-			local petId = placed[slot]
-			local pet = if petId then PetConfig.Pets[pets[petId].Key] else nil
-			if not pet then
+		local filter = if search then string.lower(search.Text) else ""
+		local held = RokStacks.HeldPetId(player)
+		local shownCount = 0
+		for order, stack in stacks do
+			if filter ~= "" and not string.find(string.lower(stack.FullName), filter, 1, true) then
 				continue
 			end
-			local row = template:Clone()
-			row.Name = `Slot{slot}`
-			row.LayoutOrder = order
-			row.Visible = true
-			local record = pets[petId :: string]
-			local modifier = RokModifier.Get(record.Modifier)
-			local nameLabel: TextLabel? = find(row, "RokName", "TextLabel", true)
-			setText(
-				nameLabel,
-				`{RokSize.Name(record.Key, record.Modifier, record.Size)} (${NumberFormat.Rate(
-					RokModifier.Rate(record.Key, record.Modifier, record.Income)
-				)}/s)`
-			)
-			if nameLabel and modifier then
-				nameLabel.TextColor3 = modifier.Color
+			shownCount += 1
+			local card = template:Clone()
+			card.Name = `Card{order}`
+			card.LayoutOrder = order
+			card.Visible = true
+			RokStacks.Paint(card, stack)
+			RokStacks.PaintStroke(card, RokStacks.Contains(stack, held), stack.IsPlaced)
+			local placedBadge = card:FindFirstChild("PlacedBadge")
+			local placedLabel = card:FindFirstChild("PlacedLabel", true)
+			if placedBadge and placedBadge:IsA("GuiObject") then
+				placedBadge.Visible = stack.IsPlaced
 			end
-			local preview: ViewportFrame? = find(row, "Preview", "ViewportFrame", true)
-			if preview and preview.Parent then
-				local shown = ItemIcons.Apply(preview.Parent, "Pet", record.Key, function(viewport)
-					buildPreview(viewport, pet.ModelKey, record.Modifier)
-				end)
-				if shown and shown:IsA("ImageLabel") then
-					ItemIcons.Tint(shown, RokModifier.ImageTint(record.Modifier))
-				end
+			if placedLabel and placedLabel:IsA("TextLabel") then
+				placedLabel.Text = ToolbarConfig.PlacedText
 			end
-			local unequip: TextButton? = find(row, "UnequipButton", "TextButton", true)
-			if unequip then
-				rowTrove:Connect(unequip.Activated, function()
-					request(Packets.UnequipPet, slot)
+			local select = card:FindFirstChild("Select", true)
+			if select and select:IsA("GuiButton") then
+				cardTrove:Connect(select.Activated, function()
+					if stack.IsPlaced then
+						request(Packets.UnequipPet, stack.Slots[1])
+					else
+						RokStacks.Toggle(player, stack)
+					end
 				end)
 			end
-			row.Parent = list
-			rowTrove:Add(row)
+			card.Parent = grid
+			cardTrove:Add(card)
+		end
+		if emptyLabel then
+			emptyLabel.Visible = shownCount == 0
+			emptyLabel.Text = if total == 0 then RoksConfig.EmptyText else RoksConfig.NoMatchText
 		end
 	end
 
@@ -236,23 +215,44 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 	if closeButton then
 		trove:Connect(closeButton.Activated, function()
-			context.Close("Roks")
+			context.Close(ToolbarConfig.PanelScreen)
 		end)
 	end
 
 	local isOpen = false
+	local function refreshIfOpen()
+		if isOpen then
+			refresh()
+		end
+	end
+	if search then
+		trove:Connect(search:GetPropertyChangedSignal("Text"), refreshIfOpen)
+	end
 	trove:Add(dataController:Observe({ "Cash" }, function()
 		if isOpen then
 			refreshSlotButton()
 		end
 	end))
 	for _, path in { { "Pets" }, { "PedestalSlots" } } do
-		trove:Add(dataController:Observe(path, function()
-			if isOpen then
-				refresh()
-			end
-		end))
+		trove:Add(dataController:Observe(path, refreshIfOpen))
 	end
+
+	local characterTrove = trove:Extend()
+	local function watchCharacter(character: Model?)
+		characterTrove:Clean()
+		if not character then
+			return
+		end
+		for _, signal in { character.ChildAdded, character.ChildRemoved } do
+			characterTrove:Connect(signal, function(child: Instance)
+				if child:IsA("Tool") then
+					refreshIfOpen()
+				end
+			end)
+		end
+	end
+	trove:Connect(player.CharacterAdded, watchCharacter)
+	watchCharacter(player.Character)
 
 	return {
 		Modal = true,

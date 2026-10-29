@@ -134,6 +134,7 @@ local IntroConfig: IntroSettings = {
 		"DiamondRockPill",
 		"GeodeFallPill",
 		"TrainingHint",
+		"Toolbar",
 	},
 	LetterboxScreen = "Letterbox",
 	BoulderRockKey = "Second",

@@ -1,7 +1,7 @@
 ---
 description: Running task list for Chop a Rock — what's next, what's waiting on the user, what's deferred. Claude keeps it current.
 type: project
-updated: 2026-10-28
+updated: 2026-10-29
 ---
 # To Do
 
@@ -10,11 +10,10 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 ## Next
 - [ ] Tutorial + hints (2026-10-27, in playtest by the user): 5-step tutorial, aura, Boulder and rebirth hints, 4-word text, one line on screen, head start, idle highlight, completion banner, camera turns to walk targets, Starter Offer after the Boulder hint. See [[Tutorial]]
 - [ ] Finish world 1: 5 more zones + a final Golem boss (added 2026-10-28, not started; replaces the base floors and post-Snow training stands items). Zone themes, the boss fight and the reward aren't decided yet. See the `new-zone` skill, [[Rebirth Gated By Strength]], [[Bases]]
-- [ ] Finish the toolbar (added 2026-10-24, user asked to finish it 2026-10-28): what to change isn't decided yet
 - [ ] Make the game 6-year-old friendly (added 2026-10-28, proposed, not approved): the user found kindergarteners need it (they play steal-an-egg games). 1) Easier chop timing: at low strength the Perfect window is ~70 ms and Bad pays 0.15x. Proposed `ZoneWidthMultiplier` 1.5 → 2.5, `CycleSeconds` 1.5 → 2.0, Bad payout 0.15 → 0.4, Mid 0.5 → 0.7 (`ChopConfig.luau`). 2) Shorter notifications: at most ~4 words, with an icon and a number in place of sentences (e.g. "Backpack full! Sell some Roks or you won't get this one", "Falling Geodes in the %s %d/%d left %d:%02d"). 3) Ground arrow or beam to each tutorial target; check what the tutorial's camera turn already covers first ([[Tutorial]]). Big money numbers stay ([[Big Numbers Over Small Ones]]). Still need what the kids actually struggled with, and which changes the user approves
 
 ## Waiting on the user
-- [ ] Save the place in Studio (2026-10-27): Rok icon swap, collect pad restyle, shop rail, VIP base, Champ and Kingy models, Kingy's aura template, `StarterGui.TutorialComplete` banner, `StarterGui.FreeGift` and `Workspace.FreeGift`, the Rok size labels (`HatchReveal` and `SellShop` `SizeLabel`) (2026-10-28)
+- [ ] Save the place in Studio (2026-10-27): Rok icon swap, collect pad restyle, shop rail, VIP base, Champ and Kingy models, Kingy's aura template, `StarterGui.TutorialComplete` banner, `StarterGui.FreeGift` and `Workspace.FreeGift`, the Rok size labels (`HatchReveal` and `SellShop` `SizeLabel`) (2026-10-28), `StarterGui.Toolbar`, the rebuilt `StarterGui.Roks` panel and the removed `MenuButtons` `RoksButton` (2026-10-29)
 
 ## Deferred until the user raises it
 - Ascended Chop (1 in 1,000)
