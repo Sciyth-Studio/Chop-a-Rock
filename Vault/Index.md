@@ -123,7 +123,7 @@ _One note per game system as they're worked on._
 - [[Auto Open]] — 2026-10-28 game pass: third pit prompt (R) starts hands-off cracking of owned geodes, rolled quality through `Cracking.Finish` (pity unchanged), stop pill, stops on range/out of geodes/bag full; `GeodeService/AutoOpen`, `AutoOpenConfig`, `Screens/AutoOpenButton`
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
 - [[Toolbar]] — 2026-10-29 custom hotbar (Roblox Backpack CoreGui off) of Rok stacks with keys 1-7, `RoksToggle` opening the Roks inventory panel (stacked cards, search, Placed badge, Equip Best, +1 Slot); `Screens/Toolbar`, `Screens/Roks`, `UIController/RokStacks`, `ToolbarConfig`
-- [[Rok Sizes]] — 2026-10-28: Normal/Large/Huge/Giant/Enormous (70/20/7/2.5/0.5%, x1-x2 scale) rolled on every grant, luck pushes big sizes, looks only; `RokSizeConfig`, `RokSize`, `Pet.Size`
+- [[Rok Sizes]] — 2026-10-28: Normal/L/XL/XXL/XXXL (keys Large/Huge/Giant/Enormous) (70/20/7/2.5/0.5%, x1-x2 scale) rolled on every grant, luck pushes big sizes, looks only; `RokSizeConfig`, `RokSize`, `Pet.Size`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
 - [[Shop Pads]] — neon floor rectangles open the Geode, Sell and Aura shops on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha

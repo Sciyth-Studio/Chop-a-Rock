@@ -1,5 +1,5 @@
 ---
-description: Rok size tiers (built 2026-10-28) - Normal, Large, Huge, Giant, Enormous rolled on every grant, luck pushes the big sizes, looks only (no $/s), scaled models, size labels.
+description: Rok size tiers (built 2026-10-28) - Normal, L, XL, XXL, XXXL (keys Large, Huge, Giant, Enormous) rolled on every grant, luck pushes the big sizes, looks only (no $/s), scaled models, size labels.
 type: system
 ---
 # Rok sizes
@@ -24,3 +24,5 @@ Related: [[Pedestals]], [[Weather]], [[Geode Shop]], [[Sell Shop]]
 
 ## Tested 2026-10-28
 Play with the worktree scripts pushed into Studio: `Chances` at luck 1 gave exactly 70/20/7/2.5/0.5 and 100k rolls matched; luck 2 gives Normal 40%, luck 4 and up hits the 75% cap (Normal 25%). Admin Grant Random Rok + Set Size Enormous + Equip Best: the pedestal `PlacedRok` scaled 4.00 (2 x 2), title "Enormous Bloky", seen on screen. The HatchReveal screen module drawn with a Giant Zappy Nesty showed "Giant" in orange under the preview (seen). Not checked: a real geode crack end to end (a `GeodeHatched` fired from the Studio server context didn't open the reveal), the held tool and grip, the Sell Shop card label, the info billboard lift after it dropped from 6 to 4.5 studs per scale.
+
+**Display names L / XL / XXL / XXXL (user, 2026-10-29):** the user found the words too hard for young players. Only the `DisplayName` changed: Normal, L, XL, XXL, XXXL. The keys (`Large`, `Huge`, `Giant`, `Enormous`) stay as they are in config, save data and admin commands, so no data migration is needed. Prefixed names read "XXXL Bloky".
