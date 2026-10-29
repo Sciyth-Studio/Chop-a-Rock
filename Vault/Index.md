@@ -113,7 +113,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 
 ## Systems
 _One note per game system as they're worked on._
-- [[Bases]] — 6 plots cloned onto `BaseSpot` plates in a U around the centre shops; claim on join, per-base `BaseSpawn`, owner-only training stand; plots leaked on leave until 2026-10-28 (`PlayerRemoving` sees Parent nil → `DataSessions:BeginRelease`)
+- [[Bases]] — 6 plots cloned onto `BaseSpot` plates in a U around the centre shops; claim on join, per-base `BaseSpawn`, owner-only training stand; owner signpost (headshot + username) by the entrance; plots leaked on leave until 2026-10-28 (`PlayerRemoving` sees Parent nil → `DataSessions:BeginRelease`)
 - [[Rock Spawning]] — per-player rocks rise in `RockSpawnArea` boxes; server keeps data, client draws rocks and effects; forest floor is rotated and sits on the Baseplate
 - [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands, Reset Player Data (name + press twice), testing-speed commands, Ctrl+Shift+Space command bar, data snapshots; add a command = config entry + `AdminService/Commands` handler
 - [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
