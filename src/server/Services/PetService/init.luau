@@ -183,6 +183,16 @@ local function add(player: Player, petKey: string, modifier: string?, luck: numb
 	}
 end
 
+local function removePets(replica: any, pets: { [string]: any }, ids: { [string]: boolean })
+	local kept = {}
+	for id, pet in pets do
+		if not ids[id] then
+			kept[id] = pet
+		end
+	end
+	replica:Set({ "Pets" }, kept)
+end
+
 local function updateIncome(player: Player)
 	local data = services.DataService:GetData(player)
 	if not data then
@@ -339,21 +349,21 @@ function PetService.RemoveUnplaced(_self: any, player: Player): number
 	if not data or not replica then
 		return 0
 	end
-	local ids: { string } = {}
+	local ids: { [string]: boolean } = {}
+	local count = 0
 	for id, pet in data.Pets do
 		if pet.Slot == nil then
-			table.insert(ids, id)
+			ids[id] = true
+			count += 1
 		end
 	end
-	for _, id in ids do
-		replica:Set({ "Pets", id }, nil)
-	end
-	if #ids > 0 then
+	if count > 0 then
+		removePets(replica, data.Pets, ids)
 		services.DataService:RequestSave(player)
 		updateIncome(player)
 		PetService:SyncTools(player)
 	end
-	return #ids
+	return count
 end
 
 function PetService.CanTakeModifier(_self: any, petKey: string): boolean
@@ -424,9 +434,7 @@ function PetService.Sell(_self: any, player: Player, petIds: { string }): number
 	if count == 0 then
 		return 0
 	end
-	for petId in sold do
-		replica:Set({ "Pets", petId }, nil)
-	end
+	removePets(replica, data.Pets, sold)
 	services.DataService:AdjustCash(player, total, AnalyticsConfig.Sources.SellRoks)
 	services.DataService:RequestSave(player)
 	updateIncome(player)
