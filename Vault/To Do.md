@@ -9,7 +9,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 
 ## Next
 - [ ] Tutorial + hints (2026-10-27, in playtest by the user): 5-step tutorial, aura, Boulder and rebirth hints, 4-word text, one line on screen, head start, idle highlight, completion banner, camera turns to walk targets, Starter Offer after the Boulder hint. See [[Tutorial]]
-- [ ] Finish world 1: Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins + the Golem boss (added 2026-10-28, planned and approved 2026-10-29 in `World1Plan.md`, see [[World 1 Plan]]). Floor, terrace, entrance sign and spawn area blockouts for all five done 2026-10-29 ([[Zone Line]]); no rocks, Roks, geodes, decor or config yet. Decor models for zones 6-10 built and loaded as templates 2026-10-29 ([[Decor Lineups]], [[Meshlab]]), not placed in the zones yet. Next: reference sheets and models, Swamp first
+- [ ] Finish world 1: Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins + the Golem boss (added 2026-10-28, planned and approved 2026-10-29 in `World1Plan.md`, see [[World 1 Plan]]). Floor, terrace, entrance sign and spawn area blockouts for all five done 2026-10-29 ([[Zone Line]]); no rocks, Roks, geodes, decor or config yet. Decor for zones 6-10 built, recoloured against the floors and scattered on terraces and floors 2026-10-29 ([[Decor Lineups]], [[Meshlab]], [[Zone Line]]); the boss arena has none. Next: reference sheets and models, Swamp first
 - [ ] Toolbar follow-up (merged 2026-10-29): check the hotbar hides during geode cracks and the intro
 
 ## Waiting on the user

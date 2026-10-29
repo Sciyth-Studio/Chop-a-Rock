@@ -34,6 +34,17 @@ Jungle, ocean and snow (2026-10-10) now each have: the floor and terrace walls, 
 
 **Decor (2026-10-28):** each zone has a `Decor` model, `Workspace.Zones.<Zone>.Decor`, holding 40 props cloned from `ReplicatedStorage.Assets.Models.Decor` ([[Meshlab]]). They sit 20 per terrace on the terrace tops (y 36; left x -158 to -68, right x 152 to 242), because the spawn area covers the whole floor. They're scattered with a fixed seed, crowded towards the edge you see from the floor, kept inside the terrace and zone, and at 0.85-1.2 scale with random yaw. Mixes: forest Pine/Bush/Stump/Mushroom, desert Cactus/PricklyPear, jungle Palm/LeafPlant/Bush/Mushroom, ocean Kelp/Coral/Starfish, snow SnowPine/SnowPile. Trees and cacti collide; the small props don't. All props are CanTouch/CanQuery off. Not looked at from the floor yet.
 
+**Decor for zones 6-10 (2026-10-29):** same rules as the first five, scattered by one seeded script (seeds 6-10). Each zone has `Decor` (40 props, 20 per terrace) and `FloorDecor` (8-9 props). Props whose rotated box poked past a terrace, floor or zone edge were nudged back (24 of them).
+
+Terrace mixes:
+- Swamp: DeadTree, Cattails, SwampBush, LilyPads, Stump, Mushroom.
+- Savanna: Acacia, GrassTuft, TermiteMound.
+- Bamboo: Bamboo, BambooShoot, MossyStone.
+- Volcano: CharredTree, AshPile, 4 smoking Vents per terrace.
+- Ruins: Pillar, RuneStone, StatueHead.
+
+On the terraces only the tall props collide: DeadTree, Acacia, TermiteMound, Bamboo, CharredTree, and all three Ruins props. Tall floor props (DeadTree, Acacia, Bamboo, CharredTree, Pillar) sit only in a 14-stud band along the side walls. The floor mixes reuse each zone's terrace props. The boss arena has no props (user). Not looked at from the floor yet.
+
 **Floor decor (2026-10-28):** each zone also has a sparse `FloorDecor` model with 8-10 props on the playing floor (y 1). They're at least 22 studs apart, 18+ studs from every `TeleportPoints`/`AdminWarps` marker, and 10+ from the zone ends. Tall trees (Pine, JungleTree, SnowPine) sit only in a band along the side walls. They are **CanCollide + CanQuery on on purpose**: `RockService/SpawnPoints` raycasts and box-checks with `RespectCanCollide`, so collidable decor keeps rock spots and their chop stand spots clear automatically. Spots are sampled at server start, so moving floor decor needs a server restart. Mixes: forest Bush/Stump/Mushroom/Pine, desert PricklyPear/Cactus, jungle LeafPlant/JungleBush/Mushroom/JungleTree, ocean Starfish/Coral/Kelp, snow SnowPile/SnowPine. The terraces use the same jungle swap: JungleTree replaced the Palm (no zone is a beach), and Bush became JungleBush.
 
 Related: [[Rock Spawning]], [[Forest Zone Entrance]]
