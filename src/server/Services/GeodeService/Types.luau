@@ -19,6 +19,7 @@ export type Session = {
 	StrengthRatio: number,
 	Center: number,
 	StartTime: number,
+	IsAuto: boolean,
 }
 
 return {}

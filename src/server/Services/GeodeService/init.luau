@@ -3,11 +3,16 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local AutoOpenConfig = require(ReplicatedStorage.Config.AutoOpenConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
+local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local Packets = require(ReplicatedStorage.Packets)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local AutoOpen = require(script.AutoOpen)
 local Cracking = require(script.Cracking)
 local Effects = require(script.Effects)
 local Purchasing = require(script.Purchasing)
@@ -25,6 +30,8 @@ local random = Random.new()
 local sessions: { [Player]: Types.Session } = {}
 local pitPrompts: { [Attachment]: ProximityPrompt } = {}
 local pickPrompts: { [Attachment]: ProximityPrompt } = {}
+local autoPrompts: { [Attachment]: ProximityPrompt } = {}
+local autoCounts: { [Player]: number } = {}
 local pits: { [Attachment]: Types.Pit } = {}
 local lockedUntil: { [Player]: number } = {}
 local luckyZones: { [Player]: string } = {}
@@ -63,6 +70,35 @@ local function endSession(player: Player)
 	Effects.Hide(session.Model, 0)
 end
 
+local function stopAuto(player: Player, message: string?)
+	if not autoCounts[player] then
+		return
+	end
+	autoCounts[player] = nil
+	player:SetAttribute(AutoOpenConfig.RunningAttribute, nil)
+	player:SetAttribute(AutoOpenConfig.CountAttribute, nil)
+	local session = sessions[player]
+	if session and session.IsAuto then
+		endSession(player)
+	end
+	if message then
+		local kind = if message == AutoOpenConfig.DoneText or message == AutoOpenConfig.StoppedText
+			then "Info"
+			else "Error"
+		context.Services.NotificationService:Notify(player, kind, message)
+	end
+end
+
+local function autoPromptText(player: Player): string
+	if context.Services.PassService:Owns(player, AutoOpenConfig.PassKey) then
+		return AutoOpenConfig.PromptText
+	end
+	local pass = context.Services.PassService:GetPass(AutoOpenConfig.PassKey)
+	return if pass
+		then string.format(AutoOpenConfig.PromptPriceFormat, MonetizationConfig.RobuxGlyph, pass.RobuxPrice)
+		else AutoOpenConfig.PromptText
+end
+
 local function refreshPit(player: Player)
 	local spot = context.Services.BaseService:GetCrackSpot(player)
 	local prompt = if spot then pitPrompts[spot] else nil
@@ -76,7 +112,7 @@ local function refreshPit(player: Player)
 	if geode and spot and not sessions[player] then
 		ensurePit(spot, geode.ModelKey)
 	end
-	local isIdle = sessions[player] == nil and not isLocked(player)
+	local isIdle = sessions[player] == nil and not isLocked(player) and not autoCounts[player]
 	prompt.ObjectText = if geode then geode.DisplayName else ""
 	prompt.ActionText = `Crack ({count} left)`
 	prompt:SetAttribute("OwnerUserId", player.UserId)
@@ -86,11 +122,118 @@ local function refreshPit(player: Player)
 		pickPrompt:SetAttribute("OwnerUserId", player.UserId)
 		pickPrompt:SetAttribute("Active", Purchasing.OwnedKinds(data) > 1 and isIdle)
 	end
+	local autoPrompt = if spot then autoPrompts[spot] else nil
+	if autoPrompt then
+		local ownsPass = context.Services.PassService:Owns(player, AutoOpenConfig.PassKey)
+		autoPrompt.ActionText = autoPromptText(player)
+		autoPrompt.HoldDuration = if ownsPass then ChopConfig.PromptHoldSeconds else 0
+		autoPrompt:SetAttribute("OwnerUserId", player.UserId)
+		autoPrompt:SetAttribute(
+			"Active",
+			count > 0 and isIdle and not Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
+		)
+	end
+end
+
+local releaseLock: (Player, number) -> ()
+
+local function autoCrack(player: Player)
+	if not autoCounts[player] or sessions[player] then
+		return
+	end
+	local spot = context.Services.BaseService:GetCrackSpot(player)
+	if not spot then
+		stopAuto(player, AutoOpenConfig.StoppedText)
+		return
+	end
+	local geodeKey, stopMessage = AutoOpen.Next(context, player, spot)
+	local geode = if geodeKey then GeodeConfig.Geodes[geodeKey] else nil
+	local pit = if geode then ensurePit(spot, geode.ModelKey) else nil
+	local session = if geodeKey and pit
+		then Cracking.Begin(context, player, geodeKey, spot, pit, random, true)
+		else nil
+	if not session then
+		stopAuto(player, stopMessage or AutoOpenConfig.StoppedText)
+		refreshPit(player)
+		return
+	end
+	sessions[player] = session
+	setCracking(player, true)
+	refreshPit(player)
+	task.delay(AutoOpenConfig.StartDelaySeconds, function()
+		if sessions[player] ~= session then
+			return
+		end
+		sessions[player] = nil
+		local data = context.Services.DataService:GetData(player)
+		local before = if data then data.Geodes[session.GeodeKey] or 0 else 0
+		local lockSeconds = Cracking.Finish(context, player, session, random, AutoOpen.RollQuality(random))
+		local after = if data then data.Geodes[session.GeodeKey] or 0 else 0
+		local count = autoCounts[player]
+		if count and after < before then
+			autoCounts[player] = count + 1
+			player:SetAttribute(AutoOpenConfig.CountAttribute, count + 1)
+		end
+		releaseLock(player, lockSeconds)
+	end)
+end
+
+releaseLock = function(player: Player, lockSeconds: number)
+	lockedUntil[player] = os.clock() + lockSeconds
+	refreshPit(player)
+	task.delay(lockSeconds, function()
+		if player.Parent then
+			if not sessions[player] then
+				setCracking(player, false)
+			end
+			refreshPit(player)
+			autoCrack(player)
+		end
+	end)
+end
+
+local function onAutoTriggered(spot: Attachment, player: Player)
+	local services = context.Services
+	if
+		autoCounts[player]
+		or sessions[player]
+		or isLocked(player)
+		or services.RockService:HasSession(player)
+	then
+		return
+	end
+	local data = services.DataService:GetData(player)
+	if not data or services.BaseService:GetCrackSpot(player) ~= spot then
+		return
+	end
+	if not AutoOpen.IsAllowed(context, player, data) then
+		return
+	end
+	autoCounts[player] = 0
+	player:SetAttribute(AutoOpenConfig.RunningAttribute, true)
+	player:SetAttribute(AutoOpenConfig.CountAttribute, 0)
+	refreshPit(player)
+	autoCrack(player)
+end
+
+local function checkAutoRange()
+	for player in autoCounts do
+		local spot = context.Services.BaseService:GetCrackSpot(player)
+		if not spot or not AutoOpen.InRange(player, spot) then
+			stopAuto(player, AutoOpenConfig.StoppedText)
+			refreshPit(player)
+		end
+	end
 end
 
 local function onPitTriggered(spot: Attachment, player: Player)
 	local services = context.Services
-	if sessions[player] or isLocked(player) or services.RockService:HasSession(player) then
+	if
+		sessions[player]
+		or isLocked(player)
+		or autoCounts[player]
+		or services.RockService:HasSession(player)
+	then
 		return
 	end
 	local data = services.DataService:GetData(player)
@@ -103,7 +246,7 @@ local function onPitTriggered(spot: Attachment, player: Player)
 	if not geodeKey or not pit then
 		return
 	end
-	local session = Cracking.Begin(context, player, geodeKey, spot, pit, random)
+	local session = Cracking.Begin(context, player, geodeKey, spot, pit, random, false)
 	if session then
 		sessions[player] = session
 		setCracking(player, true)
@@ -150,6 +293,28 @@ local function setupPit(plot: Model)
 	CollectionService:AddTag(pickPrompt, GeodeConfig.PickPromptTag)
 	pickPrompt.Parent = pickSpot
 	pickPrompts[spot] = pickPrompt
+	local autoSpot = Instance.new("Attachment")
+	autoSpot.Name = "GeodeAutoSpot"
+	autoSpot.CFrame = spot.CFrame + AutoOpenConfig.PromptOffset
+	autoSpot.Parent = spot.Parent
+	trove:Add(autoSpot)
+	local autoPrompt = Instance.new("ProximityPrompt")
+	autoPrompt.Name = AutoOpenConfig.PromptName
+	autoPrompt.ActionText = AutoOpenConfig.PromptText
+	autoPrompt.KeyboardKeyCode = AutoOpenConfig.PromptKey
+	autoPrompt.GamepadKeyCode = AutoOpenConfig.PromptGamepadKey
+	autoPrompt.HoldDuration = 0
+	autoPrompt.Style = Enum.ProximityPromptStyle.Custom
+	autoPrompt.MaxActivationDistance = GeodeConfig.PitPromptRangeStuds
+	autoPrompt.RequiresLineOfSight = false
+	autoPrompt:SetAttribute("Active", false)
+	CollectionService:AddTag(autoPrompt, OWNED_PROMPT_TAG)
+	CollectionService:AddTag(autoPrompt, AutoOpenConfig.PromptTag)
+	autoPrompt.Parent = autoSpot
+	autoPrompts[spot] = autoPrompt
+	trove:Add(autoPrompt.Triggered:Connect(function(player: Player)
+		onAutoTriggered(spot, player)
+	end))
 end
 
 local function clearPit(plot: Model)
@@ -163,6 +328,11 @@ local function clearPit(plot: Model)
 	if pickPrompt then
 		pickPrompt:SetAttribute("OwnerUserId", nil)
 		pickPrompt:SetAttribute("Active", false)
+	end
+	local autoPrompt = if spot and spot:IsA("Attachment") then autoPrompts[spot] else nil
+	if autoPrompt then
+		autoPrompt:SetAttribute("OwnerUserId", nil)
+		autoPrompt:SetAttribute("Active", false)
 	end
 end
 
@@ -196,6 +366,10 @@ function GeodeService.GrantLucky(_self: any, player: Player, amount: number): st
 end
 
 function GeodeService.EndSession(_self: any, player: Player)
+	if autoCounts[player] then
+		stopAuto(player, AutoOpenConfig.StoppedText)
+		refreshPit(player)
+	end
 	if sessions[player] then
 		endSession(player)
 		refreshPit(player)
@@ -221,6 +395,7 @@ function GeodeService.Start(_self: any)
 		refreshPit(player)
 	end))
 	trove:Add(services.BaseService.PlotReleased:Connect(function(player: Player, plot: Model)
+		stopAuto(player, nil)
 		endSession(player)
 		clearPit(plot)
 	end))
@@ -244,21 +419,26 @@ function GeodeService.Start(_self: any)
 	end
 	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(function(player: Player, claimed: number)
 		local session = sessions[player]
-		if not session or not Cracking.IsReady(session) then
+		if not session or session.IsAuto or not Cracking.IsReady(session) then
 			return
 		end
 		sessions[player] = nil
-		local lockSeconds = Cracking.Release(context, player, session, random, claimed)
-		lockedUntil[player] = os.clock() + lockSeconds
+		releaseLock(player, Cracking.Release(context, player, session, random, claimed))
+	end))
+	trove:Add(Packets.StopAutoOpen.OnServerEvent:Connect(function(player: Player)
+		stopAuto(player, nil)
 		refreshPit(player)
-		task.delay(lockSeconds, function()
-			if player.Parent then
-				if not sessions[player] then
-					setCracking(player, false)
-				end
-				refreshPit(player)
-			end
-		end)
+	end))
+	trove:Add(services.PassService.PassChanged:Connect(function(player: Player)
+		refreshPit(player)
+	end))
+	local rangeElapsed = 0
+	trove:Add(RunService.Heartbeat:Connect(function(dt: number)
+		rangeElapsed += dt
+		if rangeElapsed >= AutoOpenConfig.RangeCheckSeconds then
+			rangeElapsed = 0
+			checkAutoRange()
+		end
 	end))
 	trove:Add(Packets.SetLuckyGeodeZone.OnServerEvent:Connect(function(player: Player, baseKey: string)
 		local geode = if type(baseKey) == "string" then GeodeConfig.Geodes[baseKey] else nil
@@ -278,12 +458,14 @@ function GeodeService.Start(_self: any)
 		refreshPit(player)
 	end))
 	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(function(player: Player)
-		if sessions[player] then
+		local session = sessions[player]
+		if session and not session.IsAuto then
 			endSession(player)
 			refreshPit(player)
 		end
 	end))
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
+		autoCounts[player] = nil
 		endSession(player)
 		lockedUntil[player] = nil
 		luckyZones[player] = nil
@@ -303,6 +485,8 @@ function GeodeService.Destroy(_self: any)
 	trove:Clean()
 	table.clear(pitPrompts)
 	table.clear(pickPrompts)
+	table.clear(autoPrompts)
+	table.clear(autoCounts)
 end
 
 return GeodeService

@@ -1,6 +1,6 @@
 # Auto-open geodes gamepass: plan
 
-Status: **approved 2026-10-24, not built.** The user decided every row of section 1 the same day. The first answer, "runs anywhere", was replaced: auto-open is a hands-off mode at your own crack pit. Every number marked *draft* goes in config and is checked in a playtest. Studio UI (the prompt, the stop button) is built with the `studio-ui` skill and shown to the user before it's final.
+Status: **approved 2026-10-24, built and playtested 2026-10-28** (vault note `Auto Open`; the "too weak" stop was dropped with the geode strength gate, and the prompt key is R because F went to Choose Geode). The user decided every row of section 1 the same day. The first answer, "runs anywhere", was replaced: auto-open is a hands-off mode at your own crack pit. Every number marked *draft* goes in config and is checked in a playtest. Studio UI (the prompt, the stop button) is built with the `studio-ui` skill and shown to the user before it's final.
 
 ## 1. Decisions
 

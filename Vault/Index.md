@@ -120,6 +120,7 @@ _One note per game system as they're worked on._
 - [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your Best Strength reaches; buying gated on Best Strength (kept through rebirth), cracking ungated (2026-10-28); new zone = config only (no stand); pity bars (Legendary + Secret guarantees per geode, built 2026-10-22); pit "Choose Geode" picker saves which geode cracks next (2026-10-28)
+- [[Auto Open]] — 2026-10-28 game pass: third pit prompt (R) starts hands-off cracking of owned geodes, rolled quality through `Cracking.Finish` (pity unchanged), stop pill, stops on range/out of geodes/bag full; `GeodeService/AutoOpen`, `AutoOpenConfig`, `Screens/AutoOpenButton`
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
@@ -160,7 +161,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Leaderboards Approved]] — 2026-10-21: Strength, Money/s, Perfect Chops, Playtime; global, 60 s; weekly tab, #1 crown, pass toast liked but not built
 - [[Rarity Ribbon And Modifier Tags]] — 2026-10-23: sell cards show rarity as a gradient ribbon (`Utils/RarityRibbon`) and the modifier as its name in its weather colours (`RokModifier.PaintLabel`)
 - [[Robux Shop Plan Approved]] — 2026-10-24: user accepted R1-R13 of `RobuxShopPlan.md`: paid Lucky Geodes, gifting, server boosts incl. Server 2x Luck, 24 h starter offer, VIP, exclusive Rok stand; not built
-- [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, not built
+- [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, built 2026-10-28 (see [[Auto Open]])
 
 ## Inbox
 _Unsorted learnings for the user to review._
