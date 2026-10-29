@@ -41,6 +41,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.RockHintService),
 	require(script.Parent.Services.RebirthHintService),
 	require(script.Parent.Services.LeaderboardService),
+	require(script.Parent.Services.PlayerListService),
 	require(script.Parent.Services.AdminService),
 	require(script.Parent.Services.SettingsService),
 }
