@@ -14,7 +14,7 @@ return function(em, lib, Shapes)
 	Shapes.beginBake({ cell = 2.0 })
 	local S = Shapes.new(em, lib)
 
-	local stone, stoneDark = C3.fromRGB(215, 208, 190), C3.fromRGB(190, 182, 165)
+	local stone, stoneDark = C3.fromRGB(222, 192, 132), C3.fromRGB(196, 166, 110)
 	local vine, leaf = C3.fromRGB(55, 135, 45), C3.fromRGB(75, 165, 55)
 	local function cross(cf, w, h, col)
 		S:bevelBox(cf, V3.new(w, h, w * 0.75), col, 0)

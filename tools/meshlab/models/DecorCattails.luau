@@ -15,7 +15,7 @@ return function(em, lib, Shapes)
 	Shapes.beginBake({ cell = 2.0 })
 	local S = Shapes.new(em, lib)
 
-	local reed, reedDark = C3.fromRGB(78, 120, 52), C3.fromRGB(62, 100, 44)
+	local reed, reedDark = C3.fromRGB(64, 98, 46), C3.fromRGB(54, 84, 40)
 	local head, headDark = C3.fromRGB(125, 72, 32), C3.fromRGB(105, 58, 26)
 	local function cross(cf, w, h, col)
 		S:bevelBox(cf, V3.new(w, h, w * 0.75), col, 0)

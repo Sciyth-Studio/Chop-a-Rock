@@ -12,7 +12,7 @@ return function(em, lib, Shapes)
 	Shapes.beginBake({ cell = 2.0 })
 	local S = Shapes.new(em, lib)
 
-	local rock, rockDark = C3.fromRGB(58, 52, 50), C3.fromRGB(40, 36, 35)
+	local rock, rockDark = C3.fromRGB(90, 85, 82), C3.fromRGB(72, 68, 66)
 	local lava, lavaHot = C3.fromRGB(255, 110, 20), C3.fromRGB(255, 190, 50)
 	local function cross(cf, w, h, col)
 		S:bevelBox(cf, V3.new(w, h, w * 0.78), col, 0)

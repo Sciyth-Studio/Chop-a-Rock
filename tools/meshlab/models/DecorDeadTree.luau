@@ -16,8 +16,8 @@ return function(em, lib, Shapes, _, opts)
 	Shapes.beginBake({ cell = 2.0 })
 	local S = Shapes.new(em, lib)
 
-	local bark = charred and C3.fromRGB(52, 46, 44) or C3.fromRGB(125, 72, 34)
-	local barkDark = charred and C3.fromRGB(36, 32, 31) or C3.fromRGB(102, 58, 26)
+	local bark = charred and C3.fromRGB(80, 74, 72) or C3.fromRGB(100, 74, 50)
+	local barkDark = charred and C3.fromRGB(62, 58, 56) or C3.fromRGB(82, 60, 40)
 	local function block(cf, size, col)
 		S:bevelBox(cf, size, col, 0)
 	end

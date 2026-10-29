@@ -13,7 +13,7 @@ return function(em, lib, Shapes)
 	Shapes.beginBake({ cell = 2.0 })
 	local S = Shapes.new(em, lib)
 
-	local pad, padDark = C3.fromRGB(80, 135, 50), C3.fromRGB(64, 112, 42)
+	local pad, padDark = C3.fromRGB(64, 98, 46), C3.fromRGB(54, 84, 40)
 	local petal, petalDark, middle = C3.fromRGB(255, 125, 190), C3.fromRGB(240, 95, 170), C3.fromRGB(255, 215, 40)
 
 	-- One course of a notched pad in its own frame: the crossed shape with a slot along +Z.

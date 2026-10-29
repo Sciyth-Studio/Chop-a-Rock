@@ -13,7 +13,7 @@ return function(em, lib, Shapes)
 	Shapes.beginBake({ cell = 2.0 })
 	local S = Shapes.new(em, lib)
 
-	local stone, stoneDark, carve = C3.fromRGB(212, 205, 188), C3.fromRGB(186, 178, 160), C3.fromRGB(140, 134, 120)
+	local stone, stoneDark, carve = C3.fromRGB(222, 192, 132), C3.fromRGB(196, 166, 110), C3.fromRGB(140, 112, 70)
 	local moss, mossDark = C3.fromRGB(110, 175, 55), C3.fromRGB(90, 150, 45)
 
 	local hw, hh, hd = 3.4, 4.6, 3.0

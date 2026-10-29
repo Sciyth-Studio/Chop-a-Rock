@@ -15,7 +15,7 @@ return function(em, lib, Shapes)
 	local S = Shapes.new(em, lib)
 
 	local bark, barkDark = C3.fromRGB(125, 75, 38), C3.fromRGB(102, 60, 30)
-	local leaf, leafDark = C3.fromRGB(82, 158, 42), C3.fromRGB(66, 136, 36)
+	local leaf, leafDark = C3.fromRGB(72, 102, 40), C3.fromRGB(60, 88, 34)
 	local function block(cf, size, col)
 		S:bevelBox(cf, size, col, 0)
 	end

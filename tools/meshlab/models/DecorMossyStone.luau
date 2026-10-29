@@ -15,7 +15,7 @@ return function(em, lib, Shapes)
 	local S = Shapes.new(em, lib)
 
 	local stone, stoneDark = C3.fromRGB(150, 150, 150), C3.fromRGB(125, 125, 125)
-	local moss, mossDark = C3.fromRGB(130, 185, 70), C3.fromRGB(108, 160, 58)
+	local moss, mossDark = C3.fromRGB(126, 162, 80), C3.fromRGB(106, 140, 66)
 	local function cross(cf, w, h, col)
 		S:bevelBox(cf, V3.new(w, h, w * 0.7), col, 0)
 		S:bevelBox(cf, V3.new(w * 0.8, h + 0.02, w * 0.85), col, 0)

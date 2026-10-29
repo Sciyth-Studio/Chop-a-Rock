@@ -14,9 +14,9 @@ return function(em, lib, Shapes, _, opts)
 	local S = Shapes.new(em, lib)
 
 	local ash = opts and opts.ash
-	local snow = ash and C3.fromRGB(150, 150, 150) or C3.fromRGB(250, 252, 255)
-	local snowDark = ash and C3.fromRGB(125, 125, 125) or C3.fromRGB(228, 240, 255)
-	local ice = ash and C3.fromRGB(75, 72, 70) or C3.fromRGB(150, 205, 255)
+	local snow = ash and C3.fromRGB(100, 96, 94) or C3.fromRGB(250, 252, 255)
+	local snowDark = ash and C3.fromRGB(84, 80, 78) or C3.fromRGB(228, 240, 255)
+	local ice = ash and C3.fromRGB(66, 62, 60) or C3.fromRGB(150, 205, 255)
 	local function cross(cf, w, h, col)
 		S:bevelBox(cf, V3.new(w, h, w * 0.75), col, 0)
 		S:bevelBox(cf, V3.new(w * 0.75, h + 0.02, w), col, 0)
