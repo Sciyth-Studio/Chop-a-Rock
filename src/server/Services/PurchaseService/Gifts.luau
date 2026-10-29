@@ -104,7 +104,7 @@ function Gifts.Apply(services: { [string]: any }, recipient: Player, gift: Monet
 		return product ~= nil and services.GeodeService:GrantLucky(recipient, product.Count) ~= nil
 	elseif gift.Kind == "CashPack" then
 		local pack = packOf(gift)
-		local amount = if pack then CashPack.Value(pack, data.Strength) else 0
+		local amount = if pack then CashPack.Value(pack, data.PeakStrength) else 0
 		return amount > 0
 			and services.DataService:AdjustCash(
 				recipient,

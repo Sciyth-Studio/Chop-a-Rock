@@ -11,6 +11,7 @@ local Types = require(script.Parent.Types)
 local fields = {
 	"Cash",
 	"Strength",
+	"PeakStrength",
 	"AuraTier",
 	"Cannons",
 	"EquippedCannon",
@@ -114,6 +115,9 @@ function Snapshots.Load(context: Types.Context, player: Player, name: string): s
 	local overrides: { [string]: any } = {}
 	for _, field in fields do
 		overrides[field] = snapshot.Data[field]
+	end
+	if overrides.PeakStrength == nil then
+		overrides.PeakStrength = PlayerData.PeakStrengthFor(overrides.Strength or 0, overrides.Rebirths or 0)
 	end
 	if not context.Services.DataService:ResetData(player, overrides) then
 		return "data not loaded"

@@ -30,7 +30,7 @@ local function recordOffline(player: Player, amount: number, seconds: number)
 	if not data or seconds < offline.MinAwaySeconds or Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 		return
 	end
-	if amount < CashPack.GeodeValue(offline.MinGeodes, data.Strength) then
+	if amount < CashPack.GeodeValue(offline.MinGeodes, data.PeakStrength) then
 		return
 	end
 	services.DataService:Set(player, { "Offline" }, { LastAmount = amount, LastAt = os.time() })
@@ -44,7 +44,7 @@ function OfferService.GrantStarterPack(_self: any, player: Player): boolean
 	end
 	local isRestricted = services.PassService:IsRandomItemsRestricted(player)
 	local geodes = starter.Geodes + if isRestricted then starter.RestrictedExtraGeodes else 0
-	local cash = CashPack.GeodeValue(geodes, data.Strength)
+	local cash = CashPack.GeodeValue(geodes, data.PeakStrength)
 	if cash > 0 then
 		services.DataService:AdjustCash(player, cash, AnalyticsConfig.Sources.StarterPack)
 	end

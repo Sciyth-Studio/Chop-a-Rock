@@ -45,7 +45,7 @@ local function findPass(key: string): MonetizationConfig.Pass?
 end
 
 local function strength(): number
-	local value = controllers.DataController:Get({ "Strength" })
+	local value = controllers.DataController:Get({ "PeakStrength" })
 	return if type(value) == "number" then value else 0
 end
 

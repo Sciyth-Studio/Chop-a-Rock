@@ -8,6 +8,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Tutorial = require(ReplicatedStorage.Tutorial)
+local PlayerData = require(script.Parent.Parent.Parent.Data.PlayerData)
 local Types = require(script.Parent.Types)
 
 local Presets = {}
@@ -71,6 +72,7 @@ function Presets.Apply(context: Types.Context, player: Player, preset: AdminConf
 	}
 	overrides.Cash = preset.Cash
 	overrides.Strength = strength
+	overrides.PeakStrength = PlayerData.PeakStrengthFor(strength or 0, preset.Rebirths or 0)
 	overrides.Rebirths = preset.Rebirths
 	overrides.AuraTier = preset.AuraTier
 	overrides.TrainingTier = TrainingStands.IndexForRebirths(preset.Rebirths or 0)

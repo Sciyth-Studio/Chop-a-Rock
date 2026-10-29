@@ -11,6 +11,8 @@ export type GeodeStandSettings = {
 		TabActive: ShopConfig.MeterColors,
 		TabIdle: ShopConfig.MeterColors,
 	},
+	TabStrengthFormat: string,
+	NeedStrengthFormat: string,
 	Preview: {
 		CameraDirection: Vector3,
 		FieldOfView: number,
@@ -46,6 +48,8 @@ local GeodeStandConfig: GeodeStandSettings = {
 		},
 		TabIdle = ShopConfig.Palette.Grey,
 	},
+	TabStrengthFormat = "%s Best Strength",
+	NeedStrengthFormat = "Need %s Best Strength",
 	Preview = {
 		CameraDirection = Vector3.new(0.35, 0.3, -1),
 		FieldOfView = 30,

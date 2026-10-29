@@ -180,7 +180,9 @@ end
 local function luckyKeyFor(player: Player, data: any): string?
 	local chosen = luckyZones[player]
 	local chosenGeode = if chosen then GeodeConfig.Geodes[chosen] else nil
-	local baseKey = if chosenGeode then chosen else GeodeOrder.ForStrength(data.Strength)
+	local baseKey = if chosenGeode and data.PeakStrength >= chosenGeode.StrengthRequired
+		then chosen
+		else GeodeOrder.ForStrength(data.PeakStrength)
 	return if baseKey then GeodeOrder.LuckyKey(baseKey) else nil
 end
 

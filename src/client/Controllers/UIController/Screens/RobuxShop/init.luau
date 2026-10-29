@@ -123,7 +123,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function zoneLuckyKey(): (string?, string?)
-		local baseKey = GeodeOrder.ForStrength(readNumber({ "Strength" }))
+		local baseKey = GeodeOrder.ForStrength(readNumber({ "PeakStrength" }))
 		return baseKey, if baseKey then GeodeOrder.LuckyKey(baseKey) else nil
 	end
 
@@ -268,7 +268,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			tray.Visible = not isBought and workspace:GetServerTimeNow() < offerEndsAt
 			local isRestricted = player:GetAttribute(MonetizationConfig.RandomItemsRestrictedAttribute)
 				== true
-			Cards.FillStarter(inner, readNumber({ "Strength" }), isRestricted)
+			Cards.FillStarter(inner, readNumber({ "PeakStrength" }), isRestricted)
 		end
 		table.insert(refreshers, refresh)
 		table.insert(timers, function(now: number)
@@ -516,7 +516,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end
 			end)
 			table.insert(refreshers, function()
-				local amount = CashPack.Value(pack, readNumber({ "Strength" }))
+				local amount = CashPack.Value(pack, readNumber({ "PeakStrength" }))
 				Cards.SetText(inner, "Title", string.format(texts.CashTitle, NumberFormat.Compact(amount)))
 			end)
 			tray.Parent = grid
@@ -553,7 +553,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	for _, path in { { "Strength" }, { "StarterPack" }, { "Offers" }, { "Exclusives" } } do
+	for _, path in { { "PeakStrength" }, { "StarterPack" }, { "Offers" }, { "Exclusives" } } do
 		trove:Add(dataController:Observe(path, refreshAll))
 	end
 	trove:Connect(player.AttributeChanged, function(name: string)

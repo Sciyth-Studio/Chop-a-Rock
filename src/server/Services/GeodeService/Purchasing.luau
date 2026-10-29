@@ -47,6 +47,9 @@ function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, a
 	then
 		return false
 	end
+	if data.PeakStrength < geode.StrengthRequired then
+		return false
+	end
 	local unopened = Purchasing.UnopenedCount(data)
 	local size = context.Services.PassService:GetBackpackSize(player)
 	if context.Services.PetService:Count(player) + unopened + amount > size then
