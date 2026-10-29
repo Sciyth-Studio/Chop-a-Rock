@@ -115,7 +115,7 @@ function StarterOffer.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if inner then
 				local isRestricted = player:GetAttribute(MonetizationConfig.RandomItemsRestrictedAttribute)
 					== true
-				ShopCards.FillStarter(inner, readNumber({ "Strength" }), isRestricted)
+				ShopCards.FillStarter(inner, readNumber({ "PeakStrength" }), isRestricted)
 			end
 			gui.Enabled = true
 		end,

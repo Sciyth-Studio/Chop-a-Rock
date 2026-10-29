@@ -248,13 +248,16 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local cash = read({ "Cash" })
-		local strength = read({ "Strength" })
+		local peakStrength = read({ "PeakStrength" })
 		cash = if type(cash) == "number" then cash else 0
-		strength = if type(strength) == "number" then strength else 0
+		peakStrength = if type(peakStrength) == "number" then peakStrength else 0
 		local slots = freeSlots()
 		local blockedText: string? = nil
-		if strength < geode.StrengthRequired then
-			blockedText = `Need {NumberFormat.Commas(geode.StrengthRequired)} Strength`
+		if peakStrength < geode.StrengthRequired then
+			blockedText = string.format(
+				GeodeStandConfig.NeedStrengthFormat,
+				NumberFormat.Commas(geode.StrengthRequired)
+			)
 		elseif slots < 1 then
 			blockedText = if context.Controllers.PurchaseController:OwnsPass("Backpack")
 				then GeodeStandConfig.BagFullText
@@ -348,7 +351,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function defaultKey(): string?
-		local strength = read({ "Strength" })
+		local strength = read({ "PeakStrength" })
 		return GeodeOrder.ForStrength(if type(strength) == "number" then strength else 0)
 	end
 
@@ -497,7 +500,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	for _, path in
-		{ { "Cash" }, { "Strength" }, { "Pets" }, { "Geodes" }, { "Index" }, { "Tutorial" }, { "Pity" } }
+		{ { "Cash" }, { "PeakStrength" }, { "Pets" }, { "Geodes" }, { "Index" }, { "Tutorial" }, { "Pity" } }
 	do
 		trove:Add(dataController:Observe(path, function()
 			if geodeKey then

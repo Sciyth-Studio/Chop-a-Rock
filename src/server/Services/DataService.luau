@@ -189,6 +189,7 @@ local function resetValues(overrides: { [string]: any }?): { [string]: any }
 	local values: { [string]: any } = {
 		Cash = template.Cash,
 		Strength = template.Strength,
+		PeakStrength = template.PeakStrength,
 		AuraTier = template.AuraTier,
 		Cannons = {},
 		EquippedCannon = template.EquippedCannon,

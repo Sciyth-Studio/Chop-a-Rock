@@ -29,7 +29,7 @@ The user wants geodes that spawn on the map as a random event, give guaranteed g
 | Health | 6 Good chops (Good damage × the zone's weakest-rock strength × 6) | short enough to race, long enough to fight over |
 | Perfect / Master | normal chop damage, so a Perfect lands it faster | chop skill matters, not just speed |
 | Claim timeout | 3 s without a chop | a claim can't be held by standing still |
-| Strength gate | the zone geode's `StrengthRequired` (weakest rock in the zone) | the same gate as buying that geode |
+| Strength gate | the zone geode's `StrengthRequired` (weakest rock in the zone) | was the same gate as buying that geode; buying reads Best Strength since 2026-10-28, this gate stays on current Strength |
 | Keep-out | spots at least 40 studs from `TeleportPoints` and cannon landing points | the Rocks button and cannons can't drop you right on one |
 
 ## Reward: Rare or better from that zone's geode

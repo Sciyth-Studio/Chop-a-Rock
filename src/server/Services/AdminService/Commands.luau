@@ -48,7 +48,7 @@ end
 
 local function zoneGeode(context: Types.Context, player: Player): string?
 	local data = context.Services.DataService:GetData(player)
-	local strength = if data and type(data.Strength) == "number" then data.Strength else 0
+	local strength = if data and type(data.PeakStrength) == "number" then data.PeakStrength else 0
 	return GeodeOrder.ForStrength(strength)
 end
 

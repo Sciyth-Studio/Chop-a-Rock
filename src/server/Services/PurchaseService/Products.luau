@@ -20,7 +20,7 @@ for _, pack in CashPackConfig.Packs do
 		if not data then
 			return false
 		end
-		local amount = CashPack.Value(pack, data.Strength)
+		local amount = CashPack.Value(pack, data.PeakStrength)
 		if amount <= 0 then
 			return false
 		end

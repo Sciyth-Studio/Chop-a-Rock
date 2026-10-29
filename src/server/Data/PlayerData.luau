@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CannonHint = require(ReplicatedStorage.CannonHint)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
+local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -42,6 +43,7 @@ export type Data = {
 	SchemaVersion: number,
 	Cash: number,
 	Strength: number,
+	PeakStrength: number,
 	AuraTier: number,
 	Cannons: { [string]: boolean },
 	EquippedCannon: string,
@@ -89,6 +91,7 @@ PlayerData.Template = {
 	SchemaVersion = 1,
 	Cash = 0,
 	Strength = TutorialConfig.StartStrength,
+	PeakStrength = TutorialConfig.StartStrength,
 	AuraTier = 1,
 	Cannons = {},
 	EquippedCannon = "",
@@ -190,7 +193,16 @@ function PlayerData.Validate(data: any): boolean
 		return false
 	end
 	for _, key in
-		{ "Cash", "Strength", "Rebirths", "PerfectChops", "Playtime", "TrainingMinigameBest", "LastSeenAt" }
+		{
+			"Cash",
+			"Strength",
+			"PeakStrength",
+			"Rebirths",
+			"PerfectChops",
+			"Playtime",
+			"TrainingMinigameBest",
+			"LastSeenAt",
+		}
 	do
 		if data[key] ~= nil and not natural(data[key]) then
 			return false
@@ -374,6 +386,11 @@ local function hasProgress(data: any): boolean
 		or (type(data.Pets) == "table" and next(data.Pets) ~= nil)
 end
 
+function PlayerData.PeakStrengthFor(strength: number, rebirths: number): number
+	local reached = if rebirths > 0 then RebirthStats.Get(rebirths).StrengthRequired else 0
+	return math.max(strength, reached)
+end
+
 function PlayerData.Migrate(data: any)
 	if data.AuraTier == nil and data.ArmTier ~= nil then
 		data.AuraTier = data.ArmTier
@@ -386,6 +403,10 @@ function PlayerData.Migrate(data: any)
 	end
 	if data.Hints == nil and type(data.Cannons) == "table" and next(data.Cannons) ~= nil then
 		data.Hints = { [cannonHint.Key] = CannonHint.Done, [cannonHint.FurthestKey] = CannonHint.Done }
+	end
+	if data.PeakStrength == nil and natural(data.Strength) then
+		data.PeakStrength =
+			PlayerData.PeakStrengthFor(data.Strength, if natural(data.Rebirths) then data.Rebirths else 0)
 	end
 	if data.TrainingTier == nil and natural(data.Rebirths) then
 		data.TrainingTier = TrainingStands.IndexForRebirths(data.Rebirths)

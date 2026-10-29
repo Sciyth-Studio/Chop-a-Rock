@@ -16,7 +16,7 @@ Built 2026-10-21. The user asked for currency developer products "that can fill 
 | Large | 3720804855 | 199 | 40 geodes |
 | Huge | 3720804860 | 499 | 150 geodes |
 
-"Geodes" means the price of the geode for the zone the player's strength reaches (`GeodeOrder.ForStrength`, the same zone the [[Geode Shop]] opens on). `Utils/CashPack.Value` works it out. The server grant (`PurchaseService/Products`) runs it at receipt time, so the amount follows the player's zone. `CashPack.Covering(shortfall, strength)` picks the smallest pack that covers the gap, or Huge if none does.
+"Geodes" means the price of the geode for the zone the player's Best Strength (`PeakStrength`, kept through rebirth, since 2026-10-28) reaches (`GeodeOrder.ForStrength`, the same zone the [[Geode Shop]] opens on). `Utils/CashPack.Value` works it out. The server grant (`PurchaseService/Products`) runs it at receipt time, so the amount follows the player's zone. `CashPack.Covering(shortfall, strength)` picks the smallest pack that covers the gap, or Huge if none does.
 
 **No middleman (user, 2026-10-21):** "no middleman between pressing the button to buy the item and the robux prompt". Pressing a buy you can't afford calls `CashPackController:Prompt(shortfall)`, which opens Roblox's purchase prompt for the covering pack directly. A first version had a "Need More Cash?" pick-a-pack popup. The user dropped it, and its ScreenGui is parked in `ServerStorage.UIBackup.CashPacks`. After a purchase the controller plays `SFX_Money_Gain` and notifies "+$X cash!". It doesn't auto-buy the item.
 

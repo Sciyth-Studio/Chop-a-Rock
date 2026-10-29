@@ -16,7 +16,6 @@ local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
-local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local Effects = require(script.Parent.Effects)
 local Luck = require(script.Parent.Luck)
@@ -61,21 +60,12 @@ function Cracking.Begin(
 		Spot = spot,
 		Model = pit.Model,
 		Part = part,
-		CanBreak = data.Strength >= geode.StrengthRequired,
 		StrengthRatio = GeodeConfig.ZoneStrengthRatio,
 		Center = ChopZones.RandomCenter(random),
 		StartTime = os.clock(),
 	}
 	context.Services.PetService:PutAway(player)
-	Packets.ChopMinigameStart:FireClient(
-		player,
-		part,
-		session.CanBreak,
-		session.StrengthRatio,
-		session.Center,
-		1,
-		1
-	)
+	Packets.ChopMinigameStart:FireClient(player, part, true, session.StrengthRatio, session.Center, 1, 1)
 	return session
 end
 
@@ -98,19 +88,6 @@ local function forcedPet(context: Types.Context, player: Player, geodeKey: strin
 	return nil
 end
 
-local function tooWeak(context: Types.Context, player: Player, session: Types.Session)
-	local geode = GeodeConfig.Geodes[session.GeodeKey]
-	Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
-	Effects.Crack(session.Part)
-	Effects.Hide(session.Model, GeodeConfig.TooWeakClearSeconds)
-	context.Services.NotificationService:Notify(
-		player,
-		"Error",
-		`Get stronger! Need {NumberFormat.Commas(geode.StrengthRequired)} Strength`
-	)
-	print(`[GeodeService] {player.Name} too weak for {session.GeodeKey}`)
-end
-
 function Cracking.Release(
 	context: Types.Context,
 	player: Player,
@@ -118,10 +95,6 @@ function Cracking.Release(
 	random: Random,
 	claimed: number
 ): number
-	if not session.CanBreak then
-		tooWeak(context, player, session)
-		return GeodeConfig.TooWeakClearSeconds + GeodeConfig.RecrackDelaySeconds
-	end
 	local services = context.Services
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
 	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)

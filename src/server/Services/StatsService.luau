@@ -72,6 +72,9 @@ function StatsService.AddStrength(_self: any, player: Player, delta: number): nu
 	if after == before then
 		return after
 	end
+	if after > data.PeakStrength then
+		DataService:Set(player, { "PeakStrength" }, after)
+	end
 	DataService:Set(player, { "Strength" }, after)
 	StatsService:AddWeekly(player, "Strength", after - before)
 	if before < cap and after >= cap then
@@ -101,7 +104,9 @@ function StatsService.SetStrength(_self: any, player: Player, strength: number):
 	if not DataService:GetData(player) then
 		return false
 	end
-	DataService:Set(player, { "Strength" }, math.max(0, math.floor(strength)))
+	local value = math.max(0, math.floor(strength))
+	DataService:Set(player, { "PeakStrength" }, value)
+	DataService:Set(player, { "Strength" }, value)
 	return DataService:RequestSave(player)
 end
 
