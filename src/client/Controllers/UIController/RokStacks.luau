@@ -185,9 +185,7 @@ function RokStacks.Paint(frame: GuiObject, stack: Stack?)
 	if sizeTag then
 		sizeTag.Visible = RokSize.IsShown(stack.Size)
 		if sizeTag.Visible then
-			local size = RokSize.Get(stack.Size)
-			sizeTag.Text = size.DisplayName
-			Typography.ApplyTextStyle(sizeTag, size.TextStyle)
+			sizeTag.Text = RokSize.Get(stack.Size).DisplayName
 		end
 	end
 	if count then
