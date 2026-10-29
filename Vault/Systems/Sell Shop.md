@@ -26,3 +26,5 @@ Take from it: the sort sidebar with Select All, the card grid (stat on the card,
 - `CreateHumanoidModelFromDescription` in Edit mode: parent the model to Workspace and wait about a second before anchoring. Anchoring first leaves the accessories unwelded and scattered. Position it by its `HumanoidRootPart` (set `PrimaryPart`), because the model's default pivot is 1.5 studs lower.
 
 Related: [[Pedestals]], [[Shopkeeper Avatar]], [[Stand Name Signs]], [[Menu Panel Style]]
+
+**Freeze fix (2026-10-29):** selling a full Backpack froze the game. `PetService.Sell` removed each Rok with its own `replica:Set({ "Pets", id }, nil)`, so every client observer of `Pets` (Toolbar, Roks panel, Sell Shop, Index and more) rebuilt once per Rok, up to 100 times in one frame. Sell and `RemoveUnplaced` now build the kept table and call `replica:Set({ "Pets" }, kept)` once. Do the same for any future bulk change to Pets.
