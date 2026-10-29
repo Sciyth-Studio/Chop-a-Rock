@@ -9,6 +9,7 @@ local MonetizationConfig = require(script.Parent.MonetizationConfig)
 local PetConfig = require(script.Parent.PetConfig)
 local RarityConfig = require(script.Parent.RarityConfig)
 local RockConfig = require(script.Parent.RockConfig)
+local RokSizeConfig = require(script.Parent.RokSizeConfig)
 local ShopConfig = require(script.Parent.ShopConfig)
 local WeatherConfig = require(script.Parent.WeatherConfig)
 
@@ -142,6 +143,11 @@ local modifierChoices: { Choice } = {}
 for _, event in WeatherConfig.Events do
 	local modifier = WeatherConfig.Modifiers[event.Modifier]
 	table.insert(modifierChoices, { Value = event.Modifier, Label = modifier.DisplayName })
+end
+
+local sizeChoices: { Choice } = {}
+for _, key in RokSizeConfig.Order do
+	table.insert(sizeChoices, { Value = key, Label = RokSizeConfig.Sizes[key].DisplayName })
 end
 
 local rokChoices: { Choice } = {}
@@ -415,6 +421,14 @@ local AdminConfig: AdminSettings = {
 			Kind = "Choice",
 			Choices = modifierChoices,
 			Alias = "modifier",
+		},
+		{
+			Id = "SetRokSize",
+			Label = "Held Rok: Set Size",
+			Tab = "Roks",
+			Kind = "Choice",
+			Choices = sizeChoices,
+			Alias = "size",
 		},
 		{ Id = "FillBackpack", Label = "Fill Backpack", Tab = "Roks", Kind = "Button", Alias = "fill" },
 		{ Id = "ClearBackpack", Label = "Clear Backpack", Tab = "Roks", Kind = "Button", Alias = "clear" },

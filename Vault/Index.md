@@ -121,6 +121,7 @@ _One note per game system as they're worked on._
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; new zone = config only (no stand); pity bars (Legendary + Secret guarantees per geode, built 2026-10-22); pit "Choose Geode" picker saves which geode cracks next (2026-10-28)
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
+- [[Rok Sizes]] — 2026-10-28: Normal/Large/Huge/Giant/Enormous (70/20/7/2.5/0.5%, x1-x2 scale) rolled on every grant, luck pushes big sizes, looks only; `RokSizeConfig`, `RokSize`, `Pet.Size`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
 - [[Shop Pads]] — neon floor rectangles open the Geode, Sell and Aura shops on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha

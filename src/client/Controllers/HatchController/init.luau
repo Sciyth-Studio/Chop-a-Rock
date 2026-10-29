@@ -280,6 +280,7 @@ function HatchController.Start(_self: any)
 				isNew: boolean,
 				trait: string,
 				modifier: string,
+				size: string,
 				isPity: boolean
 			)
 				if not spot or not spot:IsA("Attachment") then
@@ -297,6 +298,7 @@ function HatchController.Start(_self: any)
 					IsNew = isNew,
 					Trait = if trait ~= "" then trait else nil,
 					Modifier = if modifier ~= "" then modifier else nil,
+					Size = if size ~= "" then size else nil,
 					IsPity = isPity,
 				})
 			end

@@ -66,6 +66,7 @@ local function refresh(player: Player)
 			State = if not isUnlocked then "Locked" elseif petId then "Placed" else "Empty",
 			PetKey = if petId then data.Pets[petId].Key else nil,
 			Modifier = if petId then data.Pets[petId].Modifier else nil,
+			Size = if petId then data.Pets[petId].Size else nil,
 			Income = if petId then data.Pets[petId].Income else nil,
 			Price = if slot == nextSlot then nextPrice else nil,
 			Earnings = session.Slots[slot],

@@ -8,6 +8,8 @@ local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RokModifier = require(ReplicatedStorage.RokModifier)
+local RokSize = require(ReplicatedStorage.RokSize)
+local RokSizeConfig = require(ReplicatedStorage.Config.RokSizeConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
@@ -86,8 +88,20 @@ return function(_controllers: { [string]: any })
 			local incomeValue = pedestal:GetAttribute("Income")
 			local income = if type(incomeValue) == "number" then incomeValue else nil
 			local modifierConfig = RokModifier.Get(modifier)
+			local sizeValue = pedestal:GetAttribute(RokSizeConfig.Attribute)
+			local size = if type(sizeValue) == "string" then sizeValue else nil
 			if title then
-				title.Text = if state == "Locked" then "Locked" elseif pet then pet.DisplayName else ""
+				title.Text = if state == "Locked"
+					then "Locked"
+					elseif pet then RokSize.Name(petKey :: string, nil, size)
+					else ""
+			end
+			local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
+			if part and part:IsA("BasePart") then
+				local lift = (RokSize.Scale(if pet then size else nil) - 1)
+					* RokSizeConfig.InfoLiftStudsPerScale
+				infoGui.StudsOffsetWorldSpace =
+					Vector3.new(0, part.Size.Y / 2 + PedestalConfig.InfoHeightStuds + lift, 0)
 			end
 			if modifierLabel then
 				local isShown = modifierConfig ~= nil and pet ~= nil and state ~= "Locked"
@@ -174,7 +188,15 @@ return function(_controllers: { [string]: any })
 		end
 
 		for _, name in
-			{ "OwnerUserId", "State", "Price", "PetKey", "Income", WeatherConfig.ModifierAttribute }
+			{
+				"OwnerUserId",
+				"State",
+				"Price",
+				"PetKey",
+				"Income",
+				WeatherConfig.ModifierAttribute,
+				RokSizeConfig.Attribute,
+			}
 		do
 			self.Trove:Connect(pedestal:GetAttributeChangedSignal(name), function()
 				refreshInfo()

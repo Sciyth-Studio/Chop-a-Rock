@@ -12,7 +12,9 @@ local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RokModifier = require(ReplicatedStorage.RokModifier)
+local RokSize = require(ReplicatedStorage.RokSize)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
@@ -83,6 +85,7 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local statValue: TextLabel? = find(gui, "StatValue", "TextLabel")
 	local trait: TextLabel? = find(gui, "Trait", "TextLabel")
 	local modifierLabel: TextLabel? = find(gui, "Modifier", "TextLabel")
+	local sizeLabel: TextLabel? = find(gui, "SizeLabel", "TextLabel")
 	local continueLabel: TextLabel? = find(gui, "Continue", "TextLabel")
 	local dismiss: TextButton? = find(gui, "Dismiss", "TextButton")
 	local popScale: UIScale? = find(gui, "PopScale", "UIScale")
@@ -130,6 +133,15 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			)
 			if modifier then
 				modifierLabel.TextColor3 = modifier.Color
+			end
+		end
+		if sizeLabel then
+			local isSized = RokSize.IsShown(hatch.Size)
+			local size = RokSize.Get(hatch.Size)
+			sizeLabel.Visible = isSized
+			setText(sizeLabel, if isSized then size.DisplayName else "")
+			if isSized then
+				Typography.ApplyTextStyle(sizeLabel, size.TextStyle)
 			end
 		end
 		local traitConfig = if hatch.Trait then PetConfig.Traits[hatch.Trait] else nil

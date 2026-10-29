@@ -13,6 +13,7 @@ local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RokModifier = require(ReplicatedStorage.RokModifier)
+local RokSize = require(ReplicatedStorage.RokSize)
 local RoksConfig = require(ReplicatedStorage.Config.RoksConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -174,7 +175,7 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local nameLabel: TextLabel? = find(row, "RokName", "TextLabel", true)
 			setText(
 				nameLabel,
-				`{RokModifier.Name(record.Key, record.Modifier)} (${NumberFormat.Rate(
+				`{RokSize.Name(record.Key, record.Modifier, record.Size)} (${NumberFormat.Rate(
 					RokModifier.Rate(record.Key, record.Modifier, record.Income)
 				)}/s)`
 			)

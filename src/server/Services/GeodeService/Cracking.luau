@@ -161,8 +161,13 @@ function Cracking.Release(
 			then MasterChopConfig.ImpactDelaySeconds
 			else ChopConfig.SlowMoPreImpactSeconds
 	) + HatchTiming.RevealSeconds(if hatchedPet then hatchedPet.Rarity else RarityConfig.Order[1])
-	local grant =
-		services.PetService:Grant(player, petKey, rollModifier(context, player, session.GeodeKey), equipDelay)
+	local grant = services.PetService:Grant(
+		player,
+		petKey,
+		rollModifier(context, player, session.GeodeKey),
+		equipDelay,
+		luck
+	)
 	if not grant then
 		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
 		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
@@ -210,6 +215,7 @@ function Cracking.Release(
 			grant.IsNew,
 			grant.Trait or "",
 			grant.Modifier or "",
+			grant.Size or "",
 			isPity
 		)
 	end)

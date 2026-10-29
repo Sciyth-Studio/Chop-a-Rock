@@ -12,10 +12,12 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RarityRibbon = require(ReplicatedStorage.Utils.RarityRibbon)
 local RokModifier = require(ReplicatedStorage.RokModifier)
+local RokSize = require(ReplicatedStorage.RokSize)
 local RokValue = require(ReplicatedStorage.RokValue)
 local SellShopConfig = require(ReplicatedStorage.Config.SellShopConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Types = require(script.Parent.Parent.Types)
 
@@ -212,6 +214,16 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					modifierLabel.Visible = modifier ~= nil
 					setText(modifierLabel, if modifier then modifier.DisplayName else "")
 					RokModifier.PaintLabel(modifierLabel, pet.Modifier)
+				end
+				local sizeLabel: TextLabel? = find(frame, "SizeLabel", "TextLabel", true)
+				if sizeLabel then
+					local isSized = RokSize.IsShown(pet.Size)
+					local size = RokSize.Get(pet.Size)
+					sizeLabel.Visible = isSized
+					setText(sizeLabel, if isSized then size.DisplayName else "")
+					if isSized then
+						Typography.ApplyTextStyle(sizeLabel, size.TextStyle)
+					end
 				end
 				setText(
 					find(frame, "Rate", "TextLabel", true),

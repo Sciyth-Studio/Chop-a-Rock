@@ -12,6 +12,7 @@ local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
+local RokSizeConfig = require(ReplicatedStorage.Config.RokSizeConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
@@ -370,6 +371,15 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, `Rok {petId} is now {argument}`)
 		else
 			notify(context, player, "hold a Rok or own one first")
+		end
+	end,
+	SetRokSize = function(context: Types.Context, player: Player, argument: string)
+		local petId = targetRok(context, player)
+		local size = if argument == RokSizeConfig.DefaultKey then nil else argument
+		if petId and context.Services.PetService:SetSize(player, petId, size) then
+			notify(context, player, `Rok {petId} is now {argument}`)
+		else
+			notify(context, player, "hold a non-exclusive Rok or own one first")
 		end
 	end,
 	SpawnDiamond = function(context: Types.Context, player: Player, _argument: string)
