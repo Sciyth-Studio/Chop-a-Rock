@@ -120,7 +120,7 @@ function DataService.Start(_self: any)
 			if not activeSessions then
 				return
 			end
-			local data = activeSessions:GetData(player)
+			local data = activeSessions:BeginRelease(player)
 			if data then
 				DataService.PlayerReleasing:Fire(player, data)
 			end

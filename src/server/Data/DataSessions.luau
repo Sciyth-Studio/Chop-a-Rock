@@ -29,6 +29,7 @@ function DataSessions.new(store: Store, isPresent: (Player) -> boolean)
 		_isPresent = isPresent,
 		_profiles = {} :: { [Player]: Profile },
 		_loading = {} :: { [Player]: boolean },
+		_releasing = {} :: { [Player]: boolean },
 		_closed = false,
 	}, DataSessions)
 end
@@ -90,10 +91,21 @@ end
 
 function DataSessions.GetData(self: DataSessions, player: Player): PlayerData.Data?
 	local profile = self._profiles[player]
-	if self._closed or not self._isPresent(player) or not profile or not profile:IsActive() then
+	if self._closed or not profile or not profile:IsActive() then
+		return nil
+	end
+	if not self._releasing[player] and not self._isPresent(player) then
 		return nil
 	end
 	return profile.Data
+end
+
+function DataSessions.BeginRelease(self: DataSessions, player: Player): PlayerData.Data?
+	if not self._profiles[player] then
+		return nil
+	end
+	self._releasing[player] = true
+	return self:GetData(player)
 end
 
 function DataSessions.RequestSave(self: DataSessions, player: Player): boolean
@@ -107,6 +119,7 @@ end
 function DataSessions.Release(self: DataSessions, player: Player)
 	local profile = self._profiles[player]
 	self._profiles[player] = nil
+	self._releasing[player] = nil
 	if profile then
 		profile:EndSession()
 	end
