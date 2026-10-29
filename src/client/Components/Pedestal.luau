@@ -71,6 +71,8 @@ return function(_controllers: { [string]: any })
 		local title: TextLabel?
 		local detail: TextLabel?
 		local modifierLabel: TextLabel?
+		local sizeLabel: TextLabel?
+		local sizeTopPosition: UDim2?
 
 		local function refreshInfo()
 			if not padGui or not infoGui then
@@ -91,10 +93,19 @@ return function(_controllers: { [string]: any })
 			local sizeValue = pedestal:GetAttribute(RokSizeConfig.Attribute)
 			local size = if type(sizeValue) == "string" then sizeValue else nil
 			if title then
-				title.Text = if state == "Locked"
-					then "Locked"
-					elseif pet then RokSize.Name(petKey :: string, nil, size)
-					else ""
+				title.Text = if state == "Locked" then "Locked" elseif pet then pet.DisplayName else ""
+			end
+			if sizeLabel then
+				local isShown = pet ~= nil and state ~= "Locked" and RokSize.IsShown(size)
+				sizeLabel.Visible = isShown
+				if isShown then
+					local sizeConfig = RokSize.Get(size)
+					sizeLabel.Text = sizeConfig.DisplayName
+					Typography.ApplyTextStyle(sizeLabel, sizeConfig.TextStyle)
+					sizeLabel.Position = if modifierConfig and modifierLabel
+						then sizeTopPosition or sizeLabel.Position
+						else (if modifierLabel then modifierLabel.Position else sizeLabel.Position)
+				end
 			end
 			local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
 			if part and part:IsA("BasePart") then
@@ -153,6 +164,7 @@ return function(_controllers: { [string]: any })
 		local function mount()
 			mountTrove:Clean()
 			padGui, infoGui, amount, title, detail, modifierLabel = nil, nil, nil, nil, nil, nil
+			sizeLabel, sizeTopPosition = nil, nil
 			local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
 			local pad = pedestal:FindFirstChild(PedestalConfig.PadPartName)
 			if not part or not part:IsA("BasePart") or not pad or not pad:IsA("BasePart") then
@@ -177,6 +189,8 @@ return function(_controllers: { [string]: any })
 			title = findLabel(newInfoGui, "Title")
 			detail = findLabel(newInfoGui, "Detail")
 			modifierLabel = findLabel(newInfoGui, "Modifier")
+			sizeLabel = findLabel(newInfoGui, "Size")
+			sizeTopPosition = if sizeLabel then sizeLabel.Position else nil
 			refreshInfo()
 			refreshAmount()
 		end
