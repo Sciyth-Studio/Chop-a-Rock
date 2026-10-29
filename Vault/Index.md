@@ -163,6 +163,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Rarity Ribbon And Modifier Tags]] — 2026-10-23: sell cards show rarity as a gradient ribbon (`Utils/RarityRibbon`) and the modifier as its name in its weather colours (`RokModifier.PaintLabel`)
 - [[Robux Shop Plan Approved]] — 2026-10-24: user accepted R1-R13 of `RobuxShopPlan.md`: paid Lucky Geodes, gifting, server boosts incl. Server 2x Luck, 24 h starter offer, VIP, exclusive Rok stand; not built
 - [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, built 2026-10-28 (see [[Auto Open]])
+- [[World 1 Plan]] — 2026-10-29: zones 6-10 Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins; stands Meteor/Sun/Black Hole/Galaxy; always-awake co-op Golem boss opens world 2; never time-gate a milestone; `World1Plan.md`
 
 ## Inbox
 _Unsorted learnings for the user to review._
