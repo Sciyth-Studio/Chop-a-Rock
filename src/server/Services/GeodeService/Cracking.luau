@@ -43,7 +43,8 @@ function Cracking.Begin(
 	geodeKey: string,
 	spot: Attachment,
 	pit: Types.Pit,
-	random: Random
+	random: Random,
+	isAuto: boolean
 ): Types.Session?
 	local data = context.Services.DataService:GetData(player)
 	local geode = GeodeConfig.Geodes[geodeKey]
@@ -65,8 +66,12 @@ function Cracking.Begin(
 		StrengthRatio = GeodeConfig.ZoneStrengthRatio,
 		Center = ChopZones.RandomCenter(random),
 		StartTime = os.clock(),
+		IsAuto = isAuto,
 	}
 	context.Services.PetService:PutAway(player)
+	if isAuto then
+		return session
+	end
 	Packets.ChopMinigameStart:FireClient(
 		player,
 		part,
@@ -139,6 +144,17 @@ function Cracking.Release(
 	if not isTutorial then
 		services.StatsService:RecordChop(player, quality)
 	end
+	return Cracking.Finish(context, player, session, random, quality)
+end
+
+function Cracking.Finish(
+	context: Types.Context,
+	player: Player,
+	session: Types.Session,
+	random: Random,
+	quality: number
+): number
+	local services = context.Services
 	local luck = Luck.Total(context, player, quality)
 	local data = services.DataService:GetData(player)
 	local pityGeodeKey = GeodeConfig.Geodes[session.GeodeKey].BaseKey or session.GeodeKey

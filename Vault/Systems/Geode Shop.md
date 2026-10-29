@@ -32,6 +32,6 @@ Plan and decisions: `GeodePitySystemPlan.md`; numbers from [[Balance Model]] v9.
 
 ## Choosing which geode to crack (built 2026-10-28, not playtested)
 Testers asked to choose the geode; the user picked a picker panel with a saved choice.
-- **Rule:** `GeodeOrder.Pick(geodes, selected)` (shared, used by `Cracking.PickGeode` and the picker) cracks `PlayerData.SelectedGeode` while you own one, otherwise the old order (Lucky first, then highest zone). Auto-open follows it too.
+- **Rule:** `GeodeOrder.Pick(geodes, selected)` (shared, used by `Cracking.PickGeode` and the picker) cracks `PlayerData.SelectedGeode` while you own one, otherwise the old order (Lucky first, then highest zone). [[Auto Open]] follows it too.
 - **Pit:** a second owned prompt `PickPrompt` ("Choose Geode", F / ButtonY, no hold) on a `GeodePickSpot` attachment `GeodeConfig.PickPromptOffset` above `GeodeSpot`, tagged `GeodePickPrompt`. Shown only when you own 2+ geode kinds and aren't cracking.
 - **Panel:** `StarterGui.GeodePicker` (Studio copy of `GiftPicker` minus Players/Empty/Back, title "Geodes", Lucky Geode header icon; `ItemTemplate.Card.Preview` ViewportFrame added over the icon). `Screens/GeodePicker.luau` opens on the prompt, one card per owned geode (zone Sky, Lucky Gold, "x3" ribbon, Choose / Chosen), click sends `SelectGeode` (server checks you own it) and closes. Texts in `GeodePickerConfig`. Save the place for the new ScreenGui.
