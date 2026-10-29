@@ -75,6 +75,9 @@ Fixed 2026-10-28: the start-up hitches came from the first render of the set at 
 ## Status
 Signed off by the user 2026-10-28 ("intro is done") after playtesting the round-1 feedback, the music, the awe POV shot, the road and the flicker fix.
 
+## Load timeout (2026-10-28)
+- The intro sometimes skipped on join. Likely cause (not confirmed by a log): `LoadTimeoutSeconds` was 6 s, and on a cold join the clips can take longer, so it warns "Animations did not load in time" and closes. Raised to 20 s (preload 10 s); the loading cover stays up while it waits. If it still skips, check the client output for that warning.
+
 ## Not checked
 Round-1 changes not run in Play yet (roll path and its clipping into the cliff lip, `CamCliff` framing, the halves' arc, teleport flicker, sound volumes). Older: timing, shot framing, the car squash, the split on the scaled boulder, the avatar copy (Rthro, layered clothing), the Custom camera keeping the stand facing, touch/phone.
 
