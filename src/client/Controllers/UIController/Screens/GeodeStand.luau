@@ -15,7 +15,6 @@ local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
-local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
 local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -276,14 +275,6 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				showThree = canBuy
 			end
 			button.Button:SetAttribute("Shimmer", canBuy and blockedText == nil)
-			local robux = button.Button:FindFirstChild("RobuxButton")
-			if robux and robux:IsA("GuiObject") then
-				local shortfall = price - cash
-				local pack = if blockedText == nil and shortfall > 0
-					then context.Controllers.PurchaseController:CoveringPack(shortfall)
-					else nil
-				RobuxButton.Show(robux, if pack and pack.ProductId then pack.RobuxPrice else nil)
-			end
 			setText(button.Label, NumberFormat.Commas(price))
 			paint(
 				button.Fill,
@@ -433,20 +424,6 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	for _, button in buttons do
-		local robux = button.Button:FindFirstChild("RobuxButton")
-		if robux and robux:IsA("GuiButton") then
-			trove:Add(robux.Activated:Connect(function()
-				local key = geodeKey
-				if not key then
-					return
-				end
-				local cash = read({ "Cash" })
-				local price = Tutorial.GeodeCost(Tutorial.StepOf(read({ "Tutorial" })), key, button.Amount)
-				context.Controllers.PurchaseController:PromptCash(
-					price - (if type(cash) == "number" then cash else 0)
-				)
-			end))
-		end
 		trove:Add(button.Button.Activated:Connect(function()
 			local key = geodeKey
 			if isBuying or not key then

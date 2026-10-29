@@ -162,7 +162,6 @@ export type MonetizationSettings = {
 	ComingSoonText: string,
 	BoughtSound: string,
 	RobuxGlyph: string,
-	RobuxButtonColors: { Edge: Color3, Center: Color3, Studs: Color3 },
 }
 
 local MonetizationConfig: MonetizationSettings = {
@@ -415,11 +414,6 @@ local MonetizationConfig: MonetizationSettings = {
 	ComingSoonText = "Coming soon!",
 	BoughtSound = "SFX_Money_Gain",
 	RobuxGlyph = utf8.char(0xE002),
-	RobuxButtonColors = {
-		Edge = Color3.fromRGB(230, 150, 0),
-		Center = Color3.fromRGB(255, 230, 90),
-		Studs = Color3.fromRGB(190, 105, 0),
-	},
 }
 
 return table.freeze(MonetizationConfig)

@@ -8,7 +8,6 @@ local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
-local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
 local RoksConfig = require(ReplicatedStorage.Config.RoksConfig)
 local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -55,10 +54,6 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local slotButton: TextButton? = find(gui, "SlotButton", "TextButton")
 	local slotLabel: TextLabel? = if slotButton then find(slotButton, "Label", "TextLabel") else nil
 	local slotFill = if slotButton then slotButton:FindFirstChild("Fill", true) else nil
-	local slotRobuxInstance = if slotButton then slotButton:FindFirstChild("RobuxButton") else nil
-	local slotRobux: GuiButton? = if slotRobuxInstance and slotRobuxInstance:IsA("GuiButton")
-		then slotRobuxInstance
-		else nil
 	local equipBestButton: TextButton? = find(gui, "EquipBestButton", "TextButton")
 	local closeButton: GuiButton? = find(gui, "CloseButton", "GuiButton")
 
@@ -99,11 +94,6 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if price then
 			setText(slotLabel, `+1 Slot ${NumberFormat.Compact(price)}`)
 			local canAfford = type(cash) == "number" and cash >= price
-			local shortfall = price - (if type(cash) == "number" then cash else 0)
-			local pack = if shortfall > 0
-				then context.Controllers.PurchaseController:CoveringPack(shortfall)
-				else nil
-			RobuxButton.Show(slotRobux, if pack and pack.ProductId then pack.RobuxPrice else nil)
 			BlockButton.Paint(
 				slotFill,
 				if canAfford then RoksConfig.Palette.Affordable else RoksConfig.Palette.Unavailable
@@ -181,18 +171,6 @@ function Roks.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	if slotRobux then
-		trove:Connect(slotRobux.Activated, function()
-			local slotCount = dataController:Get({ "PedestalSlots" })
-			local cash = dataController:Get({ "Cash" })
-			if type(slotCount) == "number" and type(cash) == "number" then
-				local _, price = PedestalSlots.Next(slotCount)
-				if price and price > cash then
-					context.Controllers.PurchaseController:PromptCash(price - cash)
-				end
-			end
-		end)
-	end
 	if slotButton then
 		trove:Connect(slotButton.Activated, function()
 			local slotCount = dataController:Get({ "PedestalSlots" })

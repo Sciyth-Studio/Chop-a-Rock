@@ -3,9 +3,7 @@
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CashPackConfig = require(ReplicatedStorage.Config.CashPackConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
-local CashPack = require(ReplicatedStorage.Utils.CashPack)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -42,11 +40,6 @@ local function findPass(key: string): MonetizationConfig.Pass?
 		end
 	end
 	return nil
-end
-
-local function strength(): number
-	local value = controllers.DataController:Get({ "PeakStrength" })
-	return if type(value) == "number" then value else 0
 end
 
 function PurchaseController.OwnsPass(_self: any, key: string): boolean
@@ -122,17 +115,6 @@ function PurchaseController.Gift(_self: any, giftKey: string, userId: number): b
 		end
 	end
 	return false
-end
-
-function PurchaseController.CoveringPack(_self: any, shortfall: number): CashPackConfig.Pack?
-	if shortfall <= 0 then
-		return nil
-	end
-	return CashPackConfig.Packs[CashPack.Covering(shortfall, strength())]
-end
-
-function PurchaseController.PromptCash(_self: any, shortfall: number)
-	controllers.CashPackController:Prompt(shortfall)
 end
 
 function PurchaseController.Init(_self: any, registry: { [string]: any })

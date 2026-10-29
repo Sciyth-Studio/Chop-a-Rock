@@ -22,4 +22,6 @@ Built 2026-10-21. The user asked for currency developer products "that can fill 
 
 **Prompted from:** Aura Shop buy (`Screens/Shop`), Cannon Shop buy once strength is met (`Screens/CannonShop`), Geode Shop buy (`Screens/GeodeStand`, tutorial prices included), Roks panel +1 Slot (`Screens/Roks`), and the training Upgrade sign's cash button (`Components/TrainingUpgradeSign`).
 
+**No Robux tag on buttons (user, 2026-10-29):** the yellow "<Robux glyph> price" tag that sat on top of can't-afford buy buttons (`Utils/RobuxButton`, `PurchaseController:CoveringPack`/`PromptCash`) was removed from all five screens. The hidden `RobuxButton` GuiObjects still sit in the Shop, GeodeStand, Roks and CannonShop ScreenGuis, the base plots' `UpgradeGui` and `Model_BasePlot`; nothing shows them. Don't bring the tag back; pressing the buy button itself is the Robux path.
+
 **Replaced:** the training sign's purple Robux button (removed from `Assets.Models.Base.Model_BasePlot`; the cash button now spans the sign). The five stand products (3719074519/40/43/45/47) are off sale and have no grant. See [[Rebirth Gated By Strength]].
