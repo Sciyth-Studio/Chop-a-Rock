@@ -109,6 +109,9 @@ return function(controllers: { [string]: any })
 			return
 		end
 		buildWall(self, part)
+		if part:GetAttribute("HasPrompt") == false then
+			return
+		end
 		buildPrompt(self, part, function()
 			if self.Screen then
 				controllers.UIController:Open(self.Screen, self.ScreenKey)
