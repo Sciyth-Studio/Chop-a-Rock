@@ -1,9 +1,10 @@
 --!nocheck
 -- Chop a Rock zone decor: snow pile in the JungleTree style (Lineup B #6). Three or four lumps,
 -- each a small pad of crossed courses: an ice blue base course, white courses stepping in above.
--- ~7 wide, ~2.6 tall. lib.seed varies the clump. Studs 1 per stud. Base on Y = 0, front -Z.
+-- ~7 wide, ~2.6 tall. opts.ash (DecorAshPile, volcano) makes it grey ash on a charcoal base.
+-- lib.seed varies the clump. Studs 1 per stud. Base on Y = 0, front -Z.
 
-return function(em, lib, Shapes)
+return function(em, lib, Shapes, _, opts)
 	local V3, CF, C3 = lib.Vector3, lib.CFrame, lib.Color3
 	local P = Shapes.Props
 	local rand = P.rng(lib.seed)
@@ -12,7 +13,10 @@ return function(em, lib, Shapes)
 	Shapes.beginBake({ cell = 2.0 })
 	local S = Shapes.new(em, lib)
 
-	local snow, snowDark, ice = C3.fromRGB(250, 252, 255), C3.fromRGB(228, 240, 255), C3.fromRGB(150, 205, 255)
+	local ash = opts and opts.ash
+	local snow = ash and C3.fromRGB(150, 150, 150) or C3.fromRGB(250, 252, 255)
+	local snowDark = ash and C3.fromRGB(125, 125, 125) or C3.fromRGB(228, 240, 255)
+	local ice = ash and C3.fromRGB(75, 72, 70) or C3.fromRGB(150, 205, 255)
 	local function cross(cf, w, h, col)
 		S:bevelBox(cf, V3.new(w, h, w * 0.75), col, 0)
 		S:bevelBox(cf, V3.new(w * 0.75, h + 0.02, w), col, 0)

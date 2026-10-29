@@ -108,7 +108,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Studio Assets Folders]] — `ReplicatedStorage.Assets` Models/VFX sorted into feature subfolders (rocks by zone); AssetRegistry looks up recursively
 - [[Animation Uploads]] — Claude makes R15 clips itself: pose data → .rbxmx → Open Cloud upload as `model/x-rbxm`; Edit preview needs unanchored limbs + `StepAnimations`; uploads can't be archived
 - [[Intro Car Reference]] — 2026-10-27 six-view sheet for the intro's red toy convertible (stripe, round headlights, tucked wheels); body lowered to ~3 studs to keep the seat and Boing Out clip
-- [[Decor Lineups]] — 2026-10-28 cartoon lineup sheets for the 12 zone decor props (A forest/desert, B jungle/ocean/snow); built as meshlab `Decor*` models
+- [[Decor Lineups]] — cartoon lineup sheets for the zone decor props (A forest/desert, B jungle/ocean/snow 2026-10-28; C swamp/savanna, D bamboo/volcano/ruins 2026-10-29); built as meshlab `Decor*` models
 - [[Meshlab]] — MIT kit in `tools/meshlab` (Luau-built stud props → Lune → Blender preview); export_fbx.py → upload_model.ps1 → LoadAsset at 1 unit = 1 stud; Blender 5.2 path, absolute paths; `ForestTree` used for the intro trees
 - [[Chop Dummy]] — chop is two clips in `Assets/Animations` (WindUp loop + Strike) played by `Utils/ChopAnimation`; tag an R15 rig `ChopDummy` to loop it
 

@@ -38,6 +38,18 @@ History (all 2026-10-28):
 - Greens on green floors sit close to the floor colour (user): forest pine and bush near 39,70,45, and jungle tree, leaf plant and JungleBush near 50,130,40. Cactus, kelp and snow pine aren't on green floors.
 - Coral tips step in twice in the branch's own pink. The user disliked both wider light-pink caps and a lighter tip colour.
 
+**Zone decor 6-10 (2026-10-29):** 16 more meshes in the same style, from lineups C and D ([[Decor Lineups]]):
+- Cattails, LilyPads, DeadTree, CharredTree, Acacia, GrassTuft, TermiteMound and SwampBush.
+- Bamboo, BambooShoot, MossyStone, Vent, Pillar, StatueHead, RuneStone and AshPile.
+
+How they're made:
+- Wrappers pass `opts` to an existing model: CharredTree to `DecorDeadTree` (`charred`), BambooShoot to `DecorBamboo` (`shoot`), AshPile to `DecorSnowPile` (`ash`), and SwampBush to `DecorBush` (`leaf` and `patch` colours).
+- Each is 170-1.9k triangles at seed 1.
+- They're in `assets/Decor/ZoneDecor610/ZoneDecor610.fbx`, asset `80448302229768` ("Zone Decor 6-10"). The OBJs were copied to plain names (`Cattails.obj`) before export, so the MeshParts load with template names.
+- The `Vent` template carries a `SmokeAttachment` at its top, with a grey `Smoke` ParticleEmitter and an orange `LavaGlow` PointLight.
+
+`DecorShowcase` has a plate for each new zone: Swamp, Savanna, Bamboo, Volcano, Ruins at z 0 / 34 / 68 / 102 / 136. Not placed in the zones yet. The contact sheet is `tools/meshlab/out/DecorSheet610.png`. The statue head took two tries: tipped 70° its face didn't read, so it now leans 38° and tilts 12° up, with a bigger brow and nose.
+
 Swapping a restyle onto placed copies: record each copy's scale as old height / old template height, `ApplyMesh` the new mesh, set `Size = newTemplate.Size * scale`, reset `PivotOffset` to the bottom, `PivotTo` the old pivot, then re-check the terrace and floor edges (11 props needed nudging).
 
 `Workspace.DecorShowcase` (EditorOnly, x -280) shows each zone's props on a plate in that zone's terrace colour. Templates are MeshParts in `ReplicatedStorage.Assets.Models.Decor` (the unused old Palm is still there), set to Color white, Plastic, `2022 Stud`, Anchored, with `PivotOffset` at the bottom centre. They're placed as `Workspace.Zones.<Zone>.Decor` and `FloorDecor` ([[Zone Line]]). `CollisionFidelity` can't be set from `execute_luau` (it stays Default).

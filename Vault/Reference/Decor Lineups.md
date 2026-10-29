@@ -18,14 +18,32 @@ Palm: curved ringed trunk, broad drooping fronds with notched edges, coconuts un
 
 Related: [[Meshlab]], [[Keep Decor Simple]]
 
-## Lineups C and D: zones 6-10 (prompts 2026-10-29, sheets not made yet)
-The prompts are in `assets/Decor/Prompts.md`.
-- **C (swamp, savanna):** Cattails, Lily Pads, Dead Tree, Acacia, Grass Tuft, Termite Mound.
-- **D (bamboo, volcano, ruins):** Bamboo Clump, Mossy Stone, Smoking Vent, Broken Pillar (with vines), Statue Head, Rune Stone.
+## Lineups C and D: zones 6-10 (2026-10-29)
+The prompts are in `assets/Decor/Prompts.md`. Copies of the sheets are in `assets/Decor/LineupC.webp` and `LineupD.png`. The user asked for the existing models to be used as the style guide, along with the sheets.
 
-These are reused or recoloured instead of getting a slot:
-- Swamp: Stump, Mushroom and Bush.
-- Volcano: Charred Tree (the Dead Tree) and Ash Pile (the Snow Pile).
-- Bamboo: Bamboo Shoot (a short Bamboo Clump wrapper).
+### Lineup C: swamp, savanna
+![[Decor Lineup C.webp]]
+Take these from the sheet:
+- **Cattails:** thin reeds, fat brown sausage heads with a spike, long leaves bending out.
+- **Lily pads:** three flat pads with a notch, and a pink flower on the biggest.
+- **Dead tree:** a thick crooked trunk with root flares and forked bare limbs.
+- **Acacia:** a slim Y-forked trunk under one wide, flat, thin canopy.
+- **Grass tuft:** a fan of golden blades bending at the tips, with a couple of seed stalks.
+- **Termite mound:** a lumpy terracotta base and two chimney towers with holes.
+
+### Lineup D: bamboo, volcano, ruins
+![[Decor Lineup D.png]]
+Take these from the sheet:
+- **Bamboo:** a lime clump with ring joints and small pointed leaves.
+- **Mossy stone:** a low grey boulder under a thick drippy moss cap.
+- **Vent:** a charcoal cone with a glowing orange hole (the smoke is a particle emitter).
+- **Broken pillar:** a square plinth, a column with a jagged break, and a vine spiralling up it.
+- **Statue head:** lying on its side, with a heavy brow, closed eyes, a long flat nose and moss on top.
+- **Rune stone:** a rounded-top slab with a purple glowing rune.
+
+The models are in [[Meshlab]] (Zone decor 6-10). These are reused or recoloured instead of getting a slot:
+- Swamp: Stump, Mushroom and the Bush, as `SwampBush`.
+- Volcano: `CharredTree` (the Dead Tree) and `AshPile` (the Snow Pile).
+- Bamboo: `BambooShoot`, a short Bamboo wrapper.
 
 The arena gets no props for now (user, 2026-10-29).
