@@ -19,10 +19,9 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Finish the toolbar (added 2026-10-24, user asked to finish it 2026-10-28): what to change isn't decided yet
 - [ ] Rok size variations (added 2026-10-28, not started): 5 size tiers by rarity, from Normal and Large up to Enormous; the middle tier names, odds and what size changes (looks only, or $/s too) aren't decided yet
 - [ ] Remove the strength requirement to open geodes (added 2026-10-28, not started). See [[Geode Shop]]
-- [ ] Free Gift popup (added 2026-10-28, not started): a "Free Gift! Limited time!" screen with a big reward picture, three step cards with screenshots (1. Like the game, 2. Favorite the game, 3. Join the community) and a green Claim button. Roblox can't check likes; favorites can be prompted (`AvatarEditorService:PromptSetFavorite`) and group membership checked (`Player:IsInGroup`), so what Claim actually checks, the reward, and when the popup shows aren't decided yet
 
 ## Waiting on the user
-- [ ] Save the place in Studio (2026-10-27): Rok icon swap, collect pad restyle, shop rail, VIP base, Champ and Kingy models, Kingy's aura template, `StarterGui.TutorialComplete` banner
+- [ ] Save the place in Studio (2026-10-27): Rok icon swap, collect pad restyle, shop rail, VIP base, Champ and Kingy models, Kingy's aura template, `StarterGui.TutorialComplete` banner, `StarterGui.FreeGift` and `Workspace.FreeGift` (2026-10-28)
 
 ## Deferred until the user raises it
 - Ascended Chop (1 in 1,000)

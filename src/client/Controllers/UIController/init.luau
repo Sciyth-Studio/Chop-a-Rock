@@ -28,6 +28,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	GiftPicker = require(script.Screens.GiftPicker),
 	StarterOffer = require(script.Screens.StarterOffer),
 	WelcomeBack = require(script.Screens.WelcomeBack),
+	FreeGift = require(script.Screens.FreeGift),
 	OfferRail = require(script.Screens.OfferRail),
 	PurchaseBanner = require(script.Screens.PurchaseBanner),
 	HatchReveal = require(script.Screens.HatchReveal),
