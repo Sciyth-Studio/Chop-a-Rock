@@ -161,6 +161,11 @@ function RokStacks.Paint(frame: GuiObject, stack: Stack?)
 	local count = label(frame, "Count")
 	local nameLabel = label(frame, "RokName")
 	local rateLabel = label(frame, "Rate")
+	local nameShadow = label(frame, "RokNameShadow")
+	if nameShadow then
+		nameShadow.Visible = stack ~= nil
+		nameShadow.Text = if stack then stack.Name else ""
+	end
 	if not stack then
 		if icon and icon:IsA("ImageLabel") then
 			icon.Visible = false

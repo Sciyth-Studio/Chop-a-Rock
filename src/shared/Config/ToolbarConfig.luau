@@ -28,7 +28,7 @@ local ToolbarConfig: ToolbarSettings = {
 		Enum.KeyCode.Six,
 		Enum.KeyCode.Seven,
 	},
-	IdleStroke = { Color = Color3.fromRGB(15, 30, 15), Thickness = 2 },
+	IdleStroke = { Color = Color3.fromRGB(0, 0, 0), Thickness = 3 },
 	HeldStroke = { Color = Color3.fromRGB(255, 255, 255), Thickness = 3 },
 	PlacedStroke = { Color = Color3.fromRGB(0, 220, 60), Thickness = 3 },
 	CountTextStyle = "Gold",
