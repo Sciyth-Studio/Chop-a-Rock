@@ -49,6 +49,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Game Icon Pack]] — the game's icons come from the user's Free Icon Pack v3.1 (Downloads); the ChatGPT style sheet `assets/Icons/Cannon/IconStyleSheet.png` is 8 of them; check the pack before prompting; use "1st" (no outline)
 - [[Balance Model]] — the user's Excel economy model (Downloads, v8), kept in this chat since 2026-10-19: tabs, syncing it to the Luau, editing it via Excel COM
 - [[Master Game Plan]] — design source-of-truth doc and its tags
+- [[Team Create Saves]] — Team Create is on: Studio edits save to Roblox as they're made; never ask the user to Ctrl+S (2026-10-29)
 - [[Studio Live Editing vs Rojo]] — new instances sync but script edits don't → restart Studio
 - [[Tile Style Reference]] — 2026-10-15 pilot restyle (HUD tiles + Daily Rewards panel): outline + colour-to-clear gradient + shade box tiles, translucent dark bodies, square corners, stud headers, no stripes; applied to menu buttons and shops, backups in `UIBackup.BeforeTileStyle`
 - [[UI Style References]] — screenshots of panel UI the user likes; open before building or restyling menus
