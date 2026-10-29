@@ -31,6 +31,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.TutorialService),
 	require(script.Parent.Services.BoostService),
 	require(script.Parent.Services.OfferService),
+	require(script.Parent.Services.FreeGiftService),
 	require(script.Parent.Services.ExclusiveService),
 	require(script.Parent.Services.RobuxShopFunnelService),
 	require(script.Parent.Services.TeleportService),

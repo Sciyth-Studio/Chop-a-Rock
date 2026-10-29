@@ -141,6 +141,7 @@ _One note per game system as they're worked on._
 - [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks via `Utils/ItemIcons` (ViewportFrame fallback) in Index, Geode Stand, Roks and Sell Shop (HatchReveal stays 3D); generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons live 2026-10-24, Champ and Kingy added 2026-10-25
 - [[Player List]] — 2026-10-28 Roblox-style top-right `leaderstats`: Strength, Money, Rebirths as NumberValues ranked by Strength, 0.5 s refresh; `PlayerListService`, `PlayerListConfig`
 - [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)
+- [[Free Gift]] — 2026-10-28 lobby pad by the entrance opens a "Free Gift!" panel (like, favorite, join steps); Claim checks Sciyth Studio group membership server-side (`GetGroupsAsync`, not cached `IsInGroup`), once per player (`Offers.FreeGift`), cash worth 3 zone geodes; `FreeGiftService`, `Screens/FreeGift`, `FreeGiftConfig`
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._

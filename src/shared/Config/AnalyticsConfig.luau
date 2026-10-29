@@ -41,6 +41,7 @@ local AnalyticsConfig: AnalyticsSettings = {
 		GiftCashPack = table.freeze({ Type = purchase, Sku = "GiftCashPack" }),
 		StarterPack = table.freeze({ Type = purchase, Sku = "StarterPack" }),
 		OfflineClaim = table.freeze({ Type = purchase, Sku = "OfflineClaim" }),
+		FreeGift = table.freeze({ Type = reward, Sku = "FreeGift" }),
 	},
 	Sinks = {
 		Aura = table.freeze({ Type = shop, Sku = "Aura" }),
