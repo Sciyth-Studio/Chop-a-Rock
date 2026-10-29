@@ -17,3 +17,15 @@ Pine: four stacked cones with wavy scalloped rims and a short dark brown trunk. 
 Palm: curved ringed trunk, broad drooping fronds with notched edges, coconuts under the crown. Leaf plant: broad pointed leaves with a centre vein, fanning up. Kelp: three wavy olive ribbons with small float bulbs. Coral: pink antler-like branching with rounded tips. Starfish: plump and low, with light dots. Snow pile: a low white drift of rounded lumps, icy blue underneath.
 
 Related: [[Meshlab]], [[Keep Decor Simple]]
+
+## Lineups C and D: zones 6-10 (prompts 2026-10-29, sheets not made yet)
+The prompts are in `assets/Decor/Prompts.md`.
+- **C (swamp, savanna):** Cattails, Lily Pads, Dead Tree, Acacia, Grass Tuft, Termite Mound.
+- **D (bamboo, volcano, ruins):** Bamboo Clump, Mossy Stone, Smoking Vent, Broken Pillar (with vines), Statue Head, Rune Stone.
+
+These are reused or recoloured instead of getting a slot:
+- Swamp: Stump, Mushroom and Bush.
+- Volcano: Charred Tree (the Dead Tree) and Ash Pile (the Snow Pile).
+- Bamboo: Bamboo Shoot (a short Bamboo Clump wrapper).
+
+The arena gets no props for now (user, 2026-10-29).
