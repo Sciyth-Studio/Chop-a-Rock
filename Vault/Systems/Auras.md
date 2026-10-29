@@ -14,7 +14,18 @@ Merged with arms on 2026-10-18 ([[Cannons And Auras Replace Arms]]). The five ha
 | 3 | Green Aura | $2,400 | x1.5 | +4 | 0,255,0 |
 | 4 | Lime Aura | $19,200 | x2 | +6 | 150,255,0 |
 | 5 | Yellow Aura | $153,600 | x2.5 | +8 | 255,255,0 |
-Later tiers continue the user's colour order (silver, then the rainbow in half steps from true green): amber, orange, red-orange, red. Adding one is a config row.
+| 6 | Amber Aura | $3M | x2.6 | +10 | 255,190,0 |
+| 7 | Orange Aura | $250M | x2.7 | +12 | 255,128,0 |
+| 8 | Red-Orange Aura | $20B | x2.8 | +14 | 255,64,0 |
+| 9 | Red Aura | $1.5T | x2.9 | +16 | 255,0,0 |
+| 10 | Rose Aura | $100T | x3.0 | +18 | 255,0,128 |
+| 11 | Magenta Aura | $8Qa | x3.1 | +20 | 255,0,255 |
+| 12 | Purple Aura | $600Qa | x3.2 | +22 | 128,0,255 |
+| 13 | Blue Aura | $45Qi | x3.3 | +24 | 0,0,255 |
+| 14 | Sky Aura | $3.3Sx | x3.4 | +26 | 0,128,255 |
+| 15 | Cyan Aura | $25Sx | x3.5 | +28 | 0,255,255 |
+
+World 1 is 10 zones (user, 2026-10-28), so tiers 6-15 were added 2026-10-28 for it. The rule: from the Desert, one aura per zone priced at about 2.5 min of that zone's income (income grows about x75-85 per zone), plus a zone 10 capstone at about 20 min; training +0.1 per tier so stands keep setting the pace ([[Balance Pass Oct 18]]); speed +2 per tier. Prices for zones 6-10 (Rose on) are extrapolated, so recheck them when those zones are modelled. Colours continue the user's order: silver, then the rainbow in half steps from true green round to cyan. In balance model v10. `NumberFormat` gained `Qi` and `Sx` for these prices, and the shop row price uses `NumberFormat.Compact` (Commas printed `1e+16` above about 1e15). Adding a tier is a config row.
 
 ## Data and server
 - `PlayerData.AuraTier` (was `ArmTier`; `PlayerData.Migrate` copies `ArmTier` over and drops `ArmTier`, `Auras`, `EquippedAura`). Bought in order, highest owned is always worn, nothing to equip. Kept through rebirth (`RebirthConfig.ResetAuraTier` false).

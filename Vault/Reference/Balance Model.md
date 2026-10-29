@@ -4,7 +4,7 @@ type: reference
 ---
 # Balance model
 
-The user's spreadsheet model of the economy. It was first built in claude.ai, and since 2026-10-19 the user keeps it with Claude Code ("I'll just stick with this chat"). Latest: `C:\Users\Admin\Downloads\Chop_a_Rock_Balance_Model_v8.xlsx`. Decisions made with it: [[Balance Pass Oct 18]].
+The user's spreadsheet model of the economy. It was first built in claude.ai, and since 2026-10-19 the user keeps it with Claude Code ("I'll just stick with this chat"). Latest: `C:\Users\Admin\Downloads\Chop_a_Rock_Balance_Model_v10.xlsx` (2026-10-28: aura tiers 6-15 on Config, Zone Model F6:F9 assume each zone's own aura, still 49 of 50). Decisions made with it: [[Balance Pass Oct 18]].
 
 ## Tabs
 - **Checks**: pass/fail per zone against the targets on Inputs. This is the summary to read first. 50 checks since v8; v9 passes 49, and the one failure (Snow has too little to save for) is expected until zone 6. Training targets are for idle players; the Board Slice check (columns E-F) only fails when a minigame player is too slow (see [[Training Minigame Board Slice]]).
