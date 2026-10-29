@@ -112,6 +112,12 @@ local function show(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInpu
 	actionText.Text = prompt.ActionText
 	keyText.Text = keyString(prompt, inputType)
 	setProgress(entry, 0)
+	entryTrove:Connect(prompt:GetPropertyChangedSignal("ObjectText"), function()
+		objectText.Text = prompt.ObjectText
+	end)
+	entryTrove:Connect(prompt:GetPropertyChangedSignal("ActionText"), function()
+		actionText.Text = prompt.ActionText
+	end)
 
 	entryTrove:Connect(hitButton.InputBegan, function(input: InputObject)
 		if

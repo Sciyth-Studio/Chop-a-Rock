@@ -25,15 +25,7 @@ local Types = require(script.Parent.Types)
 local Cracking = {}
 
 function Cracking.PickGeode(data: any): string?
-	for _, keys in { GeodeOrder.SortedLucky(), GeodeOrder.Sorted() } do
-		for index = #keys, 1, -1 do
-			local key = keys[index]
-			if (data.Geodes[key] or 0) > 0 then
-				return key
-			end
-		end
-	end
-	return nil
+	return GeodeOrder.Pick(data.Geodes, data.SelectedGeode)
 end
 
 local function rollModifier(context: Types.Context, player: Player, geodeKey: string): string?

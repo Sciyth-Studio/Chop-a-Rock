@@ -52,6 +52,7 @@ export type Data = {
 	Playtime: number,
 	Weekly: Weekly,
 	Geodes: { [string]: number },
+	SelectedGeode: string,
 	Pity: { [string]: { [string]: number } },
 	Pets: { [string]: Pet },
 	NextPetId: number,
@@ -98,6 +99,7 @@ PlayerData.Template = {
 	Playtime = 0,
 	Weekly = { Week = 0, Strength = 0, PerfectChops = 0, Playtime = 0, MoneyPerSecond = 0 },
 	Geodes = {},
+	SelectedGeode = "",
 	Pity = {},
 	Pets = {},
 	NextPetId = 1,
@@ -225,6 +227,9 @@ function PlayerData.Validate(data: any): boolean
 		end
 	end
 	if data.Geodes ~= nil and not counts(data.Geodes) then
+		return false
+	end
+	if data.SelectedGeode ~= nil and type(data.SelectedGeode) ~= "string" then
 		return false
 	end
 	if data.Pity ~= nil then

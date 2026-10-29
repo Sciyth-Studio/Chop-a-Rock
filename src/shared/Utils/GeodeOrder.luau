@@ -32,6 +32,21 @@ function GeodeOrder.LuckyKey(baseKey: string): string?
 	return if geode and geode.RobuxOnly then key else nil
 end
 
+function GeodeOrder.Pick(geodes: { [string]: number }, selected: string?): string?
+	if selected and GeodeConfig.Geodes[selected] and (geodes[selected] or 0) > 0 then
+		return selected
+	end
+	for _, keys in { GeodeOrder.SortedLucky(), GeodeOrder.Sorted() } do
+		for index = #keys, 1, -1 do
+			local key = keys[index]
+			if (geodes[key] or 0) > 0 then
+				return key
+			end
+		end
+	end
+	return nil
+end
+
 function GeodeOrder.ForStrength(strength: number): string?
 	local keys = GeodeOrder.Sorted()
 	local best: string? = keys[1]

@@ -18,6 +18,16 @@ function Purchasing.UnopenedCount(data: any): number
 	return total
 end
 
+function Purchasing.OwnedKinds(data: any): number
+	local kinds = 0
+	for _, count in data.Geodes do
+		if count > 0 then
+			kinds += 1
+		end
+	end
+	return kinds
+end
+
 function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, amount: any): boolean
 	if
 		type(geodeKey) ~= "string"
