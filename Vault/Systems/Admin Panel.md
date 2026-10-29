@@ -27,7 +27,7 @@ The user asked for one place to keep every admin command, including future weath
   - **Roks**: Grant Rok, Grant Random Rok → Held Rok: Set Trait, Held Rok: Set Modifier → Fill / Clear Backpack, Fill All Pedestals → Index: Complete, Reset, Claim All.
   - **Geodes**: +1 Geode, +10 Geodes, +1 Lucky Geode → Next Hatch Rarity, Next Hatch: Secret, Pity: Next Due.
   - **Chop**: Next Chop: Master, Next Chop Quality → the four cheat toggles → Spawn Rock, Toggle Spawn Spots → Set Hot Streak, Toggle Streak Freeze.
-  - **Events**: Weather Start / End / Next in 10s → Spawn Diamond Rock, Diamond: 10s Left → Next Rock: Rush → Start Geode Fall, Geode Fall: 10s Left.
+  - **Events**: Global Message (every server, see [[Global Announcements]]) → Weather Start / End / Next in 10s → Spawn Diamond Rock, Diamond: 10s Left → Next Rock: Rush → Start Geode Fall, Geode Fall: 10s Left.
   - **Shop** (Robux testing): Toggle Fake Pass (Studio) → Give Boost, Server Boost, Clear All Boosts (personal and server) → Grant / Reset Starter Pack → Grant Exclusive Rok, Reset Exclusive Rok → Simulate Gift, Grant Offline Claim x3.
   - Kept on purpose despite overlap: Next Hatch: Secret (= Next Hatch Rarity on Secret), +1 Geode (zone geode), +1,000 Cash and Reset My Data (= Reset Player Data on yourself, no confirm), because they have shortcuts or skip the confirm.
   - A new command goes in the tab for its purpose, next to its relatives, not at the end of the list.

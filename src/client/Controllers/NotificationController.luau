@@ -41,6 +41,10 @@ function NotificationController.GetPins(
 end
 
 function NotificationController.Notify(self: any, kind: string, message: string)
+	if NotificationConfig.UnmutedKinds[kind] then
+		self.Notified:Fire(kind, message)
+		return
+	end
 	if self._controllers.DataController:Get({ "Settings", "Notifications" }) == false then
 		return
 	end

@@ -10,8 +10,6 @@ local Commands = require(script.Commands)
 local Presets = require(script.Presets)
 local Types = require(script.Types)
 
-local maxArgumentLength = 64
-
 local AdminService = { Name = "AdminService" }
 
 local trove = Trove.new()
@@ -67,7 +65,7 @@ function AdminService.Start(_self: any)
 			if not AdminService:IsAdmin(player) then
 				return
 			end
-			if type(argument) ~= "string" or #argument > maxArgumentLength then
+			if type(argument) ~= "string" or #argument > AdminConfig.MaxArgumentLength then
 				return
 			end
 			local handler = Commands[commandId]

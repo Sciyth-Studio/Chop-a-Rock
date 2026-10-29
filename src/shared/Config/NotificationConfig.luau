@@ -5,6 +5,8 @@ local WeatherConfig = require(script.Parent.WeatherConfig)
 export type NotificationSettings = {
 	Kinds: { [string]: boolean },
 	KindStyles: { [string]: string },
+	KindHoldSeconds: { [string]: number },
+	UnmutedKinds: { [string]: boolean },
 	FallbackKind: string,
 	SoundKey: string,
 	MaxVisible: number,
@@ -27,9 +29,17 @@ local NotificationConfig: NotificationSettings = {
 		Error = true,
 		Tutorial = true,
 		Pass = true,
+		Announcement = true,
 	},
 	KindStyles = {
 		Pass = "Gold",
+		Announcement = "Gold",
+	},
+	KindHoldSeconds = {
+		Announcement = 8,
+	},
+	UnmutedKinds = {
+		Announcement = true,
 	},
 	FallbackKind = "Info",
 	SoundKey = "SFX_Notification",

@@ -104,7 +104,8 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local function schedule(entry: Entry)
 		entry.Token += 1
 		local token = entry.Token
-		task.delay(NotificationConfig.FadeInSeconds + NotificationConfig.HoldSeconds, function()
+		local holdSeconds = NotificationConfig.KindHoldSeconds[entry.Kind] or NotificationConfig.HoldSeconds
+		task.delay(NotificationConfig.FadeInSeconds + holdSeconds, function()
 			if entry.Token == token then
 				remove(entry)
 			end

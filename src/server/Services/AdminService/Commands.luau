@@ -636,6 +636,10 @@ local Commands: { [string]: Types.Handler } = {
 		print(`[AdminService] {player.Name} reset the data of {target.Name} ({target.UserId}){where}`)
 		notify(context, player, `{target.Name}'s data reset`)
 	end,
+	GlobalMessage = function(context: Types.Context, player: Player, argument: string)
+		local _, message = context.Services.AnnouncementService:Send(player, argument)
+		notify(context, player, message)
+	end,
 }
 
 return Commands
