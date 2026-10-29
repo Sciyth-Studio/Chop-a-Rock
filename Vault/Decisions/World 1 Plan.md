@@ -16,3 +16,5 @@ Approved by the user 2026-10-29. Full plan with every rock, Rok, geode and numbe
 - **Build only after planning**, because zones are mostly recoloured parts.
 
 Related: [[Rebirth Gated By Strength]], [[Auras]], [[Zone Line]], [[Diamond Rock]]
+
+**2026-10-29 update:** zone signs are short and spoiler-free: "Bamboo Zone", "Ruins Zone". No player-facing label says "Golem". The boss arena is a fairly square walled courtyard, bigger than a zone, not round. The blockout is in [[Zone Line]].

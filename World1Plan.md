@@ -18,7 +18,7 @@ Status: **approved 2026-10-29**. The user and Claude planned it together in chat
 
 ## 2. The Golem boss (approved 2026-10-29)
 - **Fight:** the Golem is a giant boulder golem. Glowing cracks open on it, and you walk up and chop them with the normal chop meter, where better quality does more damage. Every so often it slams the ground, and you step out of the shockwave ring. Other players can join, like the Diamond Rock.
-- **Where and when:** in a round stone arena at the far end of Golem Ruins. **It's always awake, with no waiting** (user: "a player who needs to fight shouldn't have to wait at all"). Walking in starts a fight or joins the one already running, and its health scales with the number of players. A new fight can start as soon as one ends.
+- **Where and when:** in a square walled stone arena at the far end of Golem Ruins (user, 2026-10-29; blockout built, see [[Zone Line]]). **It's always awake, with no waiting** (user: "a player who needs to fight shouldn't have to wait at all"). Walking in starts a fight or joins the one already running, and its health scales with the number of players. A new fight can start as soon as one ends.
 - **Gate:** strength at least the Statue Boulder's (zone 10's toughest rock, 745Qi), the same rule as a rebirth.
 - **Length:** about 60-90 s solo at the gate strength (*draft*). Damage per chop is like the Diamond Rock's: chop quality times strength.
 - **Getting hit:** knockback plus about 1 s stun. No dying and nothing lost.
@@ -110,7 +110,7 @@ Floor is near-black charcoal (~40, 35, 35) with glowing orange crack strips. Dec
 Volcano Geode: needs 1.19Qi strength and costs 2.11Qi (x12).
 
 ### 10. Golem Ruins (magic allowed)
-Floor is mossy grey-green stone tiles (~110, 115, 100). Decor is broken pillars, toppled statue heads, vines and glowing purple rune stones. The boss arena is a round courtyard at the far end. Roks are **rune purple** (~140, 60, 220).
+Floor is mossy grey-green stone tiles (~110, 115, 100). Decor is broken pillars, toppled statue heads, vines and glowing purple rune stones. The boss arena is a fairly square walled courtyard at the far end, larger than a zone (user, 2026-10-29). Player-facing labels say "Ruins Zone", never "Golem", so the ending is not spoiled. Roks are **rune purple** (~140, 60, 220).
 
 | Rock | Prop | Strength | Pays |
 |---|---|---|---|
