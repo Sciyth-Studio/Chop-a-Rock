@@ -9,6 +9,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local RokModifier = require(ReplicatedStorage.RokModifier)
+local RokSize = require(ReplicatedStorage.RokSize)
 local RokValue = require(ReplicatedStorage.RokValue)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -22,6 +23,7 @@ export type Grant = {
 	Trait: string?,
 	TraitValue: number?,
 	Modifier: string?,
+	Size: string?,
 }
 
 local PetService = {
@@ -150,7 +152,7 @@ function PetService.SyncTools(_self: any, player: Player)
 	end
 end
 
-local function add(player: Player, petKey: string, modifier: string?): Grant?
+local function add(player: Player, petKey: string, modifier: string?, luck: number?): Grant?
 	local pet = PetConfig.Pets[petKey]
 	local data = services.DataService:GetData(player)
 	local replica = services.DataService:GetReplica(player)
@@ -165,6 +167,7 @@ local function add(player: Player, petKey: string, modifier: string?): Grant?
 		Trait = trait,
 		TraitValue = traitValue,
 		Modifier = if RokModifier.Get(modifier) and not isExclusive(petKey) then modifier else nil,
+		Size = if isExclusive(petKey) then nil else RokSize.Roll(random, luck or 1),
 	}
 	replica:Set({ "NextPetId" }, data.NextPetId + 1)
 	replica:Set({ "Pets", id }, record)
@@ -176,6 +179,7 @@ local function add(player: Player, petKey: string, modifier: string?): Grant?
 		Trait = trait,
 		TraitValue = traitValue,
 		Modifier = record.Modifier,
+		Size = record.Size,
 	}
 end
 
@@ -256,9 +260,10 @@ function PetService.Grant(
 	player: Player,
 	petKey: string,
 	modifier: string?,
-	equipDelay: number?
+	equipDelay: number?,
+	luck: number?
 ): Grant?
-	local grant = add(player, petKey, modifier)
+	local grant = add(player, petKey, modifier, luck)
 	if grant then
 		granted(player, equipDelay)
 	end
@@ -268,7 +273,7 @@ end
 function PetService.GrantMany(_self: any, player: Player, petKeys: { string }): { Grant }
 	local grants: { Grant } = {}
 	for _, petKey in petKeys do
-		local grant = add(player, petKey, nil)
+		local grant = add(player, petKey, nil, nil)
 		if not grant then
 			break
 		end
@@ -309,6 +314,19 @@ function PetService.SetTrait(
 	end
 	replica:Set({ "Pets", petId, "Trait" }, trait)
 	replica:Set({ "Pets", petId, "TraitValue" }, if trait then value else nil)
+	services.DataService:RequestSave(player)
+	PetService:SyncTools(player)
+	PetService.ModifierChanged:Fire(player, petId)
+	return true
+end
+
+function PetService.SetSize(_self: any, player: Player, petId: string, size: string?): boolean
+	local data = services.DataService:GetData(player)
+	local pet = if data then data.Pets[petId] else nil
+	if not pet or isExclusive(pet.Key) or (size ~= nil and not RokSize.IsShown(size)) then
+		return false
+	end
+	services.DataService:Set(player, { "Pets", petId, "Size" }, size)
 	services.DataService:RequestSave(player)
 	PetService:SyncTools(player)
 	PetService.ModifierChanged:Fire(player, petId)

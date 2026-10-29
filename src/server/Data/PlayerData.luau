@@ -16,6 +16,7 @@ export type Pet = {
 	Trait: string?,
 	TraitValue: number?,
 	Modifier: string?,
+	Size: string?,
 	Slot: number?,
 	Income: number?,
 }
@@ -184,6 +185,7 @@ local function validPet(pet: any): boolean
 		and (pet.Trait == nil or type(pet.Trait) == "string")
 		and (pet.TraitValue == nil or finite(pet.TraitValue))
 		and (pet.Modifier == nil or type(pet.Modifier) == "string")
+		and (pet.Size == nil or type(pet.Size) == "string")
 		and (pet.Slot == nil or (natural(pet.Slot) and pet.Slot >= 1))
 		and (pet.Income == nil or (finite(pet.Income) and pet.Income >= 0))
 end

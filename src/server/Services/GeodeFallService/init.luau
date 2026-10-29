@@ -273,6 +273,7 @@ local function crack(geode: Types.Geode, player: Player, quality: number)
 			grant.IsNew,
 			grant.Trait or "",
 			grant.Modifier or "",
+			grant.Size or "",
 			false
 		)
 	end)
