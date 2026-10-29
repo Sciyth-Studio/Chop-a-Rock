@@ -17,7 +17,7 @@ Plan and decisions: `PetBaseSystemPlan.md` (approved 2026-10-06), Master Game Pl
 
 ## Client
 - `Components/Pedestal.luau` (tag `Pedestal`, added by the server) clones `Assets/VFX/PedestalPad` (`Amount`, a top-face SurfaceGui since 2026-10-24) onto the pad and `PedestalInfo` (`Modifier`, `Title`, `Detail`, top to bottom; see [[Weather]]) above the pedestal, and counts the pad up locally from the attributes. Visitors see them too.
-- `Screens/Roks.luau` + `StarterGui.Roks` (teal header, copy of the Shop panel): title "X/Y Placed", `Header.SlotButton`, `List.RowTemplate` (`Preview`, `RokName`, `UnequipButton`), `EmptyLabel`, `EquipBestButton`. Opened by the `RoksButton` menu button (was `BagButton`).
+- Toolbar and Roks panel: see [[Toolbar]] (rebuilt 2026-10-29; the old teal pedestal-list panel and the `RoksButton` menu button are in `ServerStorage.UIBackup`).
 - The Delete button shown while holding a Rok (`HeldRok`) was removed the same day; Roks are sold at the [[Sell Shop]] instead.
 - `ExpBar.Container` moved to y = 1,-84 so it clears the Roblox hotbar.
 - Idle motion (2026-10-14, draft numbers in `RokMotionConfig`): `Display` tags each `PlacedRok` `IdleRok`, sets `PlacedAt` (server time) and makes it `Atomic` for streaming. `Components/IdleRok.luau` makes it breathe (volume-kept Y squash, random phase), blink (parts ending `_Eyes` / `_Pupils` squash in Y) and drop in with a squash bounce when `PlacedAt` is under 1 s old. It resizes and moves parts locally each frame, so it assumes Rok parts are axis-aligned with the pivot at bottom centre (all forest Roks are). Skipped beyond 100 studs from the camera; Low Graphics turns off breathing only. New Roks need their eye meshes named `<Name>_Eyes` / `<Name>_Pupils` to blink.
@@ -26,7 +26,6 @@ Plan and decisions: `PetBaseSystemPlan.md` (approved 2026-10-06), Master Game Pl
 - Pedestal Models are `Atomic` (set in `Display.EnsurePrompt`, 2026-10-22). Before this they streamed part by part, so walking away streamed out `EarningsPad` and took the client's pad BillboardGui with it. The component never restarted because the tagged Model stayed, so the amount never came back. The server `Touched` collect still worked. Atomic alone didn't fix every pad (some still came back blank after cannoning to snow), so `Components/Pedestal` now also rebuilds both billboards whenever a child named `Pedestal` or `EarningsPad` is added or removed. Any client gui parented to a part inside a tagged model needs the same remount.
 - Auto Equip on hatch waits for the reveal (2026-10-20). `PetService.Granted` carries an equip delay. `GeodeService/Cracking` passes the impact delay plus `HatchTiming.RevealSeconds(rarity)`, so the Rok drops onto the pedestal at the pop and not mid-animation. Before this, the Rok was placed the moment it was granted, which spoiled the reveal. Admin grants pass no delay.
 - The pedestal prompt range (10) is measured from the pedestal centre; the pad is 8.25 away, so standing on the pad is just inside range.
-- Hotbar icons are empty until the item-icon pipeline (`IconSystemPlan.md`) lands; set `Tool.TextureId` from it then.
 
 ## Collect pad look (2026-10-24)
 Matched to the user's reference (flat green pad, raised border, tiled squares, amount printed on the pad):

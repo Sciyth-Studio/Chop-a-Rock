@@ -24,6 +24,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	AutoOpenButton = require(script.Screens.AutoOpenButton),
 	Index = require(script.Screens.Index),
 	Roks = require(script.Screens.Roks),
+	Toolbar = require(script.Screens.Toolbar),
 	SellShop = require(script.Screens.SellShop),
 	RobuxShop = require(script.Screens.RobuxShop),
 	GiftPicker = require(script.Screens.GiftPicker),

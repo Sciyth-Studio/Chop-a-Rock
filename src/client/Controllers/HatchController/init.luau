@@ -4,7 +4,6 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local HatchRevealConfig = require(ReplicatedStorage.Config.HatchRevealConfig)
 local HatchTiming = require(ReplicatedStorage.HatchTiming)
@@ -12,6 +11,7 @@ local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local Packets = require(ReplicatedStorage.Packets)
+local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Scene = require(script.Scene)
@@ -34,7 +34,15 @@ local active: { [Attachment]: Reveal } = {}
 local backpackHolds = 0
 
 local function setBackpackShown(isShown: boolean)
-	pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.Backpack, isShown)
+	local uiController = controllers.UIController
+	if not uiController then
+		return
+	end
+	if isShown then
+		uiController:Open(ToolbarConfig.Screen)
+	else
+		uiController:Close(ToolbarConfig.Screen)
+	end
 end
 
 local function holdBackpack(): () -> ()
