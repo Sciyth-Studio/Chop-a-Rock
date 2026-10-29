@@ -57,7 +57,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Tintable Mesh Textures]] — studs are the 2022 MaterialVariants in MaterialService (`2022 Inlet`, `2022 Stud` = outlet); copy MaterialVariant with Material
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
-- [[Zone Line]] — zone order forest → desert → jungle → ocean → snow; folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours
+- [[Zone Line]] — zone order forest → desert → jungle → ocean → snow → swamp → savanna → bamboo forest → volcano → golem ruins (6-10 are blockouts); folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours, whole-stud grid and the lobby gap fix
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared; recover a sourceless image via EditableImage pixels
 - [[Open Cloud Key]] — `ROBLOX_API_KEY` user env var; assets + dev products scopes; reaches group assets; never print it
