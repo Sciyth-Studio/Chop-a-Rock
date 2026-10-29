@@ -17,13 +17,14 @@ export type RokSizeSettings = {
 }
 
 local RokSizeConfig: RokSizeSettings = {
-	Order = { "Normal", "Large", "Huge", "Giant", "Enormous" },
+	Order = { "Tiny", "Normal", "Big", "Giant", "Huge", "Colossal" },
 	Sizes = {
-		Normal = { DisplayName = "Normal", Weight = 70, Scale = 1, TextStyle = "Chrome" },
-		Large = { DisplayName = "L", Weight = 20, Scale = 1.2, TextStyle = "Green" },
-		Huge = { DisplayName = "XL", Weight = 7, Scale = 1.4, TextStyle = "Sky" },
-		Giant = { DisplayName = "XXL", Weight = 2.5, Scale = 1.65, TextStyle = "Orange" },
-		Enormous = { DisplayName = "XXXL", Weight = 0.5, Scale = 2, TextStyle = "Gold" },
+		Tiny = { DisplayName = "Tiny", Weight = 15, Scale = 0.75, TextStyle = "Chrome" },
+		Normal = { DisplayName = "Normal", Weight = 55, Scale = 1, TextStyle = "Chrome" },
+		Big = { DisplayName = "Big", Weight = 20, Scale = 1.2, TextStyle = "Green" },
+		Giant = { DisplayName = "Giant", Weight = 7, Scale = 1.4, TextStyle = "Sky" },
+		Huge = { DisplayName = "Huge", Weight = 2.5, Scale = 1.65, TextStyle = "Orange" },
+		Colossal = { DisplayName = "Colossal", Weight = 0.5, Scale = 2, TextStyle = "Gold" },
 	},
 	DefaultKey = "Normal",
 	MaxBigShare = 0.75,

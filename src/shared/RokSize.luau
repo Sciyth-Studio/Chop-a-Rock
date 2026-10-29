@@ -23,6 +23,10 @@ function RokSize.Scale(size: string?): number
 	return RokSize.Get(size).Scale
 end
 
+local function isBig(key: string): boolean
+	return RokSizeConfig.Sizes[key].Scale > RokSizeConfig.Sizes[RokSizeConfig.DefaultKey].Scale
+end
+
 function RokSize.Chances(luck: number): { Chance }
 	local totalWeight = 0
 	for _, key in RokSizeConfig.Order do
@@ -34,7 +38,7 @@ function RokSize.Chances(luck: number): { Chance }
 	end
 	local bigShare = 0
 	for _, key in RokSizeConfig.Order do
-		if key ~= RokSizeConfig.DefaultKey then
+		if isBig(key) then
 			bigShare += math.max(RokSizeConfig.Sizes[key].Weight, 0) / totalWeight
 		end
 	end
@@ -42,10 +46,10 @@ function RokSize.Chances(luck: number): { Chance }
 	if bigShare > 0 and bigShare < 1 then
 		factor = math.min(math.max(luck, 1), math.max(1, RokSizeConfig.MaxBigShare / bigShare))
 	end
-	local defaultScale = if bigShare < 1 then (1 - bigShare * factor) / (1 - bigShare) else 1
+	local smallScale = if bigShare < 1 then (1 - bigShare * factor) / (1 - bigShare) else 1
 	for _, key in RokSizeConfig.Order do
 		local base = math.max(RokSizeConfig.Sizes[key].Weight, 0) / totalWeight
-		local scale = if key == RokSizeConfig.DefaultKey then defaultScale else factor
+		local scale = if isBig(key) then factor else smallScale
 		table.insert(chances, { Key = key, Chance = base * scale })
 	end
 	return chances
