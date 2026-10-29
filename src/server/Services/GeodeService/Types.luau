@@ -16,7 +16,6 @@ export type Session = {
 	Spot: Attachment,
 	Model: Model,
 	Part: BasePart,
-	CanBreak: boolean,
 	StrengthRatio: number,
 	Center: number,
 	StartTime: number,

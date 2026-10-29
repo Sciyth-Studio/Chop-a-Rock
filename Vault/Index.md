@@ -119,7 +119,7 @@ _One note per game system as they're worked on._
 - [[Global Announcements]] — admin `Global Message` (Events tab, `announce`) → filtered, gold 8 s notification in every server via MessagingService; bypasses the Notifications setting; `AnnouncementService`, `AnnouncementConfig`
 - [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
-- [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; new zone = config only (no stand); pity bars (Legendary + Secret guarantees per geode, built 2026-10-22); pit "Choose Geode" picker saves which geode cracks next (2026-10-28)
+- [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your strength reaches; no strength gate on buying or cracking (2026-10-28); new zone = config only (no stand); pity bars (Legendary + Secret guarantees per geode, built 2026-10-22); pit "Choose Geode" picker saves which geode cracks next (2026-10-28)
 - [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
 - [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code

@@ -248,14 +248,10 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local cash = read({ "Cash" })
-		local strength = read({ "Strength" })
 		cash = if type(cash) == "number" then cash else 0
-		strength = if type(strength) == "number" then strength else 0
 		local slots = freeSlots()
 		local blockedText: string? = nil
-		if strength < geode.StrengthRequired then
-			blockedText = `Need {NumberFormat.Commas(geode.StrengthRequired)} Strength`
-		elseif slots < 1 then
+		if slots < 1 then
 			blockedText = if context.Controllers.PurchaseController:OwnsPass("Backpack")
 				then GeodeStandConfig.BagFullText
 				else GeodeStandConfig.BagFullUpsellText
@@ -408,13 +404,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			button.LayoutOrder = order
 			button.Visible = true
 			setText(find(button, "Label", "TextLabel", true), geode.TabName)
-			setText(
-				find(button, "Count", "TextLabel", true),
-				string.format(
-					GeodeStandConfig.TabStrengthFormat,
-					NumberFormat.Compact(geode.StrengthRequired)
-				)
-			)
+			setText(find(button, "Count", "TextLabel", true), "")
 			trove:Add(button.Activated:Connect(function()
 				selectGeode(key)
 				refresh()
