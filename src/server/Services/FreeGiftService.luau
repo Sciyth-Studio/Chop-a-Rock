@@ -57,7 +57,7 @@ local function claim(player: Player): string
 		return results.AlreadyClaimed
 	end
 	services.DataService:Set(player, { "Offers", FreeGiftConfig.OfferKey }, true)
-	local cash = CashPack.GeodeValue(FreeGiftConfig.Geodes, data.Strength)
+	local cash = CashPack.GeodeValue(FreeGiftConfig.Geodes, data.PeakStrength)
 	if cash > 0 then
 		services.DataService:AdjustCash(player, cash, AnalyticsConfig.Sources.FreeGift)
 	end

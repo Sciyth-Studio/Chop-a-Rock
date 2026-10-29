@@ -73,7 +73,7 @@ function FreeGift.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local function refresh()
 		if inner then
-			local strength = dataController:Get({ "Strength" })
+			local strength = dataController:Get({ "PeakStrength" })
 			local cash =
 				CashPack.GeodeValue(FreeGiftConfig.Geodes, if type(strength) == "number" then strength else 0)
 			ShopCards.SetText(inner, "Reward", string.format(texts.Reward, "$" .. NumberFormat.Commas(cash)))
