@@ -372,7 +372,7 @@ local MonetizationConfig: MonetizationSettings = {
 				RokKey = "Kingy",
 				ProductId = 3722325299,
 				RobuxPrice = 1499,
-				Stock = 10000,
+				Stock = 500,
 				StockKey = "Kingy_1",
 				Pitch = "Always 3x your best Rok!",
 			},
