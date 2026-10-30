@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -50,8 +51,8 @@ local function inTutorial(player: Player): boolean
 	return data == nil or Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
 end
 
-local function notify(player: Player, kind: string, text: string)
-	services.NotificationService:Notify(player, kind, text)
+local function notify(player: Player, kind: string, text: string, icon: string?)
+	services.NotificationService:Notify(player, kind, text, icon)
 end
 
 local function notifyAll(text: string)
@@ -236,7 +237,7 @@ local function crack(geode: Types.Geode, player: Player, quality: number)
 	task.delay(revealDelay, Spawning.Hide, geode.Model)
 	if not grant then
 		setAuraHidden(player, false)
-		notify(player, "Error", GeodeFallConfig.BackpackLostText)
+		notify(player, "Error", GeodeFallConfig.BackpackLostText, IconConfig.Backpack)
 		removeGeode(fall, geode, revealDelay + GeodeFallConfig.SinkSeconds)
 		local isRespawned = fall.EndsAt - os.clock() > GeodeFallConfig.MarkerLeadSeconds
 			and spawnGeode(fall, os.clock() + GeodeFallConfig.MarkerLeadSeconds)
@@ -454,7 +455,7 @@ local function onChopRequest(player: Player, id: number)
 	end
 	setClaim(geode, player)
 	if not services.PetService:CanAdd(player, 1) then
-		notify(player, "Error", GeodeFallConfig.BackpackFullText)
+		notify(player, "Error", GeodeFallConfig.BackpackFullText, IconConfig.Backpack)
 	end
 	local session: Types.Session = {
 		Geode = geode,
@@ -490,7 +491,13 @@ local function onRelease(player: Player, claimed: number)
 		return
 	end
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
-	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
+	local isTouch = ChopZones.IsTouch(player)
+	local quality = ChopZones.Classify(
+		ChopZones.Position(elapsed, isTouch),
+		session.Center,
+		session.StrengthRatio,
+		isTouch
+	)
 	local rockService = services.RockService
 	if rockService:ConsumeForcedMaster(player) or rockService:RollMaster(quality, session.StrengthRatio) then
 		quality = ChopQuality.Master

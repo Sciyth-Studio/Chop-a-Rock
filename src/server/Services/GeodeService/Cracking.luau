@@ -3,6 +3,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -17,6 +19,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local Tutorial = require(ReplicatedStorage.Tutorial)
+local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 local Effects = require(script.Parent.Effects)
 local Luck = require(script.Parent.Luck)
 local Types = require(script.Parent.Types)
@@ -51,7 +54,12 @@ function Cracking.Begin(
 		return nil
 	end
 	if not context.Services.PetService:CanAdd(player, 1) then
-		context.Services.NotificationService:Notify(player, "Error", "Bag full! Sell some Roks")
+		context.Services.NotificationService:Notify(
+			player,
+			"Error",
+			"Bag full! Sell Roks",
+			IconConfig.Backpack
+		)
 		return nil
 	end
 	Effects.Show(pit.Model)
@@ -93,6 +101,18 @@ local function forcedPet(context: Types.Context, player: Player, geodeKey: strin
 	return nil
 end
 
+local function isFirstRok(data: any, geodeKey: string): boolean
+	if Tutorial.StepOf(data.Tutorial) ~= Tutorial.Crack or next(data.Pets) ~= nil then
+		return false
+	end
+	for _, entry in GeodeConfig.Geodes[geodeKey].Pets do
+		if entry.PetKey == TutorialConfig.FirstRokKey then
+			return true
+		end
+	end
+	return false
+end
+
 function Cracking.Release(
 	context: Types.Context,
 	player: Player,
@@ -102,7 +122,13 @@ function Cracking.Release(
 ): number
 	local services = context.Services
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
-	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
+	local isTouch = ChopZones.IsTouch(player)
+	local quality = ChopZones.Classify(
+		ChopZones.Position(elapsed, isTouch),
+		session.Center,
+		session.StrengthRatio,
+		isTouch
+	)
 	local tutorialData = services.DataService:GetData(player)
 	local isTutorial = tutorialData ~= nil and Tutorial.IsActive(Tutorial.StepOf(tutorialData.Tutorial))
 	if
@@ -132,7 +158,9 @@ function Cracking.Finish(
 	local data = services.DataService:GetData(player)
 	local pityGeodeKey = GeodeConfig.Geodes[session.GeodeKey].BaseKey or session.GeodeKey
 	local pityCounts = if data then data.Pity[pityGeodeKey] else nil
+	local isFirst = data ~= nil and isFirstRok(data, session.GeodeKey)
 	local forced = forcedPet(context, player, session.GeodeKey)
+		or if isFirst then TutorialConfig.FirstRokKey else nil
 	local due = if forced then nil else HatchPity.Due(pityGeodeKey, pityCounts)
 	local pityKey = if due then HatchOdds.RollRarity(random, session.GeodeKey, due) else nil
 	local petKey = forced or pityKey or HatchOdds.Roll(random, session.GeodeKey, luck)
@@ -155,7 +183,8 @@ function Cracking.Finish(
 		petKey,
 		rollModifier(context, player, session.GeodeKey),
 		equipDelay,
-		luck
+		luck,
+		if isFirst then TutorialConfig.FirstRokSize else nil
 	)
 	if not grant then
 		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
@@ -184,7 +213,7 @@ function Cracking.Finish(
 			services.NotificationService:Notify(
 				other,
 				MasterChopConfig.AnnouncementKind,
-				`{player.DisplayName} landed a Master Chop!`
+				`Master Chop by {player.DisplayName}!`
 			)
 		end
 	else
@@ -214,7 +243,8 @@ function Cracking.Finish(
 				services.NotificationService:Notify(
 					other,
 					GeodeConfig.AnnouncementKind,
-					`{player.DisplayName} hatched a {rarity.DisplayName} {pet.DisplayName}!`
+					`{player.DisplayName} got {rarity.DisplayName} {pet.DisplayName}!`,
+					ItemIcons.Get("Pet", grant.PetKey)
 				)
 			end
 		end)

@@ -8,6 +8,7 @@ export type Zone = {
 export type RockSpawnSettings = {
 	AreaTag: string,
 	ZoneAttribute: string,
+	EntranceName: string,
 	Zones: { [string]: Zone },
 	SampleSpacingStuds: number,
 	MaxSlopeDegrees: number,
@@ -40,6 +41,7 @@ export type RockSpawnSettings = {
 local RockSpawnConfig: RockSpawnSettings = {
 	AreaTag = "RockSpawnArea",
 	ZoneAttribute = "Zone",
+	EntranceName = "ZoneEntrance",
 	Zones = {
 		Forest = {
 			RockCount = 25,

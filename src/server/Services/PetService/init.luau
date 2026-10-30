@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
@@ -152,7 +153,7 @@ function PetService.SyncTools(_self: any, player: Player)
 	end
 end
 
-local function add(player: Player, petKey: string, modifier: string?, luck: number?): Grant?
+local function add(player: Player, petKey: string, modifier: string?, luck: number?, size: string?): Grant?
 	local pet = PetConfig.Pets[petKey]
 	local data = services.DataService:GetData(player)
 	local replica = services.DataService:GetReplica(player)
@@ -167,7 +168,7 @@ local function add(player: Player, petKey: string, modifier: string?, luck: numb
 		Trait = trait,
 		TraitValue = traitValue,
 		Modifier = if RokModifier.Get(modifier) and not isExclusive(petKey) then modifier else nil,
-		Size = if isExclusive(petKey) then nil else RokSize.Roll(random, luck or 1),
+		Size = if isExclusive(petKey) then nil else size or RokSize.Roll(random, luck or 1),
 	}
 	replica:Set({ "NextPetId" }, data.NextPetId + 1)
 	replica:Set({ "Pets", id }, record)
@@ -244,7 +245,8 @@ local function grantPending(player: Player)
 			services.NotificationService:Notify(
 				player,
 				"Purchase",
-				`{if pet then pet.DisplayName else petKey} joined your Backpack!`
+				`+1 {if pet then pet.DisplayName else petKey}`,
+				ItemIcons.Get("Pet", petKey)
 			)
 		end
 		if left ~= count then
@@ -271,9 +273,10 @@ function PetService.Grant(
 	petKey: string,
 	modifier: string?,
 	equipDelay: number?,
-	luck: number?
+	luck: number?,
+	size: string?
 ): Grant?
-	local grant = add(player, petKey, modifier, luck)
+	local grant = add(player, petKey, modifier, luck, size)
 	if grant then
 		granted(player, equipDelay)
 	end
@@ -403,7 +406,8 @@ function PetService.SetModifier(
 				config.DisplayName,
 				NumberFormat.Rate(oldRate),
 				NumberFormat.Rate(RokModifier.Rate(pet.Key, modifier))
-			)
+			),
+			ItemIcons.Get("Pet", pet.Key)
 		)
 	end
 	print(`[PetService] {player.Name}'s {pet.Key} ({petId}) is now {modifier}`)

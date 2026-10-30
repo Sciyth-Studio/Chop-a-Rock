@@ -50,7 +50,7 @@ local AutoOpenConfig: AutoOpenSettings = {
 	PillFormat = "Auto Open · %d opened",
 	DoneText = "All geodes opened!",
 	StoppedText = "Auto Open stopped",
-	BagFullText = "Bag full! Sell some Roks",
+	BagFullText = "Bag full! Sell Roks",
 }
 
 return table.freeze(AutoOpenConfig)

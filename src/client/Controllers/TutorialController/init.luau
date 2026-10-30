@@ -110,7 +110,7 @@ local function releaseKey(): string
 	elseif kind == "Gamepad" then
 		return "Press R2"
 	end
-	return "Press E"
+	return "Click"
 end
 
 local function clickVerb(): string

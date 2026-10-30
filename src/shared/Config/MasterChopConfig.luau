@@ -2,6 +2,18 @@
 
 local ChopQuality = require(script.Parent.Parent.ChopQuality)
 
+export type FirstMasterSettings = {
+	HintKey: string,
+	Armed: number,
+	Done: number,
+	MinSeconds: number,
+	MaxSeconds: number,
+	MinQuality: number,
+	Kind: string,
+	Text: string,
+	EventName: string,
+}
+
 export type MasterChopSettings = {
 	ChanceByQuality: { [number]: number },
 	ChanceScaleAtPerfectOnly: number,
@@ -28,6 +40,7 @@ export type MasterChopSettings = {
 	PunchOutSeconds: number,
 	AnnouncementKind: string,
 	SoundKey: string,
+	FirstMaster: FirstMasterSettings,
 }
 
 local MasterChopConfig: MasterChopSettings = {
@@ -62,6 +75,17 @@ local MasterChopConfig: MasterChopSettings = {
 	PunchOutSeconds = 0.6,
 	AnnouncementKind = "Event",
 	SoundKey = "SFX_Chop_Master",
+	FirstMaster = {
+		HintKey = "FirstMaster",
+		Armed = 1,
+		Done = 2,
+		MinSeconds = 120,
+		MaxSeconds = 240,
+		MinQuality = ChopQuality.Good,
+		Kind = "Event",
+		Text = "Master Chop! Super rare!",
+		EventName = "FirstMasterChop",
+	},
 }
 
 return table.freeze(MasterChopConfig)

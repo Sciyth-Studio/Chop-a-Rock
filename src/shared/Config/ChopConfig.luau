@@ -2,6 +2,7 @@
 
 export type ChopSettings = {
 	CycleSeconds: number,
+	TouchCycleSeconds: number,
 	ReferenceRockSize: number,
 	CameraTransitionSeconds: number,
 	PromptHoldSeconds: number,
@@ -12,6 +13,8 @@ export type ChopSettings = {
 	GoodZoneWidth: number,
 	MidZoneWidth: number,
 	ZoneWidthMultiplier: number,
+	TouchZoneWidthMultiplier: number,
+	TouchAttribute: string,
 	PerfectOnlyStrengthRatio: number,
 	ZoneCenterMin: number,
 	ZoneCenterMax: number,
@@ -59,6 +62,7 @@ export type ChopSettings = {
 
 local ChopConfig: ChopSettings = {
 	CycleSeconds = 1.5,
+	TouchCycleSeconds = 2.0,
 	ReferenceRockSize = 10,
 	CameraTransitionSeconds = 0.45,
 	PromptHoldSeconds = 0.5,
@@ -69,6 +73,8 @@ local ChopConfig: ChopSettings = {
 	GoodZoneWidth = 0.15,
 	MidZoneWidth = 0.26,
 	ZoneWidthMultiplier = 1.5,
+	TouchZoneWidthMultiplier = 2.5,
+	TouchAttribute = "TouchChop",
 	PerfectOnlyStrengthRatio = 100,
 	ZoneCenterMin = 0.2,
 	ZoneCenterMax = 0.8,

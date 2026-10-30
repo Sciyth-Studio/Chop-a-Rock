@@ -1,6 +1,8 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
@@ -78,12 +80,17 @@ function StatsService.AddStrength(_self: any, player: Player, delta: number): nu
 	DataService:Set(player, { "Strength" }, after)
 	StatsService:AddWeekly(player, "Strength", after - before)
 	if before < cap and after >= cap then
-		NotificationService:Notify(player, "Unlock", "Rebirth ready! Rebirth to keep getting stronger")
+		NotificationService:Notify(player, "Unlock", "Rebirth ready!", IconConfig.Rebirth)
 	end
 	local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
-	for _, rock in rocks do
+	for key, rock in rocks do
 		if before < rock.StrengthRequired and after >= rock.StrengthRequired then
-			NotificationService:Notify(player, "Unlock", `{rock.DisplayName} unlocked!`)
+			NotificationService:Notify(
+				player,
+				"Unlock",
+				`{rock.DisplayName} unlocked!`,
+				ItemIcons.Get("Rock", key)
+			)
 		end
 	end
 	return after

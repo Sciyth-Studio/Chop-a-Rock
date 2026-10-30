@@ -4,6 +4,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local AutoOpenConfig = require(ReplicatedStorage.Config.AutoOpenConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
@@ -85,7 +86,12 @@ local function stopAuto(player: Player, message: string?)
 		local kind = if message == AutoOpenConfig.DoneText or message == AutoOpenConfig.StoppedText
 			then "Info"
 			else "Error"
-		context.Services.NotificationService:Notify(player, kind, message)
+		context.Services.NotificationService:Notify(
+			player,
+			kind,
+			message,
+			if message == AutoOpenConfig.BagFullText then IconConfig.Backpack else nil
+		)
 	end
 end
 

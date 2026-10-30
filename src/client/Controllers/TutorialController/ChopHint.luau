@@ -65,7 +65,13 @@ function ChopHint.new(): State?
 end
 
 local function goodBand(chopController: any): ChopZones.Band?
-	for _, band in ChopZones.Bands(chopController:GetZoneCenter(), chopController:GetStrengthRatio()) do
+	for _, band in
+		ChopZones.Bands(
+			chopController:GetZoneCenter(),
+			chopController:GetStrengthRatio(),
+			ChopZones.IsTouch(Players.LocalPlayer)
+		)
+	do
 		if band.Quality == ChopQuality.Good then
 			return band
 		end

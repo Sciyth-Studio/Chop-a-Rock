@@ -16,10 +16,12 @@ local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
+local FirstMaster = require(script.FirstMaster)
 local Rush = require(script.Rush)
 local Session = require(script.Session)
 local SpawnPoints = require(script.SpawnPoints)
 local Spawner = require(script.Spawner)
+local Strips = require(script.Strips)
 local Types = require(script.Types)
 
 local RockService = { Name = "RockService" }
@@ -30,6 +32,7 @@ local services: { [string]: any } = {}
 
 local shapes: { [string]: Types.Shape } = {}
 local spots: { [string]: { Types.Spot } } = {}
+local strips: { [string]: { [string]: number } } = {}
 local owned: { [Player]: { [number]: Types.Rock } } = {}
 local generations: { [Player]: number } = {}
 local sessions: { [Player]: Types.Session } = {}
@@ -133,10 +136,12 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 	end
 	local yaw = random:NextNumber(0, math.pi * 2)
 	local rotation = CFrame.Angles(0, yaw, 0) * shape.Rotation
-	local spot = if isRush or forcedKey
-		then Spawner.PickSpotNear(
+	local zoneSpots = spots[zone] or {}
+	local spot: Types.Spot?
+	if isRush or forcedKey then
+		spot = Spawner.PickSpotNear(
 			random,
-			spots[zone] or {},
+			zoneSpots,
 			shape,
 			rotation,
 			existing,
@@ -144,7 +149,18 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 			RushRockConfig.SpawnRadiusStuds,
 			blocked
 		)
-		else Spawner.PickSpot(random, spots[zone] or {}, shape, rotation, existing, position, blocked)
+	else
+		local zoneStrips = strips[zone]
+		local stripSpots = Strips.Filter(zoneSpots, if zoneStrips then zoneStrips[key] else nil)
+		spot = Spawner.PickSpot(random, stripSpots, shape, rotation, existing, position, blocked)
+		if not spot and stripSpots ~= zoneSpots then
+			warnOnce(
+				`{zone}/{key}/strip`,
+				`[RockService] {key} strip in {zone} is full; using the whole zone`
+			)
+			spot = Spawner.PickSpot(random, zoneSpots, shape, rotation, existing, position, blocked)
+		end
+	end
 	if not spot then
 		warnOnce(`{zone}/{key}`, `[RockService] No free spawn spot for {key} in {zone}`)
 		return false
@@ -327,8 +343,9 @@ local function onRelease(player: Player, claimed: number)
 	end
 
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
-	local position = ChopZones.Position(elapsed)
-	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio)
+	local isTouch = ChopZones.IsTouch(player)
+	local position = ChopZones.Position(elapsed, isTouch)
+	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio, isTouch)
 	local data = services.DataService:GetData(player)
 	local isTutorial = data ~= nil and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
 	local isTutorialPerfect = data ~= nil and Tutorial.ForcesPerfect(Tutorial.StepOf(data.Tutorial), data)
@@ -344,10 +361,17 @@ local function onRelease(player: Player, claimed: number)
 	end
 	local damage: number, payout: number
 	local isForced = forcedMasters[player] == true
-	if not isTutorial and (isForced or Session.IsMaster(random, quality, session.StrengthRatio)) then
+	local isFirstMaster = not isTutorial and data ~= nil and FirstMaster.IsDue(player, data, quality)
+	if
+		not isTutorial
+		and (isForced or isFirstMaster or Session.IsMaster(random, quality, session.StrengthRatio))
+	then
 		forcedMasters[player] = nil
 		quality = ChopQuality.Master
 		damage, payout = Session.ApplyMaster(session)
+		if data then
+			FirstMaster.Claim(services, player, data, isFirstMaster)
+		end
 	else
 		local chopStrength = services.StatsService:GetStrength(player)
 		if hasCheat(player, "OneHit") then
@@ -402,7 +426,7 @@ local function onRelease(player: Player, claimed: number)
 			services.NotificationService:Notify(
 				other,
 				MasterChopConfig.AnnouncementKind,
-				`{player.DisplayName} landed a Master Chop!`
+				`Master Chop by {player.DisplayName}!`
 			)
 		end
 		return
@@ -433,6 +457,7 @@ local function onPlayerRemoving(player: Player)
 	rushStates[player] = nil
 	owned[player] = nil
 	generations[player] = nil
+	FirstMaster.Forget(player)
 	onLeave(player)
 end
 
@@ -455,6 +480,20 @@ function RockService.Start(_self: any)
 	end
 	local started = os.clock()
 	spots = SpawnPoints.Sample(shapes)
+	local zoneConfigs: { [string]: RockSpawnConfig.Zone } = RockSpawnConfig.Zones
+	for zone, zoneConfig in zoneConfigs do
+		local entrance = Strips.Entrance(areas, zone)
+		local zoneSpots = spots[zone]
+		if entrance and zoneSpots then
+			local order = Strips.Order(zoneConfig.Weights)
+			Strips.Assign(zoneSpots, entrance, #order)
+			local keyStrips: { [string]: number } = {}
+			for index, key in order do
+				keyStrips[key] = index
+			end
+			strips[zone] = keyStrips
+		end
+	end
 	for zone, zoneSpots in spots do
 		print(
 			`[RockService] {zone}: {#zoneSpots} spawn spots ({string.format(
@@ -468,6 +507,18 @@ function RockService.Start(_self: any)
 	trove:Add(Packets.RockChop.OnServerEvent:Connect(onChopRequest))
 	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(onRelease))
 	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(onLeave))
+	trove:Add(Packets.ChopTouch.OnServerEvent:Connect(function(player: Player, isTouch: boolean)
+		player:SetAttribute(ChopConfig.TouchAttribute, isTouch == true)
+	end))
+	trove:Add(services.TutorialService.Finished:Connect(function(player: Player)
+		FirstMaster.Arm(services, player)
+	end))
+	trove:Add(services.DataService.PlayerLoaded:Connect(function(player: Player)
+		local data = services.DataService:GetData(player)
+		if data then
+			FirstMaster.Schedule(player, data)
+		end
+	end))
 	trove:Add(Players.PlayerRemoving:Connect(onPlayerRemoving))
 end
 

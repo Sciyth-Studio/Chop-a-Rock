@@ -15,6 +15,7 @@ export type Spot = {
 	Position: Vector3,
 	Fits: { [string]: boolean },
 	Largest: string?,
+	Strip: number?,
 }
 
 export type Rock = {

@@ -26,12 +26,19 @@ function ChopZones.StrengthProgress(strengthRatio: number): number
 	)
 end
 
-function ChopZones.Bands(center: number, strengthRatio: number): { Band }
+function ChopZones.IsTouch(player: Player): boolean
+	return player:GetAttribute(ChopConfig.TouchAttribute) == true
+end
+
+function ChopZones.Bands(center: number, strengthRatio: number, isTouch: boolean?): { Band }
 	local bands: { Band } = {}
 	local progress = ChopZones.StrengthProgress(strengthRatio)
+	local widthMultiplier = if isTouch
+		then ChopConfig.TouchZoneWidthMultiplier
+		else ChopConfig.ZoneWidthMultiplier
 	local baseCumulative = 0
 	for _, entry in bandOrder do
-		baseCumulative = math.min(1, baseCumulative + entry.Width * ChopConfig.ZoneWidthMultiplier)
+		baseCumulative = math.min(1, baseCumulative + entry.Width * widthMultiplier)
 		local cumulative = baseCumulative + (1 - baseCumulative) * progress
 		local low = math.clamp(center - cumulative / 2, 0, 1 - cumulative)
 		table.insert(bands, { Quality = entry.Quality, Low = low, High = low + cumulative })
@@ -39,8 +46,13 @@ function ChopZones.Bands(center: number, strengthRatio: number): { Band }
 	return bands
 end
 
-function ChopZones.Classify(position: number, center: number, strengthRatio: number): number
-	for _, band in ChopZones.Bands(center, strengthRatio) do
+function ChopZones.Classify(
+	position: number,
+	center: number,
+	strengthRatio: number,
+	isTouch: boolean?
+): number
+	for _, band in ChopZones.Bands(center, strengthRatio, isTouch) do
 		if position >= band.Low and position <= band.High then
 			return band.Quality
 		end
@@ -52,8 +64,9 @@ function ChopZones.RandomCenter(random: Random): number
 	return random:NextNumber(ChopConfig.ZoneCenterMin, ChopConfig.ZoneCenterMax)
 end
 
-function ChopZones.Position(elapsed: number): number
-	local phase = (elapsed / ChopConfig.CycleSeconds) % 1
+function ChopZones.Position(elapsed: number, isTouch: boolean?): number
+	local cycleSeconds = if isTouch then ChopConfig.TouchCycleSeconds else ChopConfig.CycleSeconds
+	local phase = (elapsed / cycleSeconds) % 1
 	return 1 - math.abs(2 * phase - 1)
 end
 

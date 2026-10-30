@@ -40,9 +40,9 @@ function NotificationController.GetPins(
 	return self._pins
 end
 
-function NotificationController.Notify(self: any, kind: string, message: string)
+function NotificationController.Notify(self: any, kind: string, message: string, icon: string?)
 	if NotificationConfig.UnmutedKinds[kind] then
-		self.Notified:Fire(kind, message)
+		self.Notified:Fire(kind, message, icon)
 		return
 	end
 	if self._controllers.DataController:Get({ "Settings", "Notifications" }) == false then
@@ -59,7 +59,7 @@ function NotificationController.Notify(self: any, kind: string, message: string)
 	if not NotificationConfig.Kinds[kind] then
 		kind = NotificationConfig.FallbackKind
 	end
-	self.Notified:Fire(kind, message)
+	self.Notified:Fire(kind, message, icon)
 end
 
 function NotificationController.Init(self: any, controllers: { [string]: any })
@@ -69,8 +69,8 @@ end
 
 function NotificationController.Start(self: any)
 	local trove = self._trove :: TroveInstance
-	trove:Add(Packets.Notify.OnClientEvent:Connect(function(kind: string, message: string)
-		self:Notify(kind, message)
+	trove:Add(Packets.Notify.OnClientEvent:Connect(function(kind: string, message: string, icon: string)
+		self:Notify(kind, message, if icon ~= "" then icon else nil)
 	end))
 end
 

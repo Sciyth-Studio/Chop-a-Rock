@@ -1,7 +1,7 @@
 ---
 description: 5-step first-time tutorial (train, chop, geode, crack, collect, then a 3 s finish) since 2026-10-27, no Skip, followed by a staggered aura hint; server owns the step in PlayerData, client draws pinned notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, a chop-meter pointer and red pad locks. Built 2026-10-16.
 type: system
-updated: 2026-10-27
+updated: 2026-10-29
 ---
 # Tutorial
 
@@ -51,8 +51,9 @@ Plan and decisions: `TutorialSystemPlan.md` (approved 2026-10-16). Pacing rule f
   - Everything is hidden during a chop or training round, while the step's shop panel is open, and during `HatchReveal` and `Letterbox`.
 - `Spotlight` wraps SpotlightUI (Rectangle, pulse 8, `DisplayOrder` 8 so the dim stays under the Notifications text). Targets:
   - `Shop…Tier2.BuyButton` and `GeodeStand…BuyOne`.
-  - During the first Stone's chop rounds (`Tutorial.ForcesPerfect`), the Good-to-Perfect range of the meter. The meter is one gradient, so `Spotlight` keeps an invisible `TutorialGoodZone` Frame inside `ChopMeter.Bar` sized to the Good band from `ChopZones.Bands(center, ratio)`, refit every frame as the zone moves. Asked for by the user 2026-10-17 instead of the whole bar.
+  - During the first Stone's chop rounds (`Tutorial.ForcesPerfect`), the Good-to-Perfect range of the meter. The meter is one UIGradient (solid colour blocks with sharp edges since 2026-10-29, was a blended ramp), so `Spotlight` keeps an invisible `TutorialGoodZone` Frame inside `ChopMeter.Bar` sized to the Good band from `ChopZones.Bands(center, ratio)`, refit every frame as the zone moves. Asked for by the user 2026-10-17 instead of the whole bar.
 - `ChopHint` (2026-10-19, user asked for the minigame to be "clear as day"): `StarterGui.TutorialChopHint` (DisplayOrder 9, above the spotlight dim) holds `Pointer` (ScreenScale) → `ArrowBody` (84 px, `Pulse` UIScale; one object can't stack two UIScales) with the guide arrow image turned 90° to point right and its shadow, plus `Label`/`LabelShadow` directly in `Pointer`. Only the arrow grows, because scaling the text box re-wrapped the text (user, 2026-10-19). During every tutorial chop and crack round it sits `ChopHintGapPixels` left of `ChopMeter.Bar`, its tip on the middle of the Good band, and switches between "Press E when the line is here" (`Chrome`, white arrow, gentle bob) and "Now! Press E!" (`Green`, green arrow, scale 1.25) while the cursor is inside the band. Hidden once released, when the rock can't be broken, and outside the tutorial. Positions checked by value; the look was seen in a screenshot of a preview copy, not in a real round.
+- Since 2026-10-29 the keyboard release prompt reads "Click" (left click chops), so the hint says "Click here" / "Now! Click!" and the pinned line "Click in glow!". Touch players get wider, slower zones and the Good band follows them. The first geode always hatches a Huge Shroomy, and a free Master Chop comes 2-4 min after Done. See [[Kid Friendly Pass]]
 - Cutscenes hold the tutorial: while `HatchController:IsPlaying()` (your own hatch only, through the reveal screen closing), `HatchReveal` or `Letterbox` is up, the guide, spotlight and pinned text are cleared. The next step (and its sound) appears only after. The server also keeps Crack until `GeodeService:IsRevealing` ends.
 - No Master chop (rocks or geode crack, admin-forced included) and no Hot Streak (`RecordChop` isn't called, multiplier 1) while the tutorial runs.
 - Hidden screens are reparented, never forced `Enabled = false` (2026-10-19). Forcing `Enabled` lost the screen's own state: when TrainingHint closed while already forced off, no change event fired, so it came back on at Done with "Press Space to stop training" stuck (seen twice: 2026-10-17 and 2026-10-19). Out of PlayerGui, screens keep writing their own `Enabled`. Tested in Play: train, stop, Skip → TrainingHint back with `Enabled = false`.

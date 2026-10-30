@@ -8,13 +8,13 @@ local NotificationService = {
 	Name = "NotificationService",
 }
 
-function NotificationService.Notify(_self: any, player: Player, kind: string, message: string)
+function NotificationService.Notify(_self: any, player: Player, kind: string, message: string, icon: string?)
 	if not NotificationConfig.Kinds[kind] then
 		warn(`[NotificationService] Unknown notification kind "{kind}"`)
 		kind = NotificationConfig.FallbackKind
 	end
 	if player.Parent then
-		Packets.Notify:FireClient(player, kind, string.sub(message, 1, 200))
+		Packets.Notify:FireClient(player, kind, string.sub(message, 1, 200), icon or "")
 	end
 end
 

@@ -54,7 +54,7 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				shown[index] = stack
 			end
 			RokStacks.Paint(slot, stack)
-			RokStacks.PaintStroke(slot, stack ~= nil and RokStacks.Contains(stack, held), false)
+			RokStacks.PaintStroke(slot, stack ~= nil and RokStacks.Contains(stack, held))
 		end
 	end
 
@@ -84,18 +84,24 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
+	local function togglePanel()
+		if context.Controllers.UIController:IsOpen(ToolbarConfig.PanelScreen) then
+			context.Close(ToolbarConfig.PanelScreen)
+		else
+			context.Open(ToolbarConfig.PanelScreen)
+		end
+	end
+
 	if toggleButton then
-		trove:Connect(toggleButton.Activated, function()
-			if context.Controllers.UIController:IsOpen(ToolbarConfig.PanelScreen) then
-				context.Close(ToolbarConfig.PanelScreen)
-			else
-				context.Open(ToolbarConfig.PanelScreen)
-			end
-		end)
+		trove:Connect(toggleButton.Activated, togglePanel)
 	end
 
 	trove:Connect(UserInputService.InputBegan, function(input: InputObject, isProcessed: boolean)
 		if isProcessed or not gui.Enabled then
+			return
+		end
+		if input.KeyCode == ToolbarConfig.PanelKey then
+			togglePanel()
 			return
 		end
 		local index = table.find(ToolbarConfig.SlotKeys, input.KeyCode)

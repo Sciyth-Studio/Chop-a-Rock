@@ -3,6 +3,7 @@
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -37,8 +38,18 @@ local function announceGift(buyer: Player, recipient: Player, gift: Monetization
 	local name = Gifts.DisplayName(gift)
 	Packets.PurchaseAnnounced:FireAllClients("Gift", buyer.DisplayName, recipient.DisplayName, name)
 	Packets.GiftReceived:FireClient(recipient, buyer.DisplayName, name, buyer.UserId)
-	registry.NotificationService:Notify(buyer, "Purchase", `You gifted {name} to {recipient.DisplayName}!`)
-	registry.NotificationService:Notify(recipient, "Purchase", `{buyer.DisplayName} gifted you {name}!`)
+	registry.NotificationService:Notify(
+		buyer,
+		"Purchase",
+		`Gift sent to {recipient.DisplayName}!`,
+		IconConfig.Gift
+	)
+	registry.NotificationService:Notify(
+		recipient,
+		"Purchase",
+		`{name} from {buyer.DisplayName}!`,
+		IconConfig.Gift
+	)
 end
 
 local function waitForSave(player: Player, key: string, purchaseId: string): boolean
@@ -164,7 +175,8 @@ local function onMessage(player: Player, message: any, processed: () -> ())
 		registry.NotificationService:Notify(
 			player,
 			"Purchase",
-			`{from} gifted you {Gifts.DisplayName(gift)}!`
+			`{Gifts.DisplayName(gift)} from {from}!`,
+			IconConfig.Gift
 		)
 		registry.DataService:RequestSave(player)
 	end
@@ -244,7 +256,8 @@ function PurchaseService.Start(_self: any)
 			registry.NotificationService:Notify(
 				giver,
 				"Purchase",
-				`{player.DisplayName} says thanks for the gift!`
+				`{player.DisplayName} says thanks!`,
+				IconConfig.Gift
 			)
 		end
 	end))

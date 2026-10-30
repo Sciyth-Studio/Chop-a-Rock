@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
@@ -68,7 +69,8 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 			services.NotificationService:Notify(
 				player,
 				DiamondRockConfig.EarnedKind,
-				string.format(DiamondRockConfig.EarnedText, NumberFormat.CompactRock(earned))
+				string.format(DiamondRockConfig.EarnedText, NumberFormat.CompactRock(earned)),
+				IconConfig.Money
 			)
 		end
 	end
@@ -274,7 +276,13 @@ local function onRelease(player: Player, claimed: number)
 	end
 
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
-	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
+	local isTouch = ChopZones.IsTouch(player)
+	local quality = ChopZones.Classify(
+		ChopZones.Position(elapsed, isTouch),
+		session.Center,
+		session.StrengthRatio,
+		isTouch
+	)
 	local rockService = services.RockService
 	if rockService:ConsumeForcedMaster(player) or rockService:RollMaster(quality, session.StrengthRatio) then
 		quality = ChopQuality.Master

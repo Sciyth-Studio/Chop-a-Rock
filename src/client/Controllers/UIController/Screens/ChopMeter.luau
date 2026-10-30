@@ -1,5 +1,6 @@
 --!strict
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -37,16 +38,17 @@ local function qualityColor(quality: number): Color3
 	return ChopStyleConfig.Qualities[quality].Color
 end
 
-type Stop = { Level: number, Color: Color3 }
+type Piece = { Low: number, High: number, Color: Color3 }
 
 local MIN_PIECE = 0.0001
+local EDGE = 0.0005
 
 local function buildRamp(center: number, strengthRatio: number): ColorSequence
-	local bands = ChopZones.Bands(center, strengthRatio)
-	local stops: { Stop } = {}
+	local bands = ChopZones.Bands(center, strengthRatio, ChopZones.IsTouch(Players.LocalPlayer))
+	local pieces: { Piece } = {}
 	local function addPiece(low: number, high: number, quality: number)
 		if high - low > MIN_PIECE then
-			table.insert(stops, { Level = (low + high) / 2, Color = qualityColor(quality) })
+			table.insert(pieces, { Low = low, High = high, Color = qualityColor(quality) })
 		end
 	end
 	for index, band in bands do
@@ -61,25 +63,22 @@ local function buildRamp(center: number, strengthRatio: number): ColorSequence
 	local outer = bands[#bands]
 	addPiece(0, outer.Low, ChopQuality.Bad)
 	addPiece(outer.High, 1, ChopQuality.Bad)
-	table.sort(stops, function(first: Stop, second: Stop)
-		return first.Level < second.Level
+	table.sort(pieces, function(first: Piece, second: Piece)
+		return first.High > second.High
 	end)
-	local spaced: { Stop } = {}
-	for _, stop in stops do
-		local previous = spaced[#spaced]
-		if not previous or stop.Level - previous.Level > MIN_PIECE then
-			table.insert(spaced, stop)
+	local keypoints: { ColorSequenceKeypoint } = {}
+	local lastTime = -1
+	local function push(time: number, color: Color3)
+		local clamped = math.clamp(time, 0, 1)
+		if clamped > lastTime then
+			table.insert(keypoints, ColorSequenceKeypoint.new(clamped, color))
+			lastTime = clamped
 		end
 	end
-	local keypoints: { ColorSequenceKeypoint } = {}
-	local last = spaced[#spaced]
-	table.insert(keypoints, ColorSequenceKeypoint.new(0, last.Color))
-	for index = #spaced, 1, -1 do
-		local stop = spaced[index]
-		table.insert(keypoints, ColorSequenceKeypoint.new(1 - stop.Level, stop.Color))
+	for index, piece in pieces do
+		push(if index == 1 then 0 else 1 - piece.High + EDGE, piece.Color)
+		push(if index == #pieces then 1 else 1 - piece.Low, piece.Color)
 	end
-	local first = spaced[1]
-	table.insert(keypoints, ColorSequenceKeypoint.new(1, first.Color))
 	return ColorSequence.new(keypoints)
 end
 

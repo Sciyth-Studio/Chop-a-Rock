@@ -101,10 +101,10 @@ local DiamondRockConfig: DiamondRockSettings = {
 	SlotsAttribute = "ChopSlots",
 	PlayerSlotAttribute = "ChopSlot",
 	AnnouncementKind = "Event",
-	AnnouncementText = "A Diamond Rock appeared in the %s!",
+	AnnouncementText = "Diamond Rock in %s!",
 	EarnedKind = "Event",
 	EarnedText = "Diamond Rock: +$%s",
-	FullText = "The Diamond Rock is full!",
+	FullText = "Diamond Rock full!",
 	BeaconHeight = 400,
 	BeaconWidth = 2,
 	BeaconColor = Color3.fromRGB(0, 230, 255),
@@ -141,7 +141,7 @@ local DiamondRockConfig: DiamondRockSettings = {
 	ShakeSeconds = 0.6,
 	ShakeStuds = 0.6,
 	PillScreen = "DiamondRockPill",
-	PillText = "Diamond Rock in the %s  %d:%02d",
+	PillText = "Diamond Rock: %s  %d:%02d",
 }
 
 return table.freeze(DiamondRockConfig)

@@ -21,6 +21,11 @@ Built 2026-10-06 from `RockSpawnSystemPlan.md` (all of D1–D10 approved as writ
 - Admin "Spawn Spots" (Ctrl+Shift+K) shows every spot as a dot coloured by the biggest rock that fits: grey Stone, blue Boulder, green Mossy.
 - Values live in `RockSpawnConfig`. The chopped-rock timings stay in `RockConfig` (`RespawnSeconds` is now just how long the pieces stay).
 
+## Strips (2026-10-29)
+- Asked for because young players walked up to rocks too strong for them. Each zone is split into one strip per rock kind by distance from its `ZoneEntrance` part (`RockSpawnConfig.EntranceName`, found under the spawn area's parent): weakest rock (lowest `StrengthRequired`) nearest the entrance, strongest at the back. With three kinds that is thirds, about 55 studs each along the 164-stud depth. Code only, no map edits, so new zones get it as long as they keep a `ZoneEntrance`.
+- `RockService/Strips.luau` tags each sampled spot with `Strip` at server start. `spawnRock` picks from that kind's strip, and if the strip has no free spot it falls back to the whole zone with a one-time warning (`<key> strip in <zone> is full`). Rush rocks and admin-forced rocks still spawn near the player, ignoring strips. A zone with no `ZoneEntrance` stays mixed.
+- Not playtested. Watch the output for the strip-full warning, especially in Snow, which had trouble fitting all 25 rocks before.
+
 ## Gotchas
 - `Forest Zone.ZoneTemplate.Floor` is rotated 90°, so the forest runs along X (floor x -68..152, z -195..-75), not along Z as the model's bounding box suggests. Past z -75 is bare Baseplate with no wall.
 - The floor sits on the Baseplate. Taking the plain lowest surface put every rock on the Baseplate, inside the floor. That's why the ground search steps up through stacked surfaces.

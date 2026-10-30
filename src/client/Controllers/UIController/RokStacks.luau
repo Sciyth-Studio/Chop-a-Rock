@@ -213,15 +213,12 @@ function RokStacks.Paint(frame: GuiObject, stack: Stack?)
 	end
 end
 
-function RokStacks.PaintStroke(frame: GuiObject, isHeld: boolean, isPlaced: boolean)
+function RokStacks.PaintStroke(frame: GuiObject, isHeld: boolean)
 	local stroke = frame:FindFirstChild("OuterStroke")
 	if not stroke or not stroke:IsA("UIStroke") then
 		return
 	end
-	local style = if isHeld
-		then ToolbarConfig.HeldStroke
-		elseif isPlaced then ToolbarConfig.PlacedStroke
-		else ToolbarConfig.IdleStroke
+	local style = if isHeld then ToolbarConfig.HeldStroke else ToolbarConfig.IdleStroke
 	stroke.Color = style.Color
 	stroke.Thickness = style.Thickness
 end
