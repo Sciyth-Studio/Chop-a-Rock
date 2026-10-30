@@ -14,12 +14,20 @@ export type Pit = {
 export type Session = {
 	GeodeKey: string,
 	Spot: Attachment,
-	Model: Model,
-	Part: BasePart,
+	Model: Model?,
+	Part: BasePart?,
 	StrengthRatio: number,
 	Center: number,
 	StartTime: number,
 	IsAuto: boolean,
+	IsWild: boolean,
+	IsCracked: boolean,
+}
+
+export type WildTimer = {
+	ChopSeconds: number,
+	LastChopAt: number?,
+	DueSeconds: number,
 }
 
 return {}

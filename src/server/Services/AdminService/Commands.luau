@@ -346,6 +346,10 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, "a Rush Rock is already out")
 		end
 	end,
+	ForceWildGeode = function(context: Types.Context, player: Player, _argument: string)
+		context.Services.GeodeService:ForceWild(player)
+		notify(context, player, "next broken rock hides a Wild Geode")
+	end,
 	WeatherStart = function(context: Types.Context, player: Player, argument: string)
 		if context.Services.WeatherService:Force(argument) then
 			notify(context, player, `{argument} started`)

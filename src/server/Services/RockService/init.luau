@@ -14,6 +14,7 @@ local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local FirstMaster = require(script.FirstMaster)
@@ -24,7 +25,11 @@ local Spawner = require(script.Spawner)
 local Strips = require(script.Strips)
 local Types = require(script.Types)
 
-local RockService = { Name = "RockService" }
+local RockService = {
+	Name = "RockService",
+	Chopped = Signal.new() :: Signal.Signal<Player>,
+	RockBroken = Signal.new() :: Signal.Signal<Player, string, Vector3, number>,
+}
 
 local trove = Trove.new()
 local random = Random.new()
@@ -229,6 +234,10 @@ local function retire(player: Player, rock: Types.Rock, delaySeconds: number)
 	scheduleSpawn(player, rock.Zone, delaySeconds, isRush)
 end
 
+local function groundOf(rock: Types.Rock): Vector3
+	return rock.CFrame.Position - Vector3.new(0, rock.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0)
+end
+
 local function showOthers(player: Player, rock: Types.Rock, quality: number, isBroken: boolean)
 	local position = rock.CFrame.Position
 	for _, other in Players:GetPlayers() do
@@ -332,6 +341,7 @@ local function onRelease(player: Player, claimed: number)
 	if rushState then
 		Rush.RecordChop(rushState, os.clock())
 	end
+	RockService.Chopped:Fire(player)
 
 	if not session.CanBreak then
 		sessions[player] = nil
@@ -422,6 +432,7 @@ local function onRelease(player: Player, claimed: number)
 		retire(player, rock, MasterChopConfig.ImpactDelaySeconds + RockSpawnConfig.RespawnSeconds)
 		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
 		showOthers(player, rock, quality, true)
+		RockService.RockBroken:Fire(player, rock.Zone, groundOf(rock), quality)
 		for _, other in Players:GetPlayers() do
 			services.NotificationService:Notify(
 				other,
@@ -437,6 +448,7 @@ local function onRelease(player: Player, claimed: number)
 		retire(player, rock, RockSpawnConfig.RespawnSeconds)
 		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
 		showOthers(player, rock, quality, true)
+		RockService.RockBroken:Fire(player, rock.Zone, groundOf(rock), quality)
 		return
 	end
 
@@ -686,6 +698,11 @@ function RockService.ForceRush(_self: any, player: Player): boolean
 	end
 	state.ChopSeconds = RushRockConfig.IntervalSeconds
 	return true
+end
+
+function RockService.IsRushOut(_self: any, player: Player): boolean
+	local state = rushStates[player]
+	return state ~= nil and (state.ActiveId ~= nil or state.IsScheduled)
 end
 
 function RockService.ConsumeForcedMaster(_self: any, player: Player): boolean

@@ -148,6 +148,7 @@ _One note per game system as they're worked on._
 - [[Player List]] — 2026-10-28 Roblox-style top-right `leaderstats`: Strength, Money, Rebirths as NumberValues ranked by Strength, 0.5 s refresh; `PlayerListService`, `PlayerListConfig`
 - [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)
 - [[Free Gift]] — 2026-10-28 lobby pad by the entrance opens a "Free Gift!" panel (like, favorite, join steps); Claim checks Sciyth Studio group membership server-side (`GetGroupsAsync`, not cached `IsInGroup`), once per player (`Offers.FreeGift`), cash worth 3 zone geodes; `FreeGiftService`, `Screens/FreeGift`, `FreeGiftConfig`
+- [[Wild Geode]] — 2026-10-29, not playtested: after 4-6 min of chopping the next rock you break had a geode hidden in it; the break opens it into the hatch reveal, luck from that chop, Uncommon+, pity counts, no tell; `GeodeService/Wild`, `WildGeodeConfig`, admin Ctrl+Shift+J
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
@@ -168,6 +169,8 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Robux Shop Plan Approved]] — 2026-10-24: user accepted R1-R13 of `RobuxShopPlan.md`: paid Lucky Geodes, gifting, server boosts incl. Server 2x Luck, 24 h starter offer, VIP, exclusive Rok stand; not built
 - [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, built 2026-10-28 (see [[Auto Open]])
 - [[World 1 Plan]] — 2026-10-29: zones 6-10 Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins; stands Meteor/Sun/Black Hole/Galaxy; always-awake co-op Golem boss opens world 2; never time-gate a milestone; `World1Plan.md`
+
+- [[Wild Geodes]] — 2026-10-29, approved and built (see [[Wild Geode]]): the user kept the shop and added random geodes hidden in rocks; crack on the break, better-than-normal odds (Uncommon+ draft), no tell
 
 ## Inbox
 _Unsorted learnings for the user to review._

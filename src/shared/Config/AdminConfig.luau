@@ -635,6 +635,14 @@ local AdminConfig: AdminSettings = {
 			Alias = "rush",
 		},
 		{
+			Id = "ForceWildGeode",
+			Label = "Next Rock: Wild Geode",
+			Tab = "Events",
+			Kind = "Button",
+			Shortcut = Enum.KeyCode.J,
+			Alias = "wildgeode",
+		},
+		{
 			Id = "StartGeodeFall",
 			Label = "Start Geode Fall",
 			Tab = "Events",
