@@ -22,7 +22,6 @@ local services: { [string]: any } = {}
 
 local override: Window? = nil
 local pending: Window? = nil
-local suppressedUntil = 0
 local active: Window? = nil
 local warnedFor = 0
 local lastCatchAt = 0
@@ -45,22 +44,16 @@ local function current(time: number): Window?
 		if time < override.EndsAt then
 			return override
 		end
-		suppressedUntil = math.max(suppressedUntil, override.EndsAt)
 		override = nil
-	end
-	local slot = WeatherClock.At(time)
-	if time >= slot.StartsAt and time < slot.EndsAt and slot.EndsAt > suppressedUntil then
-		return window(slot.Key, slot.StartsAt)
 	end
 	return nil
 end
 
-local function nextStart(time: number): (number, string)
-	local slot = WeatherClock.Next(time)
-	if pending and pending.StartsAt < slot.StartsAt then
+local function nextStart(): (number, string)
+	if pending then
 		return pending.StartsAt, pending.Key
 	end
-	return slot.StartsAt, slot.Key
+	return 0, ""
 end
 
 local function inTutorial(player: Player): boolean
@@ -84,12 +77,12 @@ local function multiplierText(value: number): string
 	return if value % 1 == 0 then tostring(value) else string.format("%.1f", value)
 end
 
-local function publish(time: number)
+local function publish()
 	local event = if active then WeatherClock.Event(active.Key) else nil
 	workspace:SetAttribute(WeatherConfig.WeatherAttribute, if active and event then active.Key else "")
 	workspace:SetAttribute(WeatherConfig.StartedAtAttribute, if active then active.StartsAt else 0)
 	workspace:SetAttribute(WeatherConfig.EndsAtAttribute, if active then active.EndsAt else 0)
-	workspace:SetAttribute(WeatherConfig.NextAtAttribute, (nextStart(time)))
+	workspace:SetAttribute(WeatherConfig.NextAtAttribute, (nextStart()))
 end
 
 local function rollCatches(event: WeatherConfig.Event)
@@ -151,7 +144,7 @@ local function tick()
 		services.RockService:StartStorm(active.Key, WeatherConfig.StartStormRocksPerZone)
 		print(`[WeatherService] {active.Key} started, ends in {math.floor(active.EndsAt - time)}s`)
 	end
-	local startsAt, key = nextStart(time)
+	local startsAt, key = nextStart()
 	if
 		not active
 		and startsAt - time <= WeatherConfig.WarningSeconds
@@ -171,17 +164,11 @@ local function tick()
 			rollCatches(event)
 		end
 	end
-	publish(time)
+	publish()
 end
 
 function WeatherService.GetActive(_self: any): WeatherConfig.Event?
 	return if active then WeatherClock.Event(active.Key) else nil
-end
-
-function WeatherService.SecondsUntilNext(_self: any): number
-	local time = now()
-	local startsAt = nextStart(time)
-	return startsAt - time
 end
 
 function WeatherService.RollStormRock(_self: any, player: Player?): string?
@@ -261,7 +248,6 @@ function WeatherService.EndActive(_self: any): boolean
 	if not active then
 		return false
 	end
-	suppressedUntil = math.max(suppressedUntil, active.EndsAt)
 	override = nil
 	tick()
 	return true
@@ -271,10 +257,13 @@ function WeatherService.StartIn(_self: any, seconds: number): string
 	local key = WeatherClock.Pick(random)
 	pending = window(key, now() + seconds)
 	override = nil
-	if active then
-		suppressedUntil = math.max(suppressedUntil, active.EndsAt)
-	end
 	tick()
+	return key
+end
+
+function WeatherService.Schedule(_self: any, startsAt: number): string
+	local key = WeatherClock.Pick(random)
+	pending = window(key, startsAt)
 	return key
 end
 

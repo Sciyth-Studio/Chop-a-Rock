@@ -18,8 +18,8 @@ export type Geode = {
 }
 
 export type Fall = {
-	Zone: string,
-	GeodeKey: string,
+	Label: string,
+	Zones: { string },
 	Total: number,
 	Left: number,
 	LandsAt: number,

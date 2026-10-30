@@ -3,13 +3,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
-export type Slot = {
-	Index: number,
-	Key: string,
-	StartsAt: number,
-	EndsAt: number,
-}
-
 local WeatherClock = {}
 
 function WeatherClock.Event(key: string): WeatherConfig.Event?
@@ -34,24 +27,6 @@ function WeatherClock.Pick(random: Random): string
 		end
 	end
 	return WeatherConfig.Events[#WeatherConfig.Events].Key
-end
-
-function WeatherClock.Slot(index: number): Slot
-	local startsAt = index * WeatherConfig.PeriodSeconds
-	return {
-		Index = index,
-		Key = WeatherClock.Pick(Random.new(WeatherConfig.ClockSeed + index)),
-		StartsAt = startsAt,
-		EndsAt = startsAt + WeatherConfig.DurationSeconds,
-	}
-end
-
-function WeatherClock.At(now: number): Slot
-	return WeatherClock.Slot(math.floor(now / WeatherConfig.PeriodSeconds))
-end
-
-function WeatherClock.Next(now: number): Slot
-	return WeatherClock.Slot(math.floor(now / WeatherConfig.PeriodSeconds) + 1)
 end
 
 return WeatherClock

@@ -34,11 +34,8 @@ local services: { [string]: any } = {}
 local current: Types.Fall? = nil
 local sessions: { [Player]: Types.Session } = {}
 local tracks: { [Player]: Types.Track } = {}
-local timerGeneration = 0
 local nextId = 0
 local lastSweepAt = 0
-
-local scheduleNext: (delaySeconds: number?) -> ()
 
 local function rootPosition(player: Player): Vector3?
 	local character = player.Character
@@ -138,9 +135,8 @@ local function endFall(fall: Types.Fall)
 	if current == fall then
 		current = nil
 		Spawning.PublishFall(nil)
-		scheduleNext()
 	end
-	print(`[GeodeFallService] Geode Fall in {fall.Zone} ended, {fall.Left} of {fall.Total} left`)
+	print(`[GeodeFallService] Geode Fall in {fall.Label} ended, {fall.Left} of {fall.Total} left`)
 end
 
 local expire: (fall: Types.Fall) -> ()
@@ -157,8 +153,8 @@ function expire(fall: Types.Fall)
 	endFall(fall)
 end
 
-local function spawnGeode(fall: Types.Fall, landsAt: number): boolean
-	local model, part = Spawning.Template(fall.GeodeKey)
+local function spawnGeode(fall: Types.Fall, zone: string, landsAt: number): boolean
+	local model, part = Spawning.Template(zone)
 	if not model or not part then
 		return false
 	end
@@ -168,7 +164,7 @@ local function spawnGeode(fall: Types.Fall, landsAt: number): boolean
 	end
 	local standDistance = Spawning.StandDistance(part.Size)
 	local position = services.RockService:FindRingSpot(
-		fall.Zone,
+		zone,
 		CFrame.identity,
 		part.Size,
 		standDistance,
@@ -178,20 +174,20 @@ local function spawnGeode(fall: Types.Fall, landsAt: number): boolean
 	)
 	if not position then
 		model:Destroy()
-		warn(`[GeodeFallService] No spot for a Falling Geode in {fall.Zone}`)
+		warn(`[GeodeFallService] No spot for a Falling Geode in {zone}`)
 		return false
 	end
 	nextId = nextId % 65535 + 1
 	local spot = Spawning.Place(model, part, position, random)
-	local strength = GeodeConfig.Geodes[fall.GeodeKey].StrengthRequired
+	local strength = GeodeConfig.Geodes[zone].StrengthRequired
 	local maxHealth = Chopping.MaxHealth(strength)
 	local geode: Types.Geode = {
 		Id = nextId,
 		Model = model,
 		Part = part,
 		Spot = spot,
-		Zone = fall.Zone,
-		GeodeKey = fall.GeodeKey,
+		Zone = zone,
+		GeodeKey = zone,
 		Health = maxHealth,
 		MaxHealth = maxHealth,
 		StrengthRequired = strength,
@@ -204,7 +200,7 @@ local function spawnGeode(fall: Types.Fall, landsAt: number): boolean
 	fall.Geodes[geode.Id] = geode
 	services.RockService:ReserveArea(
 		geode.ReserveOwner,
-		fall.Zone,
+		zone,
 		position,
 		standDistance + GeodeFallConfig.ReservePaddingStuds
 	)
@@ -240,7 +236,7 @@ local function crack(geode: Types.Geode, player: Player, quality: number)
 		notify(player, "Error", GeodeFallConfig.BackpackLostText, IconConfig.Backpack)
 		removeGeode(fall, geode, revealDelay + GeodeFallConfig.SinkSeconds)
 		local isRespawned = fall.EndsAt - os.clock() > GeodeFallConfig.MarkerLeadSeconds
-			and spawnGeode(fall, os.clock() + GeodeFallConfig.MarkerLeadSeconds)
+			and spawnGeode(fall, geode.Zone, os.clock() + GeodeFallConfig.MarkerLeadSeconds)
 		print(
 			`[GeodeFallService] {player.Name} cracked a Falling Geode with a full Backpack, respawned={isRespawned}`
 		)
@@ -302,30 +298,31 @@ local function startFall(zone: string?, lifetimeSeconds: number?): (boolean, str
 	if current then
 		return false, "a Geode Fall is already on"
 	end
-	local pickedZone = zone
-		or Spawning.PickZone(random, services.RockService, function(player: Player): boolean
-			return not inTutorial(player)
-		end)
-	if not pickedZone then
-		return false, "no players in a zone"
+	if zone and not GeodeConfig.Geodes[zone] then
+		return false, `{zone} has no geode`
 	end
-	if not GeodeConfig.Geodes[pickedZone] then
-		return false, `{pickedZone} has no geode`
-	end
-	local eligible = 0
+	local peaks: { number } = {}
 	for _, player in Players:GetPlayers() do
-		if not inTutorial(player) then
-			eligible += 1
+		local data = services.DataService:GetData(player)
+		if data and not Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
+			table.insert(peaks, data.PeakStrength)
 		end
+	end
+	local zones = if zone then { zone } else Spawning.EligibleZones(peaks)
+	if #zones == 0 then
+		return false, "no players have reached a zone"
+	end
+	local picks: { string } = {}
+	for _ = 1, Spawning.Count(#peaks) do
+		table.insert(picks, zones[random:NextInteger(1, #zones)])
 	end
 	local now = os.clock()
 	local landsAt = now + GeodeFallConfig.WarningSeconds
-	local count = Spawning.Count(eligible)
 	local fall: Types.Fall = {
-		Zone = pickedZone,
-		GeodeKey = pickedZone,
-		Total = count,
-		Left = count,
+		Label = Spawning.Label(picks),
+		Zones = picks,
+		Total = #picks,
+		Left = #picks,
 		LandsAt = landsAt,
 		EndsAt = landsAt + (lifetimeSeconds or GeodeFallConfig.LifetimeSeconds),
 		Geodes = {},
@@ -333,7 +330,7 @@ local function startFall(zone: string?, lifetimeSeconds: number?): (boolean, str
 	}
 	current = fall
 	Spawning.PublishFall(fall)
-	notifyAll(string.format(GeodeFallConfig.WarningText, pickedZone))
+	notifyAll(string.format(GeodeFallConfig.WarningText, fall.Label))
 	for _, track in tracks do
 		track.Position = nil
 	end
@@ -342,8 +339,8 @@ local function startFall(zone: string?, lifetimeSeconds: number?): (boolean, str
 			return
 		end
 		local spawned = 0
-		for _ = 1, fall.Total do
-			if spawnGeode(fall, fall.LandsAt) then
+		for _, pick in fall.Zones do
+			if spawnGeode(fall, pick, fall.LandsAt) then
 				spawned += 1
 			end
 		end
@@ -357,39 +354,12 @@ local function startFall(zone: string?, lifetimeSeconds: number?): (boolean, str
 	end)
 	task.delay(GeodeFallConfig.WarningSeconds, function()
 		if current == fall and not fall.IsEnding then
-			notifyAll(string.format(GeodeFallConfig.LandedText, fall.Left, fall.Zone))
+			notifyAll(string.format(GeodeFallConfig.LandedText, fall.Left, fall.Label))
 		end
 	end)
 	task.delay(fall.EndsAt - now, expire, fall)
-	print(`[GeodeFallService] Geode Fall in {pickedZone}: {count} geodes`)
-	return true, `Geode Fall in the {pickedZone}`
-end
-
-local function isBlocked(): boolean
-	local weather = services.WeatherService
-	local needed = GeodeFallConfig.WarningSeconds
-		+ GeodeFallConfig.LifetimeSeconds
-		+ GeodeFallConfig.WeatherGapSeconds
-	if weather:GetActive() or weather:SecondsUntilNext() < needed then
-		return true
-	end
-	local diamond = services.DiamondRockService
-	return diamond:IsActive() or diamond:SecondsSinceEnded() < GeodeFallConfig.DiamondGapSeconds
-end
-
-function scheduleNext(delaySeconds: number?)
-	timerGeneration += 1
-	local generation = timerGeneration
-	local seconds = delaySeconds
-		or random:NextNumber(GeodeFallConfig.IntervalMinSeconds, GeodeFallConfig.IntervalMaxSeconds)
-	task.delay(seconds, function()
-		if generation ~= timerGeneration or current then
-			return
-		end
-		if isBlocked() or not startFall(nil, nil) then
-			scheduleNext(GeodeFallConfig.RetrySeconds)
-		end
-	end)
+	print(`[GeodeFallService] Geode Fall in {fall.Label}: {#picks} geodes`)
+	return true, `Geode Fall in {fall.Label}`
 end
 
 local function scheduleNextRound(player: Player, session: Types.Session, isMaster: boolean)
@@ -580,7 +550,6 @@ function GeodeFallService.Start(_self: any)
 		endSession(player, true)
 	end))
 	trove:Connect(RunService.Heartbeat, sweep)
-	scheduleNext()
 end
 
 function GeodeFallService.HasSession(_self: any, player: Player): boolean
@@ -624,7 +593,6 @@ end
 
 function GeodeFallService.Destroy(_self: any)
 	trove:Clean()
-	timerGeneration += 1
 	local fall = current
 	if fall then
 		for _, geode in fall.Geodes do

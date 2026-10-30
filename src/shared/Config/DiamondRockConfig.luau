@@ -1,9 +1,6 @@
 --!strict
 
 export type DiamondRockSettings = {
-	IntervalMinSeconds: number,
-	IntervalMaxSeconds: number,
-	NoPlayersRetrySeconds: number,
 	CountdownSeconds: number,
 	RiseSeconds: number,
 	ArrivalDelaySeconds: number,
@@ -73,9 +70,6 @@ export type DiamondRockSettings = {
 }
 
 local DiamondRockConfig: DiamondRockSettings = {
-	IntervalMinSeconds = 600,
-	IntervalMaxSeconds = 900,
-	NoPlayersRetrySeconds = 30,
 	CountdownSeconds = 60,
 	RiseSeconds = 1.2,
 	ArrivalDelaySeconds = 0.5,

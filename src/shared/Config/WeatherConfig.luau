@@ -30,7 +30,6 @@ export type Modifier = {
 }
 
 export type WeatherSettings = {
-	PeriodSeconds: number,
 	DurationSeconds: number,
 	WarningSeconds: number,
 	CatchIntervalSeconds: number,
@@ -40,7 +39,6 @@ export type WeatherSettings = {
 	StormRockChance: number,
 	StartStormRocksPerZone: number,
 	HatchChance: number,
-	ClockSeed: number,
 	Events: { Event },
 	Modifiers: { [string]: Modifier },
 	WeatherAttribute: string,
@@ -87,8 +85,7 @@ export type WeatherSettings = {
 }
 
 local WeatherConfig: WeatherSettings = {
-	PeriodSeconds = 1800,
-	DurationSeconds = 300,
+	DurationSeconds = 240,
 	WarningSeconds = 60,
 	CatchIntervalSeconds = 60,
 	CatchChance = 0.025,
@@ -97,7 +94,6 @@ local WeatherConfig: WeatherSettings = {
 	StormRockChance = 0.25,
 	StartStormRocksPerZone = 4,
 	HatchChance = 0.25,
-	ClockSeed = 7349,
 	Events = {
 		{
 			Key = "Sandstorm",

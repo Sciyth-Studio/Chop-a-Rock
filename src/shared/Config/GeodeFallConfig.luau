@@ -3,16 +3,11 @@
 local ChopQuality = require(script.Parent.Parent.ChopQuality)
 
 export type GeodeFallSettings = {
-	IntervalMinSeconds: number,
-	IntervalMaxSeconds: number,
-	RetrySeconds: number,
 	WarningSeconds: number,
 	MarkerLeadSeconds: number,
 	FallSeconds: number,
 	FallHeightStuds: number,
 	LifetimeSeconds: number,
-	WeatherGapSeconds: number,
-	DiamondGapSeconds: number,
 	BaseCount: number,
 	PlayersPerExtra: number,
 	ExtraAfterPlayers: number,
@@ -57,6 +52,7 @@ export type GeodeFallSettings = {
 	PillLeftAttribute: string,
 	PillTotalAttribute: string,
 	AnnouncementKind: string,
+	ManyZonesText: string,
 	WarningText: string,
 	LandedText: string,
 	ClaimedText: string,
@@ -93,20 +89,15 @@ export type GeodeFallSettings = {
 }
 
 local GeodeFallConfig: GeodeFallSettings = {
-	IntervalMinSeconds = 1200,
-	IntervalMaxSeconds = 1500,
-	RetrySeconds = 30,
 	WarningSeconds = 10,
 	MarkerLeadSeconds = 2,
 	FallSeconds = 1.2,
 	FallHeightStuds = 220,
 	LifetimeSeconds = 90,
-	WeatherGapSeconds = 0,
-	DiamondGapSeconds = 120,
-	BaseCount = 3,
+	BaseCount = 6,
 	PlayersPerExtra = 4,
 	ExtraAfterPlayers = 4,
-	MaxCount = 5,
+	MaxCount = 8,
 	HealthChops = 6,
 	MasterPerfectMultiplier = 5,
 	MaxShareByQuality = {
@@ -154,6 +145,7 @@ local GeodeFallConfig: GeodeFallSettings = {
 	PillLeftAttribute = "GeodeFallLeft",
 	PillTotalAttribute = "GeodeFallTotal",
 	AnnouncementKind = "Event",
+	ManyZonesText = "%d zones",
 	WarningText = "Geodes falling in %s!",
 	LandedText = "%d Geodes in %s! Chop one!",
 	ClaimedText = "%s got this Geode!",
