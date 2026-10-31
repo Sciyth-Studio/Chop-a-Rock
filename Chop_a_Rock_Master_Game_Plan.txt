@@ -1126,3 +1126,18 @@ DECISION LOG
     and server boosts, Lucky Geodes, gifting, VIP 799, Claim x3 offline, an exclusive Rok stand, Mega cash pack, and
     Server 2x Luck (server-wide only; personal Robux luck stays the 2x Luck pass). Rebirth Skip removed; no Robux
     training mats. Prices are [PLAYTEST] drafts in config; the plan's balance checks gate each item going on sale.
+2026-10-30 — Rock breaking made more potent (§02, §06; RockBreakingPlan.md):
+  - Feedback from an experienced dev: breaking rock, the core fantasy, wasn't potent enough. The user picked scale,
+    visible resistance and overkill shatter. A tall-pillar version that kept zones small was turned down.
+  - Scale: one zone scale per zone, x1.15 each [PLAYTEST]. Everything in the zone grows (rocks, floor, terraces,
+    decor, spawn area, sign); the character doesn't. Rocks keep their boulder shapes and 25 per zone. The line goes
+    from about 1,700 to 3,400 studs; leaning on the cannon is fine and aura speed covers walking. The scale resets
+    at the start of each new world. The boss arena is at least the Ruins' scale. The chop camera and snap scale with
+    the rock.
+  - Visible resistance: every hit shudders the rock, knocks chunks off and steps it down in size; the final hit gets
+    a hit-stop and camera kick. Knocked-off chunks stay on the ground until that rock is destroyed.
+  - Overkill: at 10x a rock's strength [PLAYTEST] a quick tap replaces the timing hold, the rock blows apart, and a
+    shockwave breaks the player's nearby rocks they also overkill, each paying normally. Overkill chops keep Hot
+    Streak alive but don't build it. Diamond and Rush rocks scale with the zone and can't be overkilled.
+  - Payouts don't change. Far-zone loading is a playtest call; the user may add a camera pan over the zones after the
+    first intro cutscene.

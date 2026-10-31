@@ -14,6 +14,7 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Chopping = require(script.Chopping)
 local Spawning = require(script.Spawning)
 local Types = require(script.Types)
@@ -110,6 +111,7 @@ local function spawnDiamond(zone: string?): (boolean, string)
 		return false, `{pickedZone} has no rocks`
 	end
 	local part = Spawning.Template()
+	ZoneScale.Apply(part, ZoneScale.Of(pickedZone))
 	local standDistance = Spawning.StandDistance(part.Size)
 	local position = services.RockService:FindRingSpot(
 		pickedZone,

@@ -160,6 +160,9 @@ function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Ty
 			warn(`[RockService] {area:GetFullName()} has no {RockSpawnConfig.ZoneAttribute} attribute`)
 			continue
 		end
+		if not RockSpawnConfig.Zones[zone] then
+			continue
+		end
 		local list = result[zone] or {}
 		result[zone] = list
 		local size = area.Size

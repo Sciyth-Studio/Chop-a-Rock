@@ -57,7 +57,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Tintable Mesh Textures]] — studs are the 2022 MaterialVariants in MaterialService (`2022 Inlet`, `2022 Stud` = outlet); copy MaterialVariant with Material
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
-- [[Zone Line]] — zone order forest → desert → jungle → ocean → snow → swamp → savanna → bamboo → volcano → ruins + walled square boss arena (6-10 are blockouts; signs never say "Golem"); folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours, whole-stud grid and the lobby gap fix
+- [[Zone Line]] — scaled x1.15 per zone since 2026-10-30 (table at top; Ruins 774 wide, line ends z 3217, arena to 4695); zone order forest → desert → jungle → ocean → snow → swamp → savanna → bamboo → volcano → ruins + walled square boss arena (6-10 are blockouts; signs never say "Golem"); folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours, whole-stud grid and the lobby gap fix
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared; recover a sourceless image via EditableImage pixels
 - [[Open Cloud Key]] — `ROBLOX_API_KEY` user env var; assets + dev products scopes; reaches group assets; never print it
@@ -134,7 +134,7 @@ _One note per game system as they're worked on._
 - [[Diamond Rock]] — shared server rock rolled by the Event Clock at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
-- [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert; equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
+- [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert (all nine, Desert to Ruins, since 2026-10-30); equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
 - [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop (15 tiers for world 1 = zones 1-10 since 2026-10-28, one per zone), training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Event Clock]] — 2026-10-29: every 5 min (:00/:05 server time) one event rolls: Geode Fall 40, Diamond Rock 35, Weather 25, no repeats; `EventClockService`, `EventClockConfig`; Rush Rocks stay separate
 - [[Weather]] — events rolled by the Event Clock, 4 min each, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
@@ -147,7 +147,7 @@ _One note per game system as they're worked on._
 - [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks via `Utils/ItemIcons` (ViewportFrame fallback) in Index, Geode Stand, Roks and Sell Shop (HatchReveal stays 3D); generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons live 2026-10-24, Champ and Kingy added 2026-10-25
 - [[Player List]] — 2026-10-28 Roblox-style top-right `leaderstats`: Strength, Money, Rebirths as NumberValues ranked by Strength, 0.5 s refresh; `PlayerListService`, `PlayerListConfig`
 - [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)
-- [[Free Gift]] — 2026-10-28 lobby pad by the entrance opens a "Free Gift!" panel (like, favorite, join steps); Claim checks Sciyth Studio group membership server-side (`GetGroupsAsync`, not cached `IsInGroup`), once per player (`Offers.FreeGift`), cash worth 3 zone geodes; `FreeGiftService`, `Screens/FreeGift`, `FreeGiftConfig`
+- [[Free Gift]] — 2026-10-28 lobby pad by the entrance opens a "Free Gift!" panel (like, favorite, join steps); Claim checks Sciyth Studio group membership server-side (`GetGroupsAsync`, not cached `IsInGroup`), once per player (`Offers.FreeGift`), cash worth 3 zone geodes; meshlab cash chest on the pad since 2026-10-30; `FreeGiftService`, `Screens/FreeGift`, `FreeGiftConfig`
 - [[Wild Geode]] — 2026-10-29, not playtested: after 4-6 min of chopping the next rock you break had a geode hidden in it; the break opens it into the hatch reveal, luck from that chop, Uncommon+, pity counts, no tell; `GeodeService/Wild`, `WildGeodeConfig`, admin Ctrl+Shift+J
 
 ## Decisions
@@ -171,6 +171,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[World 1 Plan]] — 2026-10-29: zones 6-10 Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins; stands Meteor/Sun/Black Hole/Galaxy; always-awake co-op Golem boss opens world 2; never time-gate a milestone; `World1Plan.md`
 
 - [[Wild Geodes]] — 2026-10-29, approved and built (see [[Wild Geode]]): the user kept the shop and added random geodes hidden in rocks; crack on the break, better-than-normal odds (Uncommon+ draft), no tell
+- [[Rock Breaking Scale]] — 2026-10-30, approved; map, rocks, Diamond rock, snap and chop camera scaled 2026-10-30 (`ZoneScaleConfig`, `Utils/ZoneScale`); resistance and overkill not built: zones scale x1.15 each (rocks, floor, terraces, decor; not the character), reset per world, no pillars; visible resistance, overkill shatter at 10x; `RockBreakingPlan.md`
 
 ## Inbox
 _Unsorted learnings for the user to review._

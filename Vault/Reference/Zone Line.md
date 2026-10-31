@@ -4,6 +4,29 @@ type: reference
 ---
 # Zone line
 
+## Scaled zones (2026-10-30)
+Built from [[Rock Breaking Scale]] (`RockBreakingPlan.md` D1-D4). Each zone n is scaled 1.15^(n-1) about its near-edge centre at floor level (x 42, y 1), then butted against the previous zone. Floors, terraces and spawn areas were snapped back to whole studs, the floor kept 1 thick (y 0 to 1), and the terrace decor moved to the new terrace tops. Textures kept their 8-stud tiles. **The sizes and z ranges further down this note are from before the scaling.** The scale is only in the map so far; rocks, chop camera and snap don't read it yet.
+
+| Zone | Scale | Floor (Z deep x X wide) | Z range | X range | Terrace top |
+|---|---|---|---|---|---|
+| Forest | 1.00 | 168 x 220 | -195 to -27 | -68 to 152 | 36 |
+| Desert | 1.15 | 193 x 253 | -27 to 166 | -84 to 169 | 41 |
+| Jungle | 1.32 | 222 x 290 | 166 to 388 | -103 to 187 | 47 |
+| Ocean | 1.52 | 256 x 334 | 388 to 644 | -125 to 209 | 54 |
+| Snow | 1.75 | 294 x 384 | 644 to 938 | -150 to 234 | 62 |
+| Swamp | 2.01 | 338 x 442 | 938 to 1276 | -179 to 263 | 71 |
+| Savanna | 2.31 | 389 x 508 | 1276 to 1665 | -212 to 296 | 82 |
+| Bamboo | 2.66 | 447 x 586 | 1665 to 2112 | -251 to 335 | 94 |
+| Volcano | 3.06 | 514 x 672 | 2112 to 2626 | -294 to 378 | 108 |
+| Ruins | 3.52 | 591 x 774 | 2626 to 3217 | -345 to 429 | 124 |
+| Boss arena | 3.52 | 1161 x 1056 inside | 3217 to 4378 (back wall to 4695) | -486 to 570 inside | 124 |
+
+- Terraces scaled in width too (Ruins about 317 wide, outer edges x -662 to 746). Layer heights round per layer, so a zone's three layers can differ by a stud from an exact scale.
+- Boss arena: gateway x -130 to 214 (344 wide), front walls 106 deep, side walls 316 wide, back wall 317 deep. Arena is past the Baseplate (which ends at z 1024), like the old Ruins already was.
+- Moved with their zones: `TeleportPoints.CannonJungle/Ocean/Snow` (z 180 / 402 / 658) and `AdminWarps.Jungle/Ocean/Snow`. Desert and Forest markers didn't move.
+- After scaling, 24 decor props poked up to 5 studs past a terrace or floor edge (scaled-up copies of props that sat right at an edge) and were nudged 0.5 inside.
+- Not playtested (user said not to test). Rock spot sampling scales with floor area (about 21x the forest's area summed over all zones), so check the server-start time in the `[RockService] ... spawn spots` lines, and the strip-full warnings.
+
 Zone order (user, 2026-10-07): forest → desert → jungle → ocean → snow. This replaced the earlier planning order (snow before jungle and ocean).
 
 Each zone is a 220 x 168 floor (x -68 to 152), and the line runs along +Z, 168 studs per zone. Terraces sit at x -98 and x 182, 36 tall. How to add one: the `new-zone` skill.
