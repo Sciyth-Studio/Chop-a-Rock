@@ -29,6 +29,10 @@ The kit's own Studio loaders (`StudioBuild`, `MeshDataLoader`) build EditableMes
 
 **Studs on round parts look bad** (user, 2026-10-27, on the headlights): lathe/cylinder details get stud UVs that wrap the stud around small curved faces. `IntroCar` has a `plain(fn)` helper that points every UV of what `fn` builds at (0.03, 0.03), a flat spot of the stud tile, so lights, wheels, exhaust and the steering wheel come out plain in the render and under `2022 Stud` in Studio. Use it for any small round detail.
 
+## Cash chest
+`tools/meshlab/models/CashChest.luau` (2026-10-30), modelled from the `Cash5` shop icon (`assets/Icons/Shop/Cash5.png`) to replace the Free Gift box ([[Free Gift]]). Red body with gold corner posts, base band and top rim frame, lock plate, lid at 108° with gold edges and hasp, a dark-green cash bed under five layers of banded bundles (fixed-seed random), coins (`plain` lathes) and bills on the ground. 6.4 x 4.4 x 3.8 body, ~8.6 tall, ~2.5k triangles. Asset `117179658787849` ("Cash Chest"), FBX in `assets/Decor/CashChest/`.
+Gotcha: a solid body box or a full-size rim slab caps the opening. The top rim must be four strips, and the solid body must stop under the cash bed.
+
 ## Zone decor
 14 props in the JungleTree style ([[Decor In ForestTree Style]], [[Decor Lineups]]): `tools/meshlab/models/Decor*.luau`, seed 1, 240-2.1k triangles each. They are Pine, SnowPine, Bush, JungleBush, Stump, Mushroom, Cactus, PricklyPear, JungleTree, LeafPlant, Kelp, Coral, Starfish, SnowPile. `DecorSnowPine` and `DecorJungleBush` are wrappers that pass `opts` to `DecorPine` / `DecorBush`. All are in one `assets/Decor/ZoneDecor/ZoneDecor.fbx`, current asset `88340003908610` ("Zone Decor v3", 2026-10-28). Earlier uploads were v1 `101703227545289` (first pass), v2 `123819425751797` (contrast recolour), and the lone JungleTree `128488033006874`.
 
