@@ -777,8 +777,8 @@ local AdminConfig: AdminSettings = {
 		},
 	},
 	Limits = {
-		Cash = 1e15,
-		Strength = 1e15,
+		Cash = 1e24,
+		Strength = 1e24,
 		WalkSpeed = 250,
 		OfflineHours = 48,
 		GeodeGrant = 1e6,

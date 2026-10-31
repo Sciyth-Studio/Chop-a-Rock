@@ -2,11 +2,14 @@
 
 local maxLength = 32
 
-local suffixes: { [string]: number } = {
-	k = 1e3,
-	m = 1e6,
-	b = 1e9,
-	t = 1e12,
+local suffixes: { { Text: string, Multiplier: number } } = {
+	{ Text = "sx", Multiplier = 1e21 },
+	{ Text = "qi", Multiplier = 1e18 },
+	{ Text = "qa", Multiplier = 1e15 },
+	{ Text = "k", Multiplier = 1e3 },
+	{ Text = "m", Multiplier = 1e6 },
+	{ Text = "b", Multiplier = 1e9 },
+	{ Text = "t", Multiplier = 1e12 },
 }
 
 local Arguments = {}
@@ -16,9 +19,13 @@ function Arguments.Number(text: string, min: number, max: number): number?
 		return nil
 	end
 	local cleaned = string.lower((string.gsub(text, "[%s,_]", "")))
-	local multiplier = suffixes[string.sub(cleaned, -1)]
-	if multiplier then
-		cleaned = string.sub(cleaned, 1, -2)
+	local multiplier: number? = nil
+	for _, suffix in suffixes do
+		if string.sub(cleaned, -#suffix.Text) == suffix.Text then
+			multiplier = suffix.Multiplier
+			cleaned = string.sub(cleaned, 1, -#suffix.Text - 1)
+			break
+		end
 	end
 	local value = tonumber(cleaned)
 	if not value or value ~= value or math.abs(value) == math.huge then
