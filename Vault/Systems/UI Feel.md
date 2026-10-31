@@ -24,7 +24,7 @@ Approved 2026-10-14. The user asked for "buttons growing darker when hovered + s
 - Touch: hover is ignored while the preferred input is touch. Gamepad selection counts as hover.
 
 ## Built (phase 2, 2026-10-14)
-- Panel pop: every modal ScreenGui (Shop, GeodeStand, Index, Rebirth, RobuxShop, Roks, SellShop, Settings, AuraShop) has its `Panel` inside a transparent full-screen `PopRoot` frame holding a `UIScale` named `PopScale`. It has to be a wrapper because one object only honours one `UIScale`, and `Panel` already has `ScreenScale`.
+- Panel pop: every modal ScreenGui (Shop, GeodeStand, Index, Rebirth, RobuxShop, Pets, SellShop, Settings, AuraShop) has its `Panel` inside a transparent full-screen `PopRoot` frame holding a `UIScale` named `PopScale`. It has to be a wrapper because one object only honours one `UIScale`, and `Panel` already has `ScreenScale`.
 - `UIController/PanelPop.luau`, driven by `UIController:Open`/`Close`, applies to any screen with a `PopRoot` child. Open: 0.7 to 1 over 0.25 s, Back easing (overshoots about 3%). Close: shrinks to 0.8 over 0.1 s, then calls the screen's `Close`. Reopening during the shrink cancels it. Numbers in `UIFeelConfig` (`PopOpenFromScale` etc., drafts).
 - Sounds: `SFX_UI_PanelOpen` = RBLX UI Select 01 (`10128760939`), `SFX_UI_PanelClose` = RBLX UI Back (`10066914500`), both by Roblox, vol 0.5. Shops keep their bell (`OpenSounds` overrides the open sound). Alternates `PanelOpen_*` / `PanelClose_*` are in `ServerStorage.UISoundOptions`.
 - New modal panel: wrap its `Panel` in a `PopRoot` copy and it pops with no code change.

@@ -11,9 +11,9 @@ local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RarityRibbon = require(ReplicatedStorage.Utils.RarityRibbon)
-local RokModifier = require(ReplicatedStorage.RokModifier)
-local RokSize = require(ReplicatedStorage.RokSize)
-local RokValue = require(ReplicatedStorage.RokValue)
+local PetModifier = require(ReplicatedStorage.PetModifier)
+local PetSize = require(ReplicatedStorage.PetSize)
+local PetValue = require(ReplicatedStorage.PetValue)
 local SellShopConfig = require(ReplicatedStorage.Config.SellShopConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -65,7 +65,7 @@ end
 
 local function buildPreview(frame: ViewportFrame, modelKey: string, modifier: string?)
 	local model = AssetRegistry.get(modelKey)
-	RokModifier.Tint(model, modifier)
+	PetModifier.Tint(model, modifier)
 	if not model:IsA("Model") then
 		model:Destroy()
 		return
@@ -202,23 +202,23 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					continue
 				end
 				local frame = template:Clone()
-				frame.Name = `Rok{id}`
+				frame.Name = `Pet{id}`
 				frame.Visible = true
 				local ribbon: GuiObject? = find(frame, "RarityBar", "GuiObject", true)
 				if ribbon then
 					RarityRibbon.Paint(ribbon, config.Rarity)
 				end
-				local modifier = RokModifier.Get(pet.Modifier)
+				local modifier = PetModifier.Get(pet.Modifier)
 				local modifierLabel: TextLabel? = find(frame, "Modifier", "TextLabel", true)
 				if modifierLabel then
 					modifierLabel.Visible = modifier ~= nil
 					setText(modifierLabel, if modifier then modifier.DisplayName else "")
-					RokModifier.PaintLabel(modifierLabel, pet.Modifier)
+					PetModifier.PaintLabel(modifierLabel, pet.Modifier)
 				end
 				local sizeLabel: TextLabel? = find(frame, "SizeLabel", "TextLabel", true)
 				if sizeLabel then
-					local isSized = RokSize.IsShown(pet.Size)
-					local size = RokSize.Get(pet.Size)
+					local isSized = PetSize.IsShown(pet.Size)
+					local size = PetSize.Get(pet.Size)
 					sizeLabel.Visible = isSized
 					setText(sizeLabel, if isSized then size.DisplayName else "")
 					if isSized then
@@ -227,9 +227,9 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end
 				setText(
 					find(frame, "Rate", "TextLabel", true),
-					`${NumberFormat.Rate(RokModifier.Rate(pet.Key, pet.Modifier))}/s`
+					`${NumberFormat.Rate(PetModifier.Rate(pet.Key, pet.Modifier))}/s`
 				)
-				local value = RokValue.Sell(pet.Key, pet.Modifier)
+				local value = PetValue.Sell(pet.Key, pet.Modifier)
 				setText(find(frame, "Price", "TextLabel", true), `${NumberFormat.Commas(value)}`)
 				local preview: ViewportFrame? = find(frame, "Preview", "ViewportFrame", true)
 				if preview and preview.Parent then
@@ -237,7 +237,7 @@ function SellShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 						buildPreview(viewport, config.ModelKey, pet.Modifier)
 					end)
 					if shown and shown:IsA("ImageLabel") then
-						ItemIcons.Tint(shown, RokModifier.ImageTint(pet.Modifier))
+						ItemIcons.Tint(shown, PetModifier.ImageTint(pet.Modifier))
 					end
 				end
 				local stroke = frame:FindFirstChild("OuterStroke")

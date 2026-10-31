@@ -41,7 +41,7 @@ local function showStand(stand: Instance)
 	stand:SetAttribute(settings.PriceAttribute, item.RobuxPrice)
 	stand:SetAttribute(settings.StockAttribute, item.Stock)
 	stand:SetAttribute(settings.SoldAttribute, sold[item.Key] or 0)
-	services.PedestalService:ShowRok(stand, item.RokKey, settings.RokScale)
+	services.PedestalService:ShowPet(stand, item.PetKey, settings.PetScale)
 	local prompt = stand:FindFirstChild(settings.PromptName, true)
 	if not prompt then
 		local part = stand.PrimaryPart or stand:FindFirstChildWhichIsA("BasePart", true)
@@ -49,7 +49,7 @@ local function showStand(stand: Instance)
 			local created = Instance.new("ProximityPrompt")
 			created.Name = settings.PromptName
 			created.ActionText = "Buy"
-			created.ObjectText = PetConfig.Pets[item.RokKey].DisplayName
+			created.ObjectText = PetConfig.Pets[item.PetKey].DisplayName
 			created.MaxActivationDistance = settings.PromptRangeStuds
 			created.HoldDuration = settings.PromptHoldSeconds
 			created.RequiresLineOfSight = false
@@ -97,7 +97,7 @@ function ExclusiveService.Grant(_self: any, player: Player, key: string): boolea
 	if not item or not data then
 		return false
 	end
-	if not services.PetService:GrantOrQueue(player, item.RokKey) then
+	if not services.PetService:GrantOrQueue(player, item.PetKey) then
 		return false
 	end
 	services.DataService:Set(player, { "Exclusives", key }, true)

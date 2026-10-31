@@ -6,10 +6,10 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
-local RokAura = require(ServerScriptService.Utils.RokAura)
-local RokModifier = require(ReplicatedStorage.RokModifier)
-local RokSize = require(ReplicatedStorage.RokSize)
-local RokSizeConfig = require(ReplicatedStorage.Config.RokSizeConfig)
+local PetAura = require(ServerScriptService.Utils.PetAura)
+local PetModifier = require(ReplicatedStorage.PetModifier)
+local PetSize = require(ReplicatedStorage.PetSize)
+local PetSizeConfig = require(ReplicatedStorage.Config.PetSizeConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
 local PET_ID_ATTRIBUTE = "PetId"
@@ -25,8 +25,8 @@ local function build(id: string, petKey: string, modifier: string?, income: numb
 		return nil
 	end
 	local model = asset :: Model
-	local sizeScale = RokSize.Scale(size)
-	RokAura.Attach(model, petKey, PetConfig.ToolScale * sizeScale)
+	local sizeScale = PetSize.Scale(size)
+	PetAura.Attach(model, petKey, PetConfig.ToolScale * sizeScale)
 	model:ScaleTo(PetConfig.ToolScale * sizeScale)
 	local handle = model.PrimaryPart :: BasePart
 	for _, part in model:GetDescendants() do
@@ -46,15 +46,15 @@ local function build(id: string, petKey: string, modifier: string?, income: numb
 	end
 	handle.Name = "Handle"
 	local tool = Instance.new("Tool")
-	tool.Name = RokSize.Name(petKey, modifier, size)
-	tool.ToolTip = `${NumberFormat.Rate(RokModifier.Rate(petKey, modifier, income))}/s`
+	tool.Name = PetSize.Name(petKey, modifier, size)
+	tool.ToolTip = `${NumberFormat.Rate(PetModifier.Rate(petKey, modifier, income))}/s`
 	tool.CanBeDropped = false
 	tool.Grip = PetConfig.ToolGrip.Rotation + PetConfig.ToolGrip.Position * sizeScale
 	tool:SetAttribute(PET_ID_ATTRIBUTE, id)
 	tool:SetAttribute(WeatherConfig.ModifierAttribute, modifier)
-	tool:SetAttribute(RokSizeConfig.Attribute, size)
+	tool:SetAttribute(PetSizeConfig.Attribute, size)
 	if modifier then
-		CollectionService:AddTag(tool, WeatherConfig.RokTag)
+		CollectionService:AddTag(tool, WeatherConfig.PetTag)
 	end
 	for _, child in model:GetChildren() do
 		child.Parent = tool
@@ -105,7 +105,7 @@ function Tools.Sync(player: Player, pets: { [string]: any })
 			and pet.Slot == nil
 			and PetConfig.Pets[pet.Key] ~= nil
 			and tools[1]:GetAttribute(WeatherConfig.ModifierAttribute) == pet.Modifier
-			and tools[1]:GetAttribute(RokSizeConfig.Attribute) == pet.Size
+			and tools[1]:GetAttribute(PetSizeConfig.Attribute) == pet.Size
 		for index, tool in tools do
 			if not keep or index > 1 then
 				tool:Destroy()

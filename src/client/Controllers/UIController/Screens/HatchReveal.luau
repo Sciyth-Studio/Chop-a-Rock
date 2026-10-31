@@ -11,8 +11,8 @@ local HatchRevealConfig = require(ReplicatedStorage.Config.HatchRevealConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
-local RokModifier = require(ReplicatedStorage.RokModifier)
-local RokSize = require(ReplicatedStorage.RokSize)
+local PetModifier = require(ReplicatedStorage.PetModifier)
+local PetSize = require(ReplicatedStorage.PetSize)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -55,7 +55,7 @@ local function buildPreview(frame: ViewportFrame, modelKey: string, modifier: st
 		return
 	end
 	local model = asset :: Model
-	RokModifier.Tint(model, modifier)
+	PetModifier.Tint(model, modifier)
 	local camera = Instance.new("Camera")
 	camera.FieldOfView = HatchRevealConfig.PreviewFieldOfView
 	camera.Parent = frame
@@ -99,8 +99,8 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if not pet or not rarity then
 			return
 		end
-		local modifier = RokModifier.Get(hatch.Modifier)
-		setText(petName, RokModifier.Name(hatch.PetKey, hatch.Modifier))
+		local modifier = PetModifier.Get(hatch.Modifier)
+		setText(petName, PetModifier.Name(hatch.PetKey, hatch.Modifier))
 		setText(rarityLabel, rarity.DisplayName)
 		if rarityLabel then
 			rarityLabel.TextColor3 = if rarity.RainbowLabel then Color3.new(1, 1, 1) else rarity.Color
@@ -122,7 +122,7 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if pityBadge then
 			pityBadge.Visible = hatch.IsPity == true
 		end
-		setText(statValue, `{NumberFormat.Rate(RokModifier.Rate(hatch.PetKey, hatch.Modifier))}/s`)
+		setText(statValue, `{NumberFormat.Rate(PetModifier.Rate(hatch.PetKey, hatch.Modifier))}/s`)
 		if modifierLabel then
 			modifierLabel.Visible = modifier ~= nil
 			setText(
@@ -136,8 +136,8 @@ function HatchReveal.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end
 		end
 		if sizeLabel then
-			local isSized = RokSize.IsShown(hatch.Size)
-			local size = RokSize.Get(hatch.Size)
+			local isSized = PetSize.IsShown(hatch.Size)
+			local size = PetSize.Get(hatch.Size)
 			sizeLabel.Visible = isSized
 			setText(sizeLabel, if isSized then size.DisplayName else "")
 			if isSized then

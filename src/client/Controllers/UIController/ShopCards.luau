@@ -149,8 +149,8 @@ function ShopCards.FillStarter(inner: Instance, strength: number, isRestricted: 
 	end
 	local geodes = starter.Geodes + if isRestricted then starter.RestrictedExtraGeodes else 0
 	local cash = CashPack.GeodeValue(geodes, strength)
-	local champ = PetConfig.Pets[starter.RokKey]
-	local champIcon = ShopCards.PetIcon(starter.RokKey)
+	local champ = PetConfig.Pets[starter.PetKey]
+	local champIcon = ShopCards.PetIcon(starter.PetKey)
 	local entries = {
 		{ Icon = IconConfig.Cash3, Label = `+${NumberFormat.Compact(cash)}`, Income = "", Outline = true },
 		{
@@ -168,7 +168,7 @@ function ShopCards.FillStarter(inner: Instance, strength: number, isRestricted: 
 	end
 	table.insert(entries, {
 		Icon = champIcon or IconConfig.Crown,
-		Label = if champ then champ.DisplayName else starter.RokKey,
+		Label = if champ then champ.DisplayName else starter.PetKey,
 		Income = if champ then `${NumberFormat.Rate(champ.MoneyPerSecond)}/s` else "",
 		Outline = champIcon == nil,
 	})
@@ -259,7 +259,7 @@ function ShopCards.GiftInfo(gift: MonetizationConfig.Gift): GiftInfo?
 		local pet = PetConfig.Pets[gift.Target]
 		for _, item in MonetizationConfig.Exclusives.Items do
 			if item.Key == gift.Target and pet then
-				local icon = ShopCards.PetIcon(item.RokKey)
+				local icon = ShopCards.PetIcon(item.PetKey)
 				return {
 					Name = pet.DisplayName,
 					Icon = icon or IconConfig.Crown,

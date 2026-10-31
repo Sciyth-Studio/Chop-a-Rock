@@ -7,7 +7,7 @@ local UserInputService = game:GetService("UserInputService")
 local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local RokStacks = require(script.Parent.Parent.RokStacks)
+local PetStacks = require(script.Parent.Parent.PetStacks)
 local Types = require(script.Parent.Parent.Types)
 
 local Toolbar = {}
@@ -30,38 +30,38 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local bar: Frame? = find(gui, "Bar", "Frame")
 	local template: Frame? = find(gui, "SlotTemplate", "Frame")
-	local toggle: GuiObject? = find(gui, "RoksToggle", "GuiObject")
+	local toggle: GuiObject? = find(gui, "PetsToggle", "GuiObject")
 	local toggleButton: GuiButton? = if toggle then find(toggle, "Button", "GuiButton") else nil
 
 	local slots: { Frame } = {}
-	local shown: { [number]: RokStacks.Stack } = {}
+	local shown: { [number]: PetStacks.Stack } = {}
 
 	local function refresh()
 		local pets = dataController:Get({ "Pets" })
-		local stacks: { RokStacks.Stack } = {}
+		local stacks: { PetStacks.Stack } = {}
 		if type(pets) == "table" then
-			for _, stack in RokStacks.Build(pets) do
+			for _, stack in PetStacks.Build(pets) do
 				if not stack.IsPlaced then
 					table.insert(stacks, stack)
 				end
 			end
 		end
-		local held = RokStacks.HeldPetId(player)
+		local held = PetStacks.HeldPetId(player)
 		table.clear(shown)
 		for index, slot in slots do
 			local stack = stacks[index]
 			if stack then
 				shown[index] = stack
 			end
-			RokStacks.Paint(slot, stack)
-			RokStacks.PaintStroke(slot, stack ~= nil and RokStacks.Contains(stack, held))
+			PetStacks.Paint(slot, stack)
+			PetStacks.PaintStroke(slot, stack ~= nil and PetStacks.Contains(stack, held))
 		end
 	end
 
 	local function activate(index: number)
 		local stack = shown[index]
 		if stack then
-			RokStacks.Toggle(player, stack)
+			PetStacks.Toggle(player, stack)
 		end
 	end
 

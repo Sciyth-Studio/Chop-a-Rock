@@ -6,7 +6,7 @@ type: reference
 
 Since 2026-10-11 `ReplicatedStorage.Assets` categories are split into subfolders:
 
-- **Models:** `Rocks/<Zone>` (Forest, Desert, Jungle, Ocean, Snow; each holds that zone's `Model_Rock_*`, `Model_RockPreview_*` and `Model_RockSplit_*`), `Model_Rock_Diamond` loose in `Rocks`, plus `Roks`, `Geodes`, `Base`, `Training` (board split and `Model_ArmPreview`).
+- **Models:** `Rocks/<Zone>` (Forest, Desert, Jungle, Ocean, Snow; each holds that zone's `Model_Rock_*`, `Model_RockPreview_*` and `Model_RockSplit_*`), `Model_Rock_Diamond` loose in `Rocks`, plus `Pets`, `Geodes`, `Base`, `Training` (board split and `Model_ArmPreview`).
 - **VFX:** `Chop` (hit, crack, break, Perfect/Master, cash pop, `CashPopText`, `VFX_DamageNumber`), `Rock` (rise dust, `RockLabel`, `ChopPrompt`), `Rush`, `Diamond`, `Aura`, `Pedestal`, `Hatch`, `Level`, `HotStreak`, `Training`.
 - **Sounds:** already grouped by feature before this.
 

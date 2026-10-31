@@ -35,7 +35,7 @@ local AnalyticsConfig: AnalyticsSettings = {
 		DiamondRock = table.freeze({ Type = gameplay, Sku = "DiamondRock" }),
 		Pad = table.freeze({ Type = gameplay, Sku = "Pad" }),
 		Offline = table.freeze({ Type = reward, Sku = "Offline" }),
-		SellRoks = table.freeze({ Type = shop, Sku = "SellRoks" }),
+		SellPets = table.freeze({ Type = shop, Sku = "SellPets" }),
 		IndexClaim = table.freeze({ Type = gameplay, Sku = "IndexClaim" }),
 		CashPack = table.freeze({ Type = purchase, Sku = "CashPack" }),
 		GiftCashPack = table.freeze({ Type = purchase, Sku = "GiftCashPack" }),

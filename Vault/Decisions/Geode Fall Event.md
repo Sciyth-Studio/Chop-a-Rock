@@ -1,12 +1,12 @@
 ---
-description: 2026-10-20, approved and built — Geode Fall, a server-wide event where 3-5 geodes crash into one zone and players race to claim and chop them for a guaranteed Rare-or-better Rok from that zone's geode; no per-player cap, claims can't be stolen, full Backpack = no Rok and the geode respawns. Built 2026-10-20, not playtested.
+description: 2026-10-20, approved and built — Geode Fall, a server-wide event where 3-5 geodes crash into one zone and players race to claim and chop them for a guaranteed Rare-or-better Pet from that zone's geode; no per-player cap, claims can't be stolen, full Backpack = no Pet and the geode respawns. Built 2026-10-20, not playtested.
 type: decision
 ---
 # Geode Fall event (proposed 2026-10-20)
 
 **Status: approved 2026-10-20 ("Build Geode Fall as the note says, including the Backpack full warning") and built the same day; how it works and where it lives: [[Geode Fall]]. The numbers below are still drafts. Built differently from this note: luck has no effect on the Rare+ split (every Rare+ rarity is lucky and scaled the same).**
 
-The user wants geodes that spawn on the map as a random event, give guaranteed good Roks, and are shared by the whole server so "everyone races to get them", because "the game kinda lacks competition between players". Every event so far is personal ([[Rush Rocks]], [[Weather]]) or shared but co-op ([[Diamond Rock]] pays everyone by damage share). Geode Fall is the first event where one player wins something and another doesn't.
+The user wants geodes that spawn on the map as a random event, give guaranteed good Pets, and are shared by the whole server so "everyone races to get them", because "the game kinda lacks competition between players". Every event so far is personal ([[Rush Rocks]], [[Weather]]) or shared but co-op ([[Diamond Rock]] pays everyone by damage share). Geode Fall is the first event where one player wins something and another doesn't.
 
 ## How a fall plays
 1. **Warning (10 s):** a server-wide notification and a HUD pill: "Geodes falling in the Jungle!" Only the zone is shown, not the spots, so nobody gets there before anyone else.
@@ -42,13 +42,13 @@ The pull uses the zone's own `GeodeConfig` table with Common and Uncommon taken 
 | Jungle | 60.0% | 30.0% | 9.0% | 1.0% |
 | Ocean | 56.0% | 32.0% | 10.4% | 1.6% |
 
-One win is worth about 5-7 bought geodes' chance at Rare+ (Forest 15% per geode, Ocean 25%). At one fall every ~22 min, a server hands out about 8-14 an hour; with no per-player cap, one fast player could take all of them, about 13 an hour at most in a busy server. That still needs checking in the [[Balance Model]], mainly against the Index claims and Sell Shop value of Epic+ Roks.
+One win is worth about 5-7 bought geodes' chance at Rare+ (Forest 15% per geode, Ocean 25%). At one fall every ~22 min, a server hands out about 8-14 an hour; with no per-player cap, one fast player could take all of them, about 13 an hour at most in a busy server. That still needs checking in the [[Balance Model]], mainly against the Index claims and Sell Shop value of Epic+ Pets.
 
 ## Fairness and server checks
 - **The server owns everything.** It decides spots, claims, health and the pull. A claim or a chop counts only if the server sees the player within chop range plus slack, the same as the Diamond Rock (`ChopRangeSlackStuds`).
 - **Teleport exploits:** reject a claim if the player's server position jumped more than their walk speed allows since the last check, outside an official teleport or cannon shot. This is the first reward where one player's cheat takes it from another, so it matters more here than for personal rocks.
 - **New players:** the strength gate keeps players who are too weak out of zones above them, and because falls follow where players are, they still land in the forest when that's where people are.
-- **Alone in a server:** it still runs. It becomes a free Rare+ Rok, which is fine.
+- **Alone in a server:** it still runs. It becomes a free Rare+ Pet, which is fine.
 
 ## Reused pieces
 Diamond Rock spot-finding and area reserve, its beacon/label/pill pattern, `ChopService` hits on a shared server rock, geode crack + hatch reveal, notifications, and the admin command pattern (add a "Start Geode Fall" command and key).

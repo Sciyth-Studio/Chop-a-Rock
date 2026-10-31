@@ -114,7 +114,7 @@ local function decide(player: Player, data: any, step: number): number
 	return step
 end
 
-local function rokKinds(data: any): number
+local function petKinds(data: any): number
 	local index = data.Index
 	local pets = if type(index) == "table" then index.Pets else nil
 	local total = 0
@@ -134,8 +134,8 @@ local function milestone(data: any): number
 		return Tutorial.Played30Min
 	elseif (data.Rebirths or 0) > 0 then
 		return Tutorial.FirstRebirth
-	elseif rokKinds(data) >= TutorialConfig.SecondRokCount then
-		return Tutorial.SecondRok
+	elseif petKinds(data) >= TutorialConfig.SecondPetCount then
+		return Tutorial.SecondPet
 	elseif (data.AuraTier or 1) >= TutorialConfig.AuraHint.Tier then
 		return if AuraHint.StageOf(data) == AuraHint.Done then Tutorial.AuraTrained else Tutorial.AuraBought
 	end

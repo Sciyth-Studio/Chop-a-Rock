@@ -20,7 +20,7 @@
   },
   "icons": {
     "Pet/Bloky": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Bloky",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Bloky",
       "boundsSize": [
         2,
         1.88,
@@ -117,7 +117,7 @@
       }
     },
     "Pet/Sprout": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Sprout",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Sprout",
       "boundsSize": [
         2,
         2.7291,
@@ -243,7 +243,7 @@
       }
     },
     "Pet/Shroomy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Shroomy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Shroomy",
       "boundsSize": [
         2.4188,
         3.16,
@@ -427,7 +427,7 @@
       }
     },
     "Pet/Nesty": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Nesty",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Nesty",
       "boundsSize": [
         2.3824,
         2.9548,
@@ -582,7 +582,7 @@
       }
     },
     "Pet/Berry": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Berry",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Berry",
       "boundsSize": [
         2.3387,
         2.8182,
@@ -737,7 +737,7 @@
       }
     },
     "Pet/Treebo": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Treebo",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Treebo",
       "boundsSize": [
         2.8632,
         3.9168,
@@ -1096,7 +1096,7 @@
       }
     },
     "Pet/Pointy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Pointy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Pointy",
       "parts": {
         "Pointy": {
           "orientation": [
@@ -1173,7 +1173,7 @@
       }
     },
     "Pet/Spike": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Spike",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Spike",
       "parts": {
         "Spike": {
           "orientation": [
@@ -1322,7 +1322,7 @@
       }
     },
     "Pet/Howdy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Howdy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Howdy",
       "parts": {
         "Howdy": {
           "orientation": [
@@ -1447,7 +1447,7 @@
       }
     },
     "Pet/Flowy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Flowy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Flowy",
       "parts": {
         "Flowy": {
           "orientation": [
@@ -1596,7 +1596,7 @@
       }
     },
     "Pet/Ankhy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Ankhy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Ankhy",
       "parts": {
         "Ankhy": {
           "orientation": [
@@ -1745,7 +1745,7 @@
       }
     },
     "Pet/Sunny": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Sunny",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Sunny",
       "parts": {
         "Sunny": {
           "orientation": [
@@ -1870,7 +1870,7 @@
       }
     },
     "Pet/Roly": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Roly",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Roly",
       "parts": {
         "Roly": {
           "orientation": [
@@ -1947,7 +1947,7 @@
       }
     },
     "Pet/Leafy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Leafy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Leafy",
       "parts": {
         "Leafy": {
           "orientation": [
@@ -2072,7 +2072,7 @@
       }
     },
     "Pet/Viney": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Viney",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Viney",
       "parts": {
         "Viney": {
           "orientation": [
@@ -2221,7 +2221,7 @@
       }
     },
     "Pet/Coco": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Coco",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Coco",
       "parts": {
         "Coco": {
           "orientation": [
@@ -2346,7 +2346,7 @@
       }
     },
     "Pet/Tiki": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Tiki",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Tiki",
       "parts": {
         "Tiki": {
           "orientation": [
@@ -2471,7 +2471,7 @@
       }
     },
     "Pet/Bloomy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Bloomy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Bloomy",
       "parts": {
         "Bloomy": {
           "orientation": [
@@ -2596,7 +2596,7 @@
       }
     },
     "Pet/Drip": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Drip",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Drip",
       "parts": {
         "Drip": {
           "orientation": [
@@ -2673,7 +2673,7 @@
       }
     },
     "Pet/Bubbly": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Bubbly",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Bubbly",
       "parts": {
         "Bubbly": {
           "orientation": [
@@ -2774,7 +2774,7 @@
       }
     },
     "Pet/Shelly": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Shelly",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Shelly",
       "parts": {
         "Shelly": {
           "orientation": [
@@ -2923,7 +2923,7 @@
       }
     },
     "Pet/Reefy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Reefy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Reefy",
       "parts": {
         "Reefy": {
           "orientation": [
@@ -3048,7 +3048,7 @@
       }
     },
     "Pet/Glowy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Glowy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Glowy",
       "parts": {
         "Glowy": {
           "orientation": [
@@ -3197,7 +3197,7 @@
       }
     },
     "Pet/Chompy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Chompy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Chompy",
       "parts": {
         "Chompy": {
           "orientation": [
@@ -3394,7 +3394,7 @@
       }
     },
     "Pet/Hexy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Hexy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Hexy",
       "parts": {
         "Hexy": {
           "orientation": [
@@ -3471,7 +3471,7 @@
       }
     },
     "Pet/Beanie": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Beanie",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Beanie",
       "parts": {
         "Beanie": {
           "orientation": [
@@ -3596,7 +3596,7 @@
       }
     },
     "Pet/Cozy": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Cozy",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Cozy",
       "parts": {
         "Cozy": {
           "orientation": [
@@ -3769,7 +3769,7 @@
       }
     },
     "Pet/Stacky": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Stacky",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Stacky",
       "parts": {
         "Stacky": {
           "orientation": [
@@ -3918,7 +3918,7 @@
       }
     },
     "Pet/Climby": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Climby",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Climby",
       "parts": {
         "Climby": {
           "orientation": [
@@ -4139,7 +4139,7 @@
       }
     },
     "Pet/Starry": {
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Starry",
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Starry",
       "parts": {
         "Starry": {
           "orientation": [
@@ -5550,7 +5550,7 @@
           ]
         }
       },
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Kingy"
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Kingy"
     },
     "Pet/Champ": {
       "parts": {
@@ -5675,7 +5675,7 @@
           ]
         }
       },
-      "model": "ReplicatedStorage.Assets.Models.Roks.Model_Rok_Champ"
+      "model": "ReplicatedStorage.Assets.Models.Pets.Model_Pet_Champ"
     }
   },
   "preview": {

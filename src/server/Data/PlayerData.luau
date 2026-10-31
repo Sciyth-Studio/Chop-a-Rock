@@ -78,7 +78,7 @@ export type Data = {
 	Offers: { [string]: boolean },
 	StarterPack: StarterPack,
 	Offline: Offline,
-	PendingRoks: { [string]: number },
+	PendingPets: { [string]: number },
 	Exclusives: { [string]: boolean },
 	GiftsReceived: { [string]: number },
 	GiftCredits: { [string]: number },
@@ -133,7 +133,7 @@ PlayerData.Template = {
 	Offers = {},
 	StarterPack = { Bought = false, OfferEndsAt = 0, SecondChanceUsed = false },
 	Offline = { LastAmount = 0, LastAt = 0 },
-	PendingRoks = {},
+	PendingPets = {},
 	Exclusives = {},
 	GiftsReceived = {},
 	GiftCredits = {},
@@ -343,7 +343,7 @@ function PlayerData.Validate(data: any): boolean
 			return false
 		end
 	end
-	if data.PendingRoks ~= nil and not counts(data.PendingRoks) then
+	if data.PendingPets ~= nil and not counts(data.PendingPets) then
 		return false
 	end
 	if data.Exclusives ~= nil and not flags(data.Exclusives) then

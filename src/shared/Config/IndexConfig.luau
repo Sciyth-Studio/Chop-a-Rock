@@ -57,8 +57,8 @@ export type IndexSettings = {
 local IndexConfig: IndexSettings = {
 	Pages = {
 		{
-			Key = "Roks",
-			DisplayName = "Roks",
+			Key = "Pets",
+			DisplayName = "Pets",
 			Kind = "Pets",
 			Zones = {
 				{

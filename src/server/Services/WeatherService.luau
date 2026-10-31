@@ -2,7 +2,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RokModifier = require(ReplicatedStorage.RokModifier)
+local PetModifier = require(ReplicatedStorage.PetModifier)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local WeatherClock = require(ReplicatedStorage.WeatherClock)
@@ -98,7 +98,7 @@ local function rollCatches(event: WeatherConfig.Event)
 			if
 				pet.Slot ~= nil
 				and services.PetService:CanTakeModifier(pet.Key)
-				and RokModifier.IsBetter(event.Modifier, pet.Modifier)
+				and PetModifier.IsBetter(event.Modifier, pet.Modifier)
 			then
 				table.insert(candidates, petId)
 			end
@@ -127,7 +127,7 @@ local function tick()
 	end
 	if active and (not previous or previous.StartsAt ~= active.StartsAt) then
 		local event = WeatherClock.Event(active.Key)
-		local modifier = if event then RokModifier.Get(event.Modifier) else nil
+		local modifier = if event then PetModifier.Get(event.Modifier) else nil
 		if event and modifier then
 			notifyAll(
 				event,

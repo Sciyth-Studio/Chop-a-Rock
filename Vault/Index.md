@@ -36,8 +36,8 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Studs On Models By Default]] — every model gets the stud overlay unless told otherwise
 - [[Flat Shading On Buildings]] — buildings are flat-coloured (no baked shading) since 2026-10-10; studs + part Color only
 - [[Simple Names No Material Clash]] — player-facing names are simple kid words, never a rock material
-- [[Roks Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
-- [[Reuse Rok Eyes]] — copy Bloky's eye and pupil meshes for every Rok, never rebuild them
+- [[Pets Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
+- [[Reuse Pet Eyes]] — copy Bloky's eye and pupil meshes for every Pet, never rebuild them
 - [[Keep Decor Simple]] — zone decor is few, primitive-shape props; reuse and recolour; Studio parts and particles over Blender models
 - [[Decor In ForestTree Style]] — decor is built like the JungleTree (crossed-box stud courses, alternating shades, chunky trunks, root fins); greens match their zone floor; settled 2026-10-28
 - [[Decor Without References]] — decor reference prompts are run with no images attached; the look is written into the prompt
@@ -65,7 +65,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Stand Name Signs]] — shop / "Wood Training" name billboards (Arm Shop deleted 2026-10-18) above the stands; BillboardGuis don't show in screen_capture
 - [[Geode Reference]] — closed + split geode sheets; flat chipped faces, no bumps, crystals are a separate rarity-coloured part
 - [[Geode Stand Reference]] — per-zone pedestal geodes are bought from; tapered stone plinth with corner crystals
-- [[Hatch Reveal Reference]] — full-screen Rok reveal (big name, odds %, NEW!, sunburst, money stat, "Click to continue"); geode hovers, turns white, grows by rarity
+- [[Hatch Reveal Reference]] — full-screen Pet reveal (big name, odds %, NEW!, sunburst, money stat, "Click to continue"); geode hovers, turns white, grows by rarity
 - [[Index UI Reference]] — three simulator Index screenshots: zone card grid, detail pane with rewards and Claim, Claim All, variant tabs down the side
 - [[Cannon Shop UI Reference]] — 2026-10-20 inspo for the Cannon Shop (tried, then dropped for the Aura Shop look): zone-tinted tall cards per tier (preview, zone block, cash + Robux price, Unequip), subtitle + cash line, footer line
 - [[Geode Stand UI Reference]] — egg-shop screenshots for the stand's odds/buy modal: header, 3x2 pet cards with %, big buttons; opened by prompt
@@ -76,18 +76,18 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Zone Rocks Reference]] — ChatGPT sheets for the desert, jungle, ocean, snow chop rocks (3 each, with props); open before modelling them
 - [[Diamond Rock Reference]] — 2026-10-13 sheet: the whole Diamond Rock is a cyan crystal cluster on a faceted base, crystals radiating all round
 - [[Mossy Stone Reference]] — 2026-10-14 remodel of the forest Mossy Boulder (Third): faceted rock with a separate thick moss cap and moss split halves
-- [[Bloky Reference]] — first Rok (pet rock): chamfered cube, chamfered-square eyes as separate meshes
-- [[Sprout Reference]] — Uncommon forest Rok: Bloky's body and eyes plus a two-leaf seedling mesh on top
-- [[Shroomy Reference]] — Rare forest Rok: taller Bloky body, red-spotted mushrooms on top and the left side
-- [[Nesty Reference]] — Epic forest Rok: Bloky body, low-poly twig nest with three pebble eggs on top (~480 tris for nest + eggs)
-- [[Berry Reference]] — Legendary forest Rok: Bloky body, faceted leaf crown with four glowing magenta berries
-- [[Treebo Reference]] — Secret forest Rok: Bloky body, three-blob faceted tree from the back right, glowing firefly cubes
-- [[Desert Roks Lineup]] — 2026-10-14 lineup of the six golden amber desert Roks; attach to every desert six-view prompt; Sunny's crystal crown not to be copied
-- [[Desert Rok Sheets]] — 2026-10-14 six-view sheets for all six desert Roks; per-Rok notes on what to take (Sunny = flat sun rays, Ankhy ankh stands upright)
-- [[Jungle Rok Sheets]] — 2026-10-16 six-view sheets for the six dragon-fruit-pink jungle Roks; batch-built in one `JungleRoks.blend`
-- [[Ocean Rok Sheets]] — 2026-10-19 six-view sheets for the six coral orange ocean Roks (Drip, Bubbly, Shelly, Reefy, Glowy, Chompy); batch-built in one `OceanRoks.blend`
-- [[Snow Rok Sheets]] — 2026-10-20 six-view sheets for the six frost blue snow Roks (Hexy, Beanie, Cozy, Stacky, Climby, Starry); batch-built in one `SnowRoks.blend`
-- [[Exclusive Rok Sheets]] — 2026-10-25 sheets for the off-white exclusive Roks: Champ (red karate headband, starter pack) and Kingy (gem crown and red cape, exclusive stand); built in `ExclusiveRoks.blend`
+- [[Bloky Reference]] — first Pet (pet rock): chamfered cube, chamfered-square eyes as separate meshes
+- [[Sprout Reference]] — Uncommon forest Pet: Bloky's body and eyes plus a two-leaf seedling mesh on top
+- [[Shroomy Reference]] — Rare forest Pet: taller Bloky body, red-spotted mushrooms on top and the left side
+- [[Nesty Reference]] — Epic forest Pet: Bloky body, low-poly twig nest with three pebble eggs on top (~480 tris for nest + eggs)
+- [[Berry Reference]] — Legendary forest Pet: Bloky body, faceted leaf crown with four glowing magenta berries
+- [[Treebo Reference]] — Secret forest Pet: Bloky body, three-blob faceted tree from the back right, glowing firefly cubes
+- [[Desert Pets Lineup]] — 2026-10-14 lineup of the six golden amber desert Pets; attach to every desert six-view prompt; Sunny's crystal crown not to be copied
+- [[Desert Pet Sheets]] — 2026-10-14 six-view sheets for all six desert Pets; per-Pet notes on what to take (Sunny = flat sun rays, Ankhy ankh stands upright)
+- [[Jungle Pet Sheets]] — 2026-10-16 six-view sheets for the six dragon-fruit-pink jungle Pets; batch-built in one `JunglePets.blend`
+- [[Ocean Pet Sheets]] — 2026-10-19 six-view sheets for the six coral orange ocean Pets (Drip, Bubbly, Shelly, Reefy, Glowy, Chompy); batch-built in one `OceanPets.blend`
+- [[Snow Pet Sheets]] — 2026-10-20 six-view sheets for the six frost blue snow Pets (Hexy, Beanie, Cozy, Stacky, Climby, Starry); batch-built in one `SnowPets.blend`
+- [[Exclusive Pet Sheets]] — 2026-10-25 sheets for the off-white exclusive Pets: Champ (red karate headband, starter pack) and Kingy (gem crown and red cape, exclusive stand); built in `ExclusivePets.blend`
 - [[Training Stand Reference]] — karate board-stand, sawhorse and pine-board images for the breakable training stand
 - [[Training Upgrade Sign Reference]] — 2026-10-14 in-world "Upgrade / Level 2 > Level 3" sign with red cash and purple Robux buttons, for the training stand
 - [[Base Plot Reference]] — the one base inspiration the user liked: stud-plate plot, pedestal rows with green earnings pads
@@ -96,7 +96,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Studio Reimport]] — Alt+Shift+R updates an imported Model's meshes in place by mesh name; keeps colours, materials, children
 - [[ViewportFrame Gotchas]] — runtime camera, no particles, real R15 arm meshes for previews
 - [[Item Icon Rendering]] — icon spike 2026-10-23: variant tile = StudsPerTile world studs, Roblox (x,y,z) = Blender (-x,z,y), VF lighting is sRGB colour × (0.667 + 0.58 N·L), headless Blender renderer gotchas
-- [[Rok Icon Reference]] — 2026-10-23 target look for Rok icons: near-front bright render, real raised studs, thick black outline following the studs
+- [[Pet Icon Reference]] — 2026-10-23 target look for Pet icons: near-front bright render, real raised studs, thick black outline following the studs
 - [[Trove Promises]] — `trove:AddPromise`, never `trove:Add`, for Promises; Add throws on a settled one and disables the whole screen (broke the HUD strength counter 2026-10-23)
 - [[Number Ticker]] — `Utils/NumberTicker` counts HUD numbers up over 0.3-0.6 s on one shared Heartbeat, writing text only when the formatted string changes; decreases snap
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
@@ -119,32 +119,32 @@ _One note per game system as they're worked on._
 - [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands, Reset Player Data (name + press twice), testing-speed commands, Ctrl+Shift+Space command bar, data snapshots; add a command = config entry + `AdminService/Commands` handler
 - [[Global Announcements]] — admin `Global Message` (Events tab, `announce`) → filtered, gold 8 s notification in every server via MessagingService; bypasses the Notifications setting; `AnnouncementService`, `AnnouncementConfig`
 - [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
-- [[Index]] — Roks + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
+- [[Index]] — Pets + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Geode Shop]] — one lobby shop, a tab per zone geode, opens on the zone your Best Strength reaches; buying gated on Best Strength (kept through rebirth), cracking ungated (2026-10-28); new zone = config only (no stand); pity bars (Legendary + Secret guarantees per geode, built 2026-10-22); pit "Choose Geode" picker saves which geode cracks next (2026-10-28)
 - [[Auto Open]] — 2026-10-28 game pass: third pit prompt (R) starts hands-off cracking of owned geodes, rolled quality through `Cracking.Finish` (pity unchanged), stop pill, stops on range/out of geodes/bag full; `GeodeService/AutoOpen`, `AutoOpenConfig`, `Screens/AutoOpenButton`
-- [[Pedestals]] — Roks as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Roks panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdleRok`
-- [[Toolbar]] — 2026-10-29 custom hotbar (Roblox Backpack CoreGui off) of Rok stacks with keys 1-7, `RoksToggle` or ~ opening the Roks inventory panel (stacked cards, search, Placed badge, Equip Best, +1 Slot); `Screens/Toolbar`, `Screens/Roks`, `UIController/RokStacks`, `ToolbarConfig`
-- [[Rok Sizes]] — Tiny/Normal/Big/Giant/Huge/Colossal (15/55/20/7/2.5/0.5%, x0.75-x2 scale, 2026-10-29) rolled on every grant, luck pushes only sizes above Normal, looks only; `RokSizeConfig`, `RokSize`, `Pet.Size`
-- [[Sell Shop]] — green lobby stall selling Backpack Roks (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
+- [[Pedestals]] — Pets as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Pets panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdlePet`
+- [[Toolbar]] — 2026-10-29 custom hotbar (Roblox Backpack CoreGui off) of Pet stacks with keys 1-7, `PetsToggle` or ~ opening the Pets inventory panel (stacked cards, search, Placed badge, Equip Best, +1 Slot); `Screens/Toolbar`, `Screens/Pets`, `UIController/PetStacks`, `ToolbarConfig`
+- [[Pet Sizes]] — Tiny/Normal/Big/Giant/Huge/Colossal (15/55/20/7/2.5/0.5%, x0.75-x2 scale, 2026-10-29) rolled on every grant, luck pushes only sizes above Normal, looks only; `PetSizeConfig`, `PetSize`, `Pet.Size`
+- [[Sell Shop]] — green lobby stall selling Backpack Pets (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
 - [[Chop Effects]] — hit/crack/break/Perfect/Master VFX + coin cash pop; `Tint`/`MinQuality` attributes, scaled by rock size from code
 - [[Shop Pads]] — neon floor rectangles open the Geode, Sell and Aura shops on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
 - [[Settings]] — master Volume with -/+, Music/SFX/Low Graphics/Auto Equip/Notifications toggles; what each does
 - [[Rush Rocks]] — after ~3 min of chopping the next rock rises gold near you, 20 s countdown, x3 pay; `RockService/Rush`, `RushRockConfig`, admin Ctrl+Shift+R
-- [[Geode Fall]] — built 2026-10-20, first playtest fixes in (hover, despawn, damage cap, own VFX, aura hidden): 6-8 geodes crash into random zones players have reached, rolled by the Event Clock, first chop claims, Rare+ Rok; `GeodeFallService`, `RockController/GeodeFall`, `GeodeFallPill`, `GeodeFallConfig`, admin Ctrl+Shift+F; anti-teleport sampling; RockService now reserves several areas
+- [[Geode Fall]] — built 2026-10-20, first playtest fixes in (hover, despawn, damage cap, own VFX, aura hidden): 6-8 geodes crash into random zones players have reached, rolled by the Event Clock, first chop claims, Rare+ Pet; `GeodeFallService`, `RockController/GeodeFall`, `GeodeFallPill`, `GeodeFallConfig`, admin Ctrl+Shift+F; anti-teleport sampling; RockService now reserves several areas
 - [[Diamond Rock]] — shared server rock rolled by the Event Clock at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
 - [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert (all nine, Desert to Ruins, since 2026-10-30); equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
 - [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop (15 tiers for world 1 = zones 1-10 since 2026-10-28, one per zone), training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Event Clock]] — 2026-10-29: every 5 min (:00/:05 server time) one event rolls: Geode Fall 40, Diamond Rock 35, Weather 25, no repeats; `EventClockService`, `EventClockConfig`; Rush Rocks stay separate
-- [[Weather]] — events rolled by the Event Clock, 4 min each, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Rok per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
+- [[Weather]] — events rolled by the Event Clock, 4 min each, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Pet per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 - [[Tutorial]] — 5-step first-time tutorial, no Skip (2026-10-27), then a staggered aura hint (`AuraHintService`); `TutorialService` owns the step in PlayerData and logs a 13-step onboarding funnel to 60 min played; `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks; weather ignored while it runs
 - [[Kid Friendly Pass]] — 2026-10-29, not playtested: phone-only wider/slower chop zones (`TouchChop` attribute, `ChopZones` isTouch), left click to chop, short notifications with an optional icon, free first Master Chop 2-4 min after the tutorial (`RockService/FirstMaster`), Huge Shroomy from the tutorial geode
 - [[Intro Cutscene]] — 17 s "The Master" intro on first load (2026-10-27, not playtested): boulder squashes your car, the Master's chop, "Go train, kid!", lands facing your stand; client-only set, `IntroController`, `IntroConfig`
 - [[Loading Cover]] — 2026-10-28 join cover for everyone (stud backdrop, Gold title, bouncing Bloky, progress bar built on progress-bar psychology: head start, real milestones, creep, end dash, backwards ribs, stage text); closed by `IntroController` after data, or after the intro's preload + first-shot warm-up (fixed the intro's start-up hitches); `LoadingCoverConfig`
 - [[Analytics]] — 2026-10-27: cash economy events on every server cash change (`AnalyticsConfig` Sources/Sinks, `Utils/Analytics`, `AdjustCash(..., flow, detail)`) and a 3-step `RobuxShop` funnel (`RobuxShopFunnelService`); onboarding funnel stays in Tutorial
 - [[Cash Packs]] — four Robux packs worth 3/12/40/150 of your zone's geode; a can't-afford buy (auras, cannons, geodes, slots, training sign) opens the Robux prompt for the covering pack directly, no popup; `CashPackConfig`, `Utils/CashPack`, `CashPackController`; stand products off sale
-- [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Roks/rocks via `Utils/ItemIcons` (ViewportFrame fallback) in Index, Geode Stand, Roks and Sell Shop (HatchReveal stays 3D); generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons live 2026-10-24, Champ and Kingy added 2026-10-25
+- [[Item Icons]] — 2026-10-23: Blender-rendered PNG icons for Pets/rocks via `Utils/ItemIcons` (ViewportFrame fallback) in Index, Geode Stand, Pets and Sell Shop (HatchReveal stays 3D); generated `ItemIconConfig`, `scripts/upload_icons.py`, `item-icons` skill; all 45 icons live 2026-10-24, Champ and Kingy added 2026-10-25
 - [[Player List]] — 2026-10-28 Roblox-style top-right `leaderstats`: Strength, Money, Rebirths as NumberValues ranked by Strength, 0.5 s refresh; `PlayerListService`, `PlayerListConfig`
 - [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)
 - [[Free Gift]] — 2026-10-28 lobby pad by the entrance opens a "Free Gift!" panel (like, favorite, join steps); Claim checks Sciyth Studio group membership server-side (`GetGroupsAsync`, not cached `IsInGroup`), once per player (`Offers.FreeGift`), cash worth 3 zone geodes; meshlab cash chest on the pad since 2026-10-30; `FreeGiftService`, `Screens/FreeGift`, `FreeGiftConfig`
@@ -152,12 +152,13 @@ _One note per game system as they're worked on._
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
+- [[Roks Renamed To Pets]] — 2026-10-31 "Rok" became "Pet" everywhere (code, Studio, assets, vault); no save migration
 - [[Rocks Look Like Boulders]] — 2026-10-02: boulder look, user remodels by hand; what a hand-made rock must keep
 - [[Forest Rock Tiers]] — stone First, boulder Second, Mossy Boulder Third (moss-cap prop since 2026-10-14; "the mossy rock" means Third); export scale gotcha
 - [[Big Numbers Over Small Ones]] — 2026-10-10: billions are fine; keep tier growth, add money sinks and scale costs with income
-- [[Zones After Desert]] — 2026-10-10: approved jungle, ocean, snow rocks (built as placeholders), Roks and geodes (not built); the number rules
+- [[Zones After Desert]] — 2026-10-10: approved jungle, ocean, snow rocks (built as placeholders), Pets and geodes (not built); the number rules
 - [[VFX From Roqer]] — 2026-10-07 Roqer VFX pipeline; since 2026-10-15 the vfx skill is the MIT `roblox-vfx` skill, runtime at `ReplicatedStorage.VFX` (Emit/Build/Capture/Shapes)
-- [[Coloured Roks After Forest]] — 2026-10-14: only forest Roks are grey; each later zone's six share one saturated body colour (desert golden amber 215, 152, 35)
+- [[Coloured Pets After Forest]] — 2026-10-14: only forest Pets are grey; each later zone's six share one saturated body colour (desert golden amber 215, 152, 35)
 - [[Rebirth Gated By Strength]] — 2026-10-13: no levels; rebirth N needs zone N's toughest rock in strength; each rebirth unlocks the next training stand (set strength per 1 s rep); rebirth gives cash + luck only; Robux buys the stand cash, never skips the gate (2026-10-18)
 - [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; all in Luau (Cozy and the Snow geode since 2026-10-20)
 - [[Training Minigame Board Slice]] — 2026-10-20: first training minigame is a Fruit Ninja-style 2D swipe game, optional on top of idle reps; server-counted slices fill a power meter that multiplies strength per rep (draft up to x2); bombs empty it
@@ -165,8 +166,8 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Chop Timing Uses Client Time]] — 2026-10-21: chop quality judged on the client's elapsed time, clamped server-side to a fixed 0.4 s window (draft; not ping-sized); every chop flow uses `Utils/ChopTiming`
 - [[Cannons And Auras Replace Arms]] — 2026-10-18: lobby Cannon Shop sells per-zone cannons you equip; arms removed, auras keep the arm multipliers and cash prices plus a little speed, one shared effect coloured by tier; old five auras scrapped
 - [[Leaderboards Approved]] — 2026-10-21: Strength, Money/s, Perfect Chops, Playtime; global, 60 s; weekly tab, #1 crown, pass toast liked but not built
-- [[Rarity Ribbon And Modifier Tags]] — 2026-10-23: sell cards show rarity as a gradient ribbon (`Utils/RarityRibbon`) and the modifier as its name in its weather colours (`RokModifier.PaintLabel`)
-- [[Robux Shop Plan Approved]] — 2026-10-24: user accepted R1-R13 of `RobuxShopPlan.md`: paid Lucky Geodes, gifting, server boosts incl. Server 2x Luck, 24 h starter offer, VIP, exclusive Rok stand; not built
+- [[Rarity Ribbon And Modifier Tags]] — 2026-10-23: sell cards show rarity as a gradient ribbon (`Utils/RarityRibbon`) and the modifier as its name in its weather colours (`PetModifier.PaintLabel`)
+- [[Robux Shop Plan Approved]] — 2026-10-24: user accepted R1-R13 of `RobuxShopPlan.md`: paid Lucky Geodes, gifting, server boosts incl. Server 2x Luck, 24 h starter offer, VIP, exclusive Pet stand; not built
 - [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, built 2026-10-28 (see [[Auto Open]])
 - [[World 1 Plan]] — 2026-10-29: zones 6-10 Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins; stands Meteor/Sun/Black Hole/Galaxy; always-awake co-op Golem boss opens world 2; never time-gate a milestone; `World1Plan.md`
 

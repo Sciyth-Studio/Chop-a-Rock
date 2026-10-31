@@ -20,7 +20,7 @@ Spec: [[Cannons And Auras Replace Arms]]. Built 2026-10-20 with placeholder mode
 | Volcano | 238Qa | $352Qa | 230,40,30 | `CannonVolcano` |
 | Ruins | 29.8Qi | $22.5Qi | 140,60,220 | `CannonRuins` |
 
-Swamp to Ruins added 2026-10-30 (user asked for the rest of the zones' cannons). Same rule: strength = the zone's first rock from `World1Plan.md`, price = 25 of that rock's payout, colour = the zone's Rok colour. Those zones have no rocks or `RockConfig` entries yet, so the numbers follow the plan, not code. Flight time stays 2 s, so the Ruins flight (about 3,050 studs from the lobby cannon, arc about 760 high) is very fast and may land before the zone streams in. Not playtested.
+Swamp to Ruins added 2026-10-30 (user asked for the rest of the zones' cannons). Same rule: strength = the zone's first rock from `World1Plan.md`, price = 25 of that rock's payout, colour = the zone's Pet colour. Those zones have no rocks or `RockConfig` entries yet, so the numbers follow the plan, not code. Flight time stays 2 s, so the Ruins flight (about 3,050 studs from the lobby cannon, arc about 760 high) is very fast and may land before the zone streams in. Not playtested.
 Strength = the zone's first rock; price = about 25 of its chops. Matches the Config and Payback tabs of [[Balance Model]] v7 (each cannon costs 3 to 6 min of income in the zone before it). Flight 2 s, arc height max(60, 25% of distance), cooldown 3 s, prompt range 10. No-cannon colour grey 120.
 
 ## Data and server

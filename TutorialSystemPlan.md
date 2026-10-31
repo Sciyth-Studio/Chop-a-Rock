@@ -6,9 +6,9 @@ Status: **built 2026-10-16** (see `Vault/Systems/Tutorial.md` for what shipped a
 `AGENTS.md`, `Vault/Index.md`, `Chop_a_Rock_Master_Game_Plan.txt` §05 (The first player experience), and the vault notes `Bases`, `Shop Pads`, `Geode Shop`, `Pedestals`, `Weather`, `Teleport Bar`, `UI Feel`, `Movement Lock`. Skills: `studio-ui`, `studio-playtest`.
 
 ## Core loop
-`train at the base stand → Strength → chop rocks in the forest → Cash → buy arms (2x training) and geodes → crack the geode at the base → Rok on a pedestal → $/s → stronger rocks → rebirth`
+`train at the base stand → Strength → chop rocks in the forest → Cash → buy arms (2x training) and geodes → crack the geode at the base → Pet on a pedestal → $/s → stronger rocks → rebirth`
 
-The tutorial runs this once, end to end: training, chopping, the first arms (felt straight away on a second short training step), the first geode, the first Rok earning money. That teaches both progression axes, per the [PROPOSED] line in §05.
+The tutorial runs this once, end to end: training, chopping, the first arms (felt straight away on a second short training step), the first geode, the first Pet earning money. That teaches both progression axes, per the [PROPOSED] line in §05.
 
 ## Pacing rule (user, 2026-10-16)
 As few repeated actions as possible. A training step lasts **at most 5 seconds**. A chopping step needs **at most 3 rocks**. Training for its own sake comes after the tutorial.
@@ -35,8 +35,8 @@ Progress lives in the `PlayerData` replica, not in Player attributes, so the ser
 | `Cash` | 0 | $150 (steps 2 and 5) |
 | `ArmTier` | 1 | 2 = Wood Arms bought |
 | `Geodes.Forest` | nil | Holds a geode |
-| `Pets` | {} | First Rok hatched |
-| `Pets[id].Slot` | nil | Rok on a pedestal (`AutoEquip` is on by default, so it follows the hatch) |
+| `Pets` | {} | First Pet hatched |
+| `Pets[id].Slot` | nil | Pet on a pedestal (`AutoEquip` is on by default, so it follows the hatch) |
 | `Rebirths` | 0 | First rebirth = last funnel step (retention) |
 
 New field: `Tutorial = { Step: number, Taps: number }` in `PlayerData` (`Data`, `Template`, `Validate` together). Template `Step = 1`. Existing players are moved straight to `DONE` on load (any `Pets`, `ArmTier > 1` or `Rebirths > 0`), so current players never see it.
@@ -52,13 +52,13 @@ New field: `Tutorial = { Step: number, Taps: number }` in `PlayerData` (`Data`, 
 | 5 | `CHOP_AGAIN` | Chop rocks for cash! | Bar `$x/$150` (≤3 rocks, one hit each) | Nearest Stone | `Cash ≥ 150` | Shop pads |
 | 6 | `BUY_GEODE` | Buy a geode! | Spotlight on the Forest Geode buy button | `GeodeShop` pad | `Geodes.Forest ≥ 1` | Other pads |
 | 7 | `CRACK` | Crack it at your base! | "Hold [key]… let go on gold!" | Own plot's `GeodeSpot` | `Pets` has an entry | Everything but the pit prompt |
-| 8 | `COLLECT` | Grab your Rok's cash! | "Step on the green pad" | That Rok's pedestal `EarningsPad` | That slot's earnings are collected | — |
+| 8 | `COLLECT` | Grab your Pet's cash! | "Step on the green pad" | That Pet's pedestal `EarningsPad` | That slot's earnings are collected | — |
 | 9 | `FINAL` | You're ready! Go chop! | none | none | `FinalHoldSeconds` (draft 3 s), then `DONE` | Everything unlocks |
 
 Nine steps, one more than the brief's 5–8: it is the only way to teach arms and geodes while keeping every repeated part this short.
 
 Ordering rules in `check(player)`:
-- Later milestones win: a player holding a geode jumps to `CRACK`, one with a placed Rok to `COLLECT`.
+- Later milestones win: a player holding a geode jumps to `CRACK`, one with a placed Pet to `COLLECT`.
 - Out of order never advances: training steps need a rep made during the step, so an admin preset or leftover strength doesn't skip them.
 - Moving back: if `Cash` drops below $150 on `BUY_ARMS` or `BUY_GEODE`, it goes back to the chop step before it. If the geode disappears without a hatch, back to `BUY_GEODE`.
 - Rejoin halfway: `Step` is saved, then re-checked against the data on load.
@@ -91,8 +91,8 @@ Hooks in existing systems (gate calls only):
 ## Weather (user: ignore it if possible)
 Weather runs on a shared server clock, so it can't be switched off for one player, but everything it does to a player can be:
 - `WeatherService:RollStormRock` takes the player and returns nil while they're in the tutorial, so their rocks never spawn as storm rocks.
-- `rollCatches` skips tutorial players (no surprise Rok catches mid-step).
-- `RollHatchModifier` returns nil for the tutorial crack, so the first Rok is a plain one.
+- `rollCatches` skips tutorial players (no surprise Pet catches mid-step).
+- `RollHatchModifier` returns nil for the tutorial crack, so the first Pet is a plain one.
 - `WeatherController` skips the lighting look and VFX locally while the tutorial is active, and applies the current one at `DONE`. `WeatherPill` is hidden.
 
 ## Visuals

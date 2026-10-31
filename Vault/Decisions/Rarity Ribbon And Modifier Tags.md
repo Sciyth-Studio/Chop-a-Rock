@@ -17,7 +17,7 @@ Take from it: the ribbon across the top of each card, and the "Toasty" tag over 
 
 ## Modifier tag
 - Modifier name only (no multiplier, no rate), on its own `Modifier` label over the bottom of the preview, rotated -6. The `$/s` line stays the normal rate (already including the modifier).
-- Colours come from `WeatherConfig.Modifiers[x].LabelTop`/`LabelBottom` (the weather pill and notification colours) via `RokModifier.PaintLabel(label, modifier)`; stroke is `LabelBottom` darkened by `WeatherConfig.LabelDarkAlpha`. Pedestal, Notifications and WeatherController still repeat that paint inline.
+- Colours come from `WeatherConfig.Modifiers[x].LabelTop`/`LabelBottom` (the weather pill and notification colours) via `PetModifier.PaintLabel(label, modifier)`; stroke is `LabelBottom` darkened by `WeatherConfig.LabelDarkAlpha`. Pedestal, Notifications and WeatherController still repeat that paint inline.
 
 Backup of the old card: `ServerStorage.UIBackup.SellCardBeforeRibbon`.
 

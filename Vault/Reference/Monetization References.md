@@ -30,7 +30,7 @@ The user shared these on 2026-10-24 for the Robux shop and starter pack plan (`R
 ![[Monetization Ref 02.webp]]
 3. Shop grid of six currency packs (59 to 2,249 R$). The icon grows with the pack: one bolt, two, three, a pile, a sack, a chest. Each card has a green price bar and a small purple gift button.
 ![[Monetization Ref 03.webp]]
-4. "Featured" limited-time chest with odds per pet and 1 / 3 / 10 / 50 chest prices (a struck-through 4,950). A paid random item: the model for the Lucky Geode card (odds per Rok, Buy 1 / 3 / 10, gift buttons).
+4. "Featured" limited-time chest with odds per pet and 1 / 3 / 10 / 50 chest prices (a struck-through 4,950). A paid random item: the model for the Lucky Geode card (odds per Pet, Buy 1 / 3 / 10, gift buttons).
 ![[Monetization Ref 04.png]]
 5. "Exclusive" pet card with Income and Speed stat tiles and a "Sold Out" state: a limited-stock Robux pet. Later idea (plan R7).
 ![[Monetization Ref 05.png]]
@@ -40,7 +40,7 @@ The user shared these on 2026-10-24 for the Robux shop and starter pack plan (`R
 ![[Monetization Ref 07.png]]
 8. Shop "Money" section: a wide "Double your Money, x2 Forever!" pass card (199) above cash pack cards (45 / 90 / 225) with gift buttons. The plan's pass cards copy it.
 ![[Monetization Ref 08.png]]
-9. "Fuse Machine": a free fuse at 70%, or "100% Chance" for 39 R$. Only relevant if Rok upgrades are built (deferred).
+9. "Fuse Machine": a free fuse at 70%, or "100% Chance" for 39 R$. Only relevant if Pet upgrades are built (deferred).
 ![[Monetization Ref 09.png]]
 10. "Starter Pack" popup: three item tiles (currency, wins, a 5-min 2x potion) and a big green 39 R$ button with 99 struck through. The plan copies the layout but shows a real "Worth" value instead of a strike-through.
 ![[Monetization Ref 10.webp]]
@@ -51,7 +51,7 @@ Second batch (2026-10-24):
 
 12. "Welcome Back! You trained while you were offline": +3.14B skill on rays, a rainbow "+9.41B" button for 11 R$ and a green "Claim!". The same Claim x3 idea for offline training.
 ![[Monetization Ref 12.png]]
-13. An in-world whale pet: King Bones on a glowing pedestal with an aura ring, a billboard "Best in game, always 1200% better", and a ProximityPrompt "Buy 1,559". The model for the exclusive Rok stand (the plan uses 3x, not 12x).
+13. An in-world whale pet: King Bones on a glowing pedestal with an aura ring, a billboard "Best in game, always 1200% better", and a ProximityPrompt "Buy 1,559". The model for the exclusive Pet stand (the plan uses 3x, not 12x).
 ![[Monetization Ref 13.png]]
 14. In-world Robux training areas: "All worlds" 119 / 299 / 719 R$ for 75x / 300x / 1000x skill, shown locked. The plan recommends against it (R13): it would make training gates take seconds.
 ![[Monetization Ref 14.png]]

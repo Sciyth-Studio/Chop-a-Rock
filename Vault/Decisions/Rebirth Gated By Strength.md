@@ -12,7 +12,7 @@ The user studied a successful game and wanted its model. Strength is the one sta
 - Stands are `TrainingConfig.Stands`: Wood R0 1, Brick R1 25, Steel R2 2,500, Vault R3 300K, Energy Core R4 40M, Cosmic R5 5B per rep, each × the arm multiplier. That's about 10 minutes of training without arms per zone. `ChopIntervalSeconds` is now 1 (was 1.6). The strike animation still fits: 0.21 s lead + 0.35 s hold.
 - The user agreed the stand only changes looks and feel. Its set strength per rep is the training output, and the rebirth count gives no strength multiplier.
 - Rebirth keeps a cash multiplier and the luck bonus. 2026-10-16 the user felt cash was far too easy and cut it to 1 + 0.25 × N (`MultiplierPerRebirth` 0.25, was 1). It only ever applied to chop and Diamond Rock pay, never pedestal income. The draft stand prices below assumed the old ×(1 + N), so they are now steeper relative to chop income.
-- Rebirth also clears uncollected pedestal pad money (2026-10-18). Before that, the money survived a rebirth and paid into the fresh wallet. Placed Roks stay. See [[Pedestals]].
+- Rebirth also clears uncollected pedestal pad money (2026-10-18). Before that, the money survived a rebirth and paid into the fresh wallet. Placed Pets stay. See [[Pedestals]].
 - Arms still multiply training (Claude's default; the user didn't object).
 - Every zone after Snow needs a new stand.
 - Considered and dropped: gating stands by zones (5 zones vs 6 stands, and zones already give walk speed), by arms (duplicates the money lever), by level (resets on rebirth, so the stand would downgrade), and buying stands with cash (a second money-bought training multiplier, and a bad time to make kids pay right after a rebirth).

@@ -3,7 +3,7 @@
 Status: **approved and built 2026-10-27** (all six; Option A head start; rebirth hint kept positive; Starter Offer held until the Boulder hint is Done). Passes check.ps1, not playtested. What shipped is in `Vault/Systems/Tutorial.md`. These are fixes from Hud's Guide (`08 Retention, Onboarding and Playtime` → *Visual guidance and tutorial UI*, *Contextual steps and progressive reveal*) applied to the 5-step tutorial and the aura, Boulder and cannon hints. See `Vault/Systems/Tutorial.md` and `Vault/Launch Checklist.md`. Each section can be approved on its own.
 
 ## 1. Shorter text: 4 words max (user, 2026-10-27; the guide says about 5)
-Every title and detail line, in the tutorial and all hints, is 4 words or fewer. Key names count as words ("Press E" is 2), and counters such as "1/4" or "$87/$150" don't count. Lines already at 4 or fewer stay ("Break the boards!", "Follow the arrows", "Keep going!", "Buy one Forest Geode!", "Walk onto the pad", "Grab your Rok's cash!", "You're ready! Go chop!", "Silver Aura unlocked!", "Buy the Silver Aura!", "Fire the cannon!", "Click Fire to launch!").
+Every title and detail line, in the tutorial and all hints, is 4 words or fewer. Key names count as words ("Press E" is 2), and counters such as "1/4" or "$87/$150" don't count. Lines already at 4 or fewer stay ("Break the boards!", "Follow the arrows", "Keep going!", "Buy one Forest Geode!", "Walk onto the pad", "Grab your Pet's cash!", "You're ready! Go chop!", "Silver Aura unlocked!", "Buy the Silver Aura!", "Fire the cannon!", "Click Fire to launch!").
 
 | Where | Now | Proposed |
 | --- | --- | --- |

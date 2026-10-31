@@ -6,10 +6,10 @@ Status: **approved 2026-10-24, built and playtested 2026-10-28** (vault note `Au
 
 | # | Question | Decision | Why |
 | --- | --- | --- | --- |
-| A1 | **Where does it run?** | **Only at your base pit (user, 2026-10-24):** "you should get prompted to auto open when you walk up to your pit. it doesn't run anywhere, it just lets you go hands off while trying to open your geodes at the pit." Walking away stops it. | It replaces the hold-prompt-and-time-the-meter loop, not the trip to the pit. You still watch your Roks hatch. |
+| A1 | **Where does it run?** | **Only at your base pit (user, 2026-10-24):** "you should get prompted to auto open when you walk up to your pit. it doesn't run anywhere, it just lets you go hands off while trying to open your geodes at the pit." Walking away stops it. | It replaces the hold-prompt-and-time-the-meter loop, not the trip to the pit. You still watch your Pets hatch. |
 | A3 | **Random hit quality: which odds?** | **The balance model's "typical kid" mix, no Master Chops (user, 2026-10-24):** Bad 5% / Mid 15% / Good 40% / Great 25% / Perfect 15% (model Inputs rows 4-8), which averages +0.095 luck. | The model already assumes this mix for every geode check, so balance doesn't move. A player who keeps hitting Perfect by hand (+0.25), or lands a Master (+1), still does better. |
 | A4 | **Speed and display** | **The normal reveal plays for every crack, and the next crack starts as soon as it ends** (follows from A1). No new timer: the pit's existing lock (reveal + `RecrackDelaySeconds`) sets the pace, about 4.2 s a crack on average. | You're standing at the pit, so the full reveal and its camera are fine. It's about 1.3x faster than by hand (no prompt hold, no camera in and out, no waiting for the meter). |
-| A5 | **Auto-sell?** | **No (user, 2026-10-24).** A full Backpack (100 Roks) stops auto-open. | Keeps the pass simple. |
+| A5 | **Auto-sell?** | **No (user, 2026-10-24).** A full Backpack (100 Pets) stops auto-open. | Keeps the pass simple. |
 | A7 | **Off on rejoin?** | **Yes** (follows from A1). It only runs while you stand at the pit, so there's nothing to resume. | |
 | A2 | **Does it buy geodes too?** | **No, only the geodes you own (user, 2026-10-24).** It stops with "All geodes opened!" when they run out. (The earlier "buys and cracks" answer was for the run-anywhere design.) | Buying stays at the lobby shop; auto-open only replaces the cracking. |
 | A6 | **Price** | **Game pass, 199 R$ (user, 2026-10-24).** Not a timed developer product. | Permanent, like 2x Luck. Simulator auto-hatch passes usually sell for about 150-400 R$. |
@@ -37,7 +37,7 @@ The user has wanted an auto-open pass since the 2026-10-18 balance pass. Spam ha
    - you tap Stop Auto,
    - you walk out of range (*draft* 14 studs from the pit, a little more than the prompt's range),
    - out of geodes ("All geodes opened!"),
-   - Backpack full ("Bag full! Sell some Roks"),
+   - Backpack full ("Bag full! Sell some Pets"),
    - too weak for the next geode ("Get stronger! Need X Strength"), instead of clinking again and again,
    - you start a chop, teleport, fire a cannon, rebirth or leave.
    The prompts come back once the last reveal ends.
@@ -46,7 +46,7 @@ The user has wanted an auto-open pass since the 2026-10-18 balance pass. Spam ha
 - **Pace:** one crack, then the existing lock (`lockedUntil`: reveal time + `RecrackDelaySeconds`), then the next. Plus `AutoOpenConfig.StartDelaySeconds` (*draft* 0.3 s) for the strike to read. Nothing from the client sets the pace.
 - **Which geode:** the same pick as the Crack prompt (`Cracking.PickGeode`, highest zone first).
 - **Quality** is rolled on the server from `AutoOpenConfig.QualityWeights` (A3). No Master roll. Luck = `Luck.Total(context, player, quality)`, so rebirth luck and 2x Luck apply as normal.
-- **Counts as a real crack:** a geode is taken, a Rok granted, pity counters move, the Index fills, weather rolls a modifier, Auto Equip works as usual. **Doesn't count:** Perfect Chops (`StatsService:RecordChop` is skipped, so the leaderboard stays about skill).
+- **Counts as a real crack:** a geode is taken, a Pet granted, pity counters move, the Index fills, weather rolls a modifier, Auto Equip works as usual. **Doesn't count:** Perfect Chops (`StatsService:RecordChop` is skipped, so the leaderboard stays about skill).
 - **Tutorial:** no Auto Open prompt while the tutorial runs.
 - **Admin "Next Hatch: <Rarity>"** applies to the next auto crack too.
 
@@ -106,13 +106,13 @@ RunningAttribute = "AutoOpening", CountAttribute = "AutoOpenCount",
 | Pit prompt | Running | Hidden (both prompts) |
 | Pit prompt | No geodes / tutorial | Hidden |
 | Screen | Running | "Auto Open · 12 opened" pill with Stop |
-| Notification | Stopped | "All geodes opened!", "Bag full! Sell some Roks", "Get stronger! Need X Strength" |
+| Notification | Stopped | "All geodes opened!", "Bag full! Sell some Pets", "Get stronger! Need X Strength" |
 
 ## 7. Balance check ([[Balance Model]] v9)
 - **Odds per crack: unchanged from the model.** The model's luck already uses timing +0.095 (Collection rows 5-9), which is exactly A3's mix. With no Masters, an auto crack is very slightly below a typical manual player (manual Masters are about 1.3% of cracks).
 - **Cash per hatch: unchanged**, so hatch-and-sell is still not a loop. Worst cases (10 rebirths, worst weather): Forest 70%, Desert 83%, **Jungle 96%**, Ocean 43%, Snow 46%. Selling stays a manual trip to the lobby.
 - **Pace:** the average reveal at Forest odds is about 3.05 s (Common 2.7 s up to Secret 5.45 s), plus 0.12 s pre-impact, 1 s recrack and 0.3 s start: **about 4.5 s a crack, against about 5.5 s by hand**. Cash allows faster in every zone (1.6-3.9 s a geode, Collection column I against the geode price), so auto-open is speed-bound everywhere. It's a convenience, not a multiplier.
-- **Roks page time** (model minimum 5 min): expected hatches × 4.5 s = **Forest 60, Desert 37, Jungle 25, Ocean 12, Snow 8.9 min** (model's cash-only figures: 20.4 / 10.7 / 5.5 / 8.7 / 6.4). All pass with room.
+- **Pets page time** (model minimum 5 min): expected hatches × 4.5 s = **Forest 60, Desert 37, Jungle 25, Ocean 12, Snow 8.9 min** (model's cash-only figures: 20.4 / 10.7 / 5.5 / 8.7 / 6.4). All pass with room.
 - **Pity under auto-open:** in the Snow the Legendary guarantee (35 cracks) comes within about 2.6 minutes of standing at the pit.
 - **Model change:** small. Add an "Auto-open" row to Collection (seconds per auto crack and the page-time floor). Save as v10 via Excel COM, with a "Changes in v10" line in Read Me. Nothing in Checks changes.
 

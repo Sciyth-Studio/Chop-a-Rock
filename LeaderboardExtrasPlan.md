@@ -76,7 +76,7 @@ All on the server, new child `LeaderboardService/Passes.luau`, all-time boards o
 - It keeps the last order per board. When A was behind B and is now ahead by at least `PassMargin` (*draft* 1%), A gets "You passed B in Strength!".
 - Spam guards (*drafts*):
   - The first check after someone joins only records the order; joining never causes a toast for anyone.
-  - A pair (A over B on one board) toasts at most once every `PairCooldownSeconds` (600). Two players trading places on Money/s while equipping Roks don't ping-pong.
+  - A pair (A over B on one board) toasts at most once every `PairCooldownSeconds` (600). Two players trading places on Money/s while equipping Pets don't ping-pong.
   - At most one pass toast per player every `ToastCooldownSeconds` (30). If several passes land together, the toast names the highest one and adds "and 2 more".
   - Both values must be above 0, and players still in the first tutorial are left out.
 
@@ -107,7 +107,7 @@ All on the server, new child `LeaderboardService/Passes.luau`, all-time boards o
 
 ## Testing (Play, by value; the user plays the look)
 1. Train: the Weekly Strength value grows by exactly what all-time grew. Rebirth: all-time Strength drops, weekly doesn't.
-2. Perfect chop: both counters +1. Equip better Roks then worse ones: weekly Money/s keeps the best.
+2. Perfect chop: both counters +1. Equip better Pets then worse ones: weekly Money/s keeps the best.
 3. `LeaderboardWeek 1`: the weekly values reset at the next refresh, the Weekly tab is empty, then fills with you. All-time is untouched.
 4. Tabs: clicking Weekly on one board changes only that board, only for you (check with a second test player). "Resets in" counts down.
 5. Reads per minute stay within the budget with 1 player (watch the output for datastore budget warnings over 5 minutes).

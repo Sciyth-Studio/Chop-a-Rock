@@ -139,7 +139,7 @@ and X across its width; draw the core as a vertical line (`vfx-motion.md`).
 
 ## 13. Electric effects need a glow
 
-**Why:** the first Zappy Rok effect (yellow hairline snaps and a crackle
+**Why:** the first Zappy Pet effect (yellow hairline snaps and a crackle
 ring, no glow) "looks relatively boring, he could use a glow" (2026-10-15).
 
 **How to apply:** give lightning and electric effects a soft glow behind them

@@ -1,26 +1,26 @@
 {
   "Pet/Bloky": {
-    "fbx": "assets/Roks/Bloky/Bloky.fbx",
+    "fbx": "assets/Pets/Bloky/Bloky.fbx",
     "objects": {}
   },
   "Pet/Sprout": {
-    "fbx": "assets/Roks/Sprout/Sprout.fbx",
+    "fbx": "assets/Pets/Sprout/Sprout.fbx",
     "objects": {}
   },
   "Pet/Shroomy": {
-    "fbx": "assets/Roks/Shroomy/Shroomy.fbx",
+    "fbx": "assets/Pets/Shroomy/Shroomy.fbx",
     "objects": {}
   },
   "Pet/Nesty": {
-    "fbx": "assets/Roks/Nesty/Nesty.fbx",
+    "fbx": "assets/Pets/Nesty/Nesty.fbx",
     "objects": {}
   },
   "Pet/Berry": {
-    "fbx": "assets/Roks/Berry/Berry.fbx",
+    "fbx": "assets/Pets/Berry/Berry.fbx",
     "objects": {}
   },
   "Pet/Treebo": {
-    "fbx": "assets/Roks/Treebo/Treebo.fbx",
+    "fbx": "assets/Pets/Treebo/Treebo.fbx",
     "objects": {}
   },
   "Rock/Basic": {
@@ -43,99 +43,99 @@
     }
   },
   "Pet/Pointy": {
-    "fbx": "assets/Roks/Pointy/Pointy.fbx",
+    "fbx": "assets/Pets/Pointy/Pointy.fbx",
     "objects": {}
   },
   "Pet/Spike": {
-    "fbx": "assets/Roks/Spike/Spike.fbx",
+    "fbx": "assets/Pets/Spike/Spike.fbx",
     "objects": {}
   },
   "Pet/Howdy": {
-    "fbx": "assets/Roks/Howdy/Howdy.fbx",
+    "fbx": "assets/Pets/Howdy/Howdy.fbx",
     "objects": {}
   },
   "Pet/Flowy": {
-    "fbx": "assets/Roks/Flowy/Flowy.fbx",
+    "fbx": "assets/Pets/Flowy/Flowy.fbx",
     "objects": {}
   },
   "Pet/Ankhy": {
-    "fbx": "assets/Roks/Ankhy/Ankhy.fbx",
+    "fbx": "assets/Pets/Ankhy/Ankhy.fbx",
     "objects": {}
   },
   "Pet/Sunny": {
-    "fbx": "assets/Roks/Sunny/Sunny.fbx",
+    "fbx": "assets/Pets/Sunny/Sunny.fbx",
     "objects": {}
   },
   "Pet/Roly": {
-    "fbx": "assets/Roks/Roly/Roly.fbx",
+    "fbx": "assets/Pets/Roly/Roly.fbx",
     "objects": {}
   },
   "Pet/Leafy": {
-    "fbx": "assets/Roks/Leafy/Leafy.fbx",
+    "fbx": "assets/Pets/Leafy/Leafy.fbx",
     "objects": {}
   },
   "Pet/Viney": {
-    "fbx": "assets/Roks/Viney/Viney.fbx",
+    "fbx": "assets/Pets/Viney/Viney.fbx",
     "objects": {}
   },
   "Pet/Coco": {
-    "fbx": "assets/Roks/Coco/Coco.fbx",
+    "fbx": "assets/Pets/Coco/Coco.fbx",
     "objects": {}
   },
   "Pet/Tiki": {
-    "fbx": "assets/Roks/Tiki/Tiki.fbx",
+    "fbx": "assets/Pets/Tiki/Tiki.fbx",
     "objects": {}
   },
   "Pet/Bloomy": {
-    "fbx": "assets/Roks/Bloomy/Bloomy.fbx",
+    "fbx": "assets/Pets/Bloomy/Bloomy.fbx",
     "objects": {}
   },
   "Pet/Drip": {
-    "fbx": "assets/Roks/Drip/Drip.fbx",
+    "fbx": "assets/Pets/Drip/Drip.fbx",
     "objects": {}
   },
   "Pet/Bubbly": {
-    "fbx": "assets/Roks/Bubbly/Bubbly.fbx",
+    "fbx": "assets/Pets/Bubbly/Bubbly.fbx",
     "objects": {}
   },
   "Pet/Shelly": {
-    "fbx": "assets/Roks/Shelly/Shelly.fbx",
+    "fbx": "assets/Pets/Shelly/Shelly.fbx",
     "objects": {}
   },
   "Pet/Reefy": {
-    "fbx": "assets/Roks/Reefy/Reefy.fbx",
+    "fbx": "assets/Pets/Reefy/Reefy.fbx",
     "objects": {}
   },
   "Pet/Glowy": {
-    "fbx": "assets/Roks/Glowy/Glowy.fbx",
+    "fbx": "assets/Pets/Glowy/Glowy.fbx",
     "objects": {}
   },
   "Pet/Chompy": {
-    "fbx": "assets/Roks/Chompy/Chompy.fbx",
+    "fbx": "assets/Pets/Chompy/Chompy.fbx",
     "objects": {}
   },
   "Pet/Hexy": {
-    "fbx": "assets/Roks/Hexy/Hexy.fbx",
+    "fbx": "assets/Pets/Hexy/Hexy.fbx",
     "objects": {}
   },
   "Pet/Beanie": {
-    "fbx": "assets/Roks/Beanie/Beanie.fbx",
+    "fbx": "assets/Pets/Beanie/Beanie.fbx",
     "objects": {}
   },
   "Pet/Cozy": {
-    "fbx": "assets/Roks/Cozy/Cozy.fbx",
+    "fbx": "assets/Pets/Cozy/Cozy.fbx",
     "objects": {}
   },
   "Pet/Stacky": {
-    "fbx": "assets/Roks/Stacky/Stacky.fbx",
+    "fbx": "assets/Pets/Stacky/Stacky.fbx",
     "objects": {}
   },
   "Pet/Climby": {
-    "fbx": "assets/Roks/Climby/Climby.fbx",
+    "fbx": "assets/Pets/Climby/Climby.fbx",
     "objects": {}
   },
   "Pet/Starry": {
-    "fbx": "assets/Roks/Starry/Starry.fbx",
+    "fbx": "assets/Pets/Starry/Starry.fbx",
     "objects": {}
   },
   "Rock/DesertFirst": {
@@ -199,11 +199,11 @@
     "prefix": "IglooBoulder"
   },
   "Pet/Champ": {
-    "fbx": "assets/Roks/Champ/Champ.fbx",
+    "fbx": "assets/Pets/Champ/Champ.fbx",
     "objects": {}
   },
   "Pet/Kingy": {
-    "fbx": "assets/Roks/Kingy/Kingy.fbx",
+    "fbx": "assets/Pets/Kingy/Kingy.fbx",
     "objects": {}
   }
 }

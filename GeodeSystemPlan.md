@@ -12,11 +12,11 @@ Status: **approved 2026-10-04.** The user accepted every recommendation in secti
 - Timing quality gives a **modest luck bonus** to the hatch roll. Being far stronger than the geode makes the meter all-Perfect, but the geode's own odds table caps its rarity.
 - The geode splits into two halves, crystals inside take a rarity colour, the pet is shown on screen, then goes to the inventory.
 - Rarities: Common, Uncommon, Rare, Epic, Legendary, Secret. Each has its own high-saturation colour. Secret triggers a server-wide announcement.
-- Forest geode holds six Roks: Bloky / Sprout / Shroomy / Nesty / Berry / Treebo. Draft odds 60 / 25 / 10 / 4 / 1 + tiny Secret. Stands show the odds as a pet preview.
+- Forest geode holds six Pets: Bloky / Sprout / Shroomy / Nesty / Berry / Treebo. Draft odds 60 / 25 / 10 / 4 / 1 + tiny Secret. Stands show the odds as a pet preview.
 - Luck sources: crack timing, a permanent bonus per rebirth, the pet luck trait, and one permanent 2x Luck gamepass. The gamepass cannot lift a geode past its own cap, and the stand shows odds with and without it.
 - Every pet has one stat, a money multiplier. Epic and up can also roll one trait (walk speed, luck or training speed).
 - Pets and the index persist through rebirth. Duplicates are kept or deleted; there is no selling.
-- Assets in Studio: `Model_Geode_Basic`, `Model_GeodeSplit_Basic` (shells + `Geode_CrystalsA/B`), `Model_GeodeStand`, `Model_BasePlot` (with the sunken crack pit), and all six forest `Model_Rok_*`.
+- Assets in Studio: `Model_Geode_Basic`, `Model_GeodeSplit_Basic` (shells + `Geode_CrystalsA/B`), `Model_GeodeStand`, `Model_BasePlot` (with the sunken crack pit), and all six forest `Model_Pet_*`.
 
 ## 1. Decisions (all approved as recommended, 2026-10-04)
 
@@ -31,13 +31,13 @@ Status: **approved 2026-10-04.** The user accepted every recommendation in secti
 | D7 | Crystal colour inside the split geode | **The hatched pet's rarity colour.** It shows as the halves open, before the pet card. | Gives the reveal a payoff beat. A per-zone colour would never change, since the forest has only one geode. |
 | D8 | Buy amounts | **Buy 1** and **Buy 3** (Buy 3 shows only when affordable). No multi-crack at the pit yet. | Saves trips to the stand. Opening several at once is a common monetisation hook, so it waits for §10. |
 | D9 | Do unopened geodes survive rebirth? | **Kept.** | Losing bought items feels bad at 6–12. Banking cash in geodes before rebirth is a harmless trick. |
-| D10 | Pet storage cap | **Draft 100 pets.** When full, Buy and crack are blocked with "Bag full! Delete some Roks". | A cap stops the data from growing without limit. The Bag screen (with delete) has to follow soon after. |
+| D10 | Pet storage cap | **Draft 100 pets.** When full, Buy and crack are blocked with "Bag full! Delete some Pets". | A cap stops the data from growing without limit. The Bag screen (with delete) has to follow soon after. |
 | D11 | Epic+ trait roll at hatch | 25% chance (*draft*) for Epic and up to roll one trait, picked evenly from the three. Trait values are *drafts* and have no effect until their systems exist. | The roll happens at hatch, so this system has to store it even though equip comes later. |
 | D12 | What the stand shows for Secret | A dark silhouette, "???" and its odds. The silhouette reveals once the player has hatched it. | Standard genre mystery. The odds stay visible because the odds are always shown. |
 | D13 | Announcements | Secret goes to the **whole server**. Legendary gets a big local reveal only. | Matches the decided Secret rule without spamming chat. |
 | D14 | After buying, how do players find the pit? | The existing guide arrow trail points to their pit while they hold unopened geodes. A "Crack it at your base!" notification shows on the first purchase. | The base is out of sight of the stand, and the guide system already exists. |
 
-| D15 | Reveal animation (the user's idea) | The geode's possible Roks flash by in the hollow as silhouettes (`Highlight`: black fill, white outline), slowing down until they settle on the hatched one. | Slot-machine suspense; it also shows what you *could* have got. |
+| D15 | Reveal animation (the user's idea) | The geode's possible Pets flash by in the hollow as silhouettes (`Highlight`: black fill, white outline), slowing down until they settle on the hatched one. | Slot-machine suspense; it also shows what you *could* have got. |
 
 Approved drafts (all *[PLAYTEST]*, in config):
 - Forest geode: price **250** (near the 200 Wood arm price), strength **10**.
@@ -52,7 +52,7 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
 1. **Stand** (forest zone): a `Geode` ProximityPrompt (like the Arm Shop's) opens the **GeodeStand** screen, a **centred modal** with a close X (decided 2026-10-04). Layout comes from [[Geode Stand UI Reference]]; style is the house panel style, Sky blue.
    - **Header:** the geode's name ("Forest Geode") in Chrome style, plus the close X.
    - **No subtitle line** (the user rejected "You have 2 · crack them at your base"). The first-buy toast and the guide arrow tell players where to crack, and the pit prompt shows how many geodes are left.
-   - **3 x 2 grid of Rok cards.** Each card has the odds % top-left, the Rok in a ViewportFrame in the middle and its name along the bottom. The card's colour glow is the rarity colour. An undiscovered Secret shows a black silhouette, "???" and its %.
+   - **3 x 2 grid of Pet cards.** Each card has the odds % top-left, the Pet in a ViewportFrame in the middle and its name along the bottom. The card's colour glow is the rarity colour. An undiscovered Secret shows a black silhouette, "???" and its %.
    - **2x Luck odds:** a small gold "2x Luck" toggle above the grid swaps every % to the gamepass odds (shown gold) and back. That covers "odds with and without" without putting two numbers on every card for a 6-year-old.
    - **Two big buttons:** **Buy 1** and **Buy 3**, each showing the price with the money icon. Green when affordable, grey when too poor. Both turn into one grey "Need 10 Strength" bar when the player is too weak, and "Bag full!" when storage is full. No key hints: E is the prompt key and would clash, and the Arm Shop has none.
 2. **Buy** → server checks money, strength and bag space, then takes the money and adds the geodes in one write. Money delta animation, "+1 Geode" toast, guide arrow switches to the base pit.
@@ -60,10 +60,10 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
 4. **Release** → server classifies the timing, rolls Master, works out luck, rolls the pet, takes 1 geode and adds the pet in one write.
 5. **Reveal** (*draft* timings, in config):
    1. **Hit:** the existing hit feel (slow-mo, shake, flash). The closed geode swaps to the split model and the halves slide apart. Crystals stay dim white.
-   2. **Shuffle (~2 s, longer for rarer results):** the geode's six Roks take turns standing in the hollow as silhouettes (`Highlight`: FillColor black, FillTransparency 0, OutlineColor white). Each swap has a tick sound and a little scale pop. Swaps start every ~0.07 s and ease out to ~0.45 s, then the last swap is the hatched Rok. The order is random with no immediate repeats, and the Secret can appear in the shuffle.
+   2. **Shuffle (~2 s, longer for rarer results):** the geode's six Pets take turns standing in the hollow as silhouettes (`Highlight`: FillColor black, FillTransparency 0, OutlineColor white). Each swap has a tick sound and a little scale pop. Swaps start every ~0.07 s and ease out to ~0.45 s, then the last swap is the hatched Pet. The order is random with no immediate repeats, and the Secret can appear in the shuffle.
    3. **Settle:** after a short hold (~0.4 s), the silhouette fades off (Fill and Outline tween to transparent). The crystals light up in the rarity colour with a burst and the rarity sound.
-   4. **Show:** the Rok rises out of the hollow and turns to the camera. A **HatchReveal** card shows name, rarity, money multiplier, a "NEW!" badge if it's a first in the index, and the trait if one rolled.
-   5. **Done:** tap or wait 2.5 s → the card closes, the Rok flies toward the Bag button, the halves fade and the pit clears.
+   4. **Show:** the Pet rises out of the hollow and turns to the camera. A **HatchReveal** card shows name, rarity, money multiplier, a "NEW!" badge if it's a first in the index, and the trait if one rolled.
+   5. **Done:** tap or wait 2.5 s → the card closes, the Pet flies toward the Bag button, the halves fade and the pit clears.
 6. If they hold more geodes, the prompt shows "Crack (2 left)". Secret: server-wide "{name} hatched a SECRET Treebo!"
 7. **Visitors** in the base see the same world animation (split, shuffle, settle, rise) but get no camera move or card.
 
@@ -72,7 +72,7 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
 
 ### Config (`src/shared/Config`, frozen)
 - `RarityConfig`: ordered list `Common … Secret`. Each entry has `DisplayName`, `Color`, `TextStyle`, `IsLucky` (Rare+), `Announce` (Secret), `ShuffleSeconds` (rarer = longer suspense), `SoundKey`. Shuffle timings (start and end swap interval, settle hold) also live here.
-- `PetConfig`: `Pets[PetKey]` = `DisplayName`, `Rarity`, `ModelKey` (`Model_Rok_Bloky` …), `MoneyMultiplier`. Plus `MaxPets`, `TraitChance`, and `Traits` (key, display name, draft value range).
+- `PetConfig`: `Pets[PetKey]` = `DisplayName`, `Rarity`, `ModelKey` (`Model_Pet_Bloky` …), `MoneyMultiplier`. Plus `MaxPets`, `TraitChance`, and `Traits` (key, display name, draft value range).
 - `GeodeConfig`: `Geodes[GeodeKey]` = `DisplayName`, `Price`, `StrengthRequired`, `ModelKey`, `SplitModelKey`, `Pets = { {PetKey, Weight} }`, `BuyAmounts = {1, 3}`.
 - `LuckConfig`: `TimingBonusByQuality`, `MasterBonus`, `PerRebirthBonus`, `LuckyShareCap` (0.9), `GamepassId` (nil until made), `GamepassMultiplier` (2).
 
@@ -111,13 +111,13 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
 ### Client
 - `ChopController`: no rewrite. Check that its snap and camera maths work for a 6-stud geode in a sunken pit. If not, add optional `ChopCameraOffset` / `ChopSnapOffset` attributes on the target part (one small, contained change).
 - **`HatchController`** (new, non-UI, folder): handles `GeodeHatched`. Per-frame camera and world animation belong in a controller, not a screen.
-  - `Shuffle.luau`: clones the geode's Rok models from `AssetRegistry`, scaled to fit the hollow. It shows one at a time under a single reused `Highlight` (move its `Adornee`; there's a client limit of 31 Highlights). Swap intervals ease from the start interval to the end interval over `ShuffleSeconds`, and the last swap is the result.
-  - `Reveal.luau`: split halves sliding apart, crystal tint, silhouette fade-out, burst, Rok rise and turn, fly-to-Bag, cleanup.
+  - `Shuffle.luau`: clones the geode's Pet models from `AssetRegistry`, scaled to fit the hollow. It shows one at a time under a single reused `Highlight` (move its `Adornee`; there's a client limit of 31 Highlights). Swap intervals ease from the start interval to the end interval over `ShuffleSeconds`, and the last swap is the result.
+  - `Reveal.luau`: split halves sliding apart, crystal tint, silhouette fade-out, burst, Pet rise and turn, fly-to-Bag, cleanup.
   - `init.luau`: owner-only camera framing (reuses the chop camera position) and opens `HatchReveal` at the show step.
 - `PromptController`: hide pit prompts whose plot `OwnerUserId` isn't the local player.
 - `GuideController`: add the "own pit" target while `Geodes` has any count.
 - Screens (built in Studio first, house panel style, **Sky blue** panel to match the stand sign):
-  - `GeodeStand`: centred modal; header with close X, 3 x 2 Rok card grid (ViewportFrames built at runtime from `GeodeConfig`, so new geodes need no UI work), 2x Luck toggle, Buy 1 / Buy 3. Odds come from `HatchOdds.Chances` at luck 1 and at the gamepass multiplier. Copy the header, close button and button fills from `StarterGui.Rebirth` / `Shop` and recolour to Sky blue.
+  - `GeodeStand`: centred modal; header with close X, 3 x 2 Pet card grid (ViewportFrames built at runtime from `GeodeConfig`, so new geodes need no UI work), 2x Luck toggle, Buy 1 / Buy 3. Odds come from `HatchOdds.Chances` at luck 1 and at the gamepass multiplier. Copy the header, close button and button fills from `StarterGui.Rebirth` / `Shop` and recolour to Sky blue.
   - `HatchReveal`: non-modal card, rarity-coloured burst behind the name, "NEW!" badge.
 
 ### Assets (AssetRegistry keys; placeholders until the user supplies them)
@@ -128,7 +128,7 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
 
 1. **Decisions:** ✅ approved and logged 2026-10-04. Stand UI: prompt + centred modal, no subtitle line.
 2. **Config + odds:** `RarityConfig`, `PetConfig`, `GeodeConfig`, `LuckConfig`, `HatchOdds`. Check: in Studio, roll 100,000 times per luck value (1, 1.25, 2, 4, 10) and compare to `Chances`; confirm the 90% cap and that a 0% rarity stays 0%. ✅ 2026-10-04: every pet's observed rate within 1.6 standard deviations of its chance at luck 0.5 / 1 / 1.25 / 2 / 4 / 10. Luck 10 caps Rare+ at 90%; luck below 1 is treated as 1; an unknown geode gives no chances and no roll. Note for tuning: from luck ~3.4 up (e.g. gamepass + Master crack), Shroomy (Rare) becomes more likely than Bloky.
-3. **Data + PetService:** new fields, `Validate`, `Grant`, index count. Check: grant through the dev panel and watch the replica update on the client. ✅ 2026-10-04: Ctrl+Shift+P (Studio only, `DevGrantPet`) grants a Rok rolled from the forest geode at luck 1. Granted ids 1–4 (Bloky new, Sprout new, Bloky not new); after a Play restart the next grant was id 5 and Sprout was not new, so the existing profile loaded, validated and kept the new fields. No client errors from the real `ReplicaClient`. Not yet tested: the 100-pet cap, and a trait roll (needs an Epic+ hatch). Ctrl+Shift+Backspace now also clears geodes, pets and index.
+3. **Data + PetService:** new fields, `Validate`, `Grant`, index count. Check: grant through the dev panel and watch the replica update on the client. ✅ 2026-10-04: Ctrl+Shift+P (Studio only, `DevGrantPet`) grants a Pet rolled from the forest geode at luck 1. Granted ids 1–4 (Bloky new, Sprout new, Bloky not new); after a Play restart the next grant was id 5 and Sprout was not new, so the existing profile loaded, validated and kept the new fields. No client errors from the real `ReplicaClient`. Not yet tested: the 100-pet cap, and a trait roll (needs an Epic+ hatch). Ctrl+Shift+Backspace now also clears geodes, pets and index.
 4. **BaseService:** claim and release, `OwnerUserId`, `GeodeSpot` lookup. Check with a 2-player local server: each gets a different plot, or a clean refusal when there are more players than plots. ✅ 2026-10-04 (solo Play; the MCP can't start a 2-player server): claims `Workspace.BasePlot` on join (`OwnerUserId` set). A cloned second plot is added unowned. Removing the owned plot's tag moves the owner to the free plot and clears the old attribute. Re-tagging and deleting the clone moves them back. Not tested: two real players, and the "No free BasePlot" warning. `GeodeSpot` placed on the pit surface (flush with the floor, so the sunken-pit risk in section 5 doesn't apply).
 5. **Purchasing:** stand prompt + `BuyGeode`, then the `GeodeStand` screen in Studio and `Screens/GeodeStand.luau`. Check every button state (affordable, poor, weak, bag full), Buy 3, and money and geode count updating together. ✅ 2026-10-04:
    - Prompt opens the modal with 6 cards (correct models, odds and a Treebo silhouette).
@@ -143,7 +143,7 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
    - **Prompt:** `CrackPrompt` on `GeodeSpot`, tagged `OwnedPrompt`. The client component enables it only for the plot owner while `Active`. Text: "Crack (N left)".
    - **Camera:** the chop meter's player and camera offsets now follow the target's facing when the part has the `ChopRelative` attribute (only the pit geode). The player stands on the walkway side.
    - **Tested:**
-     - Good crack: luck 1.05, one geode used, a Rok granted.
+     - Good crack: luck 1.05, one geode used, a Pet granted.
      - Three quick releases: only one crack.
      - Leave mid-crack: geode kept.
      - Forced Master: quality 6, luck 2.0. The pit stays locked through the cinematic (reopens about 4.5 s after the release).
@@ -155,13 +155,13 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
 7. **Reveal:** ✅ first version 2026-10-04 (split halves + silhouette shuffle in the hollow + card). **Redone 2026-10-06** from the user's reference ([[Hatch Reveal Reference]]). The user chose: drop the shuffle, pop in a flash, grow in rarity steps.
    - **World (every client, from `GeodeHatched`):**
      - The closed geode lifts 4 studs over 0.5 s, spinning slowly, then turns white (a `Highlight` fades in).
-     - It swells one step per rarity (+15% each), glowing each rarity's colour in turn with a wobble, and stops at the Rok's rarity: a Common takes 1 step, a Secret all 6.
+     - It swells one step per rarity (+15% each), glowing each rarity's colour in turn with a wobble, and stops at the Pet's rarity: a Common takes 1 step, a Secret all 6.
      - After a short shake it pops: the model vanishes and a burst plays in the rarity colour.
      - Timings are in `HatchRevealConfig`. `HatchTiming.RevealSeconds` gives the server and client the same length. It drives the pit lock and the Secret announcement, which lands at the pop.
    - **Owner extras:**
      - Character hidden and movement locked; camera 14 studs out and 7 up, looking at the hover height.
      - Screen flash and the rarity sound at the pop.
-     - Full-screen `HatchReveal` over a blur and shade: big name (Chrome), rarity label (rarity colour, rainbow on Secret), base odds % (Gold), tilted "New!" (Green), the Rok in a ViewportFrame on spinning rays tinted by rarity, the money icon with "xN" (Green), the trait if rolled, and "Click/Tap to continue".
+     - Full-screen `HatchReveal` over a blur and shade: big name (Chrome), rarity label (rarity colour, rainbow on Secret), base odds % (Gold), tilted "New!" (Green), the Pet in a ViewportFrame on spinning rays tinted by rarity, the money icon with "xN" (Green), the trait if rolled, and "Click/Tap to continue".
      - The HUD, level bar and menu buttons are hidden while it's open. It closes on a click, after 10 s, or when a new chop starts.
    - **Seen on screen:** the hover glow mid-growth (Epic step), the Secret Treebo screen, the Common Bloky screen with the HUD hidden.
    - **Checked by values:** hover height 2.1 → 6.1; six colour steps to scale 1.9; pop then screen. After a click or the timeout: camera Custom, walk speed 16, character visible, blur gone, HUD back.
@@ -181,7 +181,7 @@ Out of scope here (later systems): equip and follow, pedestals and offline incom
 - **Pit geometry:** the pit is sunken, and `ChopController` snaps the player to `rock bottom + root height`. The player may end up standing *in* the pit, so verify in step 6.
 - **Import axis:** in `BasePlot` the pit ended up on Roblox −Z. Place `GeodeSpot` by looking at the parts, not by assuming.
 - **Split model scale:** `SplitModel.Spawn` scales by `part.Size.X`. The geode split needs its crystals coloured separately, and must not inherit the shell colour/material the way rock pieces do. `Effects` handles the geode split itself instead of calling `SplitModel.Spawn` unchanged.
-- **Rok fit:** each Rok must fit the 3.8 x 3.7 x 3.5 hollow; scale at reveal if a model is bigger. The shuffle swaps models of different heights, so pivot each at the hollow floor (Roks already pivot at bottom centre).
+- **Pet fit:** each Pet must fit the 3.8 x 3.7 x 3.5 hollow; scale at reveal if a model is bigger. The shuffle swaps models of different heights, so pivot each at the hollow floor (Pets already pivot at bottom centre).
 - **Highlight look:** use `DepthMode = Occluded` so the silhouette doesn't show through the shell halves. Check the white outline still reads against the white crystals; if it doesn't, tint the crystals darker during the shuffle.
 - **No spoilers:** clients learn the result when `GeodeHatched` arrives, after the server has already granted the pet, so knowing it early changes nothing.
 - **Rate limits:** debounce Buy and the pit prompt on the client so normal use never hits the limit.

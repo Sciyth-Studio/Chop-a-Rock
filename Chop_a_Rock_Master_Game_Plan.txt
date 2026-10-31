@@ -179,7 +179,7 @@ Rocks and zones:
 - Earlier idea, not committed: gray → mossy → obsidian → glowing → crystalline → cosmic material progression.
 
 Pet rocks:
-- Cute collectible rocks (easy to model, original). Hatched from geodes; each Rok is a Tool in the Roblox Backpack, and Roks
+- Cute collectible rocks (easy to model, original). Hatched from geodes; each Pet is a Tool in the Roblox Backpack, and Pets
   placed on base pedestals earn money per second (REVISED 2026-10-06; pets no longer follow the player).
 - Geodes: the "egg" of this game — a rock-shell container that cracks open to reveal a pet rock.
 [DECIDED 2026-10-03] Geodes are inventory items. The player places one in a crack area at their base and chops it on
@@ -194,16 +194,16 @@ Pet rocks:
   - Strength is checked at the stand (Buy locked) and again at the pit: too weak there = "clink", geode kept,
     "Get stronger!" (rebirth can leave a player too weak for geodes they own).
   - Buy 1 and Buy 3 at the stand. No multi-crack or auto-crack yet.
-  - Reveal (REPLACED 2026-10-06: hover, white, grow by rarity, pop; see Decision Log): the halves open, the geode's possible Roks flash by in the hollow as silhouettes (Highlight: black
+  - Reveal (REPLACED 2026-10-06: hover, white, grow by rarity, pop; see Decision Log): the halves open, the geode's possible Pets flash by in the hollow as silhouettes (Highlight: black
     fill, white outline), slowing down until they settle on the one hatched. Then the silhouette lifts, the crystals
-    light up in that Rok's rarity colour, the Rok rises, and a card shows name, rarity and "NEW!".
+    light up in that Pet's rarity colour, the Pet rises, and a card shows name, rarity and "NEW!".
   - The stand shows a Secret as a silhouette with "???" (and its odds) until the player has hatched it.
   - Secret hatches are announced to the whole server; Legendary gets a big reveal for the player only.
   - Unopened geodes survive rebirth. Pet storage is capped (draft 100); when full, Buy and crack are blocked.
   - Epic and up: draft 25% chance to roll one trait at hatch, stored on the pet.
   - While the player holds unopened geodes, the guide arrow points to their base pit.
-[DECIDED 2026-10-04] Pet rocks ("Roks") stay rocks, not animals made of rock: no legs, arms, wings, tails, ears or
-  beaks. Every Rok has Bloky's chamfered-square eyes and no other face. Pets match their zone: the theme comes from
+[DECIDED 2026-10-04] Pet rocks ("Pets") stay rocks, not animals made of rock: no legs, arms, wings, tails, ears or
+  beaks. Every Pet has Bloky's chamfered-square eyes and no other face. Pets match their zone: the theme comes from
   things growing on, sitting on or worn by the rock (plants, hats, objects), rock formations and Neon accents on
   Legendary and Secret. Commons are a plain zone-specific shape with no props. Each pet fits the geode hollow.
 [DECIDED 2026-10-04] Pet lineup, planned for five zones (forest, desert, jungle, ocean, snow; order set 2026-10-07):
@@ -314,18 +314,18 @@ Reasons to come back:
   [DECIDED 2026-10-14] During an event every rock takes on the weather's look AND pays more chop money. Draft: rocks
     pay the event's modifier multiplier (x1.5 Sandstorm up to x5 Eclipse) [PLAYTEST].
   [DECIDED 2026-10-14] Weather events spawn no special rocks and add no event geodes. Instead, geodes opened during
-    an event can hatch a Rok with that weather's modifier.
+    an event can hatch a Pet with that weather's modifier.
   [DECIDED 2026-10-14] Each event shows in the world: sky, lighting, particles and sound per weather, an
     announcement when it starts, and a HUD countdown to the next event.
   [DECIDED 2026-10-03] Pets catch modifiers by being out in the weather: during a weather event, each pet on a
     pedestal (REVISED 2026-10-06; was equipped pets) has a small chance per minute to catch that weather's modifier (e.g. lightning strikes a pet in a thunderstorm).
     Being online during events is what pays, which supports CCU. [PLAYTEST] catch chance.
-    [DECIDED 2026-10-14] 2% per minute per Rok: a 26% chance per Rok over a 15-minute event; with 8 full
+    [DECIDED 2026-10-14] 2% per minute per Pet: a 26% chance per Pet over a 15-minute event; with 8 full
     pedestals, about 2 modified per event and a 91% chance of at least one [PLAYTEST].
   [DECIDED 2026-10-03] Rest of how it works:
   - Pets hatched during the event get a higher chance of the modifier. Draft (2026-10-14): a geode opened during an
-    event has a 25% chance to hatch its Rok with that weather's modifier [PLAYTEST].
-  - Draft (2026-10-14): a modified Rok sells for more, since its sell price (100 s of income) uses its multiplied
+    event has a 25% chance to hatch its Pet with that weather's modifier [PLAYTEST].
+  - Draft (2026-10-14): a modified Pet sells for more, since its sell price (100 s of income) uses its multiplied
     income [PLAYTEST].
   - One modifier per pet. If a pet catches a new one, it keeps whichever has the bigger multiplier.
   - A modifier multiplies that pet's money per second (REVISED 2026-10-06; was its money boost). Common weather = small multiplier,
@@ -416,8 +416,8 @@ Two axes:
     don't apply to it; only weather modifiers (§05) multiply it. Epic and up can also roll one trait (walk speed,
     luck or training speed); traits count only while placed, strongest of each kind only. Full plan:
     PetBaseSystemPlan.md.
-  - Inventory: each Rok is a Tool in the Roblox Backpack. Hold one and use a pedestal's Place prompt, or press
-    Equip Best in the Roks panel. Pets no longer follow the player.
+  - Inventory: each Pet is a Tool in the Roblox Backpack. Hold one and use a pedestal's Place prompt, or press
+    Equip Best in the Pets panel. Pets no longer follow the player.
   - Pedestals: 3 of 8 unlocked at the start, more bought with money. Earnings pile up on each pedestal's green pad
     and are collected by stepping on it; offline they keep filling at 50% for up to 4 hours. [PLAYTEST]
 Plus: base expansion (pedestal slots, floors) and rebirth.
@@ -531,7 +531,7 @@ OFFLINE INCOME:
 COLLECTION / INDEX:
 - Tracks every kind of rock broken and every pet rock hatched.
 [DECIDED 2026-10-03, REVISED 2026-10-06] Duplicate pet rocks: kept (Backpack or pedestal) or SOLD at the Sell Shop for money
-  (draft: 100 seconds of the Rok's income). Selling replaced the delete button on 2026-10-06.
+  (draft: 100 seconds of the Pet's income). Selling replaced the delete button on 2026-10-06.
   Fusion (5 of the same pet → Golden version with a much bigger boost; Rainbow tier later; Golden column in the
   index) is a LATER UPDATE, only after the game reaches 1,000 CCU (§10).
 [DECIDED 2026-10-06] Index rewards: each entry pays once (cash + strength, scaled by rarity; drafts in IndexConfig),
@@ -951,7 +951,7 @@ DECISION LOG
   - Lake dropped from the zone idea pool. The rest of the pool is unordered ideas, not a committed lineup.
   - Still open for the desert: where rebirth sits (end of forest vs end of desert), desert rock numbers, gate price.
 2026-10-04 — Pet rock lineup (§03):
-  - Roks stay rocks, not animals made of rock; all share Bloky's eyes. An owl, deer, tortoise and scorpion draft was
+  - Pets stay rocks, not animals made of rock; all share Bloky's eyes. An owl, deer, tortoise and scorpion draft was
     dropped for this reason.
   - Pets match their zone. 30 pets planned across five zones (forest, desert, snow, jungle, ocean), six per geode
     (Common to Legendary plus Secret). Lineup in §03. Zones 3-5 are a planning set, not a committed zone order.
@@ -961,22 +961,22 @@ DECISION LOG
     gamepass doubles the total; Buy 1 / Buy 3; geodes kept through rebirth; 100-pet draft cap; Epic+ trait roll at
     hatch; Secret silhouette on the stand; Secret announced server-wide; guide arrow to the pit.
   - Base plots get a minimal claim system first (one plot per player on join), because cracking happens at the base.
-  - The user's addition: the reveal flashes the geode's possible Roks as black-and-white silhouettes, slowing until
+  - The user's addition: the reveal flashes the geode's possible Pets as black-and-white silhouettes, slowing until
     it settles on the hatched one.
   - Stand UI layout follows two genre references (Vault: Geode Stand UI Reference). A prompt at the stand opens
-    a centred modal (like the Arm Shop): header with the geode name and close X, 3 x 2 Rok cards with odds, a 2x Luck
+    a centred modal (like the Arm Shop): header with the geode name and close X, 3 x 2 Pet cards with odds, a 2x Luck
     odds toggle, Buy 1 / Buy 3. No line of text under the header.
 2026-10-06 — Geode reveal redone (§03):
   - Replaces the 2026-10-04 split + silhouette shuffle. After the chop the geode hovers ~4 studs, turns white, then
-    swells one step per rarity (glowing each rarity's colour) and stops at the Rok's rarity, then pops in a flash.
-    The shuffle was dropped: each geode holds one Rok per rarity, so the growth already gives the answer.
+    swells one step per rarity (glowing each rarity's colour) and stops at the Pet's rarity, then pops in a flash.
+    The shuffle was dropped: each geode holds one Pet per rarity, so the growth already gives the answer.
   - Reveal screen follows the user's reference (Vault: Hatch Reveal Reference): full screen over a blur, big name,
-    rarity label, odds %, "New!", the Rok on a sunburst, money multiplier, "Click to continue". HUD hidden meanwhile.
+    rarity label, odds %, "New!", the Pet on a sunburst, money multiplier, "Click to continue". HUD hidden meanwhile.
 2026-10-06 — Geode meter ignores strength (§03, §07):
   - Geode cracks always use the base chop zones; strength no longer widens Perfect or raises the Master chance there.
     Perfect and Master add luck, so strong players would have got that luck for free. Rocks still scale with strength.
 2026-10-06 — Index screen (§07, §09):
-  - The user approved IndexSystemPlan.md with a purple header. Pages: Roks (hatched) and Rocks (broken); unfound
+  - The user approved IndexSystemPlan.md with a purple header. Pages: Pets (hatched) and Rocks (broken); unfound
     entries are black silhouettes with "???"; the detail pane shows "1 in N" at base luck.
   - Rewards: once per entry, cash + strength by rarity (draft Common $50 / +5 up to Secret $5,000 / +500; rocks
     $100 / +10). A completed zone page gives +10% money for good, kept through rebirth. Entries found before the
@@ -999,28 +999,28 @@ DECISION LOG
   - Rocks are per-player and invisible to others (option 1). Rejected: shared spawns, which would bring back
     contested rocks (2026-10-03). Also resolves the 2026-09-30 known issue of one shared rock per kind.
   - Scarcity comes from the Diamond Rock: an occasional server-wide, super high-value shared rock players rush to.
-2026-10-06 — Rok inventory, pedestal income and base management (§03, §05, §07; plan: PetBaseSystemPlan.md):
-  - The user asked for Roks as Backpack tools, flat money per second instead of a money multiplier (too many
+2026-10-06 — Pet inventory, pedestal income and base management (§03, §05, §07; plan: PetBaseSystemPlan.md):
+  - The user asked for Pets as Backpack tools, flat money per second instead of a money multiplier (too many
     multiplier sources), and pedestal management at the base. Approved every recommendation in the plan.
-  - One Tool per Rok; hotbar icons are rendered and uploaded per Rok. Pets don't follow the player any more.
-  - Place by holding a Rok at your own pedestal (Place / Pick up prompts). 3 of 8 slots unlocked; slots 4-8 cost
+  - One Tool per Pet; hotbar icons are rendered and uploaded per Pet. Pets don't follow the player any more.
+  - Place by holding a Pet at your own pedestal (Place / Pick up prompts). 3 of 8 slots unlocked; slots 4-8 cost
     1,000 / 4,000 / 15,000 / 60,000 / 250,000 (drafts), bought in order from the locked pedestal or the panel.
   - Earnings pile up on each green pad and are collected by stepping on it. Offline: 50% rate, 4-hour cap, no popup.
-  - No other multipliers on pet income. Weather modifiers multiply it and are caught by Roks on pedestals.
-  - The Bag menu button becomes "Roks": a panel with "X/8 Placed", "+1 Slot", one row per placed Rok with Unequip,
-    and Equip Best (fills slots with the highest $/s Roks, swapping weaker ones out).
-  - Starting a chop, training or crack puts away the held Rok. The EXP bar moves above the hotbar. A Delete button
-    shows while holding a Rok (with a confirm); placed Roks can't be deleted.
-  - Economy drafts: Rok $/s Bloky 1 / Sprout 2 / Shroomy 5 / Nesty 12 / Berry 30 / Treebo 150. Forest geode
+  - No other multipliers on pet income. Weather modifiers multiply it and are caught by Pets on pedestals.
+  - The Bag menu button becomes "Pets": a panel with "X/8 Placed", "+1 Slot", one row per placed Pet with Unequip,
+    and Equip Best (fills slots with the highest $/s Pets, swapping weaker ones out).
+  - Starting a chop, training or crack puts away the held Pet. The EXP bar moves above the hotbar. A Delete button
+    shows while holding a Pet (with a confirm); placed Pets can't be deleted.
+  - Economy drafts: Pet $/s Bloky 1 / Sprout 2 / Shroomy 5 / Nesty 12 / Berry 30 / Treebo 150. Forest geode
     250 -> 500. Arms x1.5: 300 / 2,400 / 19,200 / 153,600. Rock payouts unchanged. [PLAYTEST] all values.
-2026-10-06 — Sell Shop replaces deleting Roks (§07):
-  - The user asked for a shop to sell Roks, which makes deletion unnecessary. Overturns 2026-10-03 "No selling".
-  - A third lobby stall (green, "Sell Shop", shopkeeper avatar of user 531562578) opens a Sell Roks panel from its pad:
-    sort buttons (Value, Rarity, Newest; clicking the active one flips it), Select All, a card per Rok with $/s and
+2026-10-06 — Sell Shop replaces deleting Pets (§07):
+  - The user asked for a shop to sell Pets, which makes deletion unnecessary. Overturns 2026-10-03 "No selling".
+  - A third lobby stall (green, "Sell Shop", shopkeeper avatar of user 531562578) opens a Sell Pets panel from its pad:
+    sort buttons (Value, Rarity, Newest; clicking the active one flips it), Select All, a card per Pet with $/s and
     sell price, a Total Value bar and Sell. Layout from the user's reference.
-  - Only Roks in the Backpack can be sold; placed Roks have to be picked up first. Sell price is flat (no multipliers).
-  - Draft sell price: 100 seconds of the Rok's money per second (Bloky $100, Treebo $15,000). [PLAYTEST]
-  - The Delete button shown while holding a Rok was removed.
+  - Only Pets in the Backpack can be sold; placed Pets have to be picked up first. Sell price is flat (no multipliers).
+  - Draft sell price: 100 seconds of the Pet's money per second (Bloky $100, Treebo $15,000). [PLAYTEST]
+  - The Delete button shown while holding a Pet was removed.
 2026-10-06 — Rock spawning details (§02, §06; plan: RockSpawnSystemPlan.md):
   - The user approved every recommendation. Spawn areas are invisible boxes tagged RockSpawnArea with a Zone attribute.
   - Forest: 10 rocks per player, weights Stone 50 / Boulder 30 / Mossy Boulder 20 (raised from "rare" so a player
@@ -1040,7 +1040,7 @@ DECISION LOG
   - Zones after the forest go desert, jungle, ocean, snow (was planned as desert, snow, jungle, ocean).
   - Bases (floor and terrace walls only) were laid in Studio for jungle, ocean and snow, 120 studs apart along the line.
   - The rock proposals for these zones (snow, jade, sea rock/coral/pearl) are not approved yet.
-  - The ocean zone is deep-ocean themed (seabed, not a beach). Its base was recoloured dark navy. The ocean Rok
+  - The ocean zone is deep-ocean themed (seabed, not a beach). Its base was recoloured dark navy. The ocean Pet
     lineup (§03) was planned for a beach/pirate ocean and has not been revisited yet.
 2026-10-08 — First 10-minute pacing check (§07, §10):
   - From a fresh start, 10 minutes reached 1 rebirth, +530 strength (Sandstone unlocked), Bloky and Nesty hatched,
@@ -1094,15 +1094,15 @@ DECISION LOG
   - Shared clock: events start on the :00 and :30 on every server. Weighted roll: Sandstorm 35%, Hurricane 25%,
     Heat Wave 20%, Thunderstorm 15%, Eclipse 5%.
   - During an event every rock gets the weather look and pays more (draft: the event's modifier multiplier).
-  - No special rocks or event geodes from weather; geodes opened during an event can hatch modified Roks
+  - No special rocks or event geodes from weather; geodes opened during an event can hatch modified Pets
     (draft 25%).
   - Each event gets sky, lighting, particles, sound, a start announcement and a HUD countdown to the next one.
-  - Catch chance 2% per minute per Rok on a pedestal (chosen over 3%, which filled a base with modifiers in about
-    2 hours). Draft set by Claude because the user had no preference: modified Roks sell for 100 s of their
+  - Catch chance 2% per minute per Pet on a pedestal (chosen over 3%, which filled a base with modifiers in about
+    2 hours). Draft set by Claude because the user had no preference: modified Pets sell for 100 s of their
     multiplied income. All [PLAYTEST].
   - Build plan approved (WeatherSystemPlan.md, W1–W12): the rock boost covers per-player and Rush rocks, not the
-    Diamond Rock, and stacks like Rush. Rocks and Roks share each modifier's particles. Modified Roks are named
-    "Zappy Bloky". Owners are told when a Rok catches a modifier. Notices go out a minute before and at the start.
+    Diamond Rock, and stacks like Rush. Rocks and Pets share each modifier's particles. Modified Pets are named
+    "Zappy Bloky". Owners are told when a Pet catches a modifier. Notices go out a minute before and at the start.
     A top-centre weather pill counts down without naming the next event. Modifiers are caught only while online.
     Index modifier tabs stay deferred.
 2026-10-18 — Zone cannons and auras replace arms (§06, §07):
@@ -1123,7 +1123,7 @@ DECISION LOG
     co-play). Server boosts are an approved grant outside the buyer's profile.
   - Timed boosts are a core product line (user: crucial for turning players into payers).
   - RobuxShopPlan.md approved the same day (user accepted R1-R13): starter pack 29 R$ with a real 24 h offer, personal
-    and server boosts, Lucky Geodes, gifting, VIP 799, Claim x3 offline, an exclusive Rok stand, Mega cash pack, and
+    and server boosts, Lucky Geodes, gifting, VIP 799, Claim x3 offline, an exclusive Pet stand, Mega cash pack, and
     Server 2x Luck (server-wide only; personal Robux luck stays the 2x Luck pass). Rebirth Skip removed; no Robux
     training mats. Prices are [PLAYTEST] drafts in config; the plan's balance checks gate each item going on sale.
 2026-10-30 — Rock breaking made more potent (§02, §06; RockBreakingPlan.md):

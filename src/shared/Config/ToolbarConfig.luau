@@ -24,7 +24,7 @@ export type ToolbarSettings = {
 
 local ToolbarConfig: ToolbarSettings = {
 	Screen = "Toolbar",
-	PanelScreen = "Roks",
+	PanelScreen = "Pets",
 	SlotCount = 7,
 	SlotKeys = {
 		Enum.KeyCode.One,
@@ -40,7 +40,7 @@ local ToolbarConfig: ToolbarSettings = {
 	HeldStroke = { Color = Color3.fromRGB(255, 255, 255), Thickness = 3 },
 	CountTextStyle = "Gold",
 	NameTextStyle = "Green",
-	CountFormat = "Roks: %d",
+	CountFormat = "Pets: %d",
 	PlacedFormat = "Placed: %d/%d",
 	DetailEarnsText = "Earns when placed",
 	HoldText = "Hold",

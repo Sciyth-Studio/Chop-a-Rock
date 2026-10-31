@@ -1,7 +1,7 @@
 --!nocheck
 -- Chop a Rock zone decor: starfish in the JungleTree style (Lineup B #5). A chunky yellow
 -- five-point star lying on the ground: a crossed centre pad in two courses, thick arms in two
--- tapering steps, white dots along the top (yellow, not orange: orange is the ocean Roks'
+-- tapering steps, white dots along the top (yellow, not orange: orange is the ocean Pets'
 -- colour). ~4.6 across, ~1 tall. Studs 1 per stud. Base on Y = 0, front -Z.
 
 return function(em, lib, Shapes)

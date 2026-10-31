@@ -1,5 +1,5 @@
 ---
-description: Geode Fall (built 2026-10-20, not playtested) - server-wide event, 6-8 geodes crash into random zones players have reached (since 2026-10-29), first to chop claims one, Rare+ Rok from that zone's geode; where state lives, claim and anti-teleport rules, admin commands, what's reused.
+description: Geode Fall (built 2026-10-20, not playtested) - server-wide event, 6-8 geodes crash into random zones players have reached (since 2026-10-29), first to chop claims one, Rare+ Pet from that zone's geode; where state lives, claim and anti-teleport rules, admin commands, what's reused.
 type: system
 ---
 # Geode Fall
@@ -17,7 +17,7 @@ Design and approval: [[Geode Fall Event]]. All numbers are drafts in `GeodeFallC
 - **Damage:** health = zone geode `StrengthRequired` x Good damage x 6. Hits use your real strength and quality (Master = 5x a Perfect), capped per hit at a share of max health (`MaxShareByQuality`, approved 2026-10-20): Bad 1/12, Mid 1/8, Good 1/6, Great 1/5, Perfect 1/4, Master 1/2. So it takes at least 4 Perfects or 2 Masters however strong you are; at the gate it barely changes. No cash; a hit keeps Hot Streak alive.
 - **Reward:** `HatchOdds.RollAtLeast(geodeKey, "Rare")`, the zone's table with Common/Uncommon removed. Luck does not change it: every Rare+ rarity is `IsLucky`, so luck scales them all by the same factor. Weather hatch modifiers still roll. The normal hatch reveal plays at the geode's `HatchSpot` attachment, facing the winner. Legendary and Secret pulls go to the whole server: "X cracked a Legendary Tiki from a Falling Geode!"
 - **Aura hidden while opening** (user, 2026-10-20): the chopper's aura hides from the first chop through the hatch reveal, the same way as at the base pit. The service sets the player's `CrackingGeode` attribute (`GeodeConfig.CrackingAttribute`), which `AuraController` already watches. It clears when the session ends, on a full-Backpack crack, or after the reveal (`revealDelay` + the rarity's reveal time).
-- **Full Backpack** (`PetService:CanAdd`): warned on claim ("Backpack full! ..."); on crack no Rok, "the Geode flew off somewhere else", and a fresh geode falls at a new spot in the same zone with the same end time.
+- **Full Backpack** (`PetService:CanAdd`): warned on claim ("Backpack full! ..."); on crack no Pet, "the Geode flew off somewhere else", and a fresh geode falls at a new spot in the same zone with the same end time.
 - **Anti-teleport:** every 0.25 s during a fall the server samples each root. A horizontal step over WalkSpeed x 1.5 x dt + 12 studs flags the player for 5 s: their chop is ended and claims are ignored. Exempt: cannon flights (`CannonService:IsLaunching`, `Landed`), the teleport bar (`TeleportService` calls `GeodeFallService:AllowMove`), respawns. Admin warps are not exempt.
 
 ## Where things live

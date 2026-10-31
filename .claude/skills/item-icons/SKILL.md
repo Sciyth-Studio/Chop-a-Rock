@@ -1,13 +1,13 @@
 ---
 name: item-icons
-description: Use when a Rok or rock needs its card icon (the PNG shown in the Index and Geode Stand instead of a 3D ViewportFrame), when a new Rok, rock or zone is added, when an item's colour or mesh changed so its icon is stale, or when the user asks to render, re-render, upload or fix item icons. Covers reading part colours from Studio into specs.json, rendering 512x512 outlined PNGs in headless Blender with icon_renderer.py, the contact sheet, uploading to the Sciyth Studio group with scripts/upload_icons.py, and the generated ItemIconConfig the screens read.
+description: Use when a Pet or rock needs its card icon (the PNG shown in the Index and Geode Stand instead of a 3D ViewportFrame), when a new Pet, rock or zone is added, when an item's colour or mesh changed so its icon is stale, or when the user asks to render, re-render, upload or fix item icons. Covers reading part colours from Studio into specs.json, rendering 512x512 outlined PNGs in headless Blender with icon_renderer.py, the contact sheet, uploading to the Sciyth Studio group with scripts/upload_icons.py, and the generated ItemIconConfig the screens read.
 ---
 
 # Item icons
 
-Every Rok and rock kind gets a 512×512 transparent PNG icon, rendered in Blender and uploaded once to the group. The Index cards and detail pane and the Geode Stand cards show it in an `Icon` ImageLabel. Until an item has an icon, they fall back to the old ViewportFrame (`Preview`), so a new Rok never breaks the UI. Background and measured facts: vault notes `Item Icon Rendering`, `Rok Icon Reference` and `Item Icons`.
+Every Pet and rock kind gets a 512×512 transparent PNG icon, rendered in Blender and uploaded once to the group. The Index cards and detail pane and the Geode Stand cards show it in an `Icon` ImageLabel. Until an item has an icon, they fall back to the old ViewportFrame (`Preview`), so a new Pet never breaks the UI. Background and measured facts: vault notes `Item Icon Rendering`, `Pet Icon Reference` and `Item Icons`.
 
-The look (approved 2026-10-23): a near-front, bright Cycles render, raised whole studs on `2022 Small Stud` parts (Roks), the drawn Inlet texture at 1 stud per tile on `2022 Inlet` parts (rocks), and a black outline of 2.2% that follows the silhouette. All of it is in `STYLE` at the top of `scripts/icon_renderer.py`. Don't change the look without the user's approval.
+The look (approved 2026-10-23): a near-front, bright Cycles render, raised whole studs on `2022 Small Stud` parts (Pets), the drawn Inlet texture at 1 stud per tile on `2022 Inlet` parts (rocks), and a black outline of 2.2% that follows the silhouette. All of it is in `STYLE` at the top of `scripts/icon_renderer.py`. Don't change the look without the user's approval.
 
 ## Files
 | File | What it is |
@@ -22,8 +22,8 @@ The look (approved 2026-10-23): a near-front, bright Cycles render, raised whole
 | `src/shared/Utils/ItemIcons.luau` | `Get(kind, key)`, `Apply(holder, kind, key, buildFallback)`, `Tint(visual, color)` |
 
 ## Adding or refreshing icons
-1. **Manifest.** Add `"Pet/<PetKey>": { "fbx": "assets/Roks/<Name>/<Name>.fbx", "objects": {} }`. For a rock, use the `Rock/<RockKey>` key and the FBX of the mesh its `Model_RockPreview_<RockKey>` uses. Several rocks share one mesh at different scales (Basic = Boulder at 0.6x, turned 180°), so check the preview's MeshId and size, not the folder name. Fill `objects` when a Studio part name isn't the FBX object name.
-2. **Specs from Studio** (Edit mode, `execute_luau`). Walk the model (`Assets.Models.Roks.Model_Rok_<Name>` or `Model_RockPreview_<Key>`) and, for every BasePart, record `color` (0–255), `material`, `variant` (MaterialVariant), `size`, `meshSize`, `position` and `orientation`. Write them under `icons["<key>"].parts` in `specs.json`, next to `model` and `boundsSize`. Studio is the source of truth for colours, so never type colours in by hand.
+1. **Manifest.** Add `"Pet/<PetKey>": { "fbx": "assets/Pets/<Name>/<Name>.fbx", "objects": {} }`. For a rock, use the `Rock/<RockKey>` key and the FBX of the mesh its `Model_RockPreview_<RockKey>` uses. Several rocks share one mesh at different scales (Basic = Boulder at 0.6x, turned 180°), so check the preview's MeshId and size, not the folder name. Fill `objects` when a Studio part name isn't the FBX object name.
+2. **Specs from Studio** (Edit mode, `execute_luau`). Walk the model (`Assets.Models.Pets.Model_Pet_<Name>` or `Model_RockPreview_<Key>`) and, for every BasePart, record `color` (0–255), `material`, `variant` (MaterialVariant), `size`, `meshSize`, `position` and `orientation`. Write them under `icons["<key>"].parts` in `specs.json`, next to `model` and `boundsSize`. Studio is the source of truth for colours, so never type colours in by hand.
 3. **Render** (about 30 s per icon on Cycles; the Blender GUI isn't needed):
    ```bash
    "/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python .claude/skills/item-icons/scripts/icon_renderer.py -- Pet/<Key>

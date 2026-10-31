@@ -1,13 +1,13 @@
 ---
 name: new-zone
-description: Use when adding a new zone to Chop a Rock (jungle, ocean, snow or any later zone), or any part of one - planning its rocks, Roks and decoration, laying the floor and terrace walls, the entrance sign, the rock spawn area, rock templates and config, the geode and Index pages. Says which step a zone is on and what each step touches. Use it even when the user only says "start the jungle" or "make the ocean base".
+description: Use when adding a new zone to Chop a Rock (jungle, ocean, snow or any later zone), or any part of one - planning its rocks, Pets and decoration, laying the floor and terrace walls, the entrance sign, the rock spawn area, rock templates and config, the geode and Index pages. Says which step a zone is on and what each step touches. Use it even when the user only says "start the jungle" or "make the ocean base".
 ---
 
 # Making a new zone
 
-A zone is one 220 x 168 stud strip in the straight line of zones, with its own rock material, three chop rocks, a geode of six Roks, and decoration. Work through the steps in order. Say which step you are on, and what is still missing, before starting work.
+A zone is one 220 x 168 stud strip in the straight line of zones, with its own rock material, three chop rocks, a geode of six Pets, and decoration. Work through the steps in order. Say which step you are on, and what is still missing, before starting work.
 
-Read first: vault [[Zone Line]] (where each zone sits and its colours), [[Rock Spawning]], [[Forest Zone Entrance]], [[Roks Stay Rocks]], [[Simple Names No Material Clash]], and the master plan §03 (rocks, zone list, Rok lineup) and §06 (gates, teleport pads, walk speed).
+Read first: vault [[Zone Line]] (where each zone sits and its colours), [[Rock Spawning]], [[Forest Zone Entrance]], [[Pets Stay Rocks]], [[Simple Names No Material Clash]], and the master plan §03 (rocks, zone list, Pet lineup) and §06 (gates, teleport pads, walk speed).
 
 ## 1. Plan (propose and wait)
 
@@ -15,7 +15,7 @@ Player-facing, so propose and wait for the user's answer. Never build from an un
 
 - **Rocks:** three rocks of the zone's material that get bigger: First (small, plain), Second (boulder), Third (biggest, with a zone feature). The feature is painted into the vertex colours like the forest moss. It can't be a second mesh or a Neon part, because those don't follow the split halves. Names are simple, name the material, and never use "Diamond".
 - **Strength:** the desert set ×5 per rock (500 / 2,500 / 12,500). Continuing that is only a draft; check it against arm prices and mark it [PLAYTEST].
-- **Roks:** already in the master plan §03 for desert, jungle, ocean and snow. Later zones need six new ones (Common to Legendary plus Secret) following [[Roks Stay Rocks]].
+- **Pets:** already in the master plan §03 for desert, jungle, ocean and snow. Later zones need six new ones (Common to Legendary plus Secret) following [[Pets Stay Rocks]].
 - **Decoration:** ground and walls, two or three landmarks, scatter props, sky and particles, sign colour. Each zone's environment matches its material.
 
 When the user approves, log it in the master plan (section plus a dated Decision Log entry).
@@ -55,10 +55,10 @@ Copy the desert's `ZoneEntrance` into the new `ZoneTemplate`. Put it at the zone
 
 Add a Part tagged `RockSpawnArea` with the `Zone` attribute set to the `RockSpawnConfig` key, half-transparent blue, in the zone folder. Cover the open floor between the terraces and leave out anything rocks shouldn't sit in (rivers, paths, landmarks). Playtest and turn on admin "Spawn Spots" (Ctrl+Shift+K) to check spots and the rock mix (`studio-playtest`).
 
-## 6. Geode and Roks
+## 6. Geode and Pets
 
-- **Rok models:** `model-workflow`, reusing Bloky's eyes ([[Reuse Rok Eyes]]). Add a vault reference note per Rok.
-- **Config:** `PetConfig` entries, `GeodeConfig.Geodes.<Zone>` (price, strength, six weighted pets), and an `IndexConfig` Roks page zone with its `GeodeKey`.
+- **Pet models:** `model-workflow`, reusing Bloky's eyes ([[Reuse Pet Eyes]]). Add a vault reference note per Pet.
+- **Config:** `PetConfig` entries, `GeodeConfig.Geodes.<Zone>` (price, strength, six weighted pets), and an `IndexConfig` Pets page zone with its `GeodeKey`.
 - **Shop:** no stand per zone. The geode gets a tab in the lobby Geode Shop from its `TabName` and `Order` (vault [[Geode Shop]]); tint copies of the Basic geode models for it.
 
 ## 7. Decoration (user)

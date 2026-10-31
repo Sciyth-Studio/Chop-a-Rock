@@ -9,9 +9,9 @@ local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local RokModifier = require(ReplicatedStorage.RokModifier)
-local RokSize = require(ReplicatedStorage.RokSize)
-local RokValue = require(ReplicatedStorage.RokValue)
+local PetModifier = require(ReplicatedStorage.PetModifier)
+local PetSize = require(ReplicatedStorage.PetSize)
+local PetValue = require(ReplicatedStorage.PetValue)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PlayerData = require(script.Parent.Parent.Data.PlayerData)
@@ -135,7 +135,7 @@ function PetService.CanAdd(_self: any, player: Player, amount: number): boolean
 end
 
 function PetService.GetRate(_self: any, pet: PlayerData.Pet): number
-	return RokModifier.Rate(pet.Key, pet.Modifier, pet.Income)
+	return PetModifier.Rate(pet.Key, pet.Modifier, pet.Income)
 end
 
 function PetService.GetHeldPetId(_self: any, player: Player): string?
@@ -167,8 +167,8 @@ local function add(player: Player, petKey: string, modifier: string?, luck: numb
 		HatchedAt = os.time(),
 		Trait = trait,
 		TraitValue = traitValue,
-		Modifier = if RokModifier.Get(modifier) and not isExclusive(petKey) then modifier else nil,
-		Size = if isExclusive(petKey) then nil else size or RokSize.Roll(random, luck or 1),
+		Modifier = if PetModifier.Get(modifier) and not isExclusive(petKey) then modifier else nil,
+		Size = if isExclusive(petKey) then nil else size or PetSize.Roll(random, luck or 1),
 	}
 	replica:Set({ "NextPetId" }, data.NextPetId + 1)
 	replica:Set({ "Pets", id }, record)
@@ -231,10 +231,10 @@ end
 
 local function grantPending(player: Player)
 	local data = services.DataService:GetData(player)
-	if not data or next(data.PendingRoks) == nil then
+	if not data or next(data.PendingPets) == nil then
 		return
 	end
-	for petKey, count in data.PendingRoks do
+	for petKey, count in data.PendingPets do
 		local left = count
 		while left > 0 and PetService:CanAdd(player, 1) do
 			if not PetService:Grant(player, petKey) then
@@ -250,7 +250,7 @@ local function grantPending(player: Player)
 			)
 		end
 		if left ~= count then
-			services.DataService:Set(player, { "PendingRoks", petKey }, if left > 0 then left else nil)
+			services.DataService:Set(player, { "PendingPets", petKey }, if left > 0 then left else nil)
 		end
 	end
 end
@@ -263,7 +263,7 @@ function PetService.GrantOrQueue(_self: any, player: Player, petKey: string): bo
 	if PetService:CanAdd(player, 1) and PetService:Grant(player, petKey) then
 		return true
 	end
-	services.DataService:Set(player, { "PendingRoks", petKey }, (data.PendingRoks[petKey] or 0) + 1)
+	services.DataService:Set(player, { "PendingPets", petKey }, (data.PendingPets[petKey] or 0) + 1)
 	return true
 end
 
@@ -336,7 +336,7 @@ end
 function PetService.SetSize(_self: any, player: Player, petId: string, size: string?): boolean
 	local data = services.DataService:GetData(player)
 	local pet = if data then data.Pets[petId] else nil
-	if not pet or isExclusive(pet.Key) or (size ~= nil and not RokSize.IsShown(size)) then
+	if not pet or isExclusive(pet.Key) or (size ~= nil and not PetSize.IsShown(size)) then
 		return false
 	end
 	services.DataService:Set(player, { "Pets", petId, "Size" }, size)
@@ -383,13 +383,13 @@ function PetService.SetModifier(
 	local data = services.DataService:GetData(player)
 	local replica = services.DataService:GetReplica(player)
 	local pet = if data then data.Pets[petId] else nil
-	if not pet or not replica or not RokModifier.Get(modifier) or isExclusive(pet.Key) then
+	if not pet or not replica or not PetModifier.Get(modifier) or isExclusive(pet.Key) then
 		return false
 	end
-	if isCatch and not RokModifier.IsBetter(modifier, pet.Modifier) then
+	if isCatch and not PetModifier.IsBetter(modifier, pet.Modifier) then
 		return false
 	end
-	local oldRate = RokModifier.Rate(pet.Key, pet.Modifier)
+	local oldRate = PetModifier.Rate(pet.Key, pet.Modifier)
 	replica:Set({ "Pets", petId, "Modifier" }, modifier)
 	services.DataService:RequestSave(player)
 	PetService:SyncTools(player)
@@ -405,7 +405,7 @@ function PetService.SetModifier(
 				petConfig.DisplayName,
 				config.DisplayName,
 				NumberFormat.Rate(oldRate),
-				NumberFormat.Rate(RokModifier.Rate(pet.Key, modifier))
+				NumberFormat.Rate(PetModifier.Rate(pet.Key, modifier))
 			),
 			ItemIcons.Get("Pet", pet.Key)
 		)
@@ -432,14 +432,14 @@ function PetService.Sell(_self: any, player: Player, petIds: { string }): number
 			continue
 		end
 		sold[petId] = true
-		total += RokValue.Sell(pet.Key, pet.Modifier)
+		total += PetValue.Sell(pet.Key, pet.Modifier)
 		count += 1
 	end
 	if count == 0 then
 		return 0
 	end
 	removePets(replica, data.Pets, sold)
-	services.DataService:AdjustCash(player, total, AnalyticsConfig.Sources.SellRoks)
+	services.DataService:AdjustCash(player, total, AnalyticsConfig.Sources.SellPets)
 	services.DataService:RequestSave(player)
 	updateIncome(player)
 	PetService:SyncTools(player)

@@ -266,8 +266,8 @@ function PedestalService.Refresh(_self: any, player: Player)
 	refresh(player)
 end
 
-function PedestalService.ShowRok(_self: any, pedestal: Model, petKey: string?, scale: number?)
-	Display.ShowRok(pedestal, petKey, scale)
+function PedestalService.ShowPet(_self: any, pedestal: Model, petKey: string?, scale: number?)
+	Display.ShowPet(pedestal, petKey, scale)
 end
 
 function PedestalService.EquipBest(_self: any, player: Player): boolean

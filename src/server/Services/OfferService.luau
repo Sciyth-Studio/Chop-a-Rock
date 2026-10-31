@@ -54,7 +54,7 @@ function OfferService.GrantStarterPack(_self: any, player: Player): boolean
 	end
 	if not data.StarterPack.Bought then
 		services.DataService:Set(player, { "StarterPack", "Bought" }, true)
-		services.PetService:GrantOrQueue(player, starter.RokKey)
+		services.PetService:GrantOrQueue(player, starter.PetKey)
 	end
 	return true
 end

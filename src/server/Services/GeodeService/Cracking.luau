@@ -65,7 +65,7 @@ function Cracking.Begin(
 		context.Services.NotificationService:Notify(
 			player,
 			"Error",
-			"Bag full! Sell Roks",
+			"Bag full! Sell Pets",
 			IconConfig.Backpack
 		)
 		return nil
@@ -111,12 +111,12 @@ local function forcedPet(context: Types.Context, player: Player, geodeKey: strin
 	return nil
 end
 
-local function isFirstRok(data: any, geodeKey: string): boolean
+local function isFirstPet(data: any, geodeKey: string): boolean
 	if Tutorial.StepOf(data.Tutorial) ~= Tutorial.Crack or next(data.Pets) ~= nil then
 		return false
 	end
 	for _, entry in GeodeConfig.Geodes[geodeKey].Pets do
-		if entry.PetKey == TutorialConfig.FirstRokKey then
+		if entry.PetKey == TutorialConfig.FirstPetKey then
 			return true
 		end
 	end
@@ -168,9 +168,9 @@ function Cracking.Finish(
 	local data = services.DataService:GetData(player)
 	local pityGeodeKey = GeodeConfig.Geodes[session.GeodeKey].BaseKey or session.GeodeKey
 	local pityCounts = if data then data.Pity[pityGeodeKey] else nil
-	local isFirst = data ~= nil and isFirstRok(data, session.GeodeKey)
+	local isFirst = data ~= nil and isFirstPet(data, session.GeodeKey)
 	local forced = forcedPet(context, player, session.GeodeKey)
-		or if isFirst then TutorialConfig.FirstRokKey else nil
+		or if isFirst then TutorialConfig.FirstPetKey else nil
 	local due = if forced then nil else HatchPity.Due(pityGeodeKey, pityCounts)
 	local pityKey = if due then HatchOdds.RollRarity(random, session.GeodeKey, due) else nil
 	local minRarity = if session.IsWild then WildGeodeConfig.MinRarity else nil
@@ -199,7 +199,7 @@ function Cracking.Finish(
 		rollModifier(context, player, session.GeodeKey),
 		equipDelay,
 		luck,
-		if isFirst then TutorialConfig.FirstRokSize else nil
+		if isFirst then TutorialConfig.FirstPetSize else nil
 	)
 	if not grant then
 		if not session.IsWild then
