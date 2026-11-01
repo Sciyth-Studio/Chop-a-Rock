@@ -6,38 +6,13 @@ local ScaleConfig = require(ReplicatedStorage.Config.ScaleConfig)
 local ViewportScale = {}
 
 function ViewportScale.Compute(viewport: Vector2): number
-	local shortSide = math.min(viewport.X, viewport.Y)
-	if shortSide <= 0 then
+	if viewport.X <= 0 or viewport.Y <= 0 then
 		return 1
 	end
-	if shortSide > ScaleConfig.UpscaleShortSidePixels then
-		return math.min(shortSide / ScaleConfig.UpscaleShortSidePixels, ScaleConfig.MaxScale)
-	end
-	return math.clamp(shortSide / ScaleConfig.ReferenceShortSidePixels, ScaleConfig.MinScale, 1)
-end
-
-function ViewportScale.Fit(uiScale: UIScale, value: number, available: Vector2): number
-	local parent = uiScale.Parent
-	if
-		not parent
-		or not parent:IsA("GuiObject")
-		or uiScale:GetAttribute(ScaleConfig.FitAttribute) == false
-	then
-		return value
-	end
-	local size = parent.Size
-	if size.X.Scale ~= 0 or size.Y.Scale ~= 0 then
-		return math.min(value, 1)
-	end
-	local margin = ScaleConfig.FitMarginPixels * 2
-	local fitted = value
-	if size.X.Offset > 0 and available.X > margin then
-		fitted = math.min(fitted, (available.X - margin) / size.X.Offset)
-	end
-	if size.Y.Offset > 0 and available.Y > margin then
-		fitted = math.min(fitted, (available.Y - margin) / size.Y.Offset)
-	end
-	return fitted
+	return math.min(
+		viewport.X / ScaleConfig.ReferenceWidthPixels,
+		viewport.Y / ScaleConfig.ReferenceHeightPixels
+	)
 end
 
 function ViewportScale.ApplyToBillboard(billboard: BillboardGui)
@@ -67,9 +42,17 @@ function ViewportScale.Bind(root: Instance, trove: any)
 		return
 	end
 
-	local layer: LayerCollector? = if root:IsA("LayerCollector")
-		then root
-		else root:FindFirstAncestorWhichIsA("LayerCollector")
+	local anchored: { [GuiObject]: UDim2 } = {}
+	for _, uiScale in scales do
+		local parent = uiScale.Parent
+		if
+			uiScale:GetAttribute(ScaleConfig.ScalePositionAttribute) == true
+			and parent
+			and parent:IsA("GuiObject")
+		then
+			anchored[parent] = parent.Position
+		end
+	end
 
 	local function refresh()
 		local camera = workspace.CurrentCamera
@@ -77,14 +60,20 @@ function ViewportScale.Bind(root: Instance, trove: any)
 			return
 		end
 		local value = ViewportScale.Compute(camera.ViewportSize)
-		local available = if layer and layer.AbsoluteSize.X > 0
-			then layer.AbsoluteSize
-			else camera.ViewportSize
 		for _, uiScale in scales do
-			local fitted = ViewportScale.Fit(uiScale, value, available)
-			if uiScale.Scale ~= fitted then
-				uiScale.Scale = fitted
+			local multiplier = uiScale:GetAttribute(ScaleConfig.MultiplierAttribute)
+			local scaled = if type(multiplier) == "number" then value * multiplier else value
+			if uiScale.Scale ~= scaled then
+				uiScale.Scale = scaled
 			end
+		end
+		for frame, position in anchored do
+			frame.Position = UDim2.new(
+				position.X.Scale,
+				position.X.Offset * value,
+				position.Y.Scale,
+				position.Y.Offset * value
+			)
 		end
 	end
 
@@ -96,15 +85,6 @@ function ViewportScale.Bind(root: Instance, trove: any)
 		refresh()
 	end
 
-	for _, uiScale in scales do
-		local parent = uiScale.Parent
-		if parent and parent:IsA("GuiObject") then
-			trove:Connect(parent:GetPropertyChangedSignal("Size"), refresh)
-		end
-	end
-	if layer then
-		trove:Connect(layer:GetPropertyChangedSignal("AbsoluteSize"), refresh)
-	end
 	trove:Connect(workspace:GetPropertyChangedSignal("CurrentCamera"), watchCamera)
 	watchCamera()
 end

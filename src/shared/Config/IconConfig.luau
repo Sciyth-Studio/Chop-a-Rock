@@ -23,6 +23,7 @@ local IconConfig = {
 	Cash3 = "rbxassetid://118503914460480",
 	Cash4 = "rbxassetid://123447750647234",
 	Cash5 = "rbxassetid://79905876183400",
+	Pet = "rbxassetid://109328024320429",
 }
 
 return IconConfig

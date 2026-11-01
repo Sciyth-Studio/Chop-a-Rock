@@ -111,8 +111,10 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					else CannonConfig.Shop.Outline
 			end
 			row.Button:SetAttribute("Shimmer", canBuy)
-			if owned then
-				present(row, "Fire", CannonConfig.Shop.FireButton, false)
+			if owned and cannon.Key == equippedKey then
+				present(row, "Equipped", CannonConfig.Shop.EquippedButton, false)
+			elseif owned then
+				present(row, "Equip", CannonConfig.Shop.EquipButton, false)
 			elseif strength < cannon.StrengthRequired then
 				present(
 					row,
@@ -132,8 +134,10 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local packet
-		if isOwned(cannon.Key) then
-			packet = Packets.FireCannon
+		if isOwned(cannon.Key) and cannon.Key == equipped() then
+			return
+		elseif isOwned(cannon.Key) then
+			packet = Packets.EquipCannon
 		elseif readNumber("Strength") >= cannon.StrengthRequired and readNumber("Cash") >= cannon.Price then
 			packet = Packets.BuyCannon
 		elseif readNumber("Strength") >= cannon.StrengthRequired then
@@ -148,11 +152,7 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		task.spawn(function()
 			local isDone = packet:Fire(cannon.Key) == true
 			isBusy = false
-			if isDone and packet == Packets.FireCannon then
-				context.Close(CannonConfig.ScreenName)
-				return
-			end
-			if isDone then
+			if isDone and packet == Packets.BuyCannon then
 				LocalSound.Play("SFX_Money_Gain")
 			end
 			context.Feedback(button, isDone)

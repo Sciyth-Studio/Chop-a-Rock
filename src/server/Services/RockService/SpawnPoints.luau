@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RockTemplate = require(ReplicatedStorage.RockTemplate)
+local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Types = require(script.Parent.Types)
 
 local SpawnPoints = {}
@@ -154,22 +155,35 @@ function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Ty
 	local minNormalY = math.cos(math.rad(RockSpawnConfig.MaxSlopeDegrees))
 	local spacing = RockSpawnConfig.SampleSpacingStuds
 	local result: { [string]: { Types.Spot } } = {}
+	local sliceStarted = os.clock()
 	for _, area in areas do
 		local zone = area:GetAttribute(RockSpawnConfig.ZoneAttribute)
 		if type(zone) ~= "string" then
 			warn(`[RockService] {area:GetFullName()} has no {RockSpawnConfig.ZoneAttribute} attribute`)
 			continue
 		end
-		if not RockSpawnConfig.Zones[zone] then
+		local zoneConfig = RockSpawnConfig.Zones[zone]
+		if not zoneConfig then
 			continue
+		end
+		local zoneShapes: { Types.Shape } = {}
+		for _, shape in ordered do
+			if zoneConfig.Weights[shape.Key] then
+				table.insert(zoneShapes, shape)
+			end
 		end
 		local list = result[zone] or {}
 		result[zone] = list
 		local size = area.Size
-		local columnsX = math.max(1, math.floor(size.X / spacing))
-		local columnsZ = math.max(1, math.floor(size.Z / spacing))
+		local zoneSpacing = spacing * ZoneScale.Of(zone)
+		local columnsX = math.max(1, math.floor(size.X / zoneSpacing))
+		local columnsZ = math.max(1, math.floor(size.Z / zoneSpacing))
 		for column = 0, columnsX - 1 do
 			for row = 0, columnsZ - 1 do
+				if os.clock() - sliceStarted >= RockSpawnConfig.SampleFrameSeconds then
+					task.wait()
+					sliceStarted = os.clock()
+				end
 				local top = area.CFrame:PointToWorldSpace(
 					Vector3.new(
 						-size.X / 2 + (column + 0.5) * size.X / columnsX,
@@ -182,7 +196,7 @@ function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Ty
 					continue
 				end
 				local spot: Types.Spot = { Position = ground.Position, Fits = {}, Largest = nil }
-				for _, shape in ordered do
+				for _, shape in zoneShapes do
 					if fits(shape, ground, excluded) then
 						spot.Fits[shape.Key] = true
 						spot.Largest = spot.Largest or shape.Key

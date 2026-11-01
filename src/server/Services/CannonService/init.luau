@@ -7,7 +7,13 @@ local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local TeleportConfig = require(ReplicatedStorage.Config.TeleportConfig)
+local Trigger = require(script.Trigger)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+
+type Window = {
+	Key: string,
+	ExpiresAt: number,
+}
 
 local CannonService = {
 	Name = "CannonService",
@@ -19,6 +25,9 @@ local services: { [string]: any } = {}
 local cannons: { [string]: CannonConfig.Cannon } = {}
 local flights: { [Player]: thread } = {}
 local lastLaunch: { [Player]: number } = {}
+local windows: { [Player]: Window } = {}
+local wasInForest: { [Player]: boolean } = {}
+local regions: Trigger.Regions = {}
 
 local function findMarker(cannon: CannonConfig.Cannon): BasePart?
 	local folder = workspace:FindFirstChild(TeleportConfig.PointsFolderName)
@@ -39,6 +48,58 @@ local function muzzlePosition(model: Model): Vector3
 		return muzzle.Position
 	end
 	return model:GetPivot().Position + Vector3.new(0, CannonConfig.MuzzleFallbackHeightStuds, 0)
+end
+
+local function equippedKey(data: any): string?
+	local key = data.EquippedCannon
+	if type(key) == "string" and cannons[key] and data.Cannons[key] then
+		return key
+	end
+	return nil
+end
+
+local function isInForest(position: Vector3): boolean
+	return Trigger.Contains(regions.Entry, position) or Trigger.Contains(regions.Area, position)
+end
+
+local function closeWindow(player: Player)
+	if not windows[player] then
+		return
+	end
+	windows[player] = nil
+	Packets.CannonWindow:FireClient(player, "", 0)
+end
+
+local function openWindow(player: Player)
+	local data = services.DataService:GetData(player)
+	local key = if data then equippedKey(data) else nil
+	if not key then
+		return
+	end
+	windows[player] = { Key = key, ExpiresAt = os.clock() + CannonConfig.Trigger.WindowSeconds }
+	Packets.CannonWindow:FireClient(player, key, CannonConfig.Trigger.WindowSeconds)
+end
+
+local function sample(player: Player)
+	if flights[player] then
+		return
+	end
+	local position = Trigger.RootPosition(player)
+	if not position then
+		return
+	end
+	local window = windows[player]
+	if window and os.clock() > window.ExpiresAt + CannonConfig.Trigger.GraceSeconds then
+		windows[player] = nil
+	end
+	local inForest = isInForest(position)
+	local previous = wasInForest[player]
+	wasInForest[player] = inForest
+	if not inForest then
+		closeWindow(player)
+	elseif previous == false and Trigger.Contains(regions.Entry, position) then
+		openWindow(player)
+	end
 end
 
 local function launch(player: Player, key: string): boolean
@@ -68,7 +129,6 @@ local function launch(player: Player, key: string): boolean
 		return false
 	end
 	lastLaunch[player] = now
-	services.DataService:Set(player, { "EquippedCannon" }, key)
 	services.TeleportService:EndActivities(player)
 	local height = marker.Size.Y / 2 + humanoid.HipHeight + root.Size.Y / 2
 	local destination = marker.CFrame * CFrame.new(0, height, 0)
@@ -102,6 +162,7 @@ local function launch(player: Player, key: string): boolean
 		root.AssemblyLinearVelocity = Vector3.zero
 		root.AssemblyAngularVelocity = Vector3.zero
 		character:PivotTo(destination)
+		wasInForest[player] = isInForest(destination.Position)
 		CannonService.Landed:Fire(player, cannon.Key)
 	end)
 	return true
@@ -128,14 +189,44 @@ function CannonService.Buy(_self: any, player: Player, key: string): boolean
 		return false
 	end
 	services.DataService:Set(player, { "Cannons", key }, true)
-	services.DataService:Set(player, { "EquippedCannon" }, key)
+	CannonService:Equip(player, key)
 	services.NotificationService:Notify(player, "Purchase", `Bought {cannon.DisplayName}!`)
 	services.DataService:RequestSave(player)
 	return true
 end
 
-function CannonService.Fire(_self: any, player: Player, key: string): boolean
-	return launch(player, key)
+function CannonService.Equip(_self: any, player: Player, key: string): boolean
+	local data = services.DataService:GetData(player)
+	if not data or (key ~= "" and (not cannons[key] or not data.Cannons[key])) then
+		return false
+	end
+	local window = windows[player]
+	if window and window.Key ~= key then
+		closeWindow(player)
+	end
+	services.DataService:Set(player, { "EquippedCannon" }, key)
+	return true
+end
+
+function CannonService.Fire(_self: any, player: Player): boolean
+	local window = windows[player]
+	local data = services.DataService:GetData(player)
+	local position = Trigger.RootPosition(player)
+	if not window or not data or not position then
+		return false
+	end
+	if os.clock() > window.ExpiresAt + CannonConfig.Trigger.GraceSeconds then
+		windows[player] = nil
+		return false
+	end
+	if equippedKey(data) ~= window.Key or not isInForest(position) then
+		return false
+	end
+	if not launch(player, window.Key) then
+		return false
+	end
+	windows[player] = nil
+	return true
 end
 
 function CannonService.SetOwned(_self: any, player: Player, owned: boolean): boolean
@@ -148,6 +239,7 @@ function CannonService.SetOwned(_self: any, player: Player, owned: boolean): boo
 			flags[key] = true
 		end
 	end
+	closeWindow(player)
 	services.DataService:Set(player, { "Cannons" }, flags)
 	services.DataService:Set(player, { "EquippedCannon" }, "")
 	services.DataService:RequestSave(player)
@@ -162,6 +254,7 @@ function CannonService.Init(_self: any, registry: { [string]: any })
 end
 
 function CannonService.Start(_self: any)
+	regions = Trigger.Find()
 	trove:Connect(Players.PlayerRemoving, function(player: Player)
 		local flight = flights[player]
 		if flight then
@@ -169,23 +262,43 @@ function CannonService.Start(_self: any)
 		end
 		flights[player] = nil
 		lastLaunch[player] = nil
+		windows[player] = nil
+		wasInForest[player] = nil
 	end)
 	Packets.BuyCannon.OnServerInvoke = function(player: Player, key: string): boolean
 		return CannonService:Buy(player, key)
 	end
-	Packets.FireCannon.OnServerInvoke = function(player: Player, key: string): boolean
-		return CannonService:Fire(player, key)
+	Packets.EquipCannon.OnServerInvoke = function(player: Player, key: string): boolean
+		return CannonService:Equip(player, key)
+	end
+	Packets.FireCannon.OnServerInvoke = function(player: Player): boolean
+		return CannonService:Fire(player)
+	end
+	if regions.Entry and regions.Area then
+		trove:Add(task.spawn(function()
+			while true do
+				task.wait(CannonConfig.Trigger.CheckSeconds)
+				for _, player in Players:GetPlayers() do
+					if services.DataService:GetData(player) then
+						sample(player)
+					end
+				end
+			end
+		end))
 	end
 end
 
 function CannonService.Destroy(_self: any)
 	Packets.BuyCannon.OnServerInvoke = nil
+	Packets.EquipCannon.OnServerInvoke = nil
 	Packets.FireCannon.OnServerInvoke = nil
 	for _, flight in flights do
 		task.cancel(flight)
 	end
 	table.clear(flights)
 	table.clear(lastLaunch)
+	table.clear(windows)
+	table.clear(wasInForest)
 	trove:Clean()
 end
 

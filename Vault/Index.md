@@ -25,6 +25,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Code Output Rules]] — whole files, no comments, no scope creep, propose-and-wait on player-facing changes
 - [[Only Surface Blocking Opens]] — on status questions, name only items that gate current work
 - [[High Saturation Colors]] — max-saturation by default; chop-quality palette
+- [[Realistic Rock Bodies]] — zone rock bodies are muted realistic stone (user retinted them in Studio); only props are saturated; read the templates, not recipes.md
 - [[Literal Black And Grey]] — "black"/"grey" mean neutral black and grey, never slate or tinted; reference sheet colours don't override it
 - [[UI Text Style]] — colored stroke + gradient fill; black/white only when asked
 - [[No All Caps In UI]] — "Rebirth", never "REBIRTH"; in Studio labels and code strings alike
@@ -44,9 +45,11 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[User Playtests Changes]] — the user playtests in Studio; Claude runs check.ps1 and lists what to try, and playtests only when asked
 - [[Ask The User To Look]] — need eyes on something in Studio? Ask the user instead of long screenshot loops
 - [[Menu Panel Style]] — dark grey stud body, striped gradient header, Chrome title, black outlines, sharp corners
+- [[Bacon Hair In Marketing Art]] — the avatar in every icon and thumbnail is the Bacon Hair; studs only on the ground, if at all
 
 ## Reference
 - [[Game Icon Pack]] — the game's icons come from the user's Free Icon Pack v3.1 (Downloads); the ChatGPT style sheet `assets/Icons/Cannon/IconStyleSheet.png` is 8 of them; check the pack before prompting; use "1st" (no outline)
+- [[Game Icon Reference]] — 2026-10-31 icon + thumbnail: over-the-shoulder Bacon Hair chop icon, the plain baseplate + sky background wording the user loved, 1 vs 999,999 split thumbnail; prompts in `assets/Icons/GameIcon/` and `assets/Icons/GameThumbnail/`
 - [[Balance Model]] — the user's Excel economy model (Downloads, v8), kept in this chat since 2026-10-19: tabs, syncing it to the Luau, editing it via Excel COM
 - [[Master Game Plan]] — design source-of-truth doc and its tags
 - [[Team Create Saves]] — Team Create is on: Studio edits save to Roblox as they're made; never ask the user to Ctrl+S (2026-10-29)
@@ -73,7 +76,8 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[LihFolk Vault]] — 2026-10-28 third-party Roblox vault in Downloads (825 notes); read-only, don't run its installer; odds-disclosure, receipt, pity, onboarding notes worth checking against
 - [[Leaderboard Reference]] — 2026-10-21 in-world leaderboard inspo: signpost list with headshots, ranked table with medal rows and pinned "#100+ You", stone arch built from world pieces (the dog in it is that game's HUD)
 - [[Shopkeeper Avatar]] — R6 avatar of user 341574948 leaning on the geode stand; how to import and pose one
-- [[Zone Rocks Reference]] — ChatGPT sheets for the desert, jungle, ocean, snow chop rocks (3 each, with props); open before modelling them
+- [[Zone Rocks Reference]] — ChatGPT sheets for the desert to ruins chop rocks (zones 6-10 added 2026-10-31) (3 each, with props); open before modelling them
+- [[World 1 Rocks]] — the 15 zone 6-10 rocks built 2026-10-31: asset ids, props, colours, tris; decor props are meshlab OBJs, cracks/runes carved, no split models
 - [[Diamond Rock Reference]] — 2026-10-13 sheet: the whole Diamond Rock is a cyan crystal cluster on a faceted base, crystals radiating all round
 - [[Mossy Stone Reference]] — 2026-10-14 remodel of the forest Mossy Boulder (Third): faceted rock with a separate thick moss cap and moss split halves
 - [[Bloky Reference]] — first Pet (pet rock): chamfered cube, chamfered-square eyes as separate meshes
@@ -101,7 +105,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Number Ticker]] — `Utils/NumberTicker` counts HUD numbers up over 0.3-0.6 s on one shared Heartbeat, writing text only when the formatted string changes; decreases snap
 - [[Movement Lock]] — freeze the player only via `Utils/MovementLock` (ref-counted); overlapping save/restore left WalkSpeed stuck at 0 after chops
 - [[VFX Showcase]] — `Workspace.VFXShowcase` stands + local plugin loop every effect in Edit; add a stand per new effect
-- [[Rock Showcase]] — `Workspace.RockShowcase` west of the zones: every zone's rocks + exploded splits on EditorOnly plates; `RockShowcase` plugin mirrors template colour edits live; rebuild script in `rock-model`
+- [[Rock Showcase]] — `Workspace.RockShowcase` at x -900 (moved 2026-10-31, the scaled terraces had swallowed it): every zone's rocks (+ exploded splits for Forest to Snow) on EditorOnly plates; `RockShowcase` plugin mirrors template colour edits live; rebuild script in `rock-model`
 - [[Slice Test]] — live EditableMesh rock slicing: Perfect/Master breaks use `Utils/LiveSplit` (prepared at chop start, cut square to the chop camera, SplitModel fallback) since 2026-10-24; `Workspace.SliceTest` (StudioOnly) swipe test west of the lobby; only ~8 growable EditableMeshes fit, so pieces are copied to fixed-size ones
 - [[VFX Reference Folder]] — `Workspace.VFXReference`: the user's example effects (aura, tornado, lightning, explosion); the VFX quality bar
 - [[VFX Texture Kit]] — `Downloads/VFX Assets`: 1,935 ready-made particle/flipbook/beam textures, catalogued in its `_catalog/`; the vfx skill checks it before drawing (`kit.py`)
@@ -134,7 +138,7 @@ _One note per game system as they're worked on._
 - [[Diamond Rock]] — shared server rock rolled by the Event Clock at a random clear spot, beacon + HUD pill, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
-- [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert (all nine, Desert to Ruins, since 2026-10-30); equip one and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; none equipped opens the shop; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
+- [[Cannon Shop]] — lobby shop (x 74) selling one strength-gated cash cannon per zone from the desert (all nine, Desert to Ruins, since 2026-10-30); buy, Equip, then walking into the Forest pops a 5 s Fire Cannon button (since 2026-10-31; `Workspace.CannonTrigger`) and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
 - [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop (15 tiers for world 1 = zones 1-10 since 2026-10-28, one per zone), training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Event Clock]] — 2026-10-29: every 5 min (:00/:05 server time) one event rolls: Geode Fall 40, Diamond Rock 35, Weather 25, no repeats; `EventClockService`, `EventClockConfig`; Rush Rocks stay separate
 - [[Weather]] — events rolled by the Event Clock, 4 min each, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Pet per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
@@ -152,6 +156,7 @@ _One note per game system as they're worked on._
 
 ## Decisions
 _Dated "chose X because Y" notes. Design decisions still go in the Master Game Plan's Decision Log._
+- [[No UI Scaling Landscape Only]] — 2026-11-01 phone layouts removed, mobile locked to `LandscapeSensor`, `ScreenScale` = min(w/1920, h/1080) with no clamps so phones match PC 1:1 (iPhone ~0.36, Studio 0.78)
 - [[Roks Renamed To Pets]] — 2026-10-31 "Rok" became "Pet" everywhere (code, Studio, assets, vault); no save migration
 - [[Rocks Look Like Boulders]] — 2026-10-02: boulder look, user remodels by hand; what a hand-made rock must keep
 - [[Forest Rock Tiers]] — stone First, boulder Second, Mossy Boulder Third (moss-cap prop since 2026-10-14; "the mossy rock" means Third); export scale gotcha
@@ -170,6 +175,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Robux Shop Plan Approved]] — 2026-10-24: user accepted R1-R13 of `RobuxShopPlan.md`: paid Lucky Geodes, gifting, server boosts incl. Server 2x Luck, 24 h starter offer, VIP, exclusive Pet stand; not built
 - [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, built 2026-10-28 (see [[Auto Open]])
 - [[World 1 Plan]] — 2026-10-29: zones 6-10 Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins; stands Meteor/Sun/Black Hole/Galaxy; always-awake co-op Golem boss opens world 2; never time-gate a milestone; `World1Plan.md`
+- [[Rock Props Reuse Decor]] — 2026-10-31: a rock prop that exists as zone decor (acacia, bamboo, cattails, termite mound...) uses the real meshlab decor mesh, white + `2022 Stud` so vertex colours show; MeshSlicer keeps those colours on live cuts
 
 - [[Wild Geodes]] — 2026-10-29, approved and built (see [[Wild Geode]]): the user kept the shop and added random geodes hidden in rocks; crack on the break, better-than-normal odds (Uncommon+ draft), no tell
 - [[Rock Breaking Scale]] — 2026-10-30, approved; map, rocks, Diamond rock, snap and chop camera scaled 2026-10-30 (`ZoneScaleConfig`, `Utils/ZoneScale`); resistance and overkill not built: zones scale x1.15 each (rocks, floor, terraces, decor; not the character), reset per world, no pillars; visible resistance, overkill shatter at 10x; `RockBreakingPlan.md`

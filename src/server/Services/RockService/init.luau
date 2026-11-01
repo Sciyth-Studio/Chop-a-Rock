@@ -49,6 +49,8 @@ local spotViewers: { [Player]: true } = {}
 local warned: { [string]: boolean } = {}
 local areas: { BasePart } = {}
 local reserved: { [string]: Types.Reserved } = {}
+local waiting: { [Player]: true } = {}
+local isSampled = false
 local nextId = 0
 
 local cheatNames: { [string]: boolean } = {
@@ -255,6 +257,10 @@ local function showOthers(player: Player, rock: Types.Rock, quality: number, isB
 end
 
 local function onReady(player: Player)
+	if not isSampled then
+		waiting[player] = true
+		return
+	end
 	if owned[player] then
 		return
 	end
@@ -466,6 +472,7 @@ local function onPlayerRemoving(player: Player)
 	forcedQualities[player] = nil
 	cheats[player] = nil
 	spotViewers[player] = nil
+	waiting[player] = nil
 	rushStates[player] = nil
 	owned[player] = nil
 	generations[player] = nil
@@ -490,30 +497,40 @@ function RockService.Start(_self: any)
 			table.insert(areas, tagged)
 		end
 	end
-	local started = os.clock()
-	spots = SpawnPoints.Sample(shapes)
-	local zoneConfigs: { [string]: RockSpawnConfig.Zone } = RockSpawnConfig.Zones
-	for zone, zoneConfig in zoneConfigs do
-		local entrance = Strips.Entrance(areas, zone)
-		local zoneSpots = spots[zone]
-		if entrance and zoneSpots then
-			local order = Strips.Order(zoneConfig.Weights)
-			Strips.Assign(zoneSpots, entrance, #order)
-			local keyStrips: { [string]: number } = {}
-			for index, key in order do
-				keyStrips[key] = index
+	trove:Add(task.spawn(function()
+		local started = os.clock()
+		local sampled = SpawnPoints.Sample(shapes)
+		local zoneConfigs: { [string]: RockSpawnConfig.Zone } = RockSpawnConfig.Zones
+		for zone, zoneConfig in zoneConfigs do
+			local entrance = Strips.Entrance(areas, zone)
+			local zoneSpots = sampled[zone]
+			if entrance and zoneSpots then
+				local order = Strips.Order(zoneConfig.Weights)
+				Strips.Assign(zoneSpots, entrance, #order)
+				local keyStrips: { [string]: number } = {}
+				for index, key in order do
+					keyStrips[key] = index
+				end
+				strips[zone] = keyStrips
 			end
-			strips[zone] = keyStrips
 		end
-	end
-	for zone, zoneSpots in spots do
-		print(
-			`[RockService] {zone}: {#zoneSpots} spawn spots ({string.format(
-				"%.0f",
-				(os.clock() - started) * 1000
-			)} ms)`
-		)
-	end
+		spots = sampled
+		isSampled = true
+		for zone, zoneSpots in spots do
+			print(
+				`[RockService] {zone}: {#zoneSpots} spawn spots ({string.format(
+					"%.0f",
+					(os.clock() - started) * 1000
+				)} ms)`
+			)
+		end
+		for player in waiting do
+			waiting[player] = nil
+			if player.Parent then
+				onReady(player)
+			end
+		end
+	end))
 
 	trove:Add(Packets.RockReady.OnServerEvent:Connect(onReady))
 	trove:Add(Packets.RockChop.OnServerEvent:Connect(onChopRequest))

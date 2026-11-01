@@ -14,9 +14,14 @@ local ZONES = {
 	{ Name = "Jungle", Z = 105, Floor = Color3.fromRGB(50, 130, 40), Keys = { "JungleFirst", "JungleSecond", "JungleThird" } },
 	{ Name = "Ocean", Z = 225, Floor = Color3.fromRGB(0, 55, 110), Keys = { "OceanFirst", "OceanSecond", "OceanThird" } },
 	{ Name = "Snow", Z = 345, Floor = Color3.fromRGB(240, 245, 255), Keys = { "SnowFirst", "SnowSecond", "SnowThird" } },
+	{ Name = "Swamp", Z = 465, Floor = Color3.fromRGB(50, 70, 40), Keys = { "SwampFirst", "SwampSecond", "SwampThird" } },
+	{ Name = "Savanna", Z = 585, Floor = Color3.fromRGB(200, 175, 70), Keys = { "SavannaFirst", "SavannaSecond", "SavannaThird" } },
+	{ Name = "Bamboo", Z = 705, Floor = Color3.fromRGB(120, 150, 90), Keys = { "BambooFirst", "BambooSecond", "BambooThird" } },
+	{ Name = "Volcano", Z = 825, Floor = Color3.fromRGB(40, 35, 35), Keys = { "VolcanoFirst", "VolcanoSecond", "VolcanoThird" } },
+	{ Name = "Ruins", Z = 945, Floor = Color3.fromRGB(110, 115, 100), Keys = { "RuinsFirst", "RuinsSecond", "RuinsThird" } },
 	{ Name = "Diamond", Z = -255, Floor = Color3.fromRGB(60, 60, 60), Keys = { "Diamond" } },
 }
-local CENTER_X = -260
+local CENTER_X = -900
 local SLOT_X = { 55, 0, -60 }
 local ROCK_Z = -22
 local SPLIT_Z = 28

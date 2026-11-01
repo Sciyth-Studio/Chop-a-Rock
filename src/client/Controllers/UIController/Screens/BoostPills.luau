@@ -93,8 +93,9 @@ function BoostPills.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local scale = if screenScale then screenScale.Scale else 1
-		local offset = settings.EdgeOffsetPixels + (settings.WeatherHeightPixels + settings.GapPixels) * scale
-		stack.Position = UDim2.new(1, -settings.EdgeOffsetPixels, 1, -offset)
+		local edge = settings.EdgeOffsetPixels * scale
+		local offset = edge + (settings.WeatherHeightPixels + settings.GapPixels) * scale
+		stack.Position = UDim2.new(1, -edge, 1, -offset)
 	end
 
 	local function refresh()

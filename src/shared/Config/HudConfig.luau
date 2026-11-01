@@ -9,10 +9,6 @@ export type HudSettings = {
 	InviteGapPixels: number,
 	InviteExtraPaddingPixels: number,
 	ShadowSuffix: string,
-	ContainerName: string,
-	TouchDockScreenName: string,
-	TouchDockFrameName: string,
-	TouchDockGapPixels: number,
 }
 
 local HudConfig: HudSettings = {
@@ -24,10 +20,6 @@ local HudConfig: HudSettings = {
 	InviteGapPixels = 18,
 	InviteExtraPaddingPixels = 90,
 	ShadowSuffix = "Shadow",
-	ContainerName = "Container",
-	TouchDockScreenName = "MenuButtons",
-	TouchDockFrameName = "Container",
-	TouchDockGapPixels = 10,
 }
 
 return table.freeze(HudConfig)

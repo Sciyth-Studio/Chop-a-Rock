@@ -2,22 +2,18 @@
 
 export type ScaleSettings = {
 	ScaleName: string,
-	ReferenceShortSidePixels: number,
-	MinScale: number,
-	UpscaleShortSidePixels: number,
-	MaxScale: number,
-	FitMarginPixels: number,
-	FitAttribute: string,
+	ReferenceWidthPixels: number,
+	ReferenceHeightPixels: number,
+	ScalePositionAttribute: string,
+	MultiplierAttribute: string,
 }
 
 local ScaleConfig: ScaleSettings = {
 	ScaleName = "ScreenScale",
-	ReferenceShortSidePixels = 600,
-	MinScale = 0.5,
-	UpscaleShortSidePixels = 1080,
-	MaxScale = 2,
-	FitMarginPixels = 12,
-	FitAttribute = "FitToScreen",
+	ReferenceWidthPixels = 1920,
+	ReferenceHeightPixels = 1080,
+	ScalePositionAttribute = "ScalePosition",
+	MultiplierAttribute = "ScaleMultiplier",
 }
 
 return table.freeze(ScaleConfig)

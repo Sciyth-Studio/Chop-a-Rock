@@ -19,6 +19,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	TrainingMinigame = require(script.Screens.TrainingMinigame),
 	Shop = require(script.Screens.Shop),
 	CannonShop = require(script.Screens.CannonShop),
+	CannonFire = require(script.Screens.CannonFire),
 	GeodeStand = require(script.Screens.GeodeStand),
 	GeodePicker = require(script.Screens.GeodePicker),
 	AutoOpenButton = require(script.Screens.AutoOpenButton),

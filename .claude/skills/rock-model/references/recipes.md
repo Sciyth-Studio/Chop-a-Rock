@@ -87,3 +87,7 @@ Lessons:
 - Leaves and fronds are flat double-sided quads (`double_quad`, `recalc=False`), at a third of the triangle cost of thin hulls.
 - A wide relief across facets sinks in the middle, so `front_relief` cuts it into narrow strips.
 - A slope that faces the player hides the rock behind snow, so slope wedges sideways.
+
+## Zones 6-10 (2026-10-31, batch, no splits)
+
+All 15 rocks live in `assets/Rocks/World1Rocks.blend`, one collection per rock, with the zones laid out in rows 20 units apart. Bodies are `build_boulder(facets=30, cut_depth=(0.02, 0.2), min_nz=-0.5, lean=(0.1, 0.06))`; seeds 11-13, 21-23, 31-33, 41-43 and 51-53 per zone. Sizes in units (studs / 2): First about 5 x 4.6 x 3.6, Second about 9 x 8 x 6, Third about 13 x 12 x 7-9. Crater Boulder is `build_boulder(11.5, 10.8, 9.5, seed 44, center_height 0.02)`, cut flat at 6.6 with `slope_cut` and a frustum carved out for the bowl. The vault note World 1 Rocks has the props, colours and asset ids. Decor props come from the meshlab OBJs, with fit factors: cattails 1.0-1.2, lily pads 1.4, grass tuft 1.3-1.6, acacia 0.9, termite mound 1.5, bamboo shoot 2.0, bamboo 0.8, pillar 1.7.

@@ -3,6 +3,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -162,6 +163,23 @@ local function earningsPad(data: any): Target?
 	return nil
 end
 
+local function cannonEntry(label: string): Target?
+	local folder = workspace:FindFirstChild(CannonConfig.Trigger.FolderName)
+	local entry = if folder then folder:FindFirstChild(CannonConfig.Trigger.EntryName) else nil
+	if not entry or not entry:IsA("BasePart") then
+		return nil
+	end
+	local floor = entry.Position - Vector3.new(0, entry.Size.Y / 2, 0)
+	local goal = Vector3.new(floor.X, math.max(floor.Y, 0), floor.Z)
+	return {
+		Position = goal,
+		Goal = goal,
+		Adornee = entry :: Instance,
+		Label = label,
+		ArriveStuds = entry.Size.Z / 2,
+	}
+end
+
 function Targets.For(step: number, data: any): Target?
 	if Tutorial.IsTraining(step) then
 		return trainingStand()
@@ -178,6 +196,7 @@ function Targets.For(step: number, data: any): Target?
 end
 
 Targets.ShopPad = shopPad
+Targets.CannonEntry = cannonEntry
 Targets.TrainingStand = trainingStand
 Targets.NearestRock = nearestRock
 Targets.RootPosition = rootPosition

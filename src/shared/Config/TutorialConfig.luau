@@ -11,6 +11,7 @@ export type CannonHintSettings = {
 	TeleportId: string,
 	ScreenName: string,
 	TargetLabel: string,
+	FireTargetLabel: string,
 }
 
 export type AuraHintSettings = {
@@ -138,6 +139,7 @@ local TutorialConfig: TutorialSettings = {
 		TeleportId = "Cannon",
 		ScreenName = "CannonShop",
 		TargetLabel = "Cannon",
+		FireTargetLabel = "Forest",
 	},
 	AuraHint = {
 		Key = "Aura",

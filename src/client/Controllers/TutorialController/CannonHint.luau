@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local SharedHint = require(ReplicatedStorage.CannonHint)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -43,12 +44,30 @@ function CannonHint.View(data: any, helpers: Helpers): View
 			IsDoing = true,
 		}
 	end
-	local isBuy = stage == SharedHint.Buy
-	local title = if isBuy then `Buy the {cannon.DisplayName}!` else "Fire the cannon!"
+	if stage == SharedHint.Fire then
+		local fireScreen = CannonConfig.FireButton.ScreenName
+		if helpers.IsOpen(fireScreen) then
+			return {
+				Title = "Fire the cannon!",
+				Detail = `{helpers.ClickVerb()} {CannonConfig.FireButton.Text}!`,
+				Button = Spotlight.Button(fireScreen, { "Button" }),
+				IsDoing = true,
+			}
+		end
+		local entry = Targets.CannonEntry(settings.FireTargetLabel)
+		return {
+			Title = "Fire the cannon!",
+			Detail = "Walk into the Forest",
+			Target = entry,
+			Teleport = TutorialConfig.ZoneTeleport,
+			IsDoing = false,
+		}
+	end
+	local title = `Buy the {cannon.DisplayName}!`
 	if helpers.IsOpen(settings.ScreenName) then
 		return {
 			Title = title,
-			Detail = if isBuy then `{helpers.ClickVerb()} Buy!` else `{helpers.ClickVerb()} Fire to launch!`,
+			Detail = `{helpers.ClickVerb()} Buy!`,
 			Button = Spotlight.Button(settings.ScreenName, { `Cannon{cannon.Key}`, "BuyButton" }),
 			IsDoing = true,
 		}

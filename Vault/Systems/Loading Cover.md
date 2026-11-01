@@ -7,7 +7,7 @@ type: system
 Approved 2026-10-28 (user picked "everyone on join" and "title + bouncing Bloky"). It hides the HUD popping in while data loads, and for first-time players it hides the intro's first-render hitches.
 
 ## Pieces
-- `StarterGui.LoadingCover` (Studio, stored **disabled** so it doesn't cover the edit viewport; toggle `Enabled` to preview): DisplayOrder 100, IgnoreGuiInset. `Cover` is a full-screen CanvasGroup (14, 16, 20) with the menu panels' `StudTexture` (`73393331823706`, 23 px tiles, black at 0.55). `Content` (760 x 560, `ScreenScale`) holds `Title` "Chop a Rock" (`Gold`, 4 px stroke), `Bloky` (icon `114244702896000`, 200 px), `Status` "Loading..." (`Chrome`, 3 px stroke), each with a black `...Shadow` copy.
+- `StarterGui.LoadingCover` (Studio, stored **disabled** so it doesn't cover the edit viewport; toggle `Enabled` to preview): DisplayOrder 100, IgnoreGuiInset, `ScreenInsets` None and `ClipToDeviceSafeArea` off since 2026-11-01 (DeviceSafeInsets left uncovered strips beside the notch on phones). `Cover` is a full-screen CanvasGroup (14, 16, 20) with the menu panels' `StudTexture` (`73393331823706`, 23 px tiles, black at 0.55). `Content` (760 x 560, `ScreenScale`) holds `Title` "Chop a Rock" (`Gold`, 4 px stroke), `Bloky` (icon `114244702896000`, 200 px), `Status` "Loading..." (`Chrome`, 3 px stroke), each with a black `...Shadow` copy.
 - `Screens/LoadingCover.luau`: `StartsOpen`, so UIController opens it the moment PlayerGui has it. It bounces `Bloky` and `BlokyShadow`, and on Close waits out `MinSeconds` and then fades `Cover.GroupTransparency` over `FadeSeconds`. It closes itself after `MaxSeconds` (20) if nothing else does.
 - `LoadingCoverConfig`: screen name, fade 0.4, min 0.6, max 20, bounce 28 px every 0.7 s.
 
