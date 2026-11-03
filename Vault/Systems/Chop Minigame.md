@@ -10,8 +10,10 @@ type: system
 Take from the reference: the camera angle and the bar's size and place only. The user corrected a first try that copied its translucent body and arm marker: the bar keeps the game's own style, only turned horizontal, with square corners.
 
 ## The bar
-- `StarterGui.ChopBar` (`Screens/ChopBar.luau`) is a copy of the old `ChopMeter` turned sideways, with its `UICorner`s removed. `Bar` is 916x96 centred at 83.5% height, as measured from the user's 1080p reference. `RampGradient` rotation is 0, and `Cursor` is the same white line, 8 wide. Position 0 is the left end, 1 the right.
-- All five quality colours stay as they were, solid. The outline is 7 px (user asked for thicker than the old 4).
+- `StarterGui.ChopBar` (`Screens/ChopBar.luau`) is styled like the enemy fight bar (`EnemyFight.Container.HealthBar`), the user's choice after trying the old meter turned sideways. `Bar` is 916x96 centred at 83.5% height, as measured from the user's 1080p reference: dark background, 3 px black `OuterStroke`, and an inset `Track` holding `Fill` + `RampGradient` (rotation 0), `StudTexture`, `Shade`, `Bevel` and `Lip`.
+- The five quality colours stay solid in one gradient. `Bevel` and `Lip` are see-through white and black, because a single tint can't match five colours. They sit beside `Fill` in `Track`, not inside it.
+- `Cursor` is the fight bar's divider: white, 22 wide, 4 px black outline, 14 taller than the track. It sits in `CursorLane`, unclipped and the same size as `Track`, so position 0 to 1 lines up with the zones.
+- `ChopBar.luau` looks up `Fill` and `Cursor` inside `Bar`, because `LeaveBlock` has its own `Fill`.
 - Close is a red block button under the bar: `LeaveRoot` (220x72 at 93% height, holds `ScreenScale`) > `LeaveBlock` (copied from a `TeleportBar` button) > `LeaveButton`. It keeps `ButtonFeel` hover because the `ScreenScale` sits on the wrapper.
 - The `Toolbar` screen (hotbar and Pets button) closes during a chop and reopens after it, with the `TeleportBar`.
 - `TutorialChopBarHint` sits above the Good band, arrow pointing down. `Spotlight`'s `TutorialGoodZone` is a vertical slice of `Bar`.
