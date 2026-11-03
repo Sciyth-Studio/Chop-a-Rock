@@ -12,7 +12,7 @@ local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Types = require(script.Parent.Parent.Types)
 
-local ChopMeter = {}
+local ChopBar = {}
 
 local HEALTH_TWEEN_SECONDS = 0.2
 
@@ -21,7 +21,7 @@ local function findFrame(root: Instance, name: string): Frame?
 	if found and found:IsA("Frame") then
 		return found
 	end
-	warn(`[ChopMeter] Missing Frame "{name}" in {root:GetFullName()}`)
+	warn(`[ChopBar] Missing Frame "{name}" in {root:GetFullName()}`)
 	return nil
 end
 
@@ -30,7 +30,7 @@ local function findLabel(root: Instance, name: string): TextLabel?
 	if found and found:IsA("TextLabel") then
 		return found
 	end
-	warn(`[ChopMeter] Missing TextLabel "{name}" in {root:GetFullName()}`)
+	warn(`[ChopBar] Missing TextLabel "{name}" in {root:GetFullName()}`)
 	return nil
 end
 
@@ -64,7 +64,7 @@ local function buildRamp(center: number, strengthRatio: number): ColorSequence
 	addPiece(0, outer.Low, ChopQuality.Bad)
 	addPiece(outer.High, 1, ChopQuality.Bad)
 	table.sort(pieces, function(first: Piece, second: Piece)
-		return first.High > second.High
+		return first.Low < second.Low
 	end)
 	local keypoints: { ColorSequenceKeypoint } = {}
 	local lastTime = -1
@@ -76,13 +76,13 @@ local function buildRamp(center: number, strengthRatio: number): ColorSequence
 		end
 	end
 	for index, piece in pieces do
-		push(if index == 1 then 0 else 1 - piece.High + EDGE, piece.Color)
-		push(if index == #pieces then 1 else 1 - piece.Low, piece.Color)
+		push(if index == 1 then 0 else piece.Low + EDGE, piece.Color)
+		push(if index == #pieces then 1 else piece.High, piece.Color)
 	end
 	return ColorSequence.new(keypoints)
 end
 
-function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
+function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local trove = Trove.new()
 	local openTrove = Trove.new()
 	ViewportScale.Bind(gui, trove)
@@ -111,24 +111,22 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		then healthFillInstance
 		else nil
 	if healthBar and not healthFill then
-		warn(`[ChopMeter] Missing Frame "HealthFill" in {healthBar:GetFullName()}`)
+		warn(`[ChopBar] Missing Frame "HealthFill" in {healthBar:GetFullName()}`)
 	end
 	local leaveInstance = gui:FindFirstChild("LeaveButton", true)
 	local leaveButton: GuiButton? = if leaveInstance and leaveInstance:IsA("GuiButton")
 		then leaveInstance
 		else nil
 	if not leaveButton then
-		warn(`[ChopMeter] Missing GuiButton "LeaveButton" in {gui:GetFullName()}`)
+		warn(`[ChopBar] Missing GuiButton "LeaveButton" in {gui:GetFullName()}`)
 	end
 
 	local crackColor = ColorSequence.new(qualityColor(ChopQuality.Crack))
-	local activeRamp = crackColor
-	local activeCanBreak = true
 	local healthTween: Tween? = nil
 
 	local function applyRamp()
-		activeCanBreak = if chopController then chopController:CanBreakRock() else true
-		activeRamp = if activeCanBreak
+		local canBreak = if chopController then chopController:CanBreakRock() else true
+		local ramp = if canBreak
 			then buildRamp(
 				if chopController then chopController:GetZoneCenter() else 0.5,
 				if chopController then chopController:GetStrengthRatio() else 1
@@ -139,7 +137,7 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			fill.Visible = true
 		end
 		if rampGradient then
-			rampGradient.Color = activeRamp
+			rampGradient.Color = ramp
 		end
 	end
 
@@ -167,7 +165,7 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if not cursor then
 			return
 		end
-		cursor.Position = UDim2.new(0.5, 0, 1 - math.clamp(level, 0, 1), 0)
+		cursor.Position = UDim2.fromScale(math.clamp(level, 0, 1), 0.5)
 	end
 
 	local function resetResult()
@@ -216,7 +214,7 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end))
 		end
 	else
-		warn("[ChopMeter] ChopController is not registered; the meter will not animate")
+		warn("[ChopBar] ChopController is not registered; the meter will not animate")
 	end
 
 	return {
@@ -245,4 +243,4 @@ function ChopMeter.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	}
 end
 
-return ChopMeter
+return ChopBar

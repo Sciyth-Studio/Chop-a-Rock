@@ -17,7 +17,7 @@ Built 2026-10-29, not playtested yet. The idea came from the user talking to a 6
 ## Phone-only chop timing
 - The client reports touch input with `Packets.ChopTouch` whenever `UserInputService.LastInputType` flips between Touch and keyboard, mouse or gamepad (`ChopController`). `RockService` stores it as the `TouchChop` player attribute (`ChopConfig.TouchAttribute`).
 - `ChopZones.IsTouch(player)` reads it. `ChopZones.Bands`, `Classify` and `Position` take an optional `isTouch`. With touch they use `TouchZoneWidthMultiplier` 2.5 (normal 1.5) and `TouchCycleSeconds` 2.0 (normal 1.5).
-- Every chop flow passes it: rocks (`RockService`), the Diamond Rock, Falling Geodes and geode cracking on the server; `ChopMeter`, the tutorial `ChopHint` and the `Spotlight` Good band on the client.
+- Every chop flow passes it: rocks (`RockService`), the Diamond Rock, Falling Geodes and geode cracking on the server; `ChopBar`, the tutorial `ChopHint` and the `Spotlight` Good band on the client.
 - Known gap, accepted by the user: a PC cheater could send `ChopTouch` true to get the wider zones.
 - The flag is read live, so if a player switches device in the middle of a round, that one round can disagree with the server.
 

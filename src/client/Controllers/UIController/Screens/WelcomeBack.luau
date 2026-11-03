@@ -17,7 +17,7 @@ local ShopPrices = require(script.Parent.Parent.ShopPrices)
 local Types = require(script.Parent.Parent.Types)
 
 local SCREEN_NAME = "WelcomeBack"
-local BLOCKING_SCREENS = { "HatchReveal", "ChopMeter", "TrainingMinigame", "StarterOffer" }
+local BLOCKING_SCREENS = { "HatchReveal", "ChopBar", "TrainingMinigame", "StarterOffer" }
 
 local WelcomeBack = {}
 
