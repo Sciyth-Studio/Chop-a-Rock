@@ -4,6 +4,8 @@ type: system
 ---
 # Geode Shop
 
+**Screen removed 2026-11-03 (user: "remove the geode odds button"):** after the shop left the lobby, the "Geode Odds" prompt (G) on each plot's path was the only way to open this panel, so the prompt, `Screens/GeodeStand`, `GeodeStandConfig` and the `GeodeConfig.OddsPrompt*` fields went with it. The GUI is kept as `ServerStorage.UIBackup["GeodeStand.BeforeOddsRemoval"]`. Pet odds still show in the Index detail pane, the hatch reveal and the Lucky Geode cards in the Robux shop. The rest of this note is history.
+
 Decided 2026-10-14 (user): geodes are bought from the one lobby Geode Shop, with a tab per zone like the [[Index]], not from a stand in each zone. It opens on the highest zone whose geode `StrengthRequired` the player's Best Strength meets (Forest below that).
 
 **Best Strength gate (user, 2026-10-28):** rebirth resets Strength to 0, so the old gate on current strength locked rebirthed players out of geodes they'd reached. The user first asked for the gate to be removed (commit 9fc1b37). Then, worried that new players would get far-zone Pets and wreck progression with their income, they chose to gate on the highest strength ever reached and to label it "Best Strength".

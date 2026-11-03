@@ -64,6 +64,8 @@ description: Use when creating, restyling or editing any player-facing UI or wor
 
 ## Geode Stand
 
+Removed 2026-11-03: the screen and its code are gone, the GUI is in `ServerStorage.UIBackup["GeodeStand.BeforeOddsRemoval"]`. Kept as a panel recipe.
+
 - `StarterGui.GeodeStand.Panel` is a copy of the Arm Shop panel recoloured Sky blue (header fill edge 0,110,255 / centre 130,205,255 / studs 0,60,170), 944x660 since 2026-10-14. Children:
   - `Tabs`: left column (copied from the Index tabs), one `TabTemplate` clone per geode zone; code paints the active tab Sky and idle grey and opens on the zone the player's strength reaches. The grid and buy buttons sit 92 px right of centre.
   - `Grid`: `UIGridLayout`, 3 columns, 228x189 cells, holding the hidden `CardTemplate`. Each card has `ColorGlow` (code sets the rarity colour), `WeldTexture` (black weld texture over the glow), `Preview` (ViewportFrame), `Odds` (top-left) and `PetName` (bottom).

@@ -14,7 +14,7 @@ The user asked (2026-10-05) for both shops to open by proximity using a neon pad
 - Pads so far: Geode Shop (blue, `GeodeStand`), Sell Shop (green, `SellShop`, added 2026-10-06, see [[Sell Shop]]), Aura Shop (red, `Shop` since 2026-10-18, see [[Auras]]). Cannon Shop (orange, `CannonShop`, added 2026-10-20, see [[Cannon Shop]]).
 - To add a shop: put a tagged pad part in front of it with `Screen` and `ShopName` set; the colour comes from the part.
 - `HasPrompt = false` on a pad turns off the E reopen prompt (walk out and back in instead). The Free Gift pad uses it (2026-10-28, user: "should just be a walk into the zone to open").
-- `UIController:Open(name, argument)` passes `argument` to the screen's `Open`. `GeodeStand` reads its geode key from it.
+- `UIController:Open(name, argument)` passes `argument` to the screen's `Open`. The `GeodeStand` screen that read a geode key from it was removed 2026-11-03.
 - The Arm Shop model still carries the `ShopKiosk` tag and its invisible `ShopKiosk` part. The guide arrow that used them (`GuideController/ArrowTrail`) was removed 2026-10-16, so nothing reads them now.
 
 Gotcha: a Beam with `FaceCamera = false` spreads its width along its attachments' **SecondaryAxis** (Y). For a vertical wall segment set the attachment CFrame with `CFrame.fromMatrix(position, outward, tangent)`; with Y pointing up the beam has zero width and is invisible.
