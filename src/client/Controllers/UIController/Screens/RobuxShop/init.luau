@@ -122,9 +122,9 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
-	local function zoneLuckyKey(): (string?, string?)
+	local function zoneLuckyKey(): string?
 		local baseKey = GeodeOrder.ForStrength(readNumber({ "PeakStrength" }))
-		return baseKey, if baseKey then GeodeOrder.LuckyKey(baseKey) else nil
+		return if baseKey then GeodeOrder.LuckyKey(baseKey) else nil
 	end
 
 	local function buildLucky()
@@ -150,10 +150,9 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			local product = products[entry.Index]
 			Cards.SetSub(entry.Button, `Buy {product.Count}`)
 			onClick(entry.Button, function()
-				local baseKey = zoneLuckyKey()
 				local isFirst = entry.Index == 2
 					and dataController:Get({ "Offers", MonetizationConfig.FirstLuckyOfferKey }) ~= true
-				purchases:PromptLucky(if isFirst then 1 else entry.Index, baseKey)
+				purchases:PromptLucky(if isFirst then 1 else entry.Index)
 			end)
 		end
 		local function refresh()
@@ -169,7 +168,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				tile:Destroy()
 			end
 			table.clear(tiles)
-			local _, luckyKey = zoneLuckyKey()
+			local luckyKey = zoneLuckyKey()
 			if not luckyKey or not items or not itemTemplate then
 				return
 			end

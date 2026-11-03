@@ -649,6 +649,8 @@ local AdminConfig: AdminSettings = {
 			Kind = "Choice",
 			Choices = zoneChoices,
 			Alias = "fight",
+		},
+		{
 			Id = "SpawnZoneGeode",
 			Label = "Spawn Zone Geode",
 			Tab = "Events",

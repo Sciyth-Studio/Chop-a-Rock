@@ -79,15 +79,20 @@ function PurchaseController.PromptServerBoost(_self: any, key: string): boolean
 	return false
 end
 
-function PurchaseController.PromptLucky(_self: any, index: number, zoneKey: string?): boolean
+function PurchaseController.PromptLucky(_self: any, index: number): boolean
 	local product = MonetizationConfig.LuckyGeodeProducts[index]
 	if not product then
 		return false
 	end
-	if zoneKey then
-		Packets.SetLuckyGeodeZone:Fire(zoneKey)
-	end
 	return promptProduct(product.ProductId)
+end
+
+function PurchaseController.PromptSkipHatch(_self: any, padIndex: number): boolean
+	local productId = MonetizationConfig.SkipHatch.ProductId
+	if productId then
+		Packets.SetSkipHatchPad:Fire(padIndex)
+	end
+	return promptProduct(productId)
 end
 
 function PurchaseController.PromptStarterPack(_self: any): boolean

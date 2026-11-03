@@ -4,6 +4,8 @@ type: system
 ---
 # Auto Open
 
+**Being removed (2026-11-03, [[Zone Geodes And Enemies]]).** The pass and its gift twin are out of `MonetizationConfig` and the Robux shop. The server and pit parts below stay until the main session removes them.
+
 Built 2026-10-28 from `AutoOpenGeodePlan.md` (decisions in [[Auto Open At The Pit]]). Game pass 2053686145, 199 R$ (`MonetizationConfig.Passes`, key `AutoOpen`; VIP includes it). Ownership comes from `PassService:Owns`, like every pass.
 
 - **Prompt:** `AutoPrompt` on a `GeodeAutoSpot` attachment `AutoOpenConfig.PromptOffset` (0, 6, 0) above `GeodeSpot`, so it stacks above the Crack and Choose Geode prompts instead of overlapping them. Key R / ButtonL1 (draft; F was taken by Choose Geode). Owned: "Auto Open", same hold as Crack. Not owned: "Auto Open (R$ 199)", no hold, and `Screens/AutoOpenButton` calls `PurchaseController:PromptPass("AutoOpen")`. Hidden while cracking or auto-opening, with no geodes, and during the tutorial.
