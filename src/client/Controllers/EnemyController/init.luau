@@ -84,7 +84,14 @@ local function setVisible(enemy: Motion.Enemy, isVisible: boolean)
 	end
 end
 
-local function spawnEnemy(zone: string, petKey: string, home: Vector3, scale: number)
+local function spawnEnemy(
+	zone: string,
+	petKey: string,
+	home: Vector3,
+	scale: number,
+	areaMin: Vector3,
+	areaMax: Vector3
+)
 	local pet = PetConfig.Pets[petKey]
 	if enemies[zone] or not pet or not folder then
 		return
@@ -122,6 +129,9 @@ local function spawnEnemy(zone: string, petKey: string, home: Vector3, scale: nu
 		StaggerAt = 0,
 		SlamAt = 0,
 		Away = Vector3.zAxis,
+		AreaMin = areaMin,
+		AreaMax = areaMax,
+		FleeTo = home,
 	}
 	model:PivotTo(CFrame.lookAt(home, home + Vector3.zAxis))
 	model.Parent = folder
@@ -355,14 +365,22 @@ local function step(dt: number)
 	local strength = dataController:Get({ "Strength" })
 	local strengthNumber = if type(strength) == "number" then strength else 0
 	for zone, enemy in enemies do
-		local distance = if feet then (feet - enemy.Home).Magnitude else math.huge
+		local distance = if feet then (feet - enemy.Position).Magnitude else math.huge
 		local zoneScale = ZoneScale.Of(zone)
 		local outgrown = EnemyRules.Flees(strengthNumber, zone)
-		if enemy.State == "Home" and outgrown and distance <= EnemyConfig.FleeNearStuds * zoneScale then
-			flee(enemy, now)
+		if enemy.State == "Home" and not outgrown then
+			if (enemy.Position - enemy.Home).Magnitude > 1 then
+				Motion.Set(enemy, "Return", now)
+			end
+		elseif enemy.State == "Home" and feet and distance <= EnemyConfig.FleeNearStuds * zoneScale then
+			local run = (Motion.FurthestPoint(enemy, feet) - enemy.Position).Magnitude
+			if run >= EnemyConfig.FleeMinRunStuds * zoneScale then
+				flee(enemy, now)
+			end
 		elseif enemy.State == "Gone" then
 			local waited = now - enemy.StateAt >= EnemyConfig.DefeatedSeconds
-			local isClear = not outgrown or distance > EnemyConfig.FleeReturnStuds * zoneScale
+			local homeDistance = if feet then (feet - enemy.Home).Magnitude else math.huge
+			local isClear = not outgrown or homeDistance > EnemyConfig.FleeReturnStuds * zoneScale
 			if waited and isClear then
 				Motion.Set(enemy, "Rise", now)
 			end

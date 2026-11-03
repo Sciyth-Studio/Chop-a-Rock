@@ -5,6 +5,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 
+export type Home = {
+	Position: Vector3,
+	AreaMin: Vector3,
+	AreaMax: Vector3,
+}
+
 local Homes = {}
 
 local function taggedByZone(tag: string, attribute: string): { [string]: BasePart }
@@ -30,7 +36,24 @@ local function groundBelow(part: BasePart, excluded: { Instance }): Vector3
 	return if result then result.Position else part.Position
 end
 
-function Homes.Find(): { [string]: Vector3 }
+local function worldBounds(part: BasePart): (Vector3, Vector3)
+	local half = part.Size / 2
+	local axes = part.CFrame
+	local extent = Vector3.new(
+		math.abs(axes.RightVector.X) * half.X
+			+ math.abs(axes.UpVector.X) * half.Y
+			+ math.abs(axes.LookVector.X) * half.Z,
+		math.abs(axes.RightVector.Y) * half.X
+			+ math.abs(axes.UpVector.Y) * half.Y
+			+ math.abs(axes.LookVector.Y) * half.Z,
+		math.abs(axes.RightVector.Z) * half.X
+			+ math.abs(axes.UpVector.Z) * half.Y
+			+ math.abs(axes.LookVector.Z) * half.Z
+	)
+	return part.Position - extent, part.Position + extent
+end
+
+function Homes.Find(): { [string]: Home }
 	local rings = taggedByZone(EnemyConfig.RingTag, EnemyConfig.ZoneAttribute)
 	local areas = taggedByZone(RockSpawnConfig.AreaTag, RockSpawnConfig.ZoneAttribute)
 	local excluded: { Instance } = {}
@@ -40,11 +63,12 @@ function Homes.Find(): { [string]: Vector3 }
 	for _, area in areas do
 		table.insert(excluded, area)
 	end
-	local homes: { [string]: Vector3 } = {}
+	local homes: { [string]: Home } = {}
 	for zone in RockSpawnConfig.Zones do
 		local part = rings[zone] or areas[zone]
 		if part then
-			homes[zone] = groundBelow(part, excluded)
+			local areaMin, areaMax = worldBounds(areas[zone] or part)
+			homes[zone] = { Position = groundBelow(part, excluded), AreaMin = areaMin, AreaMax = areaMax }
 		else
 			warn(`[EnemyService] {zone} has no {EnemyConfig.RingTag} or {RockSpawnConfig.AreaTag} part`)
 		end

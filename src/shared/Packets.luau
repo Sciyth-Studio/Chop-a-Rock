@@ -49,7 +49,15 @@ local Packets = {
 	GeodeFallChop = Packet("GeodeFallChop", Packet.NumberU16):RateLimit(3, 1),
 	GeodeFallChopped = Packet("GeodeFallChopped", Packet.NumberU16, Packet.NumberU8, Packet.Boolean8),
 	EnemyReady = Packet("EnemyReady"):RateLimit(2, 1),
-	EnemySpawned = Packet("EnemySpawned", Packet.String, Packet.String, Packet.Vector3F32, Packet.NumberF32),
+	EnemySpawned = Packet(
+		"EnemySpawned",
+		Packet.String,
+		Packet.String,
+		Packet.Vector3F32,
+		Packet.NumberF32,
+		Packet.Vector3F32,
+		Packet.Vector3F32
+	),
 	EnemyFightStarted = Packet(
 		"EnemyFightStarted",
 		Packet.String,

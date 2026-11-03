@@ -20,6 +20,9 @@ export type Enemy = {
 	StaggerAt: number,
 	SlamAt: number,
 	Away: Vector3,
+	AreaMin: Vector3,
+	AreaMax: Vector3,
+	FleeTo: Vector3,
 }
 
 local Motion = {}
@@ -65,8 +68,19 @@ function Motion.Knock(enemy: Enemy, from: Vector3, now: number)
 	Motion.Set(enemy, "Defeat", now)
 end
 
+function Motion.FurthestPoint(enemy: Enemy, from: Vector3): Vector3
+	local margin = enemy.Radius + EnemyConfig.FleeWallMarginStuds * enemy.Scale / EnemyConfig.ModelScale
+	local low, high = enemy.AreaMin, enemy.AreaMax
+	local function farSide(position: number, lowEdge: number, highEdge: number): number
+		local middle = (lowEdge + highEdge) / 2
+		local inset = math.min(margin, (highEdge - lowEdge) / 2)
+		return if position < middle then highEdge - inset else lowEdge + inset
+	end
+	return Vector3.new(farSide(from.X, low.X, high.X), enemy.Home.Y, farSide(from.Z, low.Z, high.Z))
+end
+
 function Motion.Flee(enemy: Enemy, from: Vector3, now: number)
-	enemy.Away = flat(enemy.Position - from, enemy.Facing)
+	enemy.FleeTo = Motion.FurthestPoint(enemy, from)
 	Motion.Set(enemy, "Flee", now)
 end
 
@@ -107,13 +121,20 @@ function Motion.Step(enemy: Enemy, dt: number, now: number, feet: Vector3?): boo
 			Motion.Set(enemy, "Home", now)
 		end
 	elseif enemy.State == "Flee" then
-		local alpha = math.min(elapsed / EnemyConfig.FleeSeconds, 1)
-		enemy.Position += enemy.Away * EnemyConfig.FleeSpeedStuds * zoneScale * dt
-		enemy.Facing = enemy.Away
-		local bounce = math.abs(math.sin(elapsed * math.pi * 5)) * EnemyConfig.ReturnHopStuds * zoneScale
-		pose(enemy, bounce - alpha * alpha * enemy.Height * 1.5, now)
-		if alpha >= 1 then
-			Motion.Set(enemy, "Gone", now)
+		local offset = enemy.FleeTo - enemy.Position
+		local step = EnemyConfig.FleeSpeedStuds * zoneScale * dt
+		enemy.Facing = flat(offset, enemy.Facing)
+		if offset.Magnitude > step then
+			enemy.Position += offset.Unit * step
+			pose(
+				enemy,
+				math.abs(math.sin(elapsed * math.pi * 5)) * EnemyConfig.ReturnHopStuds * zoneScale,
+				now
+			)
+		else
+			enemy.Position = enemy.FleeTo
+			pose(enemy, 0, now)
+			Motion.Set(enemy, "Home", now)
 		end
 	elseif enemy.State == "Defeat" then
 		enemy.Position += enemy.Away * EnemyConfig.KnockSpeedStuds * zoneScale * dt
