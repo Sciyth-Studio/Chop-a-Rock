@@ -30,6 +30,11 @@ Related: [[Base Plot Reference]], [[Pedestals]], [[Training Stand Reference]], [
 - The old template is kept as `ServerStorage.Model_BasePlot_Old`. Delete it once the new one is signed off.
 - In the lobby lighting the black reads navy and the grey reads light blue ([[Why The Game Looks Blue]]). The part colours are left literal per [[Literal Black And Grey]]; whether to adjust the lighting is the user's call.
 
+## Lobby expanded for longer bases (2026-11-03, user asked Claude to do it)
+For [[Zone Geodes And Enemies]]. `LobbyFloor` is now x -188 to 272, z -435 to -195 (it was x -158 to 242, z -405 to -195), so it fits the 64 x 94 plots with the same margins: side plots 1 stud from the walls, back row 8.6 studs from the back wall. The three `LobbyWalls` moved out with it, and `LobbyCannon` moved back 30 studs to z -450 so it still sits on the back wall. `BaseSpot` plates did not move, because the plot's pivot stays at the old centre and it grows backwards only. New `*Cap` wall pieces at x -188 to -158 and x 242 to 272, z -195 to -135, close the gaps the wider floor opened beside the forest walls. Fit checked by clones on all 8 spots (no overlaps, seen in a capture, then removed). No playtest yet; the cannon launch from its new spot isn't tested.
+
+The new base is `ServerStorage.Model_BasePlot_New`, loaded from asset 75582656711797 and not in use yet. `Assets/Models/Base/Model_BasePlot` is still the live template until the hatch pad code replaces it. Setting `CollisionFidelity` by script did nothing, so its parts are still Default; set them by hand if the Default shape is wrong.
+
 ## Shrunk lobby (2026-10-18)
 - The user shrank `Workspace.Lobby.LobbyFloor` to 340 (x) by 210 (z): x -128 to 212, z -404.86 to -194.86, centre (42, -299.86). The forest gateway is still at z -195.
 - 8 spots, made symmetrical about x 42 by Claude from the user's rough placement: 2 per side and 4 at the back. Left x -95 facing +X (`1` z -231.85, `2` z -298.05), right x 179 facing -X (`8` z -231.85, `7` z -298.05), back z -364.37 facing +Z at x -60 / 8 / 76 / 144 (`3`-`6`, even 4-stud gaps). Side plots are 1 stud from the side walls; the back row's rear edges are 8.5 studs from the back wall and its front edges 2.3 studs behind the side columns' rear edges. Checked for overlaps.
