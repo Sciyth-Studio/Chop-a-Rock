@@ -2,6 +2,8 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
+local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
@@ -23,6 +25,8 @@ export type Stack = {
 	IsPlaced: boolean,
 	PetIds: { string },
 	Slots: { number },
+	GeodeKey: string?,
+	Count: number,
 }
 
 local PET_ID_ATTRIBUTE = "PetId"
@@ -53,12 +57,14 @@ function PetStacks.Build(pets: { [string]: any }): { Stack }
 				IsPlaced = isPlaced,
 				PetIds = {},
 				Slots = {},
+				Count = 0,
 			}
 			byId[id] = created
 			table.insert(stacks, created)
 			stack = created
 		end
 		table.insert(stack.PetIds, petId)
+		stack.Count += 1
 		if isPlaced then
 			table.insert(stack.Slots, record.Slot)
 		end
@@ -80,6 +86,39 @@ function PetStacks.Build(pets: { [string]: any }): { Stack }
 	return stacks
 end
 
+function PetStacks.BuildGeodes(geodes: { [string]: number }): { Stack }
+	local stacks: { Stack } = {}
+	for _, key in GeodeOrder.All() do
+		local count = geodes[key] or 0
+		if count <= 0 then
+			continue
+		end
+		local geode = GeodeConfig.Geodes[key]
+		table.insert(stacks, {
+			Id = `G|{key}`,
+			Key = key,
+			Rate = 0,
+			Name = geode.ShortName or geode.DisplayName,
+			FullName = geode.DisplayName,
+			IsPlaced = false,
+			PetIds = {},
+			Slots = {},
+			GeodeKey = key,
+			Count = count,
+		})
+	end
+	return stacks
+end
+
+function PetStacks.HatchText(geodeKey: string): string
+	local seconds = GeodeConfig.Geodes[geodeKey].HatchSeconds
+	if seconds <= 0 then
+		return ToolbarConfig.HatchNowText
+	end
+	local amount = if seconds < 60 then `{seconds}s` else `{math.floor(seconds / 60)}m`
+	return string.format(ToolbarConfig.HatchTimeFormat, amount)
+end
+
 function PetStacks.PetIdOf(tool: Instance): string?
 	local id = tool:GetAttribute(PET_ID_ATTRIBUTE)
 	return if tool:IsA("Tool") and type(id) == "string" then id else nil
@@ -95,9 +134,31 @@ function PetStacks.Contains(stack: Stack, petId: string?): boolean
 	return petId ~= nil and table.find(stack.PetIds, petId) ~= nil
 end
 
+local function geodeKeyOf(tool: Instance): string?
+	local key = tool:GetAttribute(GeodeConfig.ToolKeyAttribute)
+	return if tool:IsA("Tool") and type(key) == "string" then key else nil
+end
+
+function PetStacks.IsHeld(player: Player, stack: Stack): boolean
+	if not stack.GeodeKey then
+		return PetStacks.Contains(stack, PetStacks.HeldPetId(player))
+	end
+	local character = player.Character
+	local tool = if character then character:FindFirstChildOfClass("Tool") else nil
+	return tool ~= nil and geodeKeyOf(tool) == stack.GeodeKey
+end
+
 function PetStacks.ToolFor(player: Player, stack: Stack): Tool?
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then
+		return nil
+	end
+	if stack.GeodeKey then
+		for _, child in backpack:GetChildren() do
+			if geodeKeyOf(child) == stack.GeodeKey then
+				return child :: Tool
+			end
+		end
 		return nil
 	end
 	local tools: { [string]: Tool } = {}
@@ -121,7 +182,7 @@ function PetStacks.Toggle(player: Player, stack: Stack)
 	if not humanoid then
 		return
 	end
-	if PetStacks.Contains(stack, PetStacks.HeldPetId(player)) then
+	if PetStacks.IsHeld(player, stack) then
 		humanoid:UnequipTools()
 		return
 	end
@@ -181,10 +242,11 @@ function PetStacks.Paint(frame: GuiObject, stack: Stack?)
 		end
 		return
 	end
-	local pet = PetConfig.Pets[stack.Key]
-	local shown = ItemIcons.Apply(frame, "Pet", stack.Key, function(viewport)
+	local geode = if stack.GeodeKey then GeodeConfig.Geodes[stack.GeodeKey] else nil
+	local modelKey = if geode then geode.ModelKey else PetConfig.Pets[stack.Key].ModelKey
+	local shown = ItemIcons.Apply(frame, if geode then "Geode" else "Pet", stack.Key, function(viewport)
 		viewport:ClearAllChildren()
-		buildPreview(viewport, pet.ModelKey, stack.Modifier)
+		buildPreview(viewport, modelKey, stack.Modifier)
 	end)
 	ItemIcons.Tint(shown, PetModifier.ImageTint(stack.Modifier))
 	if sizeTag then
@@ -194,8 +256,8 @@ function PetStacks.Paint(frame: GuiObject, stack: Stack?)
 		end
 	end
 	if count then
-		count.Visible = #stack.PetIds > 1
-		count.Text = tostring(#stack.PetIds)
+		count.Visible = stack.Count > 1
+		count.Text = tostring(stack.Count)
 	end
 	if nameLabel then
 		nameLabel.Visible = true
@@ -209,7 +271,9 @@ function PetStacks.Paint(frame: GuiObject, stack: Stack?)
 	end
 	if rateLabel then
 		rateLabel.Visible = true
-		rateLabel.Text = `${NumberFormat.Rate(stack.Rate)}/s`
+		rateLabel.Text = if stack.GeodeKey
+			then PetStacks.HatchText(stack.GeodeKey)
+			else `${NumberFormat.Rate(stack.Rate)}/s`
 	end
 end
 

@@ -6,6 +6,7 @@ local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
+local HatchRevealConfig = require(ReplicatedStorage.Config.HatchRevealConfig)
 local HatchTiming = require(ReplicatedStorage.HatchTiming)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
@@ -120,7 +121,7 @@ function Opening.Open(
 			end
 		end)
 	end
-	return revealDelay + HatchTiming.RevealSeconds(pet.Rarity) + GeodeConfig.RecrackDelaySeconds
+	return revealDelay + HatchTiming.RevealSeconds(pet.Rarity) + HatchRevealConfig.PetShowSeconds
 end
 
 return Opening

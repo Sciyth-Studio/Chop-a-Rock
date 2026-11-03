@@ -9,10 +9,7 @@ local HatchRevealConfig = require(ReplicatedStorage.Config.HatchRevealConfig)
 local HatchTiming = require(ReplicatedStorage.HatchTiming)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
-local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local Packets = require(ReplicatedStorage.Packets)
-local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
-local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Scene = require(script.Scene)
 local Types = require(script.Types)
@@ -23,45 +20,10 @@ type Reveal = {
 	IsOwn: boolean,
 }
 
-local HatchController = {
-	Name = "HatchController",
-	Revealed = nil :: any,
-}
+local HatchController = { Name = "HatchController" }
 
 local trove = Trove.new()
-local controllers: { [string]: any } = {}
 local active: { [Attachment]: Reveal } = {}
-local backpackHolds = 0
-
-local function setBackpackShown(isShown: boolean)
-	local uiController = controllers.UIController
-	if not uiController then
-		return
-	end
-	if isShown then
-		uiController:Open(ToolbarConfig.Screen)
-	else
-		uiController:Close(ToolbarConfig.Screen)
-	end
-end
-
-local function holdBackpack(): () -> ()
-	backpackHolds += 1
-	if backpackHolds == 1 then
-		setBackpackShown(false)
-	end
-	local released = false
-	return function()
-		if released then
-			return
-		end
-		released = true
-		backpackHolds -= 1
-		if backpackHolds == 0 then
-			setBackpackShown(true)
-		end
-	end
-end
 
 local function easeOut(alpha: number): number
 	return 1 - (1 - alpha) * (1 - alpha)
@@ -96,64 +58,6 @@ local function flash()
 	tween:Play()
 end
 
-local function holdOwner(scene: Types.Scene, reveal: Reveal): (() -> ())?
-	local chopController = controllers.ChopController
-	local start = os.clock()
-	while chopController:IsMinigameActive() and os.clock() - start < HatchRevealConfig.MinigameWaitSeconds do
-		if reveal.IsCancelled or reveal.IsFinished then
-			return nil
-		end
-		RunService.Heartbeat:Wait()
-	end
-	if reveal.IsCancelled or reveal.IsFinished or chopController:IsMinigameActive() then
-		return nil
-	end
-	local camera = workspace.CurrentCamera
-	local character = Players.LocalPlayer.Character
-	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
-	local unlockMovement = if humanoid then MovementLock.Acquire(humanoid) else nil
-	local function setHidden(isHidden: boolean)
-		if not character then
-			return
-		end
-		for _, descendant in character:GetDescendants() do
-			if descendant:IsA("BasePart") or descendant:IsA("Decal") then
-				descendant.LocalTransparencyModifier = if isHidden then 1 else 0
-			end
-		end
-	end
-	local hideConnection = RunService.RenderStepped:Connect(function()
-		setHidden(true)
-	end)
-	if camera then
-		camera.CameraType = Enum.CameraType.Scriptable
-		local up = scene.Origin.UpVector
-		local target = CFrame.lookAt(
-			scene.Origin.Position
-				+ scene.Origin.LookVector * HatchRevealConfig.CameraDistanceStuds
-				+ up * HatchRevealConfig.CameraHeightStuds,
-			scene.Origin.Position + up * HatchRevealConfig.CameraLookHeightStuds
-		)
-		local from = camera.CFrame
-		task.spawn(Scene.Animate, HatchRevealConfig.CameraTransitionSeconds, function()
-			return reveal.IsCancelled or reveal.IsFinished
-		end, function(alpha: number)
-			local eased = alpha * alpha * (3 - 2 * alpha)
-			camera.CFrame = from:Lerp(target, eased)
-		end)
-	end
-	return function()
-		hideConnection:Disconnect()
-		setHidden(false)
-		if unlockMovement then
-			unlockMovement()
-		end
-		if camera and not chopController:IsMinigameActive() then
-			camera.CameraType = Enum.CameraType.Custom
-		end
-	end
-end
-
 local function play(spot: Attachment, hatch: Types.Hatch)
 	local previous = active[spot]
 	if previous then
@@ -171,13 +75,6 @@ local function play(spot: Attachment, hatch: Types.Hatch)
 		return reveal.IsCancelled
 	end
 	local isOwner = hatch.Owner == Players.LocalPlayer
-	local release: (() -> ())? = nil
-	local releaseBackpack = if isOwner then holdBackpack() else nil
-	if isOwner then
-		task.spawn(function()
-			release = holdOwner(scene, reveal)
-		end)
-	end
 
 	local pose: Types.Pose = { Height = 0, Scale = 1, Shake = 0, Spin = 0 }
 	local start = os.clock()
@@ -233,15 +130,18 @@ local function play(spot: Attachment, hatch: Types.Hatch)
 		if isOwner then
 			LocalSound.Play(rarity.SoundKey)
 			flash()
-			local uiController = controllers.UIController
-			local chopController = controllers.ChopController
-			HatchController.Revealed:Fire(hatch)
-			pause(HatchRevealConfig.ScreenTimeoutSeconds, function()
-				return isCancelled()
-					or not uiController:IsOpen(HatchRevealConfig.ScreenName)
-					or chopController:IsMinigameActive()
+		end
+		local shown = Scene.ShowPet(scene, hatch)
+		if shown then
+			Scene.Animate(HatchRevealConfig.PetPopSeconds, isCancelled, function(alpha: number)
+				Scene.SizePet(shown, backOut(alpha))
 			end)
-			uiController:Close(HatchRevealConfig.ScreenName)
+			pause(HatchRevealConfig.PetShowSeconds - HatchRevealConfig.PetPopSeconds, isCancelled)
+			Scene.Animate(HatchRevealConfig.PetHideSeconds, isCancelled, function(alpha: number)
+				Scene.SizePet(shown, 1 - alpha)
+			end)
+		else
+			pause(HatchRevealConfig.PetShowSeconds, isCancelled)
 		end
 	end
 
@@ -249,17 +149,7 @@ local function play(spot: Attachment, hatch: Types.Hatch)
 	if active[spot] == reveal then
 		active[spot] = nil
 	end
-	if release then
-		release()
-	end
-	if releaseBackpack then
-		releaseBackpack()
-	end
-	if isCancelled() then
-		Scene.Destroy(scene)
-	else
-		task.delay(HatchRevealConfig.BurstLifetimeSeconds, Scene.Destroy, scene)
-	end
+	Scene.Destroy(scene)
 end
 
 function HatchController.IsPlaying(_self: any): boolean
@@ -271,10 +161,7 @@ function HatchController.IsPlaying(_self: any): boolean
 	return false
 end
 
-function HatchController.Init(_self: any, registry: { [string]: any })
-	controllers = registry
-	HatchController.Revealed = Signal.new()
-end
+function HatchController.Init(_self: any, _registry: { [string]: any }) end
 
 function HatchController.Start(_self: any)
 	trove:Add(
@@ -317,13 +204,6 @@ function HatchController.Destroy(_self: any)
 		reveal.IsCancelled = true
 	end
 	trove:Destroy()
-	if backpackHolds > 0 then
-		backpackHolds = 0
-		setBackpackShown(true)
-	end
-	if HatchController.Revealed then
-		HatchController.Revealed:Destroy()
-	end
 end
 
 return HatchController

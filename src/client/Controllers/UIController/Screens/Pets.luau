@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -143,7 +144,7 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if not card or not stack then
 			return
 		end
-		PetStacks.PaintStroke(card, PetStacks.Contains(stack, PetStacks.HeldPetId(player)))
+		PetStacks.PaintStroke(card, PetStacks.IsHeld(player, stack))
 		local stroke = card:FindFirstChild("OuterStroke")
 		if isSelected and stroke and stroke:IsA("UIStroke") then
 			stroke.Color = ToolbarConfig.SelectedStroke.Color
@@ -189,12 +190,66 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		detail.Position = UDim2.fromOffset(x, y)
 	end
 
-	local function paintDetail(stack: Stack)
-		local pet = PetConfig.Pets[stack.Key]
-		local rarity = RarityConfig.Rarities[pet.Rarity]
+	local function paintHold(stack: Stack)
+		if holdLabel then
+			BlockButton.SetText(
+				holdLabel,
+				if PetStacks.IsHeld(player, stack) then ToolbarConfig.PutAwayText else ToolbarConfig.HoldText
+			)
+		end
+	end
+
+	local function paintRarity(rarityKey: string, text: string)
+		local rarity = RarityConfig.Rarities[rarityKey]
 		if detailBorder and rarity then
 			detailBorder.Color = rarity.Color
 		end
+		if not detailRarity then
+			return
+		end
+		detailRarity.Text = text
+		local gradient = detailRarity:FindFirstChildWhichIsA("UIGradient")
+		if gradient then
+			gradient.Color = RarityRibbon.Colors(rarityKey)
+			gradient.Rotation = if rarity and rarity.RainbowLabel then 0 else 90
+		end
+		local stroke = detailRarity:FindFirstChildWhichIsA("UIStroke")
+		if stroke and rarity then
+			stroke.Color = rarity.Color:Lerp(Color3.new(0, 0, 0), RarityConfig.RibbonDarken)
+		end
+	end
+
+	local function paintGeodeDetail(stack: Stack, geodeKey: string)
+		local floor = GeodeConfig.Geodes[geodeKey].MinRarity
+		setText(detailName, stack.FullName)
+		if detailTags then
+			detailTags.Visible = false
+		end
+		setText(detailEarns, ToolbarConfig.GeodeUseText)
+		if floor then
+			local rarity = RarityConfig.Rarities[floor]
+			paintRarity(
+				floor,
+				string.format(
+					ToolbarConfig.GeodeMinRarityFormat,
+					if rarity then rarity.DisplayName else floor
+				)
+			)
+		else
+			paintRarity(RarityConfig.Order[1], ToolbarConfig.GeodeAnyRarityText)
+		end
+		setText(detailRate, PetStacks.HatchText(geodeKey))
+		paintHold(stack)
+	end
+
+	local function paintDetail(stack: Stack)
+		if stack.GeodeKey then
+			paintGeodeDetail(stack, stack.GeodeKey)
+			return
+		end
+		local pet = PetConfig.Pets[stack.Key]
+		local rarity = RarityConfig.Rarities[pet.Rarity]
+		paintRarity(pet.Rarity, if rarity then rarity.DisplayName else pet.Rarity)
 		setText(detailName, stack.Name)
 		if detailSize then
 			local isSized = PetSize.IsShown(stack.Size)
@@ -217,27 +272,8 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			detailTags.Visible = PetSize.IsShown(stack.Size) or modifier ~= nil
 		end
 		setText(detailEarns, ToolbarConfig.DetailEarnsText)
-		if detailRarity then
-			detailRarity.Text = if rarity then rarity.DisplayName else pet.Rarity
-			local gradient = detailRarity:FindFirstChildWhichIsA("UIGradient")
-			if gradient then
-				gradient.Color = RarityRibbon.Colors(pet.Rarity)
-				gradient.Rotation = if rarity and rarity.RainbowLabel then 0 else 90
-			end
-			local stroke = detailRarity:FindFirstChildWhichIsA("UIStroke")
-			if stroke and rarity then
-				stroke.Color = rarity.Color:Lerp(Color3.new(0, 0, 0), RarityConfig.RibbonDarken)
-			end
-		end
 		setText(detailRate, `${NumberFormat.Rate(stack.Rate)}/s`)
-		if holdLabel then
-			BlockButton.SetText(
-				holdLabel,
-				if PetStacks.Contains(stack, PetStacks.HeldPetId(player))
-					then ToolbarConfig.PutAwayText
-					else ToolbarConfig.HoldText
-			)
-		end
+		paintHold(stack)
 	end
 
 	local function showDetail(stack: Stack, card: GuiObject)
@@ -277,6 +313,12 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local stacks = PetStacks.Build(pets)
+		local geodes = dataController:Get({ "Geodes" })
+		local geodeStacks: { Stack } = if type(geodes) == "table" then PetStacks.BuildGeodes(geodes) else {}
+		local geodeTotal = 0
+		for _, stack in geodeStacks do
+			geodeTotal += stack.Count
+		end
 		local total = 0
 		local placedCount = 0
 		for _, stack in stacks do
@@ -288,6 +330,9 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		setText(
 			countLabel,
 			`{string.format(ToolbarConfig.CountFormat, total)}   {string.format(
+				ToolbarConfig.GeodeCountFormat,
+				geodeTotal
+			)}   {string.format(
 				ToolbarConfig.PlacedFormat,
 				placedCount,
 				#PedestalSlots.Unlocked(slotCount)
@@ -300,10 +345,10 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local filter = if search then string.lower(search.Text) else ""
-		local held = PetStacks.HeldPetId(player)
 		local shownCount = 0
 		local selected: Stack? = nil
-		for order, stack in stacks do
+		local cardStacks = table.move(stacks, 1, #stacks, #geodeStacks + 1, table.clone(geodeStacks))
+		for order, stack in cardStacks do
 			if stack.IsPlaced then
 				continue
 			end
@@ -316,7 +361,7 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			card.LayoutOrder = order
 			card.Visible = true
 			PetStacks.Paint(card, stack)
-			PetStacks.PaintStroke(card, PetStacks.Contains(stack, held))
+			PetStacks.PaintStroke(card, PetStacks.IsHeld(player, stack))
 			local select = card:FindFirstChild("Select", true)
 			if select and select:IsA("GuiButton") then
 				cardTrove:Connect(select.Activated, function()
@@ -337,7 +382,9 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 		if emptyLabel then
 			emptyLabel.Visible = shownCount == 0
-			emptyLabel.Text = if total == placedCount then PetsConfig.EmptyText else PetsConfig.NoMatchText
+			emptyLabel.Text = if total == placedCount and geodeTotal == 0
+				then PetsConfig.EmptyText
+				else PetsConfig.NoMatchText
 		end
 	end
 
@@ -413,7 +460,7 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			refreshSlotButton()
 		end
 	end))
-	for _, path in { { "Pets" }, { "PedestalSlots" } } do
+	for _, path in { { "Pets" }, { "Geodes" }, { "PedestalSlots" } } do
 		trove:Add(dataController:Observe(path, refreshIfOpen))
 	end
 

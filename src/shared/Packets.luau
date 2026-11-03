@@ -46,8 +46,8 @@ local Packets = {
 	DiamondChop = Packet("DiamondChop"):RateLimit(3, 1),
 	DiamondChopped = Packet("DiamondChopped", Packet.NumberU8, Packet.Boolean8),
 	DiamondEnded = Packet("DiamondEnded"),
-	GeodeFallChop = Packet("GeodeFallChop", Packet.NumberU16):RateLimit(3, 1),
-	GeodeFallChopped = Packet("GeodeFallChopped", Packet.NumberU16, Packet.NumberU8, Packet.Boolean8),
+	GeodeFallTake = Packet("GeodeFallTake", Packet.NumberU16):RateLimit(3, 1),
+	GeodeFallTaken = Packet("GeodeFallTaken", Packet.NumberU16),
 	EnemyReady = Packet("EnemyReady"):RateLimit(2, 1),
 	EnemySpawned = Packet(
 		"EnemySpawned",

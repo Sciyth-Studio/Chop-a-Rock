@@ -261,7 +261,6 @@ end
 
 local function isBusy(): boolean
 	return controllers.HatchController:IsPlaying()
-		or isOpen("HatchReveal")
 		or isOpen("Letterbox")
 		or controllers.IntroController:IsPlaying()
 end

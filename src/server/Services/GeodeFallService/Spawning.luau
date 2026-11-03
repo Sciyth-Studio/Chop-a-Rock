@@ -105,7 +105,7 @@ function Spawning.StandDistance(size: Vector3): number
 	return ChopConfig.PlayerSnapOffsetFromRock.Magnitude * math.max(1, size.Z / ChopConfig.ReferenceRockSize)
 end
 
-function Spawning.Place(model: Model, part: BasePart, position: Vector3, random: Random): Attachment
+function Spawning.Place(model: Model, part: BasePart, position: Vector3, random: Random)
 	model.Name = GeodeFallConfig.ModelName
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	for _, descendant in model:GetDescendants() do
@@ -119,31 +119,16 @@ function Spawning.Place(model: Model, part: BasePart, position: Vector3, random:
 	model:PivotTo(yaw + position)
 	local bottom = part.Position.Y - part.Size.Y / 2
 	model:PivotTo(model:GetPivot() + Vector3.new(0, position.Y - bottom - RockSpawnConfig.SinkStuds, 0))
-	local spot = Instance.new("Attachment")
-	spot.Name = GeodeFallConfig.SpotName
-	spot.Parent = part
-	return spot
 end
 
 function Spawning.Publish(geode: Types.Geode, endsAt: number)
 	local part = geode.Part
 	part:SetAttribute(GeodeFallConfig.IdAttribute, geode.Id)
 	part:SetAttribute(GeodeFallConfig.ZoneAttribute, geode.Zone)
-	part:SetAttribute(GeodeFallConfig.GeodeKeyAttribute, geode.GeodeKey)
-	part:SetAttribute(GeodeFallConfig.HealthAttribute, geode.Health)
-	part:SetAttribute(GeodeFallConfig.MaxHealthAttribute, geode.MaxHealth)
-	part:SetAttribute(GeodeFallConfig.StrengthAttribute, geode.StrengthRequired)
 	part:SetAttribute(GeodeFallConfig.LandsAtAttribute, Spawning.ServerTime(geode.LandsAt))
 	part:SetAttribute(GeodeFallConfig.EndsAtAttribute, Spawning.ServerTime(endsAt))
-	Spawning.PublishClaim(geode)
 	CollectionService:AddTag(geode.Model, GeodeFallConfig.Tag)
 	geode.Model.Parent = workspace
-end
-
-function Spawning.PublishClaim(geode: Types.Geode)
-	local claimer = geode.ClaimedBy
-	geode.Part:SetAttribute(GeodeFallConfig.ClaimedByAttribute, if claimer then claimer.UserId else 0)
-	geode.Part:SetAttribute(GeodeFallConfig.ClaimedNameAttribute, if claimer then claimer.DisplayName else "")
 end
 
 function Spawning.ServerTime(clock: number): number

@@ -16,6 +16,8 @@ export type Geode = {
 	Pets: { GeodePet },
 	HatchSeconds: number,
 	RobuxOnly: boolean?,
+	IsFalling: boolean?,
+	ShortName: string?,
 	BaseKey: string?,
 	MinRarity: string?,
 	GuaranteedModifier: boolean?,
@@ -38,12 +40,15 @@ export type GeodeSettings = {
 	HatchLabelHeightStuds: number,
 	PickPromptKey: Enum.KeyCode,
 	PickPromptGamepadKey: Enum.KeyCode,
-	RecrackDelaySeconds: number,
 	AnnouncementKind: string,
-	CrackingAttribute: string,
 	ZoneStrengthRatio: number,
 	LuckyKeyPrefix: string,
 	LuckyMinRarity: string,
+	FallingKeyPrefix: string,
+	FallingMinRarity: string,
+	ToolKeyAttribute: string,
+	ToolScale: number,
+	ToolGrip: CFrame,
 }
 
 local RockConfig = require(script.Parent.RockConfig)
@@ -174,12 +179,15 @@ local GeodeConfig: GeodeSettings = {
 	HatchLabelHeightStuds = 7,
 	PickPromptKey = Enum.KeyCode.F,
 	PickPromptGamepadKey = Enum.KeyCode.ButtonY,
-	RecrackDelaySeconds = 1,
 	AnnouncementKind = "Event",
-	CrackingAttribute = "CrackingGeode",
 	ZoneStrengthRatio = 1,
 	LuckyKeyPrefix = "Lucky",
 	LuckyMinRarity = "Rare",
+	FallingKeyPrefix = "Falling",
+	FallingMinRarity = "Rare",
+	ToolKeyAttribute = "GeodeKey",
+	ToolScale = 0.5,
+	ToolGrip = CFrame.new(0, 0, 0.8),
 }
 
 local baseKeys: { string } = {}
@@ -190,6 +198,7 @@ for _, key in baseKeys do
 	local geode = GeodeConfig.Geodes[key]
 	GeodeConfig.Geodes[GeodeConfig.LuckyKeyPrefix .. key] = {
 		DisplayName = `Lucky {geode.TabName} Geode`,
+		ShortName = `Lucky {geode.TabName}`,
 		TabName = geode.TabName,
 		Order = geode.Order,
 		Price = 0,
@@ -202,6 +211,21 @@ for _, key in baseKeys do
 		BaseKey = key,
 		MinRarity = GeodeConfig.LuckyMinRarity,
 		GuaranteedModifier = true,
+	}
+	GeodeConfig.Geodes[GeodeConfig.FallingKeyPrefix .. key] = {
+		DisplayName = `Falling {geode.TabName} Geode`,
+		ShortName = `Falling {geode.TabName}`,
+		TabName = geode.TabName,
+		Order = geode.Order,
+		Price = 0,
+		HatchSeconds = geode.HatchSeconds,
+		StrengthRequired = geode.StrengthRequired,
+		ModelKey = geode.ModelKey,
+		SplitModelKey = geode.SplitModelKey,
+		Pets = geode.Pets,
+		IsFalling = true,
+		BaseKey = key,
+		MinRarity = GeodeConfig.FallingMinRarity,
 	}
 end
 

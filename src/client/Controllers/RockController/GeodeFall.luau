@@ -6,9 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
-local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local GeodeFallConfig = require(ReplicatedStorage.Config.GeodeFallConfig)
-local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local Typography = require(ReplicatedStorage.Utils.Typography)
@@ -201,14 +199,6 @@ local function findLabel(root: Instance, name: string): TextLabel?
 	return if found and found:IsA("TextLabel") then found else nil
 end
 
-local function claimText(part: BasePart): string
-	local name = part:GetAttribute(GeodeFallConfig.ClaimedNameAttribute)
-	if type(name) == "string" and name ~= "" then
-		return string.format(GeodeFallConfig.ClaimedLabelText, name)
-	end
-	return GeodeFallConfig.FreeText
-end
-
 local function makeLabel(trove: TroveInstance, state: Active)
 	local asset = AssetRegistry.get(GeodeFallConfig.LabelKey)
 	if not asset:IsA("BillboardGui") then
@@ -218,39 +208,24 @@ local function makeLabel(trove: TroveInstance, state: Active)
 	local part = state.Part
 	local nameLabel = findLabel(asset, "NameLabel")
 	local timeLabel = findLabel(asset, "TimeLabel")
-	local fillInstance = asset:FindFirstChild("Fill", true)
-	local fill: GuiObject? = if fillInstance and fillInstance:IsA("GuiObject") then fillInstance else nil
+	local bar = asset:FindFirstChild("Bar")
+	if bar and bar:IsA("GuiObject") then
+		bar.Visible = false
+	end
 	Typography.Apply(asset)
 	asset.Adornee = part
 	asset.MaxDistance = GeodeFallConfig.LabelMaxDistance
 	asset.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + GeodeFallConfig.LabelHeightAboveGeode, 0)
 	paint(nameLabel, state.Color)
 	paint(timeLabel, state.Color)
-	if fill then
-		local gradient = fill:FindFirstChildWhichIsA("UIGradient")
-		if gradient then
-			gradient.Color = ColorSequence.new(state.Color)
-		end
-		fill.BackgroundColor3 = state.Color
+	if nameLabel then
+		nameLabel.Text = GeodeFallConfig.DisplayName
 	end
 	asset.Parent = part
 	trove:Add(asset)
 
-	local shownName = ""
 	local shownTime = -1
 	trove:Connect(RunService.Heartbeat, function()
-		local text = claimText(part)
-		if nameLabel and text ~= shownName then
-			shownName = text
-			nameLabel.Text = text
-		end
-		local maxHealth = numberAttribute(part, GeodeFallConfig.MaxHealthAttribute)
-		if fill and maxHealth > 0 then
-			fill.Size = UDim2.fromScale(
-				math.clamp(numberAttribute(part, GeodeFallConfig.HealthAttribute) / maxHealth, 0, 1),
-				1
-			)
-		end
 		local remaining = if state.IsDone
 			then 0
 			else math.max(
@@ -271,11 +246,7 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 	local byId: { [number]: Active } = {}
 
 	local function refreshPrompt(state: Active)
-		local claimedBy = numberAttribute(state.Part, GeodeFallConfig.ClaimedByAttribute)
-		state.Prompt.Enabled = state.IsUp
-			and not state.IsDone
-			and not chopController:IsMinigameActive()
-			and (claimedBy == 0 or claimedBy == Players.LocalPlayer.UserId)
+		state.Prompt.Enabled = state.IsUp and not state.IsDone and not chopController:IsMinigameActive()
 	end
 
 	local function refreshAll()
@@ -329,9 +300,9 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 		local geodeTrove = Trove.new()
 		local landTrove = geodeTrove:Extend()
 		local prompt = Instance.new("ProximityPrompt")
-		prompt.ActionText = "Chop"
+		prompt.ActionText = GeodeFallConfig.PromptText
 		prompt.ObjectText = GeodeFallConfig.DisplayName
-		prompt.HoldDuration = ChopConfig.PromptHoldSeconds
+		prompt.HoldDuration = GeodeFallConfig.PromptHoldSeconds
 		prompt.Style = Enum.ProximityPromptStyle.Custom
 		prompt.MaxActivationDistance = ChopConfig.PromptRangeStuds + math.max(part.Size.X, part.Size.Z) / 2
 		prompt.RequiresLineOfSight = false
@@ -353,11 +324,8 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 		byId[id] = state
 		geodeTrove:Connect(prompt.Triggered, function()
 			if state.IsUp and not state.IsDone then
-				Packets.GeodeFallChop:Fire(id)
+				Packets.GeodeFallTake:Fire(id)
 			end
-		end)
-		geodeTrove:Connect(part:GetAttributeChangedSignal(GeodeFallConfig.ClaimedByAttribute), function()
-			refreshPrompt(state)
 		end)
 		local isSunk = false
 		geodeTrove:Connect(RunService.Heartbeat, function()
@@ -422,29 +390,12 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 		end
 	end
 
-	local function onChopped(id: number, quality: number, isBroken: boolean)
+	local function onTaken(id: number)
 		local state = byId[id]
-		if not state then
-			return
-		end
-		local part = state.Part
-		if isBroken then
+		if state and not state.IsDone then
 			finish(state)
+			Effects.Sink(state.Part, GeodeFallConfig.SinkSeconds, function() end)
 		end
-		if quality == ChopQuality.Crack then
-			Effects.Crack(part)
-			return
-		end
-		if quality == ChopQuality.Master then
-			Effects.MasterStart(part)
-			task.delay(MasterChopConfig.ImpactDelaySeconds, function()
-				if part.Parent then
-					Effects.Hit(part, quality)
-				end
-			end)
-			return
-		end
-		Effects.Hit(part, quality)
 	end
 
 	for _, tagged in CollectionService:GetTagged(GeodeFallConfig.Tag) do
@@ -452,7 +403,7 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 	end
 	trove:Connect(CollectionService:GetInstanceAddedSignal(GeodeFallConfig.Tag), setup)
 	trove:Connect(CollectionService:GetInstanceRemovedSignal(GeodeFallConfig.Tag), teardown)
-	trove:Add(Packets.GeodeFallChopped.OnClientEvent:Connect(onChopped))
+	trove:Add(Packets.GeodeFallTaken.OnClientEvent:Connect(onTaken))
 	trove:Connect(chopController.ActiveChanged, refreshAll)
 	trove:Add(function()
 		for model in table.clone(actives) do

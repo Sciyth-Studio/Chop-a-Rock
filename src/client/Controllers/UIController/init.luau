@@ -32,7 +32,6 @@ local modules: { [string]: Types.ScreenModule } = {
 	FreeGift = require(script.Screens.FreeGift),
 	OfferRail = require(script.Screens.OfferRail),
 	PurchaseBanner = require(script.Screens.PurchaseBanner),
-	HatchReveal = require(script.Screens.HatchReveal),
 	Rebirth = require(script.Screens.Rebirth),
 	Notifications = require(script.Screens.Notifications),
 	Letterbox = require(script.Screens.Letterbox),

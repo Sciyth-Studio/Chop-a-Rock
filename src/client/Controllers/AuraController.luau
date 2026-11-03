@@ -5,7 +5,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
-local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -154,8 +153,7 @@ end
 local function apply(player: Player)
 	local tierIndex = player:GetAttribute(AuraConfig.Attribute)
 	local tier = if type(tierIndex) == "number" then AuraConfig.Tiers[tierIndex] else nil
-	local isCracking = player:GetAttribute(GeodeConfig.CrackingAttribute) == true
-	local color = if tier and not isCracking then tier.Color else nil
+	local color = if tier then tier.Color else nil
 	local character = player.Character
 	local current = worn[player]
 	if current and color and current.Tier == tierIndex and current.Character == character then
@@ -195,9 +193,6 @@ local function track(player: Player)
 	local playerTrove = Trove.new()
 	playerTroves[player] = playerTrove
 	playerTrove:Connect(player:GetAttributeChangedSignal(AuraConfig.Attribute), function()
-		apply(player)
-	end)
-	playerTrove:Connect(player:GetAttributeChangedSignal(GeodeConfig.CrackingAttribute), function()
 		apply(player)
 	end)
 	playerTrove:Connect(player.CharacterAdded, function(character: Model)

@@ -25,13 +25,8 @@ end
 local function endActivities(player: Player)
 	services.RockService:EndSession(player)
 	services.DiamondRockService:EndSession(player)
-	services.GeodeFallService:EndSession(player)
 	services.TrainingService:Stop(player)
 	Packets.ChopEnded:FireClient(player)
-end
-
-local function notify(player: Player, message: string)
-	services.NotificationService:Notify(player, "Info", message)
 end
 
 local function onTeleport(player: Player, destinationId: string)
@@ -43,10 +38,6 @@ local function onTeleport(player: Player, destinationId: string)
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	if not character or not humanoid or humanoid.Health <= 0 or not root or not root:IsA("BasePart") then
-		return
-	end
-	if services.GeodeService:IsRevealing(player) then
-		notify(player, TeleportConfig.RevealingMessage)
 		return
 	end
 	if services.CannonService:IsLaunching(player) then

@@ -39,7 +39,8 @@ local services: { [string]: any } = {}
 local shapes: { [string]: Types.Shape } = {}
 local spots: { [string]: { Types.Spot } } = {}
 local rings: { ZoneRings.Ring } = {}
-local ringSpots: { [string]: { Vector3 } } = {}
+local geodeSpots: { [string]: { Vector3 } } = {}
+local playerBlocks: { [Player]: { [string]: Types.Reserved } } = {}
 local strips: { [string]: { [string]: number } } = {}
 local owned: { [Player]: { [number]: Types.Rock } } = {}
 local generations: { [Player]: number } = {}
@@ -120,6 +121,12 @@ local function spawnRock(player: Player, zone: string, forcedKey: string?): bool
 	local position = rootPosition(player)
 	local blocked: { Types.Reserved } = {}
 	for _, area in reserved do
+		if area.Zone == zone then
+			table.insert(blocked, area)
+		end
+	end
+	local playerAreas: { [string]: Types.Reserved } = playerBlocks[player] or {}
+	for _, area in playerAreas do
 		if area.Zone == zone then
 			table.insert(blocked, area)
 		end
@@ -268,7 +275,7 @@ local function onChopRequest(player: Player, id: number)
 	if not rock or sessions[player] or os.clock() < rock.UpAt - RockSpawnConfig.RiseSlackSeconds then
 		return
 	end
-	if services.DiamondRockService:HasSession(player) or services.GeodeFallService:HasSession(player) then
+	if services.DiamondRockService:HasSession(player) then
 		return
 	end
 	local data = services.DataService:GetData(player)
@@ -437,6 +444,7 @@ local function onPlayerRemoving(player: Player)
 	forcedQualities[player] = nil
 	cheats[player] = nil
 	spotViewers[player] = nil
+	playerBlocks[player] = nil
 	waiting[player] = nil
 	forcedGolden[player] = nil
 	owned[player] = nil
@@ -466,7 +474,7 @@ function RockService.Start(_self: any)
 	ZoneRings.Hide()
 	trove:Add(task.spawn(function()
 		local started = os.clock()
-		local sampled, sampledRings = SpawnPoints.Sample(shapes, rings)
+		local sampled, sampledGeodes = SpawnPoints.Sample(shapes, rings)
 		local zoneConfigs: { [string]: RockSpawnConfig.Zone } = RockSpawnConfig.Zones
 		for zone, zoneConfig in zoneConfigs do
 			local entrance = Strips.Entrance(areas, zone)
@@ -482,12 +490,12 @@ function RockService.Start(_self: any)
 			end
 		end
 		spots = sampled
-		ringSpots = sampledRings
+		geodeSpots = sampledGeodes
 		isSampled = true
 		for zone, zoneSpots in spots do
-			local ringCount = if ringSpots[zone] then #ringSpots[zone] else 0
+			local geodeCount = if geodeSpots[zone] then #geodeSpots[zone] else 0
 			print(
-				`[RockService] {zone}: {#zoneSpots} spawn spots, {ringCount} ring spots ({string.format(
+				`[RockService] {zone}: {#zoneSpots} spawn spots, {geodeCount} geode spots ({string.format(
 					"%.0f",
 					(os.clock() - started) * 1000
 				)} ms)`
@@ -626,8 +634,49 @@ function RockService.GetRings(_self: any): { ZoneRings.Ring }
 	return rings
 end
 
-function RockService.GetRingSpots(_self: any, zone: string): { Vector3 }
-	return ringSpots[zone] or {}
+function RockService.GetGeodeSpots(_self: any, zone: string): { Vector3 }
+	return geodeSpots[zone] or {}
+end
+
+function RockService.IsClearOfRocks(
+	_self: any,
+	player: Player,
+	zone: string,
+	position: Vector3,
+	radius: number
+): boolean
+	local rocks = owned[player]
+	if not rocks then
+		return true
+	end
+	for _, rock in zoneRocks(rocks, zone) do
+		local offset = rock.CFrame.Position - position
+		local rockRadius = Vector2.new(rock.Size.X, rock.Size.Z).Magnitude / 2
+		if Vector3.new(offset.X, 0, offset.Z).Magnitude < radius + rockRadius then
+			return false
+		end
+	end
+	return true
+end
+
+function RockService.BlockSpot(
+	_self: any,
+	player: Player,
+	owner: string,
+	zone: string,
+	position: Vector3,
+	radius: number
+)
+	local blocks = playerBlocks[player] or {}
+	playerBlocks[player] = blocks
+	blocks[owner] = { Zone = zone, Position = position, Radius = radius }
+end
+
+function RockService.UnblockSpot(_self: any, player: Player, owner: string)
+	local blocks = playerBlocks[player]
+	if blocks then
+		blocks[owner] = nil
+	end
 end
 
 function RockService.FindRingSpot(
@@ -757,7 +806,8 @@ function RockService.Destroy(_self: any)
 	table.clear(areas)
 	table.clear(reserved)
 	table.clear(rings)
-	table.clear(ringSpots)
+	table.clear(geodeSpots)
+	table.clear(playerBlocks)
 end
 
 return RockService

@@ -38,7 +38,10 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local function refresh()
 		local pets = dataController:Get({ "Pets" })
-		local stacks: { PetStacks.Stack } = {}
+		local geodes = dataController:Get({ "Geodes" })
+		local stacks: { PetStacks.Stack } = if type(geodes) == "table"
+			then PetStacks.BuildGeodes(geodes)
+			else {}
 		if type(pets) == "table" then
 			for _, stack in PetStacks.Build(pets) do
 				if not stack.IsPlaced then
@@ -46,7 +49,6 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end
 			end
 		end
-		local held = PetStacks.HeldPetId(player)
 		table.clear(shown)
 		for index, slot in slots do
 			local stack = stacks[index]
@@ -54,7 +56,7 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				shown[index] = stack
 			end
 			PetStacks.Paint(slot, stack)
-			PetStacks.PaintStroke(slot, stack ~= nil and PetStacks.Contains(stack, held))
+			PetStacks.PaintStroke(slot, stack ~= nil and PetStacks.IsHeld(player, stack))
 		end
 	end
 
@@ -131,6 +133,7 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	watchCharacter(player.Character)
 
 	trove:Add(dataController:Observe({ "Pets" }, refresh))
+	trove:Add(dataController:Observe({ "Geodes" }, refresh))
 
 	return {
 		Modal = false,

@@ -16,9 +16,7 @@ type Crown = {
 
 local CrownController = { Name = "CrownController" }
 
-local controllers: { [string]: any } = {}
 local trove = Trove.new()
-local isHidden = false
 local playerTroves: { [Player]: any } = {}
 local crowns: { [Player]: Crown } = {}
 local angle = 0
@@ -49,23 +47,6 @@ local function titleText(keys: { string }): string
 		table.insert(parts, boardName(key))
 	end
 	return `#1 {table.concat(parts, " & ")}`
-end
-
-local function setShown(model: Model, isShown: boolean)
-	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			descendant.Transparency = if isShown then 0 else 1
-		elseif descendant:IsA("BillboardGui") then
-			descendant.Enabled = isShown
-		end
-	end
-end
-
-local function isHatching(): boolean
-	local hatch = controllers.HatchController
-	local ui = controllers.UIController
-	return (hatch ~= nil and hatch:IsPlaying())
-		or (ui ~= nil and ui:IsOpen(LeaderboardConfig.CrownHiddenScreen))
 end
 
 local function removeCrown(player: Player)
@@ -108,7 +89,6 @@ local function refresh(player: Player)
 		}
 		crowns[player] = created
 		crown = created
-		setShown(asset, not isHidden)
 	end
 	local model = if crown then crown.Model else nil
 	local label = if model then model:FindFirstChild("Title", true) else nil
@@ -148,9 +128,7 @@ function CrownController.ChatTag(_self: any, player: Player): string?
 	return `<font color="{LeaderboardConfig.ChatTagColor}">[#1 {boardName(keys[1])}]</font>`
 end
 
-function CrownController.Init(_self: any, registry: { [string]: any })
-	controllers = registry
-end
+function CrownController.Init(_self: any, _registry: { [string]: any }) end
 
 function CrownController.Start(_self: any)
 	trove:Connect(Players.PlayerAdded, watch)
@@ -159,13 +137,6 @@ function CrownController.Start(_self: any)
 		watch(player)
 	end
 	trove:Connect(RunService.RenderStepped, function(dt: number)
-		local hidden = isHatching()
-		if hidden ~= isHidden then
-			isHidden = hidden
-			for _, crown in crowns do
-				setShown(crown.Model, not hidden)
-			end
-		end
 		angle = (angle + math.rad(LeaderboardConfig.CrownSpinDegrees) * dt) % (2 * math.pi)
 		for _, crown in crowns do
 			crown.Weld.C0 = CFrame.new(0, crown.Offset, 0) * CFrame.Angles(0, angle, 0)
