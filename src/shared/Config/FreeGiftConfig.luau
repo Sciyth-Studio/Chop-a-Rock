@@ -24,11 +24,13 @@ export type FreeGiftSettings = {
 		Claim: string,
 		Claimed: string,
 		JoinFirst: string,
+		FavoriteFirst: string,
 		TryAgain: string,
 	},
 	RewardImage: string,
 	Steps: { Step },
 	HintSeconds: number,
+	FavoriteCheckSeconds: number,
 }
 
 local FreeGiftConfig: FreeGiftSettings = {
@@ -47,6 +49,7 @@ local FreeGiftConfig: FreeGiftSettings = {
 		Claim = "Claim",
 		Claimed = "Claimed!",
 		JoinFirst = "Join the community first!",
+		FavoriteFirst = "Favorite the game first!",
 		TryAgain = "Something went wrong, try again",
 	}),
 	RewardImage = IconConfig.Cash5,
@@ -64,6 +67,7 @@ local FreeGiftConfig: FreeGiftSettings = {
 		}),
 	},
 	HintSeconds = 3,
+	FavoriteCheckSeconds = 30,
 }
 
 table.freeze(FreeGiftConfig.Steps)

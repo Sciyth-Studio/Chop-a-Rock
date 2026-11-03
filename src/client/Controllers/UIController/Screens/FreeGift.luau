@@ -34,6 +34,8 @@ function FreeGift.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 	local claim = if inner then ShopCards.Find(inner, "ClaimButton") else nil
 	local isBusy = false
+	local hasReadAccess = false
+	local hasFavoritedHere = false
 	local hintThread: thread? = nil
 
 	if body and inner and body:IsA("Frame") and inner:IsA("Frame") then
@@ -69,6 +71,40 @@ function FreeGift.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			hintThread = nil
 			ShopCards.SetText(inner, "Hint", "")
 		end)
+	end
+
+	local function requestReadAccess(): boolean
+		if hasReadAccess then
+			return true
+		end
+		local answer: Enum.AvatarPromptResult? = nil
+		local connection = AvatarEditorService.PromptAllowInventoryReadAccessCompleted:Once(function(result)
+			answer = result
+		end)
+		local ok = pcall(AvatarEditorService.PromptAllowInventoryReadAccess, AvatarEditorService)
+		local deadline = os.clock() + FreeGiftConfig.FavoriteCheckSeconds
+		while ok and answer == nil and os.clock() < deadline do
+			task.wait()
+		end
+		connection:Disconnect()
+		hasReadAccess = answer == Enum.AvatarPromptResult.Success
+		return hasReadAccess
+	end
+
+	local function isFavorited(): boolean?
+		if hasFavoritedHere then
+			return true
+		end
+		if not requestReadAccess() then
+			return nil
+		end
+		local ok, favorited = pcall(
+			AvatarEditorService.GetFavoriteAsync,
+			AvatarEditorService,
+			game.PlaceId,
+			Enum.AvatarItemType.Asset
+		)
+		return if ok and type(favorited) == "boolean" then favorited else nil
 	end
 
 	local function refresh()
@@ -133,6 +169,12 @@ function FreeGift.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end
 			isBusy = true
 			task.spawn(function()
+				if isFavorited() == false then
+					isBusy = false
+					context.Feedback(claim, false)
+					showHint(texts.FavoriteFirst)
+					return
+				end
 				local result = Packets.ClaimFreeGift:Fire()
 				isBusy = false
 				if result == results.Claimed or result == results.AlreadyClaimed then
@@ -153,6 +195,11 @@ function FreeGift.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
+	trove:Connect(AvatarEditorService.PromptSetFavoriteCompleted, function(result: Enum.AvatarPromptResult)
+		if result == Enum.AvatarPromptResult.Success then
+			hasFavoritedHere = true
+		end
+	end)
 	trove:Add(dataController:Observe({ "Offers", FreeGiftConfig.OfferKey }, refresh))
 	trove:Add(function()
 		if hintThread then

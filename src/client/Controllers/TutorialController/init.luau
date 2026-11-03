@@ -318,7 +318,7 @@ local function update(dt: number)
 		detail = idleDetail(detail, button ~= nil, target ~= nil)
 	end
 	local isChopHint = Tutorial.IsChopping(step) and chopController:IsMinigameActive()
-	local isPanelOpen = isOpen("GeodeStand") or isOpen("Shop") or isOpen("SellShop")
+	local isPanelOpen = isOpen("Shop") or isOpen("SellShop")
 	local isQuiet = isChopHint or isPanelOpen
 	setText(if isQuiet then nil else titleFor(step), if isQuiet then nil else detail)
 
@@ -349,7 +349,7 @@ local function update(dt: number)
 		Spotlight.Update(current.Spotlight, button)
 	end
 
-	Layout.Update(current.Layout, not (isOpen("Shop") or isOpen("GeodeStand") or isOpen("SellShop")))
+	Layout.Update(current.Layout, not (isOpen("Shop") or isOpen("SellShop")))
 
 	if current.ChopHint then
 		local isChopStep = Tutorial.IsChopping(step)
