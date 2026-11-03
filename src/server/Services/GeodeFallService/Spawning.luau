@@ -1,7 +1,6 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
@@ -17,38 +16,39 @@ local function flatDistance(a: Vector3, b: Vector3): number
 	return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
 end
 
-function Spawning.PickZone(random: Random, rockService: any, isEligible: (Player) -> boolean): string?
-	local counts: { [string]: number } = {}
-	local total = 0
-	for _, player in Players:GetPlayers() do
-		local character = player.Character
-		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
-		if not root or not root:IsA("BasePart") or not isEligible(player) then
+function Spawning.EligibleZones(peakStrengths: { number }): { string }
+	local zones: { string } = {}
+	for zone, geode in GeodeConfig.Geodes do
+		if not RockSpawnConfig.Zones[zone] then
 			continue
 		end
-		local zone = rockService:GetZoneAt(root.Position)
-		if zone and GeodeConfig.Geodes[zone] and RockSpawnConfig.Zones[zone] then
-			counts[zone] = (counts[zone] or 0) + 1
-			total += 1
+		for _, peak in peakStrengths do
+			if peak >= geode.StrengthRequired then
+				table.insert(zones, zone)
+				break
+			end
 		end
 	end
-	if total == 0 then
-		return nil
-	end
-	local roll = random:NextNumber() * total
-	for zone, count in counts do
-		roll -= count
-		if roll <= 0 then
-			return zone
+	table.sort(zones, function(a: string, b: string): boolean
+		return GeodeConfig.Geodes[a].Order < GeodeConfig.Geodes[b].Order
+	end)
+	return zones
+end
+
+function Spawning.Label(zones: { string }): string
+	local distinct: { [string]: boolean } = {}
+	local count = 0
+	for _, zone in zones do
+		if not distinct[zone] then
+			distinct[zone] = true
+			count += 1
 		end
 	end
-	return next(counts)
+	return if count == 1 then zones[1] else string.format(GeodeFallConfig.ManyZonesText, count)
 end
 
 function Spawning.Count(playerCount: number): number
-	local extra = math.max(0, playerCount - GeodeFallConfig.ExtraAfterPlayers)
-		// GeodeFallConfig.PlayersPerExtra
-	return math.min(GeodeFallConfig.BaseCount + extra, GeodeFallConfig.MaxCount)
+	return math.clamp(playerCount, 1, GeodeFallConfig.MaxCount)
 end
 
 function Spawning.KeepOutPoints(): { Vector3 }
@@ -148,20 +148,6 @@ end
 
 function Spawning.ServerTime(clock: number): number
 	return workspace:GetServerTimeNow() + (clock - os.clock())
-end
-
-function Spawning.PublishFall(fall: Types.Fall?)
-	workspace:SetAttribute(GeodeFallConfig.PillZoneAttribute, if fall then fall.Zone else "")
-	workspace:SetAttribute(
-		GeodeFallConfig.PillLandsAtAttribute,
-		if fall then Spawning.ServerTime(fall.LandsAt) else 0
-	)
-	workspace:SetAttribute(
-		GeodeFallConfig.PillEndsAtAttribute,
-		if fall then Spawning.ServerTime(fall.EndsAt) else 0
-	)
-	workspace:SetAttribute(GeodeFallConfig.PillLeftAttribute, if fall then fall.Left else 0)
-	workspace:SetAttribute(GeodeFallConfig.PillTotalAttribute, if fall then fall.Total else 0)
 end
 
 function Spawning.Hide(model: Model)

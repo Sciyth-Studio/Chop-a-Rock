@@ -110,7 +110,7 @@ local function releaseKey(): string
 	elseif kind == "Gamepad" then
 		return "Press R2"
 	end
-	return "Press E"
+	return "Click"
 end
 
 local function clickVerb(): string
@@ -448,7 +448,7 @@ local hintKinds: { HintKind } = {
 		Shared = CannonHint,
 		View = CannonHintView.View,
 		ScreenName = TutorialConfig.CannonHint.ScreenName,
-		IdleStages = { CannonHint.Buy },
+		IdleStages = { CannonHint.Fire },
 		CloseStages = {},
 	},
 }

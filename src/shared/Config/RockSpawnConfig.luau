@@ -8,8 +8,10 @@ export type Zone = {
 export type RockSpawnSettings = {
 	AreaTag: string,
 	ZoneAttribute: string,
+	EntranceName: string,
 	Zones: { [string]: Zone },
 	SampleSpacingStuds: number,
+	SampleFrameSeconds: number,
 	MaxSlopeDegrees: number,
 	MaxGroundLayers: number,
 	GroundStepStuds: number,
@@ -21,6 +23,7 @@ export type RockSpawnSettings = {
 	PlayerClearanceStuds: number,
 	RespawnSeconds: number,
 	AdminRespawnSeconds: number,
+	ForcedSpawnRadiusStuds: number,
 	RiseSeconds: number,
 	RiseDepthPaddingStuds: number,
 	RiseSlackSeconds: number,
@@ -40,6 +43,7 @@ export type RockSpawnSettings = {
 local RockSpawnConfig: RockSpawnSettings = {
 	AreaTag = "RockSpawnArea",
 	ZoneAttribute = "Zone",
+	EntranceName = "ZoneEntrance",
 	Zones = {
 		Forest = {
 			RockCount = 25,
@@ -61,8 +65,29 @@ local RockSpawnConfig: RockSpawnSettings = {
 			RockCount = 25,
 			Weights = { SnowFirst = 50, SnowSecond = 30, SnowThird = 20 },
 		},
+		Swamp = {
+			RockCount = 25,
+			Weights = { SwampFirst = 50, SwampSecond = 30, SwampThird = 20 },
+		},
+		Savanna = {
+			RockCount = 25,
+			Weights = { SavannaFirst = 50, SavannaSecond = 30, SavannaThird = 20 },
+		},
+		Bamboo = {
+			RockCount = 25,
+			Weights = { BambooFirst = 50, BambooSecond = 30, BambooThird = 20 },
+		},
+		Volcano = {
+			RockCount = 25,
+			Weights = { VolcanoFirst = 50, VolcanoSecond = 30, VolcanoThird = 20 },
+		},
+		Ruins = {
+			RockCount = 25,
+			Weights = { RuinsFirst = 50, RuinsSecond = 30, RuinsThird = 20 },
+		},
 	},
 	SampleSpacingStuds = 4,
+	SampleFrameSeconds = 0.01,
 	MaxSlopeDegrees = 25,
 	MaxGroundLayers = 8,
 	GroundStepStuds = 1.5,
@@ -74,6 +99,7 @@ local RockSpawnConfig: RockSpawnSettings = {
 	PlayerClearanceStuds = 6,
 	RespawnSeconds = 2,
 	AdminRespawnSeconds = 0.2,
+	ForcedSpawnRadiusStuds = 60,
 	RiseSeconds = 0.6,
 	RiseDepthPaddingStuds = 0.5,
 	RiseSlackSeconds = 0.2,
@@ -103,6 +129,21 @@ local RockSpawnConfig: RockSpawnSettings = {
 		SnowFirst = Color3.fromRGB(255, 230, 0),
 		SnowSecond = Color3.fromRGB(255, 120, 0),
 		SnowThird = Color3.fromRGB(255, 0, 0),
+		SwampFirst = Color3.fromRGB(255, 230, 0),
+		SwampSecond = Color3.fromRGB(255, 120, 0),
+		SwampThird = Color3.fromRGB(255, 0, 0),
+		SavannaFirst = Color3.fromRGB(255, 230, 0),
+		SavannaSecond = Color3.fromRGB(255, 120, 0),
+		SavannaThird = Color3.fromRGB(255, 0, 0),
+		BambooFirst = Color3.fromRGB(255, 230, 0),
+		BambooSecond = Color3.fromRGB(255, 120, 0),
+		BambooThird = Color3.fromRGB(255, 0, 0),
+		VolcanoFirst = Color3.fromRGB(255, 230, 0),
+		VolcanoSecond = Color3.fromRGB(255, 120, 0),
+		VolcanoThird = Color3.fromRGB(255, 0, 0),
+		RuinsFirst = Color3.fromRGB(255, 230, 0),
+		RuinsSecond = Color3.fromRGB(255, 120, 0),
+		RuinsThird = Color3.fromRGB(255, 0, 0),
 	},
 }
 

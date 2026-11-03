@@ -17,6 +17,7 @@ export type NotificationSettings = {
 	PinnedLayoutOrder: number,
 	PinPopFromScale: number,
 	PinPopSeconds: number,
+	IconGapPixels: number,
 }
 
 local NotificationConfig: NotificationSettings = {
@@ -51,6 +52,7 @@ local NotificationConfig: NotificationSettings = {
 	PinnedLayoutOrder = -1000,
 	PinPopFromScale = 0.9,
 	PinPopSeconds = 0.25,
+	IconGapPixels = 10,
 }
 
 for key in WeatherConfig.Modifiers do

@@ -40,7 +40,7 @@ function TutorialHud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local function isHinting(): boolean
 		local data = context.Controllers.DataController:Get()
-		return CannonHint.IsShown(data) and CannonHint.StageOf(data) >= CannonHint.Buy
+		return CannonHint.IsShown(data) and CannonHint.StageOf(data) >= CannonHint.Fire
 	end
 
 	local function refresh()

@@ -29,7 +29,7 @@ local function buildPets(preset: AdminConfig.Preset, slotCount: number, index: {
 	local petKeys: { string } = preset.Pets or {}
 	for _, petKey in petKeys do
 		if not PetConfig.Pets[petKey] then
-			warn(`[AdminService] Preset {preset.Id} names unknown Rok {petKey}`)
+			warn(`[AdminService] Preset {preset.Id} names unknown Pet {petKey}`)
 			continue
 		end
 		pets[tostring(nextId)] = {

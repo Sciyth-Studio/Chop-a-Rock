@@ -35,10 +35,6 @@ local function setStage(player: Player, data: any, stage: number, isSkip: boolea
 		dataService:Set(player, { "Hints", settings.FurthestKey }, stage)
 		logEvent(player, settings.EventName, stage)
 	end
-	local cannon = CannonHint.Cannon()
-	if previous == CannonHint.Locked and CannonHint.IsActive(stage) and cannon then
-		services.NotificationService:Notify(player, settings.UnlockKind, `{cannon.DisplayName} unlocked!`)
-	end
 	print(`[CannonHintService] {player.Name} cannon hint {previous} -> {stage}`)
 	dataService:RequestSave(player)
 end

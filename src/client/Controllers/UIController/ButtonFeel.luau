@@ -67,6 +67,10 @@ local function isOff(instance: Instance?): boolean
 	return instance ~= nil and instance:GetAttribute(UIFeelConfig.FeelAttribute) == UIFeelConfig.FeelOff
 end
 
+local function isNoGrow(instance: Instance?): boolean
+	return instance ~= nil and instance:GetAttribute(UIFeelConfig.FeelAttribute) == UIFeelConfig.FeelNoGrow
+end
+
 local function findTilts(visual: GuiObject): { Tilt }
 	local tilts: { Tilt } = {}
 	if visual:GetAttribute(UIFeelConfig.TiltAttribute) ~= true then
@@ -175,7 +179,7 @@ function ButtonFeel.new(trove: TroveInstance): ButtonFeel
 		end
 
 		local buttonTrove = trove:Extend()
-		local scale = if visual then prepareScale(visual) else nil
+		local scale = if visual and not isNoGrow(visual) then prepareScale(visual) else nil
 		local tint = if visual then findTint(visual) else nil
 		local tilts: { Tilt } = if visual then findTilts(visual) else {}
 		local isHovered = false

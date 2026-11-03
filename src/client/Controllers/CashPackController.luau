@@ -3,6 +3,7 @@
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local CashPackConfig = require(ReplicatedStorage.Config.CashPackConfig)
 local CashPack = require(ReplicatedStorage.Utils.CashPack)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
@@ -52,7 +53,8 @@ function CashPackController.Start(_self: any)
 					string.format(
 						CashPackConfig.BoughtFormat,
 						NumberFormat.Compact(CashPack.Value(pack, strength()), 1e3)
-					)
+					),
+					IconConfig.Money
 				)
 			end
 		end

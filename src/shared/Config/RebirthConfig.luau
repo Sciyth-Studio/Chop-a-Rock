@@ -3,7 +3,6 @@
 export type Rebirth = {
 	StrengthRequired: number,
 	CashMultiplier: number,
-	LuckBonus: number,
 }
 
 export type RebirthSettings = {
@@ -22,9 +21,9 @@ export type RebirthSettings = {
 
 local RebirthConfig: RebirthSettings = {
 	BaseStrengthRequired = 100,
-	StrengthGrowth = 125,
+	StrengthGrowth = 5,
 	BaseMultiplier = 1,
-	MultiplierPerRebirth = 0.25,
+	MultiplierPerRebirth = 0.1,
 	MaxAdminRebirths = 100,
 	ResetCash = true,
 	ResetStrength = true,

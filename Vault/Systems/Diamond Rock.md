@@ -1,5 +1,5 @@
 ---
-description: Diamond Rock (built 2026-10-09) - shared server-wide special rock every 10-15 min at a random clear spot in a busy zone, 60 s countdown, paid per hit by damage share; where state lives, how chopping in slots works, admin commands.
+description: Diamond Rock (built 2026-10-09) - shared server-wide special rock rolled by the 5-min Event Clock (since 2026-10-29) at a random clear spot in a busy zone, 60 s countdown, paid per hit by damage share; where state lives, how chopping in slots works, admin commands.
 type: system
 ---
 # Diamond Rock
@@ -7,11 +7,11 @@ type: system
 Approved 2026-10-09. The user rejected dedicated marker spots, so it picks a random clear spot in the zone. All numbers are drafts in `DiamondRockConfig`.
 
 ## Rules
-- **When and where:** every 10-15 min the server picks a zone weighted by how many players stand in its `RockSpawnArea`. If nobody is in a zone it retries in 30 s. `RockService:FindRingSpot` tries up to 300 sampled spots for one where the rock box and all 8 standing spots (a ring at the chop snap distance) are clear and level (`SpawnPoints.FitsRing`). Characters are excluded from the check.
+- **When and where:** since 2026-10-29 the [[Event Clock]] decides when (no own timer). The server picks a zone weighted by how many players stand in its `RockSpawnArea`. If nobody is in a zone, that slot is skipped. `RockService:FindRingSpot` tries up to 300 sampled spots for one where the rock box and all 8 standing spots (a ring at the chop snap distance) are clear and level (`SpawnPoints.FitsRing`). Characters are excluded from the check.
 - **Your rocks in the way:** `RockService:ReserveArea` sinks any per-player rock within the ring plus 4 studs (`RockRemoved` packet) and respawns it elsewhere. New spawns avoid that circle until `ReleaseArea`. Rush rocks and the rock you are chopping are left alone.
 - **Who can chop:** strength of the zone's first rock. Weaker players get the normal too-weak crack.
 - **Numbers:** value = 15x the zone's top rock payout (forest: 12,000; was 50x until 2026-10-10, when a desert diamond with Hot Streak paid a solo player ~9M). Health = top rock strength x Good damage x 45 chops (forest: 4,500). Each hit pays value x damage / max health, then friend, rebirth and Index multipliers. Hot Streak does not multiply it: a diamond chop only keeps the streak alive (`HotStreakService:KeepAlive`) and `ChopResult` carries multiplier 1. A Master deals 5x a Perfect's damage instead of finishing it, so the next round waits `ImpactDelaySeconds + StrikeHoldSeconds + RoundPauseSeconds` (before 2026-10-13 it used only the 0.9 s pause and the meter came back during the cinematic). Countdown 60 s after a 1.2 s rise.
-- **End:** on break or timeout, everyone's chop session ends (`ChopEnded` packet for everyone but the breaker), everyone who earned gets "Diamond Rock: +$X", the area is released and the next timer starts.
+- **End:** on break or timeout, everyone's chop session ends (`ChopEnded` packet for everyone but the breaker), everyone who earned gets "Diamond Rock: +$X", and the area is released.
 
 ## Where things live
 - Server: `DiamondRockService` (`init` state, sessions and timer; `Spawning` zone pick, stats, model; `Chopping` damage, payout, slot pick). The rock is a real server part, `Workspace.DiamondRock` (Model, Persistent streaming, tag `DiamondRock`), with attributes on `Rock`: `Zone`, `Health`, `MaxHealth`, `EndsAt` (server time), `StrengthRequired`, `ChopSlots`. Chop start reuses `ChopMinigameStart` with the part.
@@ -26,4 +26,7 @@ Playtest, one player: spawned in the forest, beacon, label, pill and prompt up; 
 
 2026-10-21: a Master on a Diamond Rock left the letterbox up until the rock died (it closed only on chop end). `ChopController` now closes it on the next `ChopRoundStart`. User-tested in the snow zone: a strong save one-shots the forest diamond with a Master, so test multi-hit behaviour in a later zone.
 
-Related: [[Rock Spawning]], [[Rush Rocks]], [[Chop Effects]], [[Admin Panel]]
+Related: [[Rock Spawning]], [[Golden Rocks]], [[Chop Effects]], [[Admin Panel]]
+
+## Change 2026-11-03 (user)
+The `DiamondRockPill` timer is gone; the spawn notification names the zone.

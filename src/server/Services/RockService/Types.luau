@@ -15,6 +15,7 @@ export type Spot = {
 	Position: Vector3,
 	Fits: { [string]: boolean },
 	Largest: string?,
+	Strip: number?,
 }
 
 export type Rock = {
@@ -33,13 +34,6 @@ export type Reserved = {
 	Zone: string,
 	Position: Vector3,
 	Radius: number,
-}
-
-export type RushState = {
-	ChopSeconds: number,
-	LastChopAt: number?,
-	ActiveId: number?,
-	IsScheduled: boolean,
 }
 
 export type Session = {

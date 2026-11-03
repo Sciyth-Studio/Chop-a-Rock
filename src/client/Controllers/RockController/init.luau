@@ -9,17 +9,17 @@ local LiveSplit = require(ReplicatedStorage.Utils.LiveSplit)
 local LoadingCoverConfig = require(ReplicatedStorage.Config.LoadingCoverConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
+local GoldenRockConfig = require(ReplicatedStorage.Config.GoldenRockConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RockTemplate = require(ReplicatedStorage.RockTemplate)
-local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local Diamond = require(script.Diamond)
 local Effects = require(script.Effects)
 local GeodeFall = require(script.GeodeFall)
-local Rush = require(script.Rush)
+local Golden = require(script.Golden)
 local SpotDots = require(script.SpotDots)
 
 type TroveInstance = typeof(Trove.new())
@@ -30,7 +30,7 @@ type ClientRock = {
 	Prompt: ProximityPrompt,
 	IsUp: boolean,
 	IsBroken: boolean,
-	Rush: Rush.Look?,
+	StopGolden: (() -> ())?,
 	Split: LiveSplit.Prepared?,
 }
 
@@ -74,8 +74,8 @@ local function remove(id: number)
 		return
 	end
 	rocks[id] = nil
-	if rock.Rush then
-		rock.Rush.End(false)
+	if rock.StopGolden then
+		rock.StopGolden()
 	end
 	if rock.Split then
 		LiveSplit.Discard(rock.Split)
@@ -110,16 +110,6 @@ local function setWeather(id: number, weather: string)
 	if rock and not rock.IsBroken then
 		rock.Part:SetAttribute(WeatherConfig.RockWeatherAttribute, weather)
 	end
-end
-
-local function endRush(id: number)
-	local rock = rocks[id]
-	local look = if rock then rock.Rush else nil
-	if not rock or not look then
-		return
-	end
-	rock.Rush = nil
-	look.End(not rock.IsBroken)
 end
 
 local function spawn(
@@ -165,17 +155,13 @@ local function spawn(
 		Prompt = prompt,
 		IsUp = false,
 		IsBroken = false,
-		Rush = nil,
+		StopGolden = nil,
 		Split = nil,
 	}
 	rocks[id] = rock
 	LiveSplit.Preload(part)
-	if modifier == RushRockConfig.Modifier then
-		rock.Rush = Rush.Start(
-			part,
-			target,
-			os.clock() + RockSpawnConfig.RiseSeconds + RushRockConfig.CountdownSeconds
-		)
+	if modifier == GoldenRockConfig.Modifier then
+		rock.StopGolden = Golden.Start(part)
 	end
 	prompt.Triggered:Connect(function()
 		if rock.IsUp and not rock.IsBroken then
@@ -195,9 +181,10 @@ end
 local function breakRock(rock: ClientRock, quality: number)
 	local configs: { [string]: RockConfig.Rock } = RockConfig.Rocks
 	local piecesSeconds = configs[rock.Key].RespawnSeconds
-	if rock.Rush then
-		Rush.Burst(rock.Part)
-		endRush(rock.Id)
+	if rock.StopGolden then
+		Golden.Burst(rock.Part)
+		rock.StopGolden()
+		rock.StopGolden = nil
 	end
 	Effects.Break(rock.Part, quality, piecesSeconds, rock.Split)
 	task.delay(piecesSeconds, function()
@@ -271,7 +258,6 @@ function RockController.Start(self: any)
 	trove:Add(Packets.RockSpawned.OnClientEvent:Connect(spawn))
 	trove:Add(Packets.RockChopped.OnClientEvent:Connect(onChopped))
 	trove:Add(Packets.RockMinigameStart.OnClientEvent:Connect(prepareSplit))
-	trove:Add(Packets.RockRushEnded.OnClientEvent:Connect(endRush))
 	trove:Add(Packets.RockRemoved.OnClientEvent:Connect(sinkAway))
 	trove:Add(Packets.RockWeatherSet.OnClientEvent:Connect(setWeather))
 	Diamond.Start(trove, chopController)

@@ -7,6 +7,7 @@ local LiveSplitConfig = require(ReplicatedStorage.Config.LiveSplitConfig)
 export type Corner = {
 	Position: Vector3,
 	Uv: Vector2,
+	Color: Color3?,
 }
 
 export type Mesh = {
@@ -33,7 +34,12 @@ local function pointKey(point: Vector3): string
 end
 
 local function lerpCorner(a: Corner, b: Corner, alpha: number): Corner
-	return { Position = a.Position:Lerp(b.Position, alpha), Uv = a.Uv:Lerp(b.Uv, alpha) }
+	local aColor, bColor = a.Color, b.Color
+	return {
+		Position = a.Position:Lerp(b.Position, alpha),
+		Uv = a.Uv:Lerp(b.Uv, alpha),
+		Color = if aColor and bColor then aColor:Lerp(bColor, alpha) else nil,
+	}
 end
 
 local function fan(polygon: { Corner }, into: { { Corner } })
@@ -68,33 +74,53 @@ local function buildLoops(segments: { { Vector3 } }): { { Vector3 } }
 	return loops
 end
 
-local function addCaps(mesh: Mesh, segments: { { Vector3 } }, outward: Vector3, into: { { Corner } })
+local function addCaps(
+	mesh: Mesh,
+	segments: { { Vector3 } },
+	colors: { [string]: Color3 },
+	outward: Vector3,
+	into: { { Corner } }
+)
 	local tangent = if math.abs(outward.Y) < 0.9
 		then outward:Cross(Vector3.yAxis).Unit
 		else outward:Cross(Vector3.xAxis).Unit
 	local bitangent = outward:Cross(tangent)
-	local function corner(position: Vector3): Corner
+	local function corner(position: Vector3, color: Color3?): Corner
 		return {
 			Position = position,
 			Uv = Vector2.new(position:Dot(tangent), position:Dot(bitangent)) * mesh.UvPerStud,
+			Color = color,
 		}
 	end
 	for _, loop in buildLoops(segments) do
 		local center = Vector3.zero
+		local sum = Vector3.zero
+		local colored = 0
 		for _, point in loop do
 			center += point
+			local color = colors[pointKey(point)]
+			if color then
+				sum += Vector3.new(color.R, color.G, color.B)
+				colored += 1
+			end
 		end
 		center /= #loop
+		local centerColor = if colored > 0
+			then Color3.new(sum.X / colored, sum.Y / colored, sum.Z / colored)
+			else nil
 		for index, point in loop do
 			local nextPoint = loop[index % #loop + 1]
 			local facing = (point - center):Cross(nextPoint - center) * mesh.Winding
 			if facing.Magnitude < minimumArea then
 				continue
 			end
+			local middle = corner(center, centerColor)
+			local first = corner(point, colors[pointKey(point)])
+			local second = corner(nextPoint, colors[pointKey(nextPoint)])
 			if facing:Dot(outward) >= 0 then
-				table.insert(into, { corner(center), corner(point), corner(nextPoint) })
+				table.insert(into, { middle, first, second })
 			else
-				table.insert(into, { corner(center), corner(nextPoint), corner(point) })
+				table.insert(into, { middle, second, first })
 			end
 		end
 	end
@@ -127,12 +153,15 @@ function MeshSlicer.Read(meshId: string): Mesh?
 			continue
 		end
 		local uvs = editable:GetFaceUVs(face)
+		local colors = editable:GetFaceColors(face)
 		local corners: { Corner } = {}
 		for index, vertex in vertices do
 			local uvId = uvs[index]
+			local colorId = colors[index]
 			table.insert(corners, {
 				Position = editable:GetPosition(vertex),
 				Uv = (if uvId then editable:GetUV(uvId) else nil) or Vector2.zero,
+				Color = if colorId then editable:GetColor(colorId) else nil,
 			})
 		end
 		table.insert(triangles, corners)
@@ -158,7 +187,7 @@ function MeshSlicer.Scale(mesh: Mesh, scale: Vector3): Mesh
 	for _, triangle in mesh.Triangles do
 		local corners: { Corner } = {}
 		for index, corner in triangle do
-			corners[index] = { Position = corner.Position * scale, Uv = corner.Uv }
+			corners[index] = { Position = corner.Position * scale, Uv = corner.Uv, Color = corner.Color }
 		end
 		table.insert(triangles, corners)
 	end
@@ -169,6 +198,7 @@ function MeshSlicer.Split(mesh: Mesh, point: Vector3, normal: Vector3): (Mesh?, 
 	local above: { { Corner } } = {}
 	local below: { { Corner } } = {}
 	local segments: { { Vector3 } } = {}
+	local colors: { [string]: Color3 } = {}
 	for _, triangle in mesh.Triangles do
 		local distances: { number } = {}
 		local hasAbove = false
@@ -204,6 +234,9 @@ function MeshSlicer.Split(mesh: Mesh, point: Vector3, normal: Vector3): (Mesh?, 
 				local crossing = lerpCorner(a, triangle[nextIndex], distanceA / (distanceA - distanceB))
 				table.insert(abovePolygon, crossing)
 				table.insert(belowPolygon, crossing)
+				if crossing.Color then
+					colors[pointKey(crossing.Position)] = crossing.Color
+				end
 				if distanceA > 0 then
 					exitPoint = crossing.Position
 				else
@@ -222,8 +255,8 @@ function MeshSlicer.Split(mesh: Mesh, point: Vector3, normal: Vector3): (Mesh?, 
 	end
 	local aboveMesh: Mesh = { Triangles = above, Winding = mesh.Winding, UvPerStud = mesh.UvPerStud }
 	local belowMesh: Mesh = { Triangles = below, Winding = mesh.Winding, UvPerStud = mesh.UvPerStud }
-	addCaps(aboveMesh, segments, -normal, above)
-	addCaps(belowMesh, segments, normal, below)
+	addCaps(aboveMesh, segments, colors, -normal, above)
+	addCaps(belowMesh, segments, colors, normal, below)
 	return aboveMesh, belowMesh
 end
 
@@ -254,12 +287,20 @@ function MeshSlicer.Build(mesh: Mesh, template: MeshPart): MeshPart?
 		end
 		local vertices = {}
 		local uvs = {}
+		local colors = {}
 		for index, corner in triangle do
 			vertices[index] = builder:AddVertex(corner.Position - center)
 			uvs[index] = builder:AddUV(corner.Uv)
+			local color = corner.Color
+			if color then
+				colors[index] = builder:AddColor(color, 1)
+			end
 		end
 		local face = builder:AddTriangle(vertices[1], vertices[2], vertices[3])
 		builder:SetFaceUVs(face, uvs)
+		if #colors == 3 then
+			builder:SetFaceColors(face, colors)
+		end
 	end
 	local copied, copy = pcall(function()
 		return AssetService:CreateEditableMeshAsync(Content.fromObject(builder), { FixedSize = true })

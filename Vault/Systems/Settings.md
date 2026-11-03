@@ -16,6 +16,6 @@ Layout copied from a horse-game settings screenshot the user liked (2026-10-07),
 - `SettingsController`: each sound group's volume = base × `Volume`, or 0 when its toggle is off. Low Graphics sets the player attribute `LowGraphics` and turns off `Lighting.GlobalShadows`.
 - `Utils/LowGraphics`: `EmitScale()` (0.4) scales chop particle counts and chunk counts in `RockController/Effects`. The cash-pop burst is skipped; the coins stay.
 - Notifications off: `NotificationController:Notify` drops everything, server and client notifications alike.
-- Auto Equip: `PetService.Granted` fires after each new Rok, and `PedestalService` then runs Equip Best.
+- Auto Equip: `PetService.Granted` fires after each new Pet, and `PedestalService` then runs Equip Best.
 
 Related: [[Pedestals]], [[Menu Panel Style]]

@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
@@ -13,6 +14,7 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Chopping = require(script.Chopping)
 local Spawning = require(script.Spawning)
 local Types = require(script.Types)
@@ -25,10 +27,6 @@ local services: { [string]: any } = {}
 
 local current: Types.Diamond? = nil
 local sessions: { [Player]: Types.Session } = {}
-local timerGeneration = 0
-local endedAt = -math.huge
-
-local scheduleNext: (delaySeconds: number?) -> ()
 
 local function rootPosition(player: Player): Vector3?
 	local character = player.Character
@@ -53,7 +51,6 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 		return
 	end
 	diamond.IsEnding = true
-	endedAt = os.clock()
 	for player, session in sessions do
 		if session.Diamond ~= diamond then
 			continue
@@ -68,7 +65,8 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 			services.NotificationService:Notify(
 				player,
 				DiamondRockConfig.EarnedKind,
-				string.format(DiamondRockConfig.EarnedText, NumberFormat.CompactRock(earned))
+				string.format(DiamondRockConfig.EarnedText, NumberFormat.CompactRock(earned)),
+				IconConfig.Money
 			)
 		end
 	end
@@ -81,7 +79,6 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 		diamond.Model:Destroy()
 		if current == diamond then
 			current = nil
-			scheduleNext()
 		end
 	end)
 	print(`[DiamondRockService] Diamond Rock in {diamond.Zone} {if isBroken then "broken" else "timed out"}`)
@@ -114,6 +111,7 @@ local function spawnDiamond(zone: string?): (boolean, string)
 		return false, `{pickedZone} has no rocks`
 	end
 	local part = Spawning.Template()
+	ZoneScale.Apply(part, ZoneScale.Of(pickedZone))
 	local standDistance = Spawning.StandDistance(part.Size)
 	local position = services.RockService:FindRingSpot(
 		pickedZone,
@@ -163,22 +161,6 @@ local function spawnDiamond(zone: string?): (boolean, string)
 	end
 	print(`[DiamondRockService] Diamond Rock in {pickedZone}: health={maxHealth}, value={diamond.Value}`)
 	return true, `Diamond Rock in the {pickedZone}`
-end
-
-function scheduleNext(delaySeconds: number?)
-	timerGeneration += 1
-	local generation = timerGeneration
-	local seconds = delaySeconds
-		or random:NextNumber(DiamondRockConfig.IntervalMinSeconds, DiamondRockConfig.IntervalMaxSeconds)
-	task.delay(seconds, function()
-		if generation ~= timerGeneration or current then
-			return
-		end
-		local spawned = spawnDiamond(nil)
-		if not spawned then
-			scheduleNext(DiamondRockConfig.NoPlayersRetrySeconds)
-		end
-	end)
 end
 
 local function scheduleNextRound(player: Player, session: Types.Session, isMaster: boolean)
@@ -274,7 +256,13 @@ local function onRelease(player: Player, claimed: number)
 	end
 
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
-	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
+	local isTouch = ChopZones.IsTouch(player)
+	local quality = ChopZones.Classify(
+		ChopZones.Position(elapsed, isTouch),
+		session.Center,
+		session.StrengthRatio,
+		isTouch
+	)
 	local rockService = services.RockService
 	if rockService:ConsumeForcedMaster(player) or rockService:RollMaster(quality, session.StrengthRatio) then
 		quality = ChopQuality.Master
@@ -324,7 +312,6 @@ function DiamondRockService.Start(_self: any)
 			current.Earned[player] = nil
 		end
 	end))
-	scheduleNext()
 end
 
 function DiamondRockService.EndSession(_self: any, player: Player)
@@ -337,10 +324,6 @@ end
 
 function DiamondRockService.IsActive(_self: any): boolean
 	return current ~= nil
-end
-
-function DiamondRockService.SecondsSinceEnded(_self: any): number
-	return os.clock() - endedAt
 end
 
 function DiamondRockService.Spawn(_self: any, player: Player?): (boolean, string)
@@ -362,7 +345,6 @@ end
 
 function DiamondRockService.Destroy(_self: any)
 	trove:Clean()
-	timerGeneration += 1
 	if current then
 		current.Model:Destroy()
 		current = nil

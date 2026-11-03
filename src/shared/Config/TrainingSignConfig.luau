@@ -47,9 +47,9 @@ local TrainingSignConfig: TrainingSignSettings = {
 	},
 	Messages = {
 		Cash = "Not enough cash",
-		Locked = "Rebirth %d to unlock %s Training",
-		Max = "Your training is maxed out",
-		Failed = "Upgrade failed, try again",
+		Locked = "Need Rebirth %d!",
+		Max = "Training maxed!",
+		Failed = "Try again!",
 	},
 	UpgradedFormat = "%s Training unlocked!",
 	UpgradedKind = "Unlock",

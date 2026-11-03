@@ -7,8 +7,6 @@ local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 
 local CannonHint = {
 	Locked = 0,
-	Save = 1,
-	Buy = 2,
 	Fire = 3,
 	Done = 4,
 }
@@ -52,14 +50,10 @@ function CannonHint.Decide(data: any): number
 	if Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 		return stage
 	end
-	local strong = (data.Strength or 0) >= cannon.StrengthRequired
-	if stage == CannonHint.Locked and ((data.Rebirths or 0) < settings.MinRebirths or not strong) then
-		return stage
-	end
 	if type(data.Cannons) == "table" and data.Cannons[cannon.Key] then
 		return CannonHint.Fire
 	end
-	return if (data.Cash or 0) >= cannon.Price then CannonHint.Buy else CannonHint.Save
+	return stage
 end
 
 function CannonHint.IsShown(data: any): boolean
@@ -71,7 +65,7 @@ function CannonHint.IsShown(data: any): boolean
 	if Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 		return false
 	end
-	return stage == CannonHint.Fire or (data.Strength or 0) >= cannon.StrengthRequired
+	return stage == CannonHint.Fire and (data.Strength or 0) >= cannon.StrengthRequired
 end
 
 return table.freeze(CannonHint)

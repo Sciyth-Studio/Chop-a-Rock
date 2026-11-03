@@ -5,7 +5,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local GuideConfig = require(ReplicatedStorage.Config.GuideConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
-local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
@@ -66,8 +65,7 @@ local function attach(trove: TroveInstance, part: Instance)
 	template.MaxDistance = GuideConfig.LabelMaxDistance
 	template.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + GuideConfig.LabelHeightAboveRock, 0)
 	nameLabel.Text = config.DisplayName
-	requirementLabel.Text =
-		`Strength {NumberFormat.CompactRock(config.StrengthRequired)} {TrainingConfig.StrengthUnit}`
+	requirementLabel.Text = `Strength {NumberFormat.CompactRock(config.StrengthRequired)}`
 
 	template.Parent = part
 	labels[part] = template

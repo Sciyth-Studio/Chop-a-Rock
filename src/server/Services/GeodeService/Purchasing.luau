@@ -65,13 +65,9 @@ function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, a
 	dataService:Set(player, { "Geodes", geodeKey }, (data.Geodes[geodeKey] or 0) + amount)
 	dataService:RequestSave(player)
 	local notifications = context.Services.NotificationService
-	notifications:Notify(
-		player,
-		"Purchase",
-		if amount == 1 then `Bought a {geode.DisplayName}!` else `Bought {amount} {geode.DisplayName}s!`
-	)
+	notifications:Notify(player, "Purchase", `+{amount} {geode.DisplayName}`)
 	if isFirst then
-		notifications:Notify(player, "Info", "Crack it at your base!")
+		notifications:Notify(player, "Info", "Crack it at base!")
 	end
 	print(`[GeodeService] {player.Name} bought {amount} {geodeKey} for {price}`)
 	return true

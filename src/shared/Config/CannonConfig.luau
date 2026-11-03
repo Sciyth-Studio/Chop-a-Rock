@@ -7,7 +7,6 @@ export type Cannon = {
 	DisplayName: string,
 	ZoneName: string,
 	ZoneNumber: number,
-	Price: number,
 	StrengthRequired: number,
 	Color: Color3,
 	Marker: string,
@@ -39,7 +38,23 @@ export type CannonSounds = {
 export type ShopStyle = {
 	Outline: Color3,
 	EquippedOutline: Color3,
-	FireButton: ShopConfig.MeterColors,
+	EquipButton: ShopConfig.MeterColors,
+	EquippedButton: ShopConfig.MeterColors,
+}
+
+export type FireButtonStyle = {
+	ScreenName: string,
+	Colors: ShopConfig.MeterColors,
+	Text: string,
+}
+
+export type TriggerSettings = {
+	FolderName: string,
+	EntryName: string,
+	AreaName: string,
+	CheckSeconds: number,
+	WindowSeconds: number,
+	GraceSeconds: number,
 }
 
 export type CannonSettings = {
@@ -69,6 +84,8 @@ export type CannonSettings = {
 	Effects: CannonEffects,
 	Sounds: CannonSounds,
 	Shop: ShopStyle,
+	FireButton: FireButtonStyle,
+	Trigger: TriggerSettings,
 	Cannons: { Cannon },
 }
 
@@ -114,11 +131,25 @@ local CannonConfig: CannonSettings = {
 	Shop = {
 		Outline = Color3.fromRGB(0, 0, 0),
 		EquippedOutline = Color3.fromRGB(0, 255, 60),
-		FireButton = {
+		EquipButton = ShopConfig.Palette.Orange,
+		EquippedButton = ShopConfig.Palette.Grey,
+	},
+	FireButton = {
+		ScreenName = "CannonFire",
+		Colors = {
 			Edge = Color3.fromRGB(225, 0, 0),
 			Center = Color3.fromRGB(255, 110, 90),
 			Studs = Color3.fromRGB(150, 0, 0),
 		},
+		Text = "Fire Cannon",
+	},
+	Trigger = {
+		FolderName = "CannonTrigger",
+		EntryName = "Entry",
+		AreaName = "Area",
+		CheckSeconds = 0.2,
+		WindowSeconds = 5,
+		GraceSeconds = 0.5,
 	},
 	Cannons = {
 		{
@@ -126,7 +157,6 @@ local CannonConfig: CannonSettings = {
 			DisplayName = "Desert Cannon",
 			ZoneName = "Desert",
 			ZoneNumber = 2,
-			Price = 80000,
 			StrengthRequired = 500,
 			Color = Color3.fromRGB(255, 170, 0),
 			Marker = "CannonDesert",
@@ -136,7 +166,6 @@ local CannonConfig: CannonSettings = {
 			DisplayName = "Jungle Cannon",
 			ZoneName = "Jungle",
 			ZoneNumber = 3,
-			Price = 5100000,
 			StrengthRequired = 62500,
 			Color = Color3.fromRGB(0, 210, 40),
 			Marker = "CannonJungle",
@@ -146,7 +175,6 @@ local CannonConfig: CannonSettings = {
 			DisplayName = "Ocean Cannon",
 			ZoneName = "Ocean",
 			ZoneNumber = 4,
-			Price = 328000000,
 			StrengthRequired = 7812500,
 			Color = Color3.fromRGB(0, 90, 255),
 			Marker = "CannonOcean",
@@ -156,10 +184,54 @@ local CannonConfig: CannonSettings = {
 			DisplayName = "Snow Cannon",
 			ZoneName = "Snow",
 			ZoneNumber = 5,
-			Price = 21000000000,
 			StrengthRequired = 976562500,
 			Color = Color3.fromRGB(140, 220, 255),
 			Marker = "CannonSnow",
+		},
+		{
+			Key = "Swamp",
+			DisplayName = "Swamp Cannon",
+			ZoneName = "Swamp",
+			ZoneNumber = 6,
+			StrengthRequired = 122070312500,
+			Color = Color3.fromRGB(120, 170, 30),
+			Marker = "CannonSwamp",
+		},
+		{
+			Key = "Savanna",
+			DisplayName = "Savanna Cannon",
+			ZoneName = "Savanna",
+			ZoneNumber = 7,
+			StrengthRequired = 15258789062500,
+			Color = Color3.fromRGB(205, 95, 50),
+			Marker = "CannonSavanna",
+		},
+		{
+			Key = "Bamboo",
+			DisplayName = "Bamboo Cannon",
+			ZoneName = "Bamboo",
+			ZoneNumber = 8,
+			StrengthRequired = 1907348632812500,
+			Color = Color3.fromRGB(0, 170, 130),
+			Marker = "CannonBamboo",
+		},
+		{
+			Key = "Volcano",
+			DisplayName = "Volcano Cannon",
+			ZoneName = "Volcano",
+			ZoneNumber = 9,
+			StrengthRequired = 2.384185791015625e17,
+			Color = Color3.fromRGB(230, 40, 30),
+			Marker = "CannonVolcano",
+		},
+		{
+			Key = "Ruins",
+			DisplayName = "Ruins Cannon",
+			ZoneName = "Ruins",
+			ZoneNumber = 10,
+			StrengthRequired = 2.98023223876953125e19,
+			Color = Color3.fromRGB(140, 60, 220),
+			Marker = "CannonRuins",
 		},
 	},
 }

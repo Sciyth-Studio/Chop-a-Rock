@@ -42,6 +42,7 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 	if data.Strength < nextRebirth.StrengthRequired then
 		return false
 	end
+	services.TrainingService:Stop(player)
 	local values: { [string]: any } = { Rebirths = data.Rebirths + 1 }
 	local lostCash = if RebirthConfig.ResetCash then data.Cash else 0
 	if RebirthConfig.ResetCash then

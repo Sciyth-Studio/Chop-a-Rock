@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
+local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 
 local RockTemplate = {}
 
@@ -14,6 +15,7 @@ function RockTemplate.Build(key: string): BasePart?
 	end
 	local asset = AssetRegistry.get(config.TemplateKey)
 	if asset:IsA("BasePart") and asset:GetAttribute("RockKey") == key then
+		ZoneScale.Apply(asset, ZoneScale.OfRock(key))
 		for _, descendant in asset:GetDescendants() do
 			if descendant:IsA("BasePart") then
 				descendant.Anchored = false
@@ -33,7 +35,7 @@ function RockTemplate.Build(key: string): BasePart?
 	asset:Destroy()
 	local part = Instance.new("Part")
 	part.Name = `Rock_{key}`
-	part.Size = config.PlaceholderSize
+	part.Size = config.PlaceholderSize * ZoneScale.OfRock(key)
 	part.Color = config.PlaceholderColor
 	part.Material = Enum.Material.Slate
 	part:SetAttribute("RockKey", key)

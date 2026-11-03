@@ -12,7 +12,7 @@ The user studied a successful game and wanted its model. Strength is the one sta
 - Stands are `TrainingConfig.Stands`: Wood R0 1, Brick R1 25, Steel R2 2,500, Vault R3 300K, Energy Core R4 40M, Cosmic R5 5B per rep, each × the arm multiplier. That's about 10 minutes of training without arms per zone. `ChopIntervalSeconds` is now 1 (was 1.6). The strike animation still fits: 0.21 s lead + 0.35 s hold.
 - The user agreed the stand only changes looks and feel. Its set strength per rep is the training output, and the rebirth count gives no strength multiplier.
 - Rebirth keeps a cash multiplier and the luck bonus. 2026-10-16 the user felt cash was far too easy and cut it to 1 + 0.25 × N (`MultiplierPerRebirth` 0.25, was 1). It only ever applied to chop and Diamond Rock pay, never pedestal income. The draft stand prices below assumed the old ×(1 + N), so they are now steeper relative to chop income.
-- Rebirth also clears uncollected pedestal pad money (2026-10-18). Before that, the money survived a rebirth and paid into the fresh wallet. Placed Roks stay. See [[Pedestals]].
+- Rebirth also clears uncollected pedestal pad money (2026-10-18). Before that, the money survived a rebirth and paid into the fresh wallet. Placed Pets stay. See [[Pedestals]].
 - Arms still multiply training (Claude's default; the user didn't object).
 - Every zone after Snow needs a new stand.
 - Considered and dropped: gating stands by zones (5 zones vs 6 stands, and zones already give walk speed), by arms (duplicates the money lever), by level (resets on rebirth, so the stand would downgrade), and buying stands with cash (a second money-bought training multiplier, and a bad time to make kids pay right after a rebirth).
@@ -30,3 +30,9 @@ In a balance review the user said Robux should "pay for currency to upgrade trai
 
 ## Change 2026-10-21: cash packs replace the stand products
 Instead of renaming them, the user chose generic currency products "that can fill the gap": the [[Cash Packs]]. The sign's Robux button is gone. Pressing the cash button while short of cash opens the Robux prompt for the smallest pack that covers it. The five stand products are off sale on Roblox. `RobuxPrice`, `RobuxProductId` and `GrantStandCash` were removed.
+
+## Change 2026-11-03: rebirth luck removed
+The user removed the rebirth luck bonus. Rebirth now gives cash multiplier and the stand unlock only. Rebirthing also stops training. Rebirth pacing is under review (see [[To Do]]).
+
+## Change 2026-11-03: one rebirth per rock (user)
+The user chose a rebirth at every rock over every 2 rocks. `StrengthGrowth` is 5, so gates are 100, 500, 2,500, 12,500 and so on: three rebirths per zone, and each rebirth opens one new rock because the strength cap is the next gate. Drafts, not in the [[Balance Model]] yet: stands unlock at rebirths 1, 4, 7, 10, 13, so each stand arrives at the same strength as before, and `MultiplierPerRebirth` is 0.1 (was 0.25). No per-rebirth training multiplier was added. Reaching 12,500 now takes 720 reps at x1 aura, against 600 before, so the longest run of each stand is unchanged (500 reps on Brick). Old saves are not migrated: their rebirth count is below the new scale and their gates are low until they catch up.

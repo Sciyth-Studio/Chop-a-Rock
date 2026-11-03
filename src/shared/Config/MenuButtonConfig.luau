@@ -8,14 +8,6 @@ export type MenuButton = {
 export type MenuButtonSettings = {
 	ButtonSuffix: string,
 	ClickButtonName: string,
-	ContainerName: string,
-	LayoutStoreName: string,
-	PhoneLayoutName: string,
-	PhoneMaxShortSidePixels: number,
-	PhoneColumns: number,
-	PhoneTopPixels: number,
-	ButtonSizePixels: number,
-	ButtonGapPixels: number,
 	Buttons: { MenuButton },
 	Badge: {
 		Buttons: { string },
@@ -31,14 +23,6 @@ export type MenuButtonSettings = {
 local MenuButtonConfig: MenuButtonSettings = {
 	ButtonSuffix = "Button",
 	ClickButtonName = "Button",
-	ContainerName = "Container",
-	LayoutStoreName = "LayoutStore",
-	PhoneLayoutName = "PhoneLayout",
-	PhoneMaxShortSidePixels = 600,
-	PhoneColumns = 4,
-	PhoneTopPixels = 8,
-	ButtonSizePixels = 96,
-	ButtonGapPixels = 16,
 	Buttons = {
 		{ Name = "Shop", Screen = "RobuxShop" },
 		{ Name = "Index", Screen = "Index" },

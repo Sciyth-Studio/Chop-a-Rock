@@ -131,8 +131,6 @@ local IntroConfig: IntroSettings = {
 		"OfferRail",
 		"Notifications",
 		"WeatherPill",
-		"DiamondRockPill",
-		"GeodeFallPill",
 		"TrainingHint",
 		"Toolbar",
 	},

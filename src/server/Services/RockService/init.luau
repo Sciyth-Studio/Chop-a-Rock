@@ -13,16 +13,22 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
-local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
+local GoldenRockConfig = require(ReplicatedStorage.Config.GoldenRockConfig)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
-local Rush = require(script.Rush)
+local FirstMaster = require(script.FirstMaster)
 local Session = require(script.Session)
 local SpawnPoints = require(script.SpawnPoints)
 local Spawner = require(script.Spawner)
+local Strips = require(script.Strips)
 local Types = require(script.Types)
 
-local RockService = { Name = "RockService" }
+local RockService = {
+	Name = "RockService",
+	Chopped = Signal.new() :: Signal.Signal<Player>,
+	RockBroken = Signal.new() :: Signal.Signal<Player, string, Vector3, number>,
+}
 
 local trove = Trove.new()
 local random = Random.new()
@@ -30,17 +36,20 @@ local services: { [string]: any } = {}
 
 local shapes: { [string]: Types.Shape } = {}
 local spots: { [string]: { Types.Spot } } = {}
+local strips: { [string]: { [string]: number } } = {}
 local owned: { [Player]: { [number]: Types.Rock } } = {}
 local generations: { [Player]: number } = {}
 local sessions: { [Player]: Types.Session } = {}
 local forcedMasters: { [Player]: boolean } = {}
 local forcedQualities: { [Player]: number } = {}
 local cheats: { [Player]: { [string]: boolean } } = {}
-local rushStates: { [Player]: Types.RushState } = {}
+local forcedGolden: { [Player]: boolean } = {}
 local spotViewers: { [Player]: true } = {}
 local warned: { [string]: boolean } = {}
 local areas: { BasePart } = {}
 local reserved: { [string]: Types.Reserved } = {}
+local waiting: { [Player]: true } = {}
+local isSampled = false
 local nextId = 0
 
 local cheatNames: { [string]: boolean } = {
@@ -79,27 +88,18 @@ local function zoneRocks(rocks: { [number]: Types.Rock }, zone: string): { Types
 	return list
 end
 
-local expireRush: (player: Player, rock: Types.Rock) -> ()
-
-function expireRush(player: Player, rock: Types.Rock)
-	local rocks = owned[player]
-	if not rocks or rocks[rock.Id] ~= rock or rock.Modifier ~= RushRockConfig.Modifier then
-		return
+local function rollGolden(player: Player): boolean
+	if forcedGolden[player] then
+		forcedGolden[player] = nil
+		return true
 	end
-	local session = sessions[player]
-	if session and session.Rock == rock then
-		task.delay(RushRockConfig.ExpiryRecheckSeconds, expireRush, player, rock)
-		return
-	end
-	rock.Modifier = nil
-	local state = rushStates[player]
-	if state and state.ActiveId == rock.Id then
-		state.ActiveId = nil
-	end
-	Packets.RockRushEnded:FireClient(player, rock.Id)
+	local data = services.DataService:GetData(player)
+	return data ~= nil
+		and not Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
+		and random:NextNumber() < GoldenRockConfig.Chance
 end
 
-local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKey: string?): boolean
+local function spawnRock(player: Player, zone: string, forcedKey: string?): boolean
 	local rocks = owned[player]
 	local zoneConfig = RockSpawnConfig.Zones[zone]
 	if not rocks or not zoneConfig then
@@ -107,17 +107,6 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 	end
 	local existing = zoneRocks(rocks, zone)
 	local key = forcedKey or Spawner.PickKey(random, zoneConfig.Weights, zoneConfig.RockCount, existing)
-	local rushState = rushStates[player]
-	if isRush and rushState then
-		local rushKey =
-			Rush.PickKey(zoneConfig.Weights, shapes, services.StatsService:GetStrength(player), key)
-		if rushKey then
-			key = rushKey
-		else
-			isRush = false
-			rushState.IsScheduled = false
-		end
-	end
 	local shape = if key then shapes[key] else nil
 	local configs: { [string]: RockConfig.Rock } = RockConfig.Rocks
 	local config = if key then configs[key] else nil
@@ -133,18 +122,31 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 	end
 	local yaw = random:NextNumber(0, math.pi * 2)
 	local rotation = CFrame.Angles(0, yaw, 0) * shape.Rotation
-	local spot = if isRush or forcedKey
-		then Spawner.PickSpotNear(
+	local zoneSpots = spots[zone] or {}
+	local spot: Types.Spot?
+	if forcedKey then
+		spot = Spawner.PickSpotNear(
 			random,
-			spots[zone] or {},
+			zoneSpots,
 			shape,
 			rotation,
 			existing,
 			position,
-			RushRockConfig.SpawnRadiusStuds,
+			RockSpawnConfig.ForcedSpawnRadiusStuds,
 			blocked
 		)
-		else Spawner.PickSpot(random, spots[zone] or {}, shape, rotation, existing, position, blocked)
+	else
+		local zoneStrips = strips[zone]
+		local stripSpots = Strips.Filter(zoneSpots, if zoneStrips then zoneStrips[key] else nil)
+		spot = Spawner.PickSpot(random, stripSpots, shape, rotation, existing, position, blocked)
+		if not spot and stripSpots ~= zoneSpots then
+			warnOnce(
+				`{zone}/{key}/strip`,
+				`[RockService] {key} strip in {zone} is full; using the whole zone`
+			)
+			spot = Spawner.PickSpot(random, zoneSpots, shape, rotation, existing, position, blocked)
+		end
+	end
 	if not spot then
 		warnOnce(`{zone}/{key}`, `[RockService] No free spawn spot for {key} in {zone}`)
 		return false
@@ -157,15 +159,11 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 		Zone = zone,
 		CFrame = rotation + spot.Position + Vector3.new(0, shape.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0),
 		Size = shape.Size,
-		Modifier = if isRush then RushRockConfig.Modifier else nil,
+		Modifier = if not forcedKey and rollGolden(player) then GoldenRockConfig.Modifier else nil,
 		Weather = services.WeatherService:RollStormRock(player),
 		UpAt = os.clock() + RockSpawnConfig.RiseSeconds,
 	}
 	rocks[rock.Id] = rock
-	if isRush and rushState then
-		Rush.Started(rushState, rock.Id)
-		task.delay(RockSpawnConfig.RiseSeconds + RushRockConfig.CountdownSeconds, expireRush, player, rock)
-	end
 	Packets.RockSpawned:FireClient(
 		player,
 		rock.Id,
@@ -178,14 +176,14 @@ local function spawnRock(player: Player, zone: string, isRush: boolean, forcedKe
 	return true
 end
 
-local function scheduleSpawn(player: Player, zone: string, delaySeconds: number, isRush: boolean)
+local function scheduleSpawn(player: Player, zone: string, delaySeconds: number)
 	local generation = generations[player]
 	task.delay(delaySeconds, function()
 		if generations[player] ~= generation then
 			return
 		end
-		if not spawnRock(player, zone, isRush) then
-			scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds, isRush)
+		if not spawnRock(player, zone) then
+			scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds)
 		end
 	end)
 end
@@ -196,21 +194,14 @@ local function retire(player: Player, rock: Types.Rock, delaySeconds: number)
 		return
 	end
 	rocks[rock.Id] = nil
-	local state = rushStates[player]
-	if state and state.ActiveId == rock.Id then
-		state.ActiveId = nil
-	end
-	local data = services.DataService:GetData(player)
-	local isRush = state ~= nil
-		and Rush.IsDue(state)
-		and not Tutorial.IsActive(Tutorial.StepOf(if data then data.Tutorial else nil))
-	if state and isRush then
-		state.IsScheduled = true
-	end
 	if hasCheat(player, "InstantRespawn") then
 		delaySeconds += RockSpawnConfig.AdminRespawnSeconds - RockSpawnConfig.RespawnSeconds
 	end
-	scheduleSpawn(player, rock.Zone, delaySeconds, isRush)
+	scheduleSpawn(player, rock.Zone, delaySeconds)
+end
+
+local function groundOf(rock: Types.Rock): Vector3
+	return rock.CFrame.Position - Vector3.new(0, rock.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0)
 end
 
 local function showOthers(player: Player, rock: Types.Rock, quality: number, isBroken: boolean)
@@ -230,11 +221,14 @@ local function showOthers(player: Player, rock: Types.Rock, quality: number, isB
 end
 
 local function onReady(player: Player)
+	if not isSampled then
+		waiting[player] = true
+		return
+	end
 	if owned[player] then
 		return
 	end
 	owned[player] = {}
-	rushStates[player] = Rush.New()
 	generations[player] = (generations[player] or 0) + 1
 	for zone, zoneConfig in RockSpawnConfig.Zones do
 		local zoneSpots = spots[zone]
@@ -243,8 +237,8 @@ local function onReady(player: Player)
 			continue
 		end
 		for _ = 1, zoneConfig.RockCount do
-			if not spawnRock(player, zone, false) then
-				scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds, false)
+			if not spawnRock(player, zone) then
+				scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds)
 			end
 		end
 	end
@@ -312,10 +306,7 @@ local function onRelease(player: Player, claimed: number)
 		return
 	end
 	local rock = session.Rock
-	local rushState = rushStates[player]
-	if rushState then
-		Rush.RecordChop(rushState, os.clock())
-	end
+	RockService.Chopped:Fire(player)
 
 	if not session.CanBreak then
 		sessions[player] = nil
@@ -327,8 +318,9 @@ local function onRelease(player: Player, claimed: number)
 	end
 
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
-	local position = ChopZones.Position(elapsed)
-	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio)
+	local isTouch = ChopZones.IsTouch(player)
+	local position = ChopZones.Position(elapsed, isTouch)
+	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio, isTouch)
 	local data = services.DataService:GetData(player)
 	local isTutorial = data ~= nil and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
 	local isTutorialPerfect = data ~= nil and Tutorial.ForcesPerfect(Tutorial.StepOf(data.Tutorial), data)
@@ -344,10 +336,17 @@ local function onRelease(player: Player, claimed: number)
 	end
 	local damage: number, payout: number
 	local isForced = forcedMasters[player] == true
-	if not isTutorial and (isForced or Session.IsMaster(random, quality, session.StrengthRatio)) then
+	local isFirstMaster = not isTutorial and data ~= nil and FirstMaster.IsDue(player, data, quality)
+	if
+		not isTutorial
+		and (isForced or isFirstMaster or Session.IsMaster(random, quality, session.StrengthRatio))
+	then
 		forcedMasters[player] = nil
 		quality = ChopQuality.Master
 		damage, payout = Session.ApplyMaster(session)
+		if data then
+			FirstMaster.Claim(services, player, data, isFirstMaster)
+		end
 	else
 		local chopStrength = services.StatsService:GetStrength(player)
 		if hasCheat(player, "OneHit") then
@@ -365,7 +364,9 @@ local function onRelease(player: Player, claimed: number)
 		else services.HotStreakService:RecordChop(player, quality, session.StrengthRatio)
 	services.WeatherService:RecordHit(player, rock.Weather)
 	if payout > 0 then
-		local rockBonus = Rush.PayoutMultiplier(rock)
+		local rockBonus = (
+			if rock.Modifier == GoldenRockConfig.Modifier then GoldenRockConfig.PayoutMultiplier else 1
+		)
 			+ services.WeatherService:GetRockMultiplier(rock.Weather)
 			- 1
 		payout = math.floor(payout * rockBonus + 0.5)
@@ -374,8 +375,8 @@ local function onRelease(player: Player, claimed: number)
 		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
 		payout = services.PassService:ApplyCashMultiplier(player, payout)
-		local flow = if rock.Modifier == RushRockConfig.Modifier
-			then AnalyticsConfig.Sources.RushRock
+		local flow = if rock.Modifier == GoldenRockConfig.Modifier
+			then AnalyticsConfig.Sources.GoldenRock
 			elseif rock.Weather then AnalyticsConfig.Sources.StormRock
 			else AnalyticsConfig.Sources.Chop
 		services.DataService:AdjustCash(player, payout, flow, rock.Key)
@@ -398,11 +399,12 @@ local function onRelease(player: Player, claimed: number)
 		retire(player, rock, MasterChopConfig.ImpactDelaySeconds + RockSpawnConfig.RespawnSeconds)
 		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
 		showOthers(player, rock, quality, true)
+		RockService.RockBroken:Fire(player, rock.Zone, groundOf(rock), quality)
 		for _, other in Players:GetPlayers() do
 			services.NotificationService:Notify(
 				other,
 				MasterChopConfig.AnnouncementKind,
-				`{player.DisplayName} landed a Master Chop!`
+				`Master Chop by {player.DisplayName}!`
 			)
 		end
 		return
@@ -413,6 +415,7 @@ local function onRelease(player: Player, claimed: number)
 		retire(player, rock, RockSpawnConfig.RespawnSeconds)
 		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
 		showOthers(player, rock, quality, true)
+		RockService.RockBroken:Fire(player, rock.Zone, groundOf(rock), quality)
 		return
 	end
 
@@ -430,9 +433,11 @@ local function onPlayerRemoving(player: Player)
 	forcedQualities[player] = nil
 	cheats[player] = nil
 	spotViewers[player] = nil
-	rushStates[player] = nil
+	waiting[player] = nil
+	forcedGolden[player] = nil
 	owned[player] = nil
 	generations[player] = nil
+	FirstMaster.Forget(player)
 	onLeave(player)
 end
 
@@ -453,21 +458,57 @@ function RockService.Start(_self: any)
 			table.insert(areas, tagged)
 		end
 	end
-	local started = os.clock()
-	spots = SpawnPoints.Sample(shapes)
-	for zone, zoneSpots in spots do
-		print(
-			`[RockService] {zone}: {#zoneSpots} spawn spots ({string.format(
-				"%.0f",
-				(os.clock() - started) * 1000
-			)} ms)`
-		)
-	end
+	trove:Add(task.spawn(function()
+		local started = os.clock()
+		local sampled = SpawnPoints.Sample(shapes)
+		local zoneConfigs: { [string]: RockSpawnConfig.Zone } = RockSpawnConfig.Zones
+		for zone, zoneConfig in zoneConfigs do
+			local entrance = Strips.Entrance(areas, zone)
+			local zoneSpots = sampled[zone]
+			if entrance and zoneSpots then
+				local order = Strips.Order(zoneConfig.Weights)
+				Strips.Assign(zoneSpots, entrance, #order)
+				local keyStrips: { [string]: number } = {}
+				for index, key in order do
+					keyStrips[key] = index
+				end
+				strips[zone] = keyStrips
+			end
+		end
+		spots = sampled
+		isSampled = true
+		for zone, zoneSpots in spots do
+			print(
+				`[RockService] {zone}: {#zoneSpots} spawn spots ({string.format(
+					"%.0f",
+					(os.clock() - started) * 1000
+				)} ms)`
+			)
+		end
+		for player in waiting do
+			waiting[player] = nil
+			if player.Parent then
+				onReady(player)
+			end
+		end
+	end))
 
 	trove:Add(Packets.RockReady.OnServerEvent:Connect(onReady))
 	trove:Add(Packets.RockChop.OnServerEvent:Connect(onChopRequest))
 	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(onRelease))
 	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(onLeave))
+	trove:Add(Packets.ChopTouch.OnServerEvent:Connect(function(player: Player, isTouch: boolean)
+		player:SetAttribute(ChopConfig.TouchAttribute, isTouch == true)
+	end))
+	trove:Add(services.TutorialService.Finished:Connect(function(player: Player)
+		FirstMaster.Arm(services, player)
+	end))
+	trove:Add(services.DataService.PlayerLoaded:Connect(function(player: Player)
+		local data = services.DataService:GetData(player)
+		if data then
+			FirstMaster.Schedule(player, data)
+		end
+	end))
 	trove:Add(Players.PlayerRemoving:Connect(onPlayerRemoving))
 end
 
@@ -546,8 +587,8 @@ function RockService.SpawnNear(_self: any, player: Player, key: string): (boolea
 		rocks[farthest.Id] = nil
 		Packets.RockRemoved:FireClient(player, farthest.Id)
 	end
-	if not spawnRock(player, zone, false, key) then
-		scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds, false)
+	if not spawnRock(player, zone, key) then
+		scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds)
 		return false, `no free spot for {key} in {zone}`
 	end
 	local configs: { [string]: RockConfig.Rock } = RockConfig.Rocks
@@ -615,7 +656,7 @@ function RockService.ReserveArea(_self: any, owner: string, zone: string, positi
 			end
 			rocks[id] = nil
 			Packets.RockRemoved:FireClient(player, id)
-			scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds, false)
+			scheduleSpawn(player, zone, RockSpawnConfig.RespawnSeconds)
 		end
 	end
 end
@@ -628,12 +669,11 @@ function RockService.DamageMultiplier(_self: any, quality: number): number
 	return Session.DamageMultiplier(quality)
 end
 
-function RockService.ForceRush(_self: any, player: Player): boolean
-	local state = rushStates[player]
-	if not state or state.ActiveId or state.IsScheduled then
+function RockService.ForceGolden(_self: any, player: Player): boolean
+	if forcedGolden[player] then
 		return false
 	end
-	state.ChopSeconds = RushRockConfig.IntervalSeconds
+	forcedGolden[player] = true
 	return true
 end
 
@@ -688,7 +728,7 @@ function RockService.Destroy(_self: any)
 	table.clear(forcedQualities)
 	table.clear(cheats)
 	table.clear(spotViewers)
-	table.clear(rushStates)
+	table.clear(forcedGolden)
 	table.clear(areas)
 	table.clear(reserved)
 end

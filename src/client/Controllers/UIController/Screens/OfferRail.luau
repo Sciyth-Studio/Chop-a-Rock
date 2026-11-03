@@ -99,7 +99,7 @@ function OfferRail.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if Players.LocalPlayer:GetAttribute(MonetizationConfig.RandomItemsRestrictedAttribute) ~= true then
 			table.insert(icons, { Icon = IconConfig.LuckyGeode, HasOutline = true })
 		end
-		local champIcon = ShopCards.PetIcon(starter.RokKey)
+		local champIcon = ShopCards.PetIcon(starter.PetKey)
 		if champIcon then
 			table.insert(icons, { Icon = champIcon, HasOutline = false })
 		end

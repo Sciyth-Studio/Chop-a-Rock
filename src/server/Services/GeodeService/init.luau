@@ -4,6 +4,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local AutoOpenConfig = require(ReplicatedStorage.Config.AutoOpenConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
@@ -12,11 +13,13 @@ local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local Packets = require(ReplicatedStorage.Packets)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local WildGeodeConfig = require(ReplicatedStorage.Config.WildGeodeConfig)
 local AutoOpen = require(script.AutoOpen)
 local Cracking = require(script.Cracking)
 local Effects = require(script.Effects)
 local Purchasing = require(script.Purchasing)
 local Types = require(script.Types)
+local Wild = require(script.Wild)
 
 local PIT_PROMPT_NAME = "CrackPrompt"
 local PICK_PROMPT_NAME = "PickPrompt"
@@ -35,6 +38,7 @@ local autoCounts: { [Player]: number } = {}
 local pits: { [Attachment]: Types.Pit } = {}
 local lockedUntil: { [Player]: number } = {}
 local luckyZones: { [Player]: string } = {}
+local wildTimers: { [Player]: Types.WildTimer } = {}
 
 local function isLocked(player: Player): boolean
 	return os.clock() < (lockedUntil[player] or 0)
@@ -67,7 +71,10 @@ local function endSession(player: Player)
 	end
 	sessions[player] = nil
 	setCracking(player, false)
-	Effects.Hide(session.Model, 0)
+	local model = session.Model
+	if model then
+		Effects.Hide(model, 0)
+	end
 end
 
 local function stopAuto(player: Player, message: string?)
@@ -85,7 +92,12 @@ local function stopAuto(player: Player, message: string?)
 		local kind = if message == AutoOpenConfig.DoneText or message == AutoOpenConfig.StoppedText
 			then "Info"
 			else "Error"
-		context.Services.NotificationService:Notify(player, kind, message)
+		context.Services.NotificationService:Notify(
+			player,
+			kind,
+			message,
+			if message == AutoOpenConfig.BagFullText then IconConfig.Backpack else nil
+		)
 	end
 end
 
@@ -190,6 +202,27 @@ releaseLock = function(player: Player, lockSeconds: number)
 			autoCrack(player)
 		end
 	end)
+end
+
+local function onRockBroken(player: Player, zone: string, ground: Vector3, quality: number)
+	local timer = wildTimers[player]
+	if not timer or not Wild.IsDue(timer) or sessions[player] or isLocked(player) or autoCounts[player] then
+		return
+	end
+	if not Wild.CanCrack(context, player, zone) then
+		return
+	end
+	local spot = Wild.Spot(player, ground)
+	local session = Wild.Session(zone, spot)
+	setCracking(player, true)
+	local lockSeconds = Cracking.Finish(context, player, session, random, quality)
+	task.delay(lockSeconds + WildGeodeConfig.CleanupPaddingSeconds, function()
+		spot:Destroy()
+	end)
+	if session.IsCracked then
+		Wild.Reset(timer, random)
+	end
+	releaseLock(player, lockSeconds)
 end
 
 local function onAutoTriggered(spot: Attachment, player: Player)
@@ -376,6 +409,12 @@ function GeodeService.EndSession(_self: any, player: Player)
 	end
 end
 
+function GeodeService.ForceWild(_self: any, player: Player)
+	local timer = wildTimers[player] or Wild.NewTimer(random)
+	wildTimers[player] = timer
+	timer.ChopSeconds = timer.DueSeconds
+end
+
 function GeodeService.IsRevealing(_self: any, player: Player): boolean
 	return isLocked(player)
 end
@@ -425,6 +464,12 @@ function GeodeService.Start(_self: any)
 		sessions[player] = nil
 		releaseLock(player, Cracking.Release(context, player, session, random, claimed))
 	end))
+	trove:Add(services.RockService.Chopped:Connect(function(player: Player)
+		local timer = wildTimers[player] or Wild.NewTimer(random)
+		wildTimers[player] = timer
+		Wild.RecordChop(timer, os.clock())
+	end))
+	trove:Add(services.RockService.RockBroken:Connect(onRockBroken))
 	trove:Add(Packets.StopAutoOpen.OnServerEvent:Connect(function(player: Player)
 		stopAuto(player, nil)
 		refreshPit(player)
@@ -470,6 +515,7 @@ function GeodeService.Start(_self: any)
 		lockedUntil[player] = nil
 		luckyZones[player] = nil
 		context.ForcedRarities[player] = nil
+		wildTimers[player] = nil
 	end))
 end
 
@@ -487,6 +533,7 @@ function GeodeService.Destroy(_self: any)
 	table.clear(pickPrompts)
 	table.clear(autoPrompts)
 	table.clear(autoCounts)
+	table.clear(wildTimers)
 end
 
 return GeodeService

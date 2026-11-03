@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local UserService = game:GetService("UserService")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local LeaderboardConfig = require(ReplicatedStorage.Config.LeaderboardConfig)
 local ReplicaServer = require(ServerScriptService.ReplicaServer)
 local Tutorial = require(ReplicatedStorage.Tutorial)
@@ -136,7 +137,7 @@ local function localEntries(key: string, tab: Tab): { Stores.Entry }
 end
 
 local function notifyPass(player: Player, text: string)
-	services.NotificationService:Notify(player, LeaderboardConfig.PassKind, text)
+	services.NotificationService:Notify(player, LeaderboardConfig.PassKind, text, IconConfig.Crown)
 end
 
 local function ranked(): { Player }

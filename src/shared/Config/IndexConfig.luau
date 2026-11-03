@@ -57,8 +57,8 @@ export type IndexSettings = {
 local IndexConfig: IndexSettings = {
 	Pages = {
 		{
-			Key = "Roks",
-			DisplayName = "Roks",
+			Key = "Pets",
+			DisplayName = "Pets",
 			Kind = "Pets",
 			Zones = {
 				{
@@ -123,6 +123,31 @@ local IndexConfig: IndexSettings = {
 					DisplayName = "Snow",
 					Entries = { "SnowFirst", "SnowSecond", "SnowThird" },
 				},
+				{
+					Key = "Swamp",
+					DisplayName = "Swamp",
+					Entries = { "SwampFirst", "SwampSecond", "SwampThird" },
+				},
+				{
+					Key = "Savanna",
+					DisplayName = "Savanna",
+					Entries = { "SavannaFirst", "SavannaSecond", "SavannaThird" },
+				},
+				{
+					Key = "Bamboo",
+					DisplayName = "Bamboo",
+					Entries = { "BambooFirst", "BambooSecond", "BambooThird" },
+				},
+				{
+					Key = "Volcano",
+					DisplayName = "Volcano",
+					Entries = { "VolcanoFirst", "VolcanoSecond", "VolcanoThird" },
+				},
+				{
+					Key = "Ruins",
+					DisplayName = "Ruins",
+					Entries = { "RuinsFirst", "RuinsSecond", "RuinsThird" },
+				},
 			},
 		},
 	},
@@ -179,6 +204,21 @@ local IndexConfig: IndexSettings = {
 		SnowFirst = "Model_RockPreview_SnowFirst",
 		SnowSecond = "Model_RockPreview_SnowSecond",
 		SnowThird = "Model_RockPreview_SnowThird",
+		SwampFirst = "Model_RockPreview_SwampFirst",
+		SwampSecond = "Model_RockPreview_SwampSecond",
+		SwampThird = "Model_RockPreview_SwampThird",
+		SavannaFirst = "Model_RockPreview_SavannaFirst",
+		SavannaSecond = "Model_RockPreview_SavannaSecond",
+		SavannaThird = "Model_RockPreview_SavannaThird",
+		BambooFirst = "Model_RockPreview_BambooFirst",
+		BambooSecond = "Model_RockPreview_BambooSecond",
+		BambooThird = "Model_RockPreview_BambooThird",
+		VolcanoFirst = "Model_RockPreview_VolcanoFirst",
+		VolcanoSecond = "Model_RockPreview_VolcanoSecond",
+		VolcanoThird = "Model_RockPreview_VolcanoThird",
+		RuinsFirst = "Model_RockPreview_RuinsFirst",
+		RuinsSecond = "Model_RockPreview_RuinsSecond",
+		RuinsThird = "Model_RockPreview_RuinsThird",
 	},
 	Text = {
 		Claim = "Claim",

@@ -41,7 +41,6 @@ local Packets = {
 		Packet.NumberU8,
 		Packet.Boolean8
 	),
-	RockRushEnded = Packet("RockRushEnded", Packet.NumberU32),
 	RockRemoved = Packet("RockRemoved", Packet.NumberU32),
 	RockWeatherSet = Packet("RockWeatherSet", Packet.NumberU32, Packet.String),
 	DiamondChop = Packet("DiamondChop"):RateLimit(3, 1),
@@ -54,6 +53,7 @@ local Packets = {
 	ChopRoundStart = Packet("ChopRoundStart", Packet.NumberF64):RateLimit(5, 1),
 	ChopRelease = Packet("ChopRelease", Packet.NumberF32):RateLimit(3, 1),
 	ChopLeave = Packet("ChopLeave"):RateLimit(3, 1),
+	ChopTouch = Packet("ChopTouch", Packet.Boolean8):RateLimit(3, 1),
 	ChopResult = Packet(
 		"ChopResult",
 		Packet.NumberU8,
@@ -81,8 +81,9 @@ local Packets = {
 	TrainingMinigameSlice = Packet("TrainingMinigameSlice", Packet.NumberU16):RateLimit(30, 1),
 	TrainingMinigameScore = Packet("TrainingMinigameScore", Packet.NumberU16, Packet.NumberF64),
 	BuyAura = Packet("BuyAura", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
-	BuyCannon = Packet("BuyCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
-	FireCannon = Packet("FireCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
+	EquipCannon = Packet("EquipCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
+	FireCannon = Packet("FireCannon"):Response(Packet.Boolean8):RateLimit(5, 1),
+	CannonWindow = Packet("CannonWindow", Packet.String, Packet.NumberF32),
 	CannonLaunch = Packet(
 		"CannonLaunch",
 		Packet.Instance,
@@ -122,7 +123,7 @@ local Packets = {
 	SetSetting = Packet("SetSetting", Packet.String, Packet.Boolean8):RateLimit(5, 1),
 	SetVolume = Packet("SetVolume", Packet.String, Packet.NumberU8):RateLimit(20, 1),
 	PadCollected = Packet("PadCollected"),
-	Notify = Packet("Notify", Packet.String, Packet.String),
+	Notify = Packet("Notify", Packet.String, Packet.String, Packet.String),
 	AdminRun = Packet("AdminRun", Packet.String, Packet.String):RateLimit(5, 1),
 	Teleport = Packet("Teleport", Packet.String):RateLimit(6, 1),
 	CannonHintSkip = Packet("CannonHintSkip"):RateLimit(2, 1),

@@ -29,6 +29,10 @@ The kit's own Studio loaders (`StudioBuild`, `MeshDataLoader`) build EditableMes
 
 **Studs on round parts look bad** (user, 2026-10-27, on the headlights): lathe/cylinder details get stud UVs that wrap the stud around small curved faces. `IntroCar` has a `plain(fn)` helper that points every UV of what `fn` builds at (0.03, 0.03), a flat spot of the stud tile, so lights, wheels, exhaust and the steering wheel come out plain in the render and under `2022 Stud` in Studio. Use it for any small round detail.
 
+## Cash chest
+`tools/meshlab/models/CashChest.luau` (2026-10-30), modelled from the `Cash5` shop icon (`assets/Icons/Shop/Cash5.png`) to replace the Free Gift box ([[Free Gift]]). Red body with gold corner posts, base band and top rim frame, lock plate, lid at 108° with gold edges and hasp, a dark-green cash bed under five layers of banded bundles (fixed-seed random), coins (`plain` lathes) and bills on the ground. 6.4 x 4.4 x 3.8 body, ~8.6 tall, ~2.5k triangles. Asset `117179658787849` ("Cash Chest"), FBX in `assets/Decor/CashChest/`.
+Gotcha: a solid body box or a full-size rim slab caps the opening. The top rim must be four strips, and the solid body must stop under the cash bed.
+
 ## Zone decor
 14 props in the JungleTree style ([[Decor In ForestTree Style]], [[Decor Lineups]]): `tools/meshlab/models/Decor*.luau`, seed 1, 240-2.1k triangles each. They are Pine, SnowPine, Bush, JungleBush, Stump, Mushroom, Cactus, PricklyPear, JungleTree, LeafPlant, Kelp, Coral, Starfish, SnowPile. `DecorSnowPine` and `DecorJungleBush` are wrappers that pass `opts` to `DecorPine` / `DecorBush`. All are in one `assets/Decor/ZoneDecor/ZoneDecor.fbx`, current asset `88340003908610` ("Zone Decor v3", 2026-10-28). Earlier uploads were v1 `101703227545289` (first pass), v2 `123819425751797` (contrast recolour), and the lone JungleTree `128488033006874`.
 
@@ -37,6 +41,27 @@ History (all 2026-10-28):
 - The user then had every prop restyled to match it: crossed-box courses in alternating shades, chunky banded trunks and stems, root fins on the pine and stump.
 - Greens on green floors sit close to the floor colour (user): forest pine and bush near 39,70,45, and jungle tree, leaf plant and JungleBush near 50,130,40. Cactus, kelp and snow pine aren't on green floors.
 - Coral tips step in twice in the branch's own pink. The user disliked both wider light-pink caps and a lighter tip colour.
+
+**Zone decor 6-10 (2026-10-29):** 16 more meshes in the same style, from lineups C and D ([[Decor Lineups]]):
+- Cattails, LilyPads, DeadTree, CharredTree, Acacia, GrassTuft, TermiteMound and SwampBush.
+- Bamboo, BambooShoot, MossyStone, Vent, Pillar, StatueHead, RuneStone and AshPile.
+
+How they're made:
+- Wrappers pass `opts` to an existing model: CharredTree to `DecorDeadTree` (`charred`), BambooShoot to `DecorBamboo` (`shoot`), AshPile to `DecorSnowPile` (`ash`), and SwampBush to `DecorBush` (`leaf` and `patch` colours).
+- Each is 170-1.9k triangles at seed 1.
+- They're in `assets/Decor/ZoneDecor610/ZoneDecor610.fbx`, asset `89550547800266` ("Zone Decor 6-10 v3", after a colour pass against the zone floors; v1 `80448302229768`, v2 `120346108987631`). The OBJs were copied to plain names (`Cattails.obj`) before export, so the MeshParts load with template names.
+- The `Vent` template carries a `SmokeAttachment` at its top, with a grey `Smoke` ParticleEmitter and an orange `LavaGlow` PointLight.
+
+`DecorShowcase` has a plate for each new zone: Swamp, Savanna, Bamboo, Volcano, Ruins at z 0 / 34 / 68 / 102 / 136. Not placed in the zones yet. The contact sheet is `tools/meshlab/out/DecorSheet610.png`. **Colour pass (2026-10-29, user: "doublecheck the colors against the zones"):** each zone's props were placed on its real floor and terrace in Studio and captured. Fixes:
+- Swamp: lily pads and cattail greens toned down near the floor (64, 98, 46), and the dead tree's bark muddied (100, 74, 50).
+- Savanna: the acacia went dark olive (72, 102, 40), because it rendered neon lime. The grass tuft went amber (212, 152, 56); gold vanished into the gold floor, and cream did too.
+- Bamboo: the moss went near the sage floor (126, 162, 80).
+- Volcano: the vent (90, 85, 82) and charred tree (80, 74, 72) were lifted off the near-black floor. They had matched it exactly. Warm tints came out rusty pink, so these are near neutral. The ash went darker and warmer (100, 96, 94), because light grey read as snow under the blue ambient.
+- Ruins: the pillar and statue went sandstone (222, 192, 132), since pale grey-beige matched the grey-green floor.
+
+`Lighting` ColorCorrection Saturation 0.4 makes mid greens come out neon ([[Why The Game Looks Blue]]). Judge decor colours on the zone floor in Studio, not in the Blender renders.
+
+The statue head took two tries: tipped 70° its face didn't read, so it now leans 38° and tilts 12° up, with a bigger brow and nose.
 
 Swapping a restyle onto placed copies: record each copy's scale as old height / old template height, `ApplyMesh` the new mesh, set `Size = newTemplate.Size * scale`, reset `PivotOffset` to the bottom, `PivotTo` the old pivot, then re-check the terrace and floor edges (11 props needed nudging).
 

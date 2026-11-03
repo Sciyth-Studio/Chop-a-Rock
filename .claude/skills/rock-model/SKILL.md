@@ -99,7 +99,9 @@ rb.render_preview([rock], r"<scratchpad>\back.png", (-5, 8.5, 6.0))
 
 Scale camera distances with the rock's size. Previews use the Standard view transform and neutral light so the grey reads true; Roblox's place lighting (bright, blue sky) will still shift colors, so judge final colors in Studio.
 
-## 5. Split (chop rocks only)
+## 5. Split (only when asked)
+
+Since the live slice (`Utils/LiveSplit`, vault Slice Test), new chop rocks don't need a split model. Perfect and Master breaks cut the rock and its props live, at any angle (rocks spawn at random yaw and can be chopped from any side), and fall back to box halves if the slice fails. The zone 6-10 rocks (2026-10-31) have no `SplitModel` attribute. Make a pre-split only if the user asks; the rest of this section is how.
 
 Rocks split in two with one straight vertical cut **along the chop direction, through the middle**. The chop minigame snaps the player to the rock's -Z side facing +Z (`ChopConfig.PlayerSnapOffsetFromRock`, `ChopController`), so the hand comes down in the rock's front-to-back plane; a crack at any other angle looks wrong (the user called it out). In Blender that plane is x = 0 running along Y (angle 0), because Blender -Y becomes Roblox -Z, the player's side. A stepped zig-zag cut was also tried and rejected; only use `find_split_steps` if the user asks for one.
 
@@ -136,8 +138,12 @@ Since 2026-10-10 the desert, jungle, ocean and snow rocks carry their theme thro
 
 - **Bodies:** `build_layers` for stepped or mesa shapes (stacked sloped slabs), and `build_boulder` for round ones. Run `fix_slivers` when the report shows slivers.
 - **Props:** `grass_tuft`, `skull`, `flowers`, `blossom` and `saguaro`, plus `hull_into` / `ring` / `make_obj` for new prop shapes. Each prop is one mesh in one colour, made of convex hulls; it doesn't need to be watertight.
-- **Placement:** keep each prop wholly on one side of x = 0, so it rides with one split half. Find the surface by ray-casting.
-- **Export:** export the rock and its props together into `<Name>.fbx`, and the two pieces and the same props into `<Name>_Split.fbx`.
+- **Decor props first:** if the prop exists as zone decor in `tools/meshlab/out/Decor*_s1.obj` (cattails, lily pads, grass tuft, acacia, termite mound, bamboo, bamboo shoot, pillar...), import that OBJ instead of modelling one (vault Rock Props Reuse Decor). Use `bpy.ops.wm.obj_import(forward_axis="Z", up_axis="Y")`, move it into the rock's collection, apply its world matrix into the mesh, then `mesh.transform(Translation(seat) @ Rotation(yaw) @ Scale(0.5 * fit))`. Find the seat by ray-casting down onto the rock and sinking it 0.3 to 0.6. Give it a material that shows its vertex colours for previews. In Studio it is white Plastic + `2022 Stud`.
+- **Props that follow the surface** (roots, drips): sample the path densely (about 16 steps per root), ray-cast from inside the rock, smooth the hit normals, and sweep a flat 4-sided prism along them. Sparse tube points cut across facets and float.
+- **Carved features** (cracks, runes, a crater bowl): carve them into the body with an exact `DIFFERENCE` boolean (`use_self`, `use_hole_tolerant`). Use one clean cutter per crack leg (a swept prism) and carve them one at a time. Then delete loose edges and stray islands, and dissolve coplanar faces before triangulating. Overlapping tube hulls as one cutter left non-manifold edges. The coloured fill is a separate prop sunk into the groove (Neon for glow).
+- **Placement (pre-split rocks only):** keep each prop wholly on one side of x = 0, so it rides with one split half. Find the surface by ray-casting.
+- **Export:** export the rock and its props together into `<Name>.fbx` (body first), plus `<Name>_Split.fbx` only for a pre-split rock. Clamp prop vertices below z = 0 first.
+- **Smoke and other particles:** add an Attachment with a ParticleEmitter under the template in Studio. `Effects` hide() turns emitters off on break, and `ZoneScale` moves the Attachment but doesn't resize particles, so size them for the zone's scale.
 - **Studio template:** props are MeshParts parented under the rock MeshPart. Leave them Anchored and don't add welds: `RockTemplate.Build` unanchors them, welds them to the rock with a `Weld` that has an explicit C0, and makes them non-colliding and massless. Don't use `WeldConstraint` here. Made outside Workspace, it locks in the offset the parts have when they enter Workspace, which is after the rock has moved, so the props were left about 170 studs away (2026-10-10). That way they follow the rock as it rises, shakes and sinks, and `Effects` hides them on break.
 - **Studio split model:** each prop is parented under the piece on its side. `SplitModel.Spawn` sizes and positions from the direct child pieces only, recolours only the pieces, and welds each prop to its piece. Props keep their own colours.
 - Also put the props under the `Model_RockPreview_*` copy used by the Index.

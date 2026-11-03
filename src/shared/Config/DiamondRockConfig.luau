@@ -1,9 +1,6 @@
 --!strict
 
 export type DiamondRockSettings = {
-	IntervalMinSeconds: number,
-	IntervalMaxSeconds: number,
-	NoPlayersRetrySeconds: number,
 	CountdownSeconds: number,
 	RiseSeconds: number,
 	ArrivalDelaySeconds: number,
@@ -68,14 +65,9 @@ export type DiamondRockSettings = {
 	ShakeDistance: number,
 	ShakeSeconds: number,
 	ShakeStuds: number,
-	PillScreen: string,
-	PillText: string,
 }
 
 local DiamondRockConfig: DiamondRockSettings = {
-	IntervalMinSeconds = 600,
-	IntervalMaxSeconds = 900,
-	NoPlayersRetrySeconds = 30,
 	CountdownSeconds = 60,
 	RiseSeconds = 1.2,
 	ArrivalDelaySeconds = 0.5,
@@ -101,10 +93,10 @@ local DiamondRockConfig: DiamondRockSettings = {
 	SlotsAttribute = "ChopSlots",
 	PlayerSlotAttribute = "ChopSlot",
 	AnnouncementKind = "Event",
-	AnnouncementText = "A Diamond Rock appeared in the %s!",
+	AnnouncementText = "Diamond Rock in %s!",
 	EarnedKind = "Event",
 	EarnedText = "Diamond Rock: +$%s",
-	FullText = "The Diamond Rock is full!",
+	FullText = "Diamond Rock full!",
 	BeaconHeight = 400,
 	BeaconWidth = 2,
 	BeaconColor = Color3.fromRGB(0, 230, 255),
@@ -140,8 +132,6 @@ local DiamondRockConfig: DiamondRockSettings = {
 	ShakeDistance = 90,
 	ShakeSeconds = 0.6,
 	ShakeStuds = 0.6,
-	PillScreen = "DiamondRockPill",
-	PillText = "Diamond Rock in the %s  %d:%02d",
 }
 
 return table.freeze(DiamondRockConfig)

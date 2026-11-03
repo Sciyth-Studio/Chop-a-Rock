@@ -5,8 +5,6 @@ local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
-local RobuxButton = require(ReplicatedStorage.Utils.RobuxButton)
-local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Packets = require(ReplicatedStorage.Packets)
@@ -23,7 +21,6 @@ type Row = {
 	PriceIcon: GuiObject?,
 	Check: GuiObject?,
 	Stroke: UIStroke?,
-	Robux: GuiButton?,
 }
 
 local function find(root: Instance, name: string, className: string, recursive: boolean): any
@@ -64,9 +61,8 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		template.Visible = false
 	end
 
-	local function readNumber(key: string): number
-		local value = dataController:Get({ key })
-		return if type(value) == "number" then value else 0
+	if cashLabel then
+		cashLabel.Visible = false
 	end
 
 	local function isOwned(key: string): boolean
@@ -78,32 +74,23 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		return if type(value) == "string" then value else ""
 	end
 
-	local function present(row: Row, text: string, colors: ShopConfig.MeterColors, showPrice: boolean)
+	local function present(row: Row, text: string, colors: ShopConfig.MeterColors)
 		setText(row.Label, text)
 		BlockButton.Paint(row.Fill, colors)
 		if row.PriceIcon then
-			row.PriceIcon.Visible = showPrice
+			row.PriceIcon.Visible = false
 		end
 		local label = row.Label
 		if label then
-			BlockButton.PlaceLabel(
-				label,
-				if showPrice then ShopConfig.PriceLabel.WithIcon else ShopConfig.PriceLabel.WithoutIcon
-			)
+			BlockButton.PlaceLabel(label, ShopConfig.PriceLabel.WithoutIcon)
 		end
 	end
 
 	local function refresh()
-		local cash = readNumber("Cash")
-		local strength = readNumber("Strength")
 		local equippedKey = equipped()
-		if cashLabel then
-			setText(cashLabel, `${NumberFormat.Compact(cash)}`)
-		end
 		for _, row in rows do
 			local cannon = row.Cannon
 			local owned = isOwned(cannon.Key)
-			local canBuy = not owned and strength >= cannon.StrengthRequired and cash >= cannon.Price
 			if row.Check then
 				row.Check.Visible = owned
 			end
@@ -112,57 +99,32 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					then CannonConfig.Shop.EquippedOutline
 					else CannonConfig.Shop.Outline
 			end
-			row.Button:SetAttribute("Shimmer", canBuy)
-			local shortfall = cannon.Price - cash
-			local showRobux = not owned and strength >= cannon.StrengthRequired and shortfall > 0
-			local pack = if showRobux
-				then context.Controllers.PurchaseController:CoveringPack(shortfall)
-				else nil
-			RobuxButton.Show(row.Robux, if pack and pack.ProductId then pack.RobuxPrice else nil)
-			if owned then
-				present(row, "Fire", CannonConfig.Shop.FireButton, false)
-			elseif strength < cannon.StrengthRequired then
+			if owned and cannon.Key == equippedKey then
+				present(row, "Equipped", CannonConfig.Shop.EquippedButton)
+			elseif owned then
+				present(row, "Equip", CannonConfig.Shop.EquipButton)
+			else
 				present(
 					row,
 					`{NumberFormat.Compact(cannon.StrengthRequired)} Strength`,
-					ShopConfig.Palette.Grey,
-					false
+					ShopConfig.Palette.Grey
 				)
-			else
-				local colors = if canBuy then ShopConfig.Palette.Green else ShopConfig.Palette.Grey
-				present(row, NumberFormat.Compact(cannon.Price), colors, true)
 			end
 		end
 	end
 
 	local function request(button: TextButton, cannon: CannonConfig.Cannon)
-		if isBusy then
+		if isBusy or cannon.Key == equipped() then
 			return
 		end
-		local packet
-		if isOwned(cannon.Key) then
-			packet = Packets.FireCannon
-		elseif readNumber("Strength") >= cannon.StrengthRequired and readNumber("Cash") >= cannon.Price then
-			packet = Packets.BuyCannon
-		elseif readNumber("Strength") >= cannon.StrengthRequired then
-			context.Feedback(button, false)
-			context.Controllers.CashPackController:Prompt(cannon.Price - readNumber("Cash"))
-			return
-		else
+		if not isOwned(cannon.Key) then
 			context.Feedback(button, false)
 			return
 		end
 		isBusy = true
 		task.spawn(function()
-			local isDone = packet:Fire(cannon.Key) == true
+			local isDone = Packets.EquipCannon:Fire(cannon.Key) == true
 			isBusy = false
-			if isDone and packet == Packets.FireCannon then
-				context.Close(CannonConfig.ScreenName)
-				return
-			end
-			if isDone then
-				LocalSound.Play("SFX_Money_Gain")
-			end
 			context.Feedback(button, isDone)
 		end)
 	end
@@ -190,12 +152,6 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end))
 				local priceIcon = button:FindFirstChild("PriceIcon")
 				local check = row:FindFirstChild("Check", true)
-				local robux = row:FindFirstChild("RobuxButton", true)
-				if robux and robux:IsA("GuiButton") then
-					trove:Add(robux.Activated:Connect(function()
-						context.Controllers.PurchaseController:PromptCash(cannon.Price - readNumber("Cash"))
-					end))
-				end
 				table.insert(rows, {
 					Cannon = cannon,
 					Button = button,
@@ -204,7 +160,6 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 					PriceIcon = if priceIcon and priceIcon:IsA("GuiObject") then priceIcon else nil,
 					Check = if check and check:IsA("GuiObject") then check else nil,
 					Stroke = row:FindFirstChildOfClass("UIStroke"),
-					Robux = if robux and robux:IsA("GuiButton") then robux else nil,
 				})
 			end
 			row.Parent = list
@@ -217,7 +172,7 @@ function CannonShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end))
 	end
 
-	for _, key in { "Cannons", "EquippedCannon", "Cash", "Strength" } do
+	for _, key in { "Cannons", "EquippedCannon" } do
 		trove:Add(dataController:Observe({ key }, refresh))
 	end
 	refresh()

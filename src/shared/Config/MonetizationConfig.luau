@@ -43,7 +43,7 @@ export type StarterPack = {
 	ProductId: number?,
 	RobuxPrice: number,
 	Geodes: number,
-	RokKey: string,
+	PetKey: string,
 	BoostKey: string,
 	BoostSeconds: number,
 	LuckyGeodes: number,
@@ -81,7 +81,7 @@ export type BoostPillSettings = {
 
 export type Exclusive = {
 	Key: string,
-	RokKey: string,
+	PetKey: string,
 	ProductId: number?,
 	RobuxPrice: number,
 	Stock: number,
@@ -98,7 +98,7 @@ export type ExclusiveSettings = {
 	PriceAttribute: string,
 	StoreName: string,
 	RefreshSeconds: number,
-	RokScale: number,
+	PetScale: number,
 	PromptName: string,
 	PromptRangeStuds: number,
 	PromptHoldSeconds: number,
@@ -162,7 +162,6 @@ export type MonetizationSettings = {
 	ComingSoonText: string,
 	BoughtSound: string,
 	RobuxGlyph: string,
-	RobuxButtonColors: { Edge: Color3, Center: Color3, Studs: Color3 },
 }
 
 local MonetizationConfig: MonetizationSettings = {
@@ -217,7 +216,7 @@ local MonetizationConfig: MonetizationSettings = {
 		{
 			Key = "Backpack",
 			DisplayName = "Big Backpack",
-			Blurb = "Room for 100 more Roks",
+			Blurb = "Room for 100 more Pets",
 			GamepassId = 2055384154,
 			RobuxPrice = 99,
 		},
@@ -305,7 +304,7 @@ local MonetizationConfig: MonetizationSettings = {
 		ProductId = 3722325285,
 		RobuxPrice = 29,
 		Geodes = 20,
-		RokKey = "Champ",
+		PetKey = "Champ",
 		BoostKey = "Strength",
 		BoostSeconds = 1800,
 		LuckyGeodes = 1,
@@ -370,12 +369,12 @@ local MonetizationConfig: MonetizationSettings = {
 		Items = {
 			{
 				Key = "Kingy",
-				RokKey = "Kingy",
+				PetKey = "Kingy",
 				ProductId = 3722325299,
 				RobuxPrice = 1499,
-				Stock = 10000,
+				Stock = 500,
 				StockKey = "Kingy_1",
-				Pitch = "Always 3x your best Rok!",
+				Pitch = "Always 3x your best Pet!",
 			},
 		},
 		StandTag = "ExclusiveStand",
@@ -385,7 +384,7 @@ local MonetizationConfig: MonetizationSettings = {
 		PriceAttribute = "Price",
 		StoreName = "ExclusiveStock",
 		RefreshSeconds = 60,
-		RokScale = 3,
+		PetScale = 3,
 		PromptName = "BuyPrompt",
 		PromptRangeStuds = 12,
 		PromptHoldSeconds = 0,
@@ -415,11 +414,6 @@ local MonetizationConfig: MonetizationSettings = {
 	ComingSoonText = "Coming soon!",
 	BoughtSound = "SFX_Money_Gain",
 	RobuxGlyph = utf8.char(0xE002),
-	RobuxButtonColors = {
-		Edge = Color3.fromRGB(230, 150, 0),
-		Center = Color3.fromRGB(255, 230, 90),
-		Studs = Color3.fromRGB(190, 105, 0),
-	},
 }
 
 return table.freeze(MonetizationConfig)

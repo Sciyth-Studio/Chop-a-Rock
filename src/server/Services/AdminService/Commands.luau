@@ -12,7 +12,7 @@ local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
-local RokSizeConfig = require(ReplicatedStorage.Config.RokSizeConfig)
+local PetSizeConfig = require(ReplicatedStorage.Config.PetSizeConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
@@ -71,7 +71,7 @@ local function number(
 	return value
 end
 
-local function targetRok(context: Types.Context, player: Player): string?
+local function targetPet(context: Types.Context, player: Player): string?
 	local petService = context.Services.PetService
 	return petService:GetHeldPetId(player) or petService:NewestPetId(player)
 end
@@ -89,7 +89,7 @@ local function count(
 	return number(context, player, text, 1, max)
 end
 
-local function rollZoneRoks(context: Types.Context, player: Player, amount: number): { string }
+local function rollZonePets(context: Types.Context, player: Player, amount: number): { string }
 	local geodeKey = zoneGeode(context, player)
 	local keys: { string } = {}
 	if not geodeKey then
@@ -270,14 +270,14 @@ local Commands: { [string]: Types.Handler } = {
 		if context.Services.ExclusiveService:Grant(player, argument) then
 			notify(context, player, `{argument} granted`)
 		else
-			notify(context, player, "choose an exclusive Rok")
+			notify(context, player, "choose an exclusive Pet")
 		end
 	end,
 	ResetExclusive = function(context: Types.Context, player: Player, argument: string)
 		if context.Services.ExclusiveService:ResetOwned(player, argument) then
 			notify(context, player, `{argument} can be bought again`)
 		else
-			notify(context, player, "choose an exclusive Rok")
+			notify(context, player, "choose an exclusive Pet")
 		end
 	end,
 	SimulateGift = function(context: Types.Context, player: Player, argument: string)
@@ -307,12 +307,12 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, `{slots} slots`)
 		end
 	end,
-	GrantPet = function(context: Types.Context, player: Player, _argument: string)
+	GrantRandomPet = function(context: Types.Context, player: Player, _argument: string)
 		local geodeKey = zoneGeode(context, player)
 		local petKey = if geodeKey then HatchOdds.Roll(random, geodeKey, 1) else nil
 		local grant = if petKey then context.Services.PetService:Grant(player, petKey) else nil
 		if not grant then
-			notify(context, player, "no Rok granted")
+			notify(context, player, "no Pet granted")
 			return
 		end
 		local pet = PetConfig.Pets[grant.PetKey]
@@ -339,12 +339,16 @@ local Commands: { [string]: Types.Handler } = {
 		context.Services.RockService:ForceNextMaster(player)
 		notify(context, player, "next chop is a Master")
 	end,
-	ForceRush = function(context: Types.Context, player: Player, _argument: string)
-		if context.Services.RockService:ForceRush(player) then
-			notify(context, player, "next broken rock comes back as a Rush Rock")
+	ForceGolden = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.RockService:ForceGolden(player) then
+			notify(context, player, "next rock to spawn is Golden")
 		else
-			notify(context, player, "a Rush Rock is already out")
+			notify(context, player, "a Golden Rock is already due")
 		end
+	end,
+	ForceWildGeode = function(context: Types.Context, player: Player, _argument: string)
+		context.Services.GeodeService:ForceWild(player)
+		notify(context, player, "next broken rock hides a Wild Geode")
 	end,
 	WeatherStart = function(context: Types.Context, player: Player, argument: string)
 		if context.Services.WeatherService:Force(argument) then
@@ -366,20 +370,20 @@ local Commands: { [string]: Types.Handler } = {
 		notify(context, player, `{key} in {seconds}s`)
 	end,
 	GiveModifier = function(context: Types.Context, player: Player, argument: string)
-		local petId = targetRok(context, player)
+		local petId = targetPet(context, player)
 		if petId and context.Services.PetService:SetModifier(player, petId, argument, false) then
-			notify(context, player, `Rok {petId} is now {argument}`)
+			notify(context, player, `Pet {petId} is now {argument}`)
 		else
-			notify(context, player, "hold a Rok or own one first")
+			notify(context, player, "hold a Pet or own one first")
 		end
 	end,
-	SetRokSize = function(context: Types.Context, player: Player, argument: string)
-		local petId = targetRok(context, player)
-		local size = if argument == RokSizeConfig.DefaultKey then nil else argument
+	SetPetSize = function(context: Types.Context, player: Player, argument: string)
+		local petId = targetPet(context, player)
+		local size = if argument == PetSizeConfig.DefaultKey then nil else argument
 		if petId and context.Services.PetService:SetSize(player, petId, size) then
-			notify(context, player, `Rok {petId} is now {argument}`)
+			notify(context, player, `Pet {petId} is now {argument}`)
 		else
-			notify(context, player, "hold a non-exclusive Rok or own one first")
+			notify(context, player, "hold a non-exclusive Pet or own one first")
 		end
 	end,
 	SpawnDiamond = function(context: Types.Context, player: Player, _argument: string)
@@ -459,12 +463,12 @@ local Commands: { [string]: Types.Handler } = {
 		local earned = context.Services.PedestalService:SimulateOffline(player, hours * 3600)
 		notify(context, player, `{hours}h offline: +{NumberFormat.Compact(earned)} on pads`)
 	end,
-	GrantRok = function(context: Types.Context, player: Player, argument: string)
+	GrantPet = function(context: Types.Context, player: Player, argument: string)
 		local words = Arguments.Words(argument)
 		local petKey = Arguments.Match(words[1], sortedKeys(PetConfig.Pets))
 		local amount = count(context, player, words[2], 1, PetConfig.MaxPets)
 		if not petKey then
-			notify(context, player, `no Rok called {words[1] or ""}`)
+			notify(context, player, `no Pet called {words[1] or ""}`)
 			return
 		end
 		if not amount then
@@ -474,7 +478,7 @@ local Commands: { [string]: Types.Handler } = {
 		local grants = context.Services.PetService:GrantMany(player, keys)
 		notify(context, player, `+{#grants} {PetConfig.Pets[petKey].DisplayName}`)
 	end,
-	SetRokTrait = function(context: Types.Context, player: Player, argument: string)
+	SetPetTrait = function(context: Types.Context, player: Player, argument: string)
 		local words = Arguments.Words(argument)
 		local isNone = words[1] ~= nil and string.lower(words[1]) == string.lower(AdminConfig.NoTraitValue)
 		local trait = if isNone then nil else Arguments.Match(words[1], sortedKeys(PetConfig.Traits))
@@ -492,11 +496,11 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, `enter a value from {definition.MinValue} to {definition.MaxValue}`)
 			return
 		end
-		local petId = targetRok(context, player)
+		local petId = targetPet(context, player)
 		if petId and context.Services.PetService:SetTrait(player, petId, trait, value) then
-			notify(context, player, `Rok {petId} trait {if trait then `{trait} {value}` else "cleared"}`)
+			notify(context, player, `Pet {petId} trait {if trait then `{trait} {value}` else "cleared"}`)
 		else
-			notify(context, player, "hold a Rok or own one first")
+			notify(context, player, "hold a Pet or own one first")
 		end
 	end,
 	GrantGeodes = function(context: Types.Context, player: Player, argument: string)
@@ -538,12 +542,12 @@ local Commands: { [string]: Types.Handler } = {
 	FillBackpack = function(context: Types.Context, player: Player, _argument: string)
 		local room = context.Services.PassService:GetBackpackSize(player)
 			- context.Services.PetService:Count(player)
-		local grants = context.Services.PetService:GrantMany(player, rollZoneRoks(context, player, room))
-		notify(context, player, `+{#grants} Roks (Backpack full)`)
+		local grants = context.Services.PetService:GrantMany(player, rollZonePets(context, player, room))
+		notify(context, player, `+{#grants} Pets (Backpack full)`)
 	end,
 	ClearBackpack = function(context: Types.Context, player: Player, _argument: string)
 		local removed = context.Services.PetService:RemoveUnplaced(player)
-		notify(context, player, `removed {removed} Roks`)
+		notify(context, player, `removed {removed} Pets`)
 	end,
 	FillPedestals = function(context: Types.Context, player: Player, _argument: string)
 		local services = context.Services
@@ -551,7 +555,7 @@ local Commands: { [string]: Types.Handler } = {
 		services.PedestalService:EquipBest(player)
 		local missing = services.PedestalService:EmptySlotCount(player)
 		if missing > 0 then
-			services.PetService:GrantMany(player, rollZoneRoks(context, player, missing))
+			services.PetService:GrantMany(player, rollZonePets(context, player, missing))
 			services.PedestalService:EquipBest(player)
 		end
 		notify(context, player, `{PedestalSlots.Total()} pedestals filled`)

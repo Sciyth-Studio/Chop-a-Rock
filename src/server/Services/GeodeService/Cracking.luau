@@ -3,6 +3,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -17,6 +19,8 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local Tutorial = require(ReplicatedStorage.Tutorial)
+local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
+local WildGeodeConfig = require(ReplicatedStorage.Config.WildGeodeConfig)
 local Effects = require(script.Parent.Effects)
 local Luck = require(script.Parent.Luck)
 local Types = require(script.Parent.Types)
@@ -25,6 +29,13 @@ local Cracking = {}
 
 function Cracking.PickGeode(data: any): string?
 	return GeodeOrder.Pick(data.Geodes, data.SelectedGeode)
+end
+
+local function hide(session: Types.Session, delaySeconds: number)
+	local model = session.Model
+	if model then
+		Effects.Hide(model, delaySeconds)
+	end
 end
 
 local function rollModifier(context: Types.Context, player: Player, geodeKey: string): string?
@@ -51,7 +62,12 @@ function Cracking.Begin(
 		return nil
 	end
 	if not context.Services.PetService:CanAdd(player, 1) then
-		context.Services.NotificationService:Notify(player, "Error", "Bag full! Sell some Roks")
+		context.Services.NotificationService:Notify(
+			player,
+			"Error",
+			"Bag full! Sell Pets",
+			IconConfig.Backpack
+		)
 		return nil
 	end
 	Effects.Show(pit.Model)
@@ -65,6 +81,8 @@ function Cracking.Begin(
 		Center = ChopZones.RandomCenter(random),
 		StartTime = os.clock(),
 		IsAuto = isAuto,
+		IsWild = false,
+		IsCracked = false,
 	}
 	context.Services.PetService:PutAway(player)
 	if isAuto then
@@ -93,6 +111,18 @@ local function forcedPet(context: Types.Context, player: Player, geodeKey: strin
 	return nil
 end
 
+local function isFirstPet(data: any, geodeKey: string): boolean
+	if Tutorial.StepOf(data.Tutorial) ~= Tutorial.Crack or next(data.Pets) ~= nil then
+		return false
+	end
+	for _, entry in GeodeConfig.Geodes[geodeKey].Pets do
+		if entry.PetKey == TutorialConfig.FirstPetKey then
+			return true
+		end
+	end
+	return false
+end
+
 function Cracking.Release(
 	context: Types.Context,
 	player: Player,
@@ -102,7 +132,13 @@ function Cracking.Release(
 ): number
 	local services = context.Services
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
-	local quality = ChopZones.Classify(ChopZones.Position(elapsed), session.Center, session.StrengthRatio)
+	local isTouch = ChopZones.IsTouch(player)
+	local quality = ChopZones.Classify(
+		ChopZones.Position(elapsed, isTouch),
+		session.Center,
+		session.StrengthRatio,
+		isTouch
+	)
 	local tutorialData = services.DataService:GetData(player)
 	local isTutorial = tutorialData ~= nil and Tutorial.IsActive(Tutorial.StepOf(tutorialData.Tutorial))
 	if
@@ -132,18 +168,25 @@ function Cracking.Finish(
 	local data = services.DataService:GetData(player)
 	local pityGeodeKey = GeodeConfig.Geodes[session.GeodeKey].BaseKey or session.GeodeKey
 	local pityCounts = if data then data.Pity[pityGeodeKey] else nil
+	local isFirst = data ~= nil and isFirstPet(data, session.GeodeKey)
 	local forced = forcedPet(context, player, session.GeodeKey)
+		or if isFirst then TutorialConfig.FirstPetKey else nil
 	local due = if forced then nil else HatchPity.Due(pityGeodeKey, pityCounts)
 	local pityKey = if due then HatchOdds.RollRarity(random, session.GeodeKey, due) else nil
-	local petKey = forced or pityKey or HatchOdds.Roll(random, session.GeodeKey, luck)
+	local minRarity = if session.IsWild then WildGeodeConfig.MinRarity else nil
+	local petKey = forced or pityKey or HatchOdds.Roll(random, session.GeodeKey, luck, minRarity)
 	local isPity = pityKey ~= nil
 	local owned = if data then data.Geodes[session.GeodeKey] or 0 else 0
-	if not petKey or owned < 1 or not services.PetService:CanAdd(player, 1) then
-		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
-		Effects.Hide(session.Model, 0)
+	if not petKey or (owned < 1 and not session.IsWild) or not services.PetService:CanAdd(player, 1) then
+		if not session.IsWild then
+			Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
+		end
+		hide(session, 0)
 		return GeodeConfig.RecrackDelaySeconds
 	end
-	services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned - 1)
+	if not session.IsWild then
+		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned - 1)
+	end
 	local hatchedPet = PetConfig.Pets[petKey]
 	local equipDelay = (
 		if quality == ChopQuality.Master
@@ -155,14 +198,18 @@ function Cracking.Finish(
 		petKey,
 		rollModifier(context, player, session.GeodeKey),
 		equipDelay,
-		luck
+		luck,
+		if isFirst then TutorialConfig.FirstPetSize else nil
 	)
 	if not grant then
-		services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
-		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
-		Effects.Hide(session.Model, 0)
+		if not session.IsWild then
+			services.DataService:Set(player, { "Geodes", session.GeodeKey }, owned)
+			Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, 1, 1)
+		end
+		hide(session, 0)
 		return GeodeConfig.RecrackDelaySeconds
 	end
+	session.IsCracked = true
 	local pet = PetConfig.Pets[grant.PetKey]
 	services.DataService:Set(
 		player,
@@ -171,29 +218,32 @@ function Cracking.Finish(
 	)
 	local rarity = RarityConfig.Rarities[pet.Rarity]
 	local isMaster = quality == ChopQuality.Master
-	Packets.ChopResult:FireClient(player, quality, 0, 1, 0, 1)
+	if not session.IsWild then
+		Packets.ChopResult:FireClient(player, quality, 0, 1, 0, 1)
+	end
 	print(
 		`[GeodeService] {player.Name} cracked {session.GeodeKey}: quality={quality}, luck={string.format(
 			"%.2f",
 			luck
 		)}, pet={grant.PetKey}, new={grant.IsNew}, pity={if isPity then due else "none"}`
 	)
-	if isMaster then
-		Effects.MasterStart(session.Part)
+	local part = session.Part
+	if part and isMaster then
+		Effects.MasterStart(part)
 		for _, other in Players:GetPlayers() do
 			services.NotificationService:Notify(
 				other,
 				MasterChopConfig.AnnouncementKind,
-				`{player.DisplayName} landed a Master Chop!`
+				`Master Chop by {player.DisplayName}!`
 			)
 		end
-	else
-		Effects.Hit(session.Part, quality)
+	elseif part then
+		Effects.Hit(part, quality)
 	end
 	local revealDelay = if isMaster
 		then MasterChopConfig.ImpactDelaySeconds
 		else ChopConfig.SlowMoPreImpactSeconds
-	Effects.Hide(session.Model, revealDelay)
+	hide(session, revealDelay)
 	task.delay(revealDelay, function()
 		Packets.GeodeHatched:FireAllClients(
 			player,
@@ -214,7 +264,8 @@ function Cracking.Finish(
 				services.NotificationService:Notify(
 					other,
 					GeodeConfig.AnnouncementKind,
-					`{player.DisplayName} hatched a {rarity.DisplayName} {pet.DisplayName}!`
+					`{player.DisplayName} got {rarity.DisplayName} {pet.DisplayName}!`,
+					ItemIcons.Get("Pet", grant.PetKey)
 				)
 			end
 		end)

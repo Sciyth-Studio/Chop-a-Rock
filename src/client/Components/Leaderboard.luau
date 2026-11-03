@@ -6,7 +6,6 @@ local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local Component = require(ReplicatedStorage.Packages.Component)
 local LeaderboardConfig = require(ReplicatedStorage.Config.LeaderboardConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
-local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 
@@ -94,7 +93,7 @@ local function format(board: LeaderboardConfig.Board, value: number): string
 	end
 	local whole = math.floor(value + 0.5)
 	if board.Format == "Strength" then
-		return `{NumberFormat.Compact(whole)} {TrainingConfig.StrengthUnit}`
+		return `{NumberFormat.Compact(whole)}`
 	elseif board.Format == "Duration" then
 		return duration(whole)
 	end

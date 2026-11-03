@@ -22,6 +22,7 @@ How to apply:
 - Branch tips taper by stepping in, in the same colour. No wider caps and no lighter tip colour.
 - Match the tree to the place: no palms in a jungle, and no beach props when no zone is a beach.
 - The lineup sheets ([[Decor Lineups]]) give the parts, proportions and colours, not the finish. Ask for this style up front instead of describing a look in a prompt.
+- Check colours on the real zone floor in Studio before calling a prop done. The ColorCorrection saturation turns mid greens neon and light greys bluish, and a prop the same colour as the floor vanishes (2026-10-29 colour pass, see [[Meshlab]]).
 - Still few, simple props ([[Keep Decor Simple]]).
 
 Related: [[Meshlab]], [[Studs On Models By Default]]

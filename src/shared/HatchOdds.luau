@@ -18,7 +18,7 @@ local function isLucky(petKey: string): boolean
 	return rarity ~= nil and rarity.IsLucky
 end
 
-function HatchOdds.Chances(geodeKey: string, luck: number): { Chance }
+function HatchOdds.Chances(geodeKey: string, luck: number, minRarity: string?): { Chance }
 	local chances: { Chance } = {}
 	local geode = GeodeConfig.Geodes[geodeKey]
 	if not geode then
@@ -47,7 +47,8 @@ function HatchOdds.Chances(geodeKey: string, luck: number): { Chance }
 		local scale = if isLucky(entry.PetKey) then factor else plainScale
 		table.insert(chances, { PetKey = entry.PetKey, Chance = base * scale })
 	end
-	local minIndex = if geode.MinRarity then table.find(RarityConfig.Order, geode.MinRarity) else nil
+	local floor = minRarity or geode.MinRarity
+	local minIndex = if floor then table.find(RarityConfig.Order, floor) else nil
 	if minIndex then
 		local kept = 0
 		for _, entry in chances do
@@ -67,8 +68,8 @@ function HatchOdds.Chances(geodeKey: string, luck: number): { Chance }
 	return chances
 end
 
-function HatchOdds.Roll(random: Random, geodeKey: string, luck: number): string?
-	local chances = HatchOdds.Chances(geodeKey, luck)
+function HatchOdds.Roll(random: Random, geodeKey: string, luck: number, minRarity: string?): string?
+	local chances = HatchOdds.Chances(geodeKey, luck, minRarity)
 	local roll = random:NextNumber()
 	local cumulative = 0
 	local fallback: string? = nil

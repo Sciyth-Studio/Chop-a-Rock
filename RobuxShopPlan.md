@@ -34,24 +34,24 @@ Step 5 (2026-10-24), checked by value in Studio Edit, not yet playtested:
   - `GeodeService:GrantLucky` adds them to the geode inventory.
   - Four products (9 first-only, 49, 129, 399) are registered once ids exist; the first-only one sets `Offers.FirstLuckyGeode`.
 - **Policy:** `PassService` caches `PolicyService` `ArePaidRandomItemsRestricted` (treated as restricted if the call fails) as the `RandomItemsRestricted` attribute, for the UI to hide Lucky Geodes.
-- **Admin:** "+1 Lucky Geode" (`lucky`) on the Roks tab.
+- **Admin:** "+1 Lucky Geode" (`lucky`) on the Pets tab.
 
 Step 6, first part (2026-10-24), not yet playtested:
 - **`OfferService`** (new) owns the starter pack and Claim x3.
-  - **Starter grant:** cash worth 20 geodes of your zone (23 for players where paid random items are restricted), 30 min 2x Strength, 1 Lucky Geode (skipped when restricted), and Champ once (`StarterPack.Bought`). With a full Backpack, Champ waits (`RokPending`, checked every 5 s). A duplicate receipt gives everything again except Champ.
+  - **Starter grant:** cash worth 20 geodes of your zone (23 for players where paid random items are restricted), 30 min 2x Strength, 1 Lucky Geode (skipped when restricted), and Champ once (`StarterPack.Bought`). With a full Backpack, Champ waits (`PetPending`, checked every 5 s). A duplicate receipt gives everything again except Champ.
   - **Offer window:** opens for 24 h when the tutorial finishes (`StarterPack.OfferEndsAt`). One second 24 h window after a rebirth if the first one ran out unbought (`SecondChanceUsed`). `IsStarterOfferOpen` is there for the UI.
   - **Claim x3:** `PedestalService` now fires `OfflineEarned(player, amount, seconds)`. If you were away at least 10 min, you're out of the tutorial, and the amount is worth at least one geode of your zone, it's stored in `Offline.LastAmount` and the `WelcomeBackDue` attribute is set. The grant pays 2x that amount and zeroes it.
-- **Champ:** in `PetConfig` as `Exclusive` (100 $/s, Legendary colour, Bloky model as a placeholder). The sell skips exclusive Roks instead of failing the whole sale.
+- **Champ:** in `PetConfig` as `Exclusive` (100 $/s, Legendary colour, Bloky model as a placeholder). The sell skips exclusive Pets instead of failing the whole sale.
 - **Mega cash pack:** in `CashPackConfig` (999 R$, 350 geodes). Packs without a product id are skipped for prompts and grants, so Mega stays off until its product exists.
 - **New signals:** `RebirthService.Reborn`, `TutorialService.Finished`, `PedestalService.OfflineEarned`.
 - **Admin:** "Grant Starter Pack" (`starter`), "Reset Starter Pack" (`nostarter`, also reopens the 24 h window) and "Grant Claim x3" (`claimx3`; use "Simulate Offline" first).
-- **Exclusive Rok stand** (2026-10-24, the rest of step 6, built; seen in Studio Edit, not playtested):
-  - **Kingy:** the first exclusive in `PetConfig`, with `IncomeRule = "BestTimes"`, `IncomeMultiplier = 3`, the Secret colour, and Starry's model as a placeholder. `PetService` stores `Income` on the Rok's record as 3x the base $/s of your best non-exclusive Rok, at least its own 100. It updates on load, on every grant, sale and removal, and refreshes pedestal rates when it changes. `RokModifier.Rate` takes that income, so pedestal billboards (`Income` attribute), the Roks panel and the Backpack tooltip show it.
-  - **Pending Roks:** `PetService:GrantOrQueue` grants a Rok, or queues it in `PendingRoks` when the Backpack is full, then grants it within 5 s of there being room. Champ and Kingy both use it; `StarterPack.RokPending` was removed.
-  - **`ExclusiveService`:** sets up every `ExclusiveStand`-tagged model (price, stock and sold attributes, the Rok shown on top at 3x scale through `PedestalService:ShowRok`, a "Buy" ProximityPrompt). Grants mark `Exclusives[key]`. Sales are counted in the `ExclusiveStock` DataStore (`_Studio` in Studio) with `IncrementAsync`, synced every 60 s. Sales since the last sync are lost if the server shuts down first; the count is approximate by design.
+- **Exclusive Pet stand** (2026-10-24, the rest of step 6, built; seen in Studio Edit, not playtested):
+  - **Kingy:** the first exclusive in `PetConfig`, with `IncomeRule = "BestTimes"`, `IncomeMultiplier = 3`, the Secret colour, and Starry's model as a placeholder. `PetService` stores `Income` on the Pet's record as 3x the base $/s of your best non-exclusive Pet, at least its own 100. It updates on load, on every grant, sale and removal, and refreshes pedestal rates when it changes. `PetModifier.Rate` takes that income, so pedestal billboards (`Income` attribute), the Pets panel and the Backpack tooltip show it.
+  - **Pending Pets:** `PetService:GrantOrQueue` grants a Pet, or queues it in `PendingPets` when the Backpack is full, then grants it within 5 s of there being room. Champ and Kingy both use it; `StarterPack.PetPending` was removed.
+  - **`ExclusiveService`:** sets up every `ExclusiveStand`-tagged model (price, stock and sold attributes, the Pet shown on top at 3x scale through `PedestalService:ShowPet`, a "Buy" ProximityPrompt). Grants mark `Exclusives[key]`. Sales are counted in the `ExclusiveStock` DataStore (`_Studio` in Studio) with `IncrementAsync`, synced every 60 s. Sales since the last sync are lost if the server shuts down first; the count is approximate by design.
   - **`Components/ExclusiveStand`** (client): billboard text (pitch, stock left or "Sold out", price or "Owned!"). The prompt is hidden when owned or sold out. It opens the Robux prompt once a product id exists; until then it says "Coming soon!".
   - **Studio:** `Workspace.ExclusiveStand` is the base pedestal mesh scaled 1.5x and recoloured gold (255, 176, 0) with a warm PointLight, at the centre of the lobby aisle (42, -300) between the leaderboards. Tag `ExclusiveStand`, attribute `Exclusive = Kingy`, and a `Billboard` with Pitch (Gold), Title (Chrome), Stock and Price (Green).
-  - **Admin:** "Grant Exclusive Rok" (`exclusive`) and "Reset Exclusive Owned" (`noexclusive`).
+  - **Admin:** "Grant Exclusive Pet" (`exclusive`) and "Reset Exclusive Owned" (`noexclusive`).
 
 Step 7, gifting (2026-10-24), server side built, not playtested:
 - **Catalogue:** `MonetizationConfig.Gifts` lists 19 gift twins (6 passes incl. VIP, 4 boosts, Lucky 1/3/10, 5 cash packs, Kingy). Each has a `ProductId` (all `nil` until made). `PurchaseService/Gifts` holds the per-kind rules:
@@ -75,7 +75,7 @@ Step 8 (2026-10-24), built, not playtested:
   - `PromptPass`, `PromptBoost`, `PromptServerBoost`, `PromptLucky(index, zone)`, `PromptStarterPack`, `PromptOfflineClaim`, `PromptExclusive`, `Gift(giftKey, userId)`, `PromptCash(shortfall)` (calls `CashPackController`, which stays as the cash part), `CoveringPack(shortfall)` and `OwnsPass(key)`. A missing product id shows "Coming soon!".
   - It handles `PromptGamePassPurchaseFinished` ("<Pass> unlocked!" with the money sound).
 - **Robux price tags (R11):**
-  - A small yellow block button (`RobuxButton`, cut from the Cannon card's Robux button; colours `MonetizationConfig.RobuxButtonColors`, glyph U+E002) sits on the top-right corner of the Aura Shop next-tier buy button, the Geode Shop Buy 1, the Roks panel +1 Slot and the training Upgrade sign's cash button. The Cannon card's own `RobuxButton` is now used too.
+  - A small yellow block button (`RobuxButton`, cut from the Cannon card's Robux button; colours `MonetizationConfig.RobuxButtonColors`, glyph U+E002) sits on the top-right corner of the Aura Shop next-tier buy button, the Geode Shop Buy 1, the Pets panel +1 Slot and the training Upgrade sign's cash button. The Cannon card's own `RobuxButton` is now used too.
   - Each one shows only when that cash price can't be afforded (and isn't locked), shows the covering cash pack's Robux price, and opens that pack's prompt. `Utils/RobuxButton.Show` paints it.
 - **Rebirth Skip removed (R6):** the button is in `ServerStorage.UIBackup.Rebirth.SkipButton_Removed`, the Rebirth button is centred, and `RebirthConfig.SkipRobuxPrice` and its code are deleted.
 - **Exclusive stand fix:** the stand's pedestal is turned 180° so Kingy faces the aisle (user: "kingy rock is facing the wrong way").
@@ -101,7 +101,7 @@ Step 9, shop UI, first layout (2026-10-24, Studio only, waiting for the user's l
   - **Cards:** every card is a `Tray` (dark slate 30,34,46, 3px black outline, 8px padding) holding a bright `Card`: a light-to-base vertical gradient, studs tinted a darker shade of the card colour (not black), and diagonal shine `Stripes` (`124988166234585`, 0.72) clipped to the card. No rays; big icons sit over the card edge.
   - **Buttons:** lime block buttons. Two-line ones carry the price on top and a `Sub` line ("Buy 1 / Buy 3 / Buy 10", "1 hour"). Small purple `Details` / `Odds` pills. A red struck-through `Worth` price above the buy button. Red tilted ribbons ("New!", "Popular") stick out past the top-left corner, and a red "Best Seller!" `Headline` sits top-right. The big lime "Gift!" button hangs outside the panel's bottom-right.
   - **Templates, in scroll order:**
-    - `LuckyCard`: Lucky Geode with Rok tiles showing income above, odds bottom-right and a rarity-coloured background for Legendary and Secret, an Odds pill, and Buy 1 / 3 / 10.
+    - `LuckyCard`: Lucky Geode with Pet tiles showing income above, odds bottom-right and a rarity-coloured background for Legendary and Secret, an Odds pill, and Buy 1 / 3 / 10.
     - `WideCard`: the server boosts (huge Gold "x2 + 15M"), personal boosts (`AltButton` for the 1 h price, `Timer`), and VIP (a `Perks` list with icons, "Best Seller!", struck 1,045).
     - `StarterCard`: item tiles joined by big gold "+" signs, income above and name below, red timer, struck price.
     - `PassGrid` of `PassCard` (2 columns, 500×250: title, icon, blurb, Details, price, Owned).
@@ -117,7 +117,7 @@ Step 9, shop UI, first layout (2026-10-24, Studio only, waiting for the user's l
   - **Icon strokes (user, 2026-10-24: "the icons in the shop need stroke"):** every `Icon` has eight black `IconOutline1..8` copies and an `IconShadow`, like the header icon.
     - Outline offset: 4px for icons 120px and up, 3px from 60px, 2px below.
     - Shadow: black at 0.6, offset px / px+2.
-    - **Not on Rok icons:** the rendered Rok icons (`ItemIconConfig`) already have their outline baked in. The Lucky tile icons have no outline copies (user: "way to heavy"), and the screen code must skip outlines for any Rok icon (e.g. Champ or Kingy in the starter pack and exclusive cards).
+    - **Not on Pet icons:** the rendered Pet icons (`ItemIconConfig`) already have their outline baked in. The Lucky tile icons have no outline copies (user: "way to heavy"), and the screen code must skip outlines for any Pet icon (e.g. Champ or Kingy in the starter pack and exclusive cards).
     - Rebuilt after the resize, which had left the old copies at the wrong sizes and offsets. The screen code must rebuild or resize the copies whenever it resizes an icon. The screen code must set `Image` on the icon, its outlines and its shadow together.
   - **Narrower (user, 2026-10-24: "the shop is too wide"):** the panel is 920×700, and every card is refitted to it:
     - Wide-card text is 330-340 wide from x 220; buy buttons are 210 wide.
@@ -133,7 +133,7 @@ Step 9, shop screen code (2026-10-25), built and checked in Play by screenshot; 
   - `Motion`: icons bob, the big "x2" text pulses, shine stripes scroll, `SparkleCross` sparkles twinkle on the Lucky, Starter, VIP and Exclusive cards. Off with Low Graphics. One `RenderStepped` connection while the shop is open.
   - Settings live in `RobuxShopConfig` (palettes, button colours, icons per item, texts, `ServerBoostOrder`, motion).
 - **Order:**
-  - Lucky Geode: the zone your strength reaches, Rare+ tiles with Rok icons, income and odds; the first one is 9 R$ as "First one!"; hidden when `RandomItemsRestricted`.
+  - Lucky Geode: the zone your strength reaches, Rare+ tiles with Pet icons, income and odds; the first one is 9 R$ as "First one!"; hidden when `RandomItemsRestricted`.
   - Server Luck / Cash / Strength, with timers.
   - Starter Pack: only while the 24 h offer is open and not bought; items joined by "+", the struck real total, the timer.
   - Personal 2x Cash / 2x Strength: "15 min" and "1 hour" buttons stacked, timer.
@@ -234,18 +234,18 @@ Every price and number marked *draft* goes in config and is checked in a playtes
 
 | # | Question | Decision | Why |
 | --- | --- | --- | --- |
-| R1 | **Starter pack: what's in it, and for how much?** | **29 R$, a developer product, once per player:** cash worth 20 geodes of your zone, **Champ** (an exclusive Rok, 100 $/s, can't be sold), 30 min of 2x Strength, and 1 Lucky Geode. The price button has the real separate total struck through above it ("~~199~~"). | A 29 R$ starter pack gets about 3% of players to buy (notes). A developer product stays off the game page's Store tab. The struck price is the real sum of the items' shop prices, so it isn't a fake anchor. |
+| R1 | **Starter pack: what's in it, and for how much?** | **29 R$, a developer product, once per player:** cash worth 20 geodes of your zone, **Champ** (an exclusive Pet, 100 $/s, can't be sold), 30 min of 2x Strength, and 1 Lucky Geode. The price button has the real separate total struck through above it ("~~199~~"). | A 29 R$ starter pack gets about 3% of players to buy (notes). A developer product stays off the game page's Store tab. The struck price is the real sum of the items' shop prices, so it isn't a fake anchor. |
 | R2 | **When is it offered, and does it expire?** | **A real 24 h timer** (screenshots 17-19) starting when the tutorial ends or is skipped. A popup at the start, a timer on the HUD offer and the shop banner. **When it reaches 0 the offer really ends.** One "Back for 24 h!" second chance after the first rebirth, if not bought. | The user keeps pointing at timed starter packs. A timer that really ends is honest urgency; one that resets or keeps selling breaks the false-advertising rule. The second chance catches players who weren't ready yet. |
 | R3 | **Personal timed boosts** | **2x Cash and 2x Strength, 15 min for 19 R$ or 1 h for 59 R$.** They stack time up to 6 h and count down only while you play. A free 5-min 2x Strength when the tutorial ends, and a "Keep it going?" card when a boost runs out. | The user's call: boosts are how players start paying. About 1-1.5 R$ per minute matches the notes. |
 | R4 | **Permanent passes** | **2x Luck 299, 2x Strength 249, 2x Cash 199, Auto Open 199, Big Backpack 99**, and **VIP 799**: all five plus a VIP chat tag and a gold name (screenshot 19), 24% off. Each card has a **Details** button (screenshots 18, 20). | The notes suggest 5-8 passes, a bundle 20-30% off, and putting new perks into the existing VIP. Other games price 2x passes at 249-399; we're a new game, so the low end. |
 | R5 | **What does 2x Cash double?** | **Chop cash and Diamond Rock pay.** Not pedestals, offline income or sell value. | Keeps the offline target ([[Balance Pass Oct 18]]) and hatch-and-sell under 100%. |
 | R6 | **Welcome back with Claim x3** | **Yes, 29 R$:** a popup on join showing what your pedestals earned offline, with **Claim** (free) and **Claim x3** (adds 2x the amount as cash). | The notes call offline multipliers a simulator must-have. Screenshots 2 and 12 show the popup (12 sells it for 11 R$). |
-| R7 | **Paid geodes: what form?** | **A Lucky Geode per zone:** that zone's Roks, **Rare or better only**, with a **guaranteed weather modifier**. 1 for 49, 3 for 129, 10 for 399 R$, and your **first one ever for 9 R$**. Bought geodes go into your geode inventory and are cracked at the pit like any other geode, so they count toward pity. Odds are shown before buying, and they're hidden for players in countries where paid random items are restricted (section 4). | Screenshot 18's Robux lucky block (Buy 1/3/8) and screenshot 16's 9 R$ random pet are the model. Rare+ with a modifier makes it clearly better than a cash geode, so it isn't just a cash pack in disguise. Cracking at the pit keeps the meter, pity and the reveal. |
+| R7 | **Paid geodes: what form?** | **A Lucky Geode per zone:** that zone's Pets, **Rare or better only**, with a **guaranteed weather modifier**. 1 for 49, 3 for 129, 10 for 399 R$, and your **first one ever for 9 R$**. Bought geodes go into your geode inventory and are cracked at the pit like any other geode, so they count toward pity. Odds are shown before buying, and they're hidden for players in countries where paid random items are restricted (section 4). | Screenshot 18's Robux lucky block (Buy 1/3/8) and screenshot 16's 9 R$ random pet are the model. Rare+ with a modifier makes it clearly better than a cash geode, so it isn't just a cash pack in disguise. Cracking at the pit keeps the meter, pity and the reveal. |
 | R8 | **Server-wide boosts** | **Server 2x Cash and Server 2x Strength, 15 min, 99 R$ each.** Buying one while it's running adds 15 min (up to 2 h). Everyone in the server gets it, the buyer's name is announced, and everyone sees "Keep the server boost going?" in its last minute. **Server 2x Luck for 15 min at 169 R$** (screenshot 18) too. | The user's call. Free players benefit too, so it's good for the server. The last-minute offer is how one purchase becomes a chain. Server Luck is the one exception to §00's "Robux luck is only the 2x Luck pass": it is server-wide, never personal. |
 | R9 | **Gifting** | **Gift any pass, VIP, boost, Lucky Geode or cash pack to a player in your server.** A big Gift button sits next to Buy (screenshot 18), you pick from a list of players, and the server announces "A gifted B 2x Luck!". Starter Pack and Claim x3 aren't giftable. | The user's call: gifting encourages playing together. Roblox can't gift game passes, so each giftable item gets a developer product "gift twin" that grants it to the friend (section 7). |
-| R10 | **Big-ticket items** | **Mega cash pack** (999 R$, 350 geodes) now. **An exclusive Rok stand in the lobby** (screenshots 13, 15): one big Rok per update on a glowing pedestal with a Buy prompt, 1,499 R$, income **always 3x your best Rok**, with a server-wide stock (draft 10,000) shown on it and "Sold out" when gone. | The notes say a full shop should reach at least 3,000 R$ and that items seen without opening a menu sell most. Screenshot 13 promises 12x; 3x keeps pedestals from taking over income. |
+| R10 | **Big-ticket items** | **Mega cash pack** (999 R$, 350 geodes) now. **An exclusive Pet stand in the lobby** (screenshots 13, 15): one big Pet per update on a glowing pedestal with a Buy prompt, 1,499 R$, income **always 3x your best Pet**, with a server-wide stock (draft 10,000) shown on it and "Sold out" when gone. | The notes say a full shop should reach at least 3,000 R$ and that items seen without opening a menu sell most. Screenshot 13 promises 12x; 3x keeps pedestals from taking over income. |
 | R11 | **Rebirth Skip and the Robux buttons by cash prices** | **Remove Skip** (Robux never skips the rebirth gate). **Show a Robux button beside every cash price you can't afford** (screenshot 7), opening the covering cash pack. | The Skip button contradicts [[Rebirth Gated By Strength]]. A visible Robux price sells better than the shortfall prompt alone. |
-| R12 | **In-world purchase spots** | **Yes:** a 2x Strength sign on each training stand, 2x Luck and Auto Open signs plus a Lucky Geode pedestal at the Geode Shop, the exclusive Rok stand, and a "Bag full" Big Backpack button. No Robux-spent leaderboard. | Sales from spots in the world can be up to 10x those from a menu (notes). A board ranking kids by spending puts pressure on them. |
+| R12 | **In-world purchase spots** | **Yes:** a 2x Strength sign on each training stand, 2x Luck and Auto Open signs plus a Lucky Geode pedestal at the Geode Shop, the exclusive Pet stand, and a "Bag full" Big Backpack button. No Robux-spent leaderboard. | Sales from spots in the world can be up to 10x those from a menu (notes). A board ranking kids by spending puts pressure on them. |
 | R13 | **Robux training mats** (screenshot 14: 119 / 299 / 719 for 75x / 300x / 1000x)? | **No.** 2x Strength (pass, boost, server boost) covers it. | Training time is the core pacing ([[Balance Pass Oct 18]]), and 30x mats would make every gate take seconds. If wanted later, one "Gold Mat" at x3 for 299 that replaces the 2x Strength pass is the most it could be. |
 
 Also, outside the code:
@@ -280,7 +280,7 @@ The things that sell aren't in the game yet:
 
 ## What is already decided (do not change)
 - **Paid geodes are allowed** (user, 2026-10-24; Decision Log updated). They follow Roblox's paid random item rules (section 4).
-- **Robux never skips a gate:** no rebirth skips and no stand skips. Robux buys cash, boosts and Roks ([[Rebirth Gated By Strength]]).
+- **Robux never skips a gate:** no rebirth skips and no stand skips. Robux buys cash, boosts and Pets ([[Rebirth Gated By Strength]]).
 - **Personal Robux luck stays the permanent 2x Luck pass.** No personal luck potions (§00). The one exception is the server-wide Server 2x Luck (R8, approved 2026-10-24).
 - **No middleman** ([[Cash Packs]]): a buy button you can't afford opens the Robux prompt straight away. The shop is the catalogue.
 - **Auto Open is a 199 R$ game pass** (`AutoOpenGeodePlan.md` A6). It may crack owned Lucky Geodes but **never buys** them.
@@ -306,7 +306,7 @@ Price ladder (notes): entry 9-29 R$ for the first purchase, core 99-299, big-tic
 | --- | --- | --- | --- |
 | **Starter Pack** | Dev product, once, 24 h offer | **29** | Cash worth 20 geodes, Champ, 30 min 2x Strength, 1 Lucky Geode |
 | **First Lucky Geode** | Dev product, once | **9** | 1 Lucky Geode of your zone |
-| **Lucky Geode** ×1 / ×3 / ×10 | Dev product | **49 / 129 / 399** | Rare+ Rok of the chosen zone with a guaranteed modifier |
+| **Lucky Geode** ×1 / ×3 / ×10 | Dev product | **49 / 129 / 399** | Rare+ Pet of the chosen zone with a guaranteed modifier |
 | **2x Cash / 2x Strength, 15 min** | Dev product | **19** each | +1x while it runs, play time only |
 | **2x Cash / 2x Strength, 1 h** | Dev product | **59** each | Same |
 | **Server 2x Cash / Server 2x Strength, 15 min** | Dev product | **99** each | +1x for everyone in the server; adds 15 min if one is running |
@@ -316,10 +316,10 @@ Price ladder (notes): entry 9-29 R$ for the first purchase, core 99-299, big-tic
 | **2x Strength** | Game pass | **249** | Training strength x2 |
 | **2x Cash** | Game pass | **199** | Chop and Diamond cash x2 |
 | **Auto Open** | Game pass | **199** | `AutoOpenGeodePlan.md` |
-| **Big Backpack** | Game pass | **99** | Backpack 100 → 200 Roks |
+| **Big Backpack** | Game pass | **99** | Backpack 100 → 200 Pets |
 | **VIP** | Game pass | **799** | All five passes + VIP chat tag + gold name (1,045 separately) |
 | Cash packs Small / Medium / Large / Huge / **Mega** | Dev product | 25 / 79 / 199 / 499 / **999** | Mega = 350 geodes of your zone |
-| **Exclusive Rok** (one per update) | Dev product, once per player, limited stock | **1,499** | Earns 3x your best Rok's income; can't be sold |
+| **Exclusive Pet** (one per update) | Dev product, once per player, limited stock | **1,499** | Earns 3x your best Pet's income; can't be sold |
 | **Gift twins** | Dev product | same as the item | The same item granted to another player |
 
 Why these kinds:
@@ -334,7 +334,7 @@ Not sold:
 - Robux training mats (R13)
 - a Robux-spent leaderboard
 
-Later, with Rok upgrades: a 100%-chance fuse (screenshot 9).
+Later, with Pet upgrades: a 100%-chance fuse (screenshot 9).
 
 ## 3. Timed boosts
 
@@ -370,7 +370,7 @@ Later, with Rok upgrades: a 100%-chance fuse (screenshot 9).
 
 ### What they are
 - **One Lucky Geode per zone**, unlocked at the same strength as that zone's geode. It's a `GeodeConfig` entry `Lucky<Zone>` with `RobuxOnly = true`, `MinRarity = "Rare"` and `GuaranteedModifier = true`.
-- **Odds:** the zone's Rare, Epic, Legendary and Secret by their usual weights, rolled with `HatchOdds.RollAtLeast(geode, "Rare")` (what Geode Fall uses), with the player's luck applied as usual. Every crack also rolls a weather modifier (`WeatherService` weights), so it's never a plain Rok.
+- **Odds:** the zone's Rare, Epic, Legendary and Secret by their usual weights, rolled with `HatchOdds.RollAtLeast(geode, "Rare")` (what Geode Fall uses), with the player's luck applied as usual. Every crack also rolls a weather modifier (`WeatherService` weights), so it's never a plain Pet.
 - **Buying:**
   - The shop's Lucky Geode card (or the Lucky Geode pedestal at the Geode Shop) has zone tabs.
   - The client sends `SetLuckyGeodeZone(zoneKey)` and then prompts the product.
@@ -380,13 +380,13 @@ Later, with Rok upgrades: a 100%-chance fuse (screenshot 9).
 
 ### Paid random item rules (must ship with it)
 - **Odds shown before purchase:** an "Odds" button on the card and the pedestal opens the exact percentages, with and without 2x Luck. They're computed from config, like the Geode Shop.
-- **Never nothing:** every geode gives a Rok. A full Backpack never blocks or wastes a purchase; the geodes wait in inventory.
+- **Never nothing:** every geode gives a Pet. A full Backpack never blocks or wastes a purchase; the geodes wait in inventory.
 - **Restricted countries:** on load, `PolicyService:GetPolicyInfoForPlayerAsync(player).ArePaidRandomItemsRestricted` is cached (pcall; treated as restricted if the call fails).
   - Restricted players never see Lucky Geode buttons, gifts of them, or their offers.
   - The starter pack's Lucky Geode is swapped for 3 more cash geodes for them.
   - A gift of a Lucky Geode to a restricted player can't be chosen.
   - If a receipt still arrives (an exploit), it's granted. They paid, and refusing would loop.
-- **No trading:** Roks can't be traded for Robux or items outside the game (there's no trading).
+- **No trading:** Pets can't be traded for Robux or items outside the game (there's no trading).
 - **Maturity questionnaire:** answer "yes" to paid random items.
 - **Auto Open** may crack owned Lucky Geodes but never buys them.
 
@@ -419,7 +419,7 @@ Why it's safe:
 - The recipient gets `Passes[key] = true` in their profile. `PassService` treats a profile flag as owned, alongside Roblox ownership.
 - A gifted VIP sets all five passes plus the VIP perks.
 
-## 6. Starter pack, Welcome back, exclusive Rok
+## 6. Starter pack, Welcome back, exclusive Pet
 
 ### Starter pack (R1, R2)
 - **Contents:**
@@ -433,18 +433,18 @@ Why it's safe:
   - At 0 all of them disappear and the product can't be prompted.
   - After the first rebirth, if not bought, one more 24 h window ("Back for 24 h!", `SecondChanceUsed`).
 - **Only once:** `StarterPack.Bought` is set in the grant. The client hides it, and buttons disable while a prompt is open. A duplicate receipt (two servers or an exploit) grants the cash, boost and geode again but no second Champ, and returns true.
-- **Full Backpack:** Champ waits (`RokPending`) and is granted once there's room.
+- **Full Backpack:** Champ waits (`PetPending`) and is granted once there's room.
 
 ### Welcome back (R6)
-- **What it shows:** `PedestalService` records the offline amount it credits (`Offline.LastAmount`, `LastAt`). On join, if you were away at least 10 min and the amount is at least 1 geode of your zone, `WelcomeBack` shows (screenshots 2 and 12): a clock-and-money icon, "Your Roks earned while you were away", the amount on rays, **Claim** (green) and **Claim x3** (rainbow, 29 R$).
+- **What it shows:** `PedestalService` records the offline amount it credits (`Offline.LastAmount`, `LastAt`). On join, if you were away at least 10 min and the amount is at least 1 geode of your zone, `WelcomeBack` shows (screenshots 2 and 12): a clock-and-money icon, "Your Pets earned while you were away", the amount on rays, **Claim** (green) and **Claim x3** (rainbow, 29 R$).
 - **The Claim x3 grant:** adds `2 × LastAmount` as cash and zeroes it in the same step, so a retry can't pay twice. A duplicate returns true with nothing extra.
 - **Not shown** on the first join or during the tutorial.
 
-### Exclusive Rok stand (R10)
-- **Where:** a glowing pedestal in the lobby with a big Rok on it, idle motion and an aura ring (screenshot 13).
-- **Billboard:** "Best Rok in the game! Always 3x your best", the price, and "Stock: 5,835 / 10,000".
+### Exclusive Pet stand (R10)
+- **Where:** a glowing pedestal in the lobby with a big Pet on it, idle motion and an aura ring (screenshot 13).
+- **Billboard:** "Best Pet in the game! Always 3x your best", the price, and "Stock: 5,835 / 10,000".
 - **Buying:** a ProximityPrompt "Buy, R$ 1,499". Once owned, the prompt shows "Owned". It's also on the shop's Featured tab.
-- **Income:** `IncomeRule = "BestTimes"`. Its $/s is 3x the base $/s of your best non-exclusive Rok, recalculated when your Roks change. It can't be sold, and it can be gifted.
+- **Income:** `IncomeRule = "BestTimes"`. Its $/s is 3x the base $/s of your best non-exclusive Pet, recalculated when your Pets change. It can't be sold, and it can be gifted.
 - **Stock:**
   - A global count in a DataStore key, increased with `UpdateAsync` in a task *after* the receipt is confirmed, never inside the grant.
   - Servers read it every 60 s.
@@ -460,13 +460,13 @@ Why it's safe:
 - **Left tabs:** **Featured**, **Boosts**, **Geodes**, **Passes**, **Cash**.
 - **Featured:**
   - The Starter Pack banner with its timer while the offer runs. After that, VIP.
-  - The exclusive Rok card (stats tiles: Income "3x your best", stock).
+  - The exclusive Pet card (stats tiles: Income "3x your best", stock).
   - The server boost card ("Server 2x Cash x2 + 15M", screenshot 18) with live state.
   - A Lucky Geode strip.
 - **Boosts:**
   - Personal boost cards in the "Double your Strength: x1 ▶ x2" layout (screenshot 6), with timers.
   - The server boost cards below them.
-- **Geodes:** the Lucky Geode card like screenshot 18. Zone tabs, the six Roks with icons and odds % (Common and Uncommon shown greyed as "not in this geode"), "Modifier guaranteed!", buttons Buy 1 / Buy 3 / Buy 10, an Odds button, and a gift button beside each.
+- **Geodes:** the Lucky Geode card like screenshot 18. Zone tabs, the six Pets with icons and odds % (Common and Uncommon shown greyed as "not in this geode"), "Modifier guaranteed!", buttons Buy 1 / Buy 3 / Buy 10, an Odds button, and a gift button beside each.
 - **Passes:**
   - VIP on top (screenshot 19: crown, perk list, "Best Seller!").
   - Then a 2-column grid of coloured cards like screenshot 20: name, icon, one-line blurb, price, a purple **Details** button.
@@ -479,7 +479,7 @@ Why it's safe:
 ### Making it more enticing than the other panels
 The house style stays: sharp corners, black outlines, studs, block buttons, `Chrome` titles, no all caps. On top of it, all *draft* in `RobuxShopConfig.Motion`:
 - **Opening:** the world blurs behind a dark shade, the panel pops, then cards pop in one after another (0.05 s apart, Back easing) with a rising chime.
-- **Rays** turn behind every icon (20°/s in the card's colour). The starter pack's and the exclusive Rok's turn at 40°/s and shift colour.
+- **Rays** turn behind every icon (20°/s in the card's colour). The starter pack's and the exclusive Pet's turn at 40°/s and shift colour.
 - **Icons** bob ±4 px on a 2 s loop, out of step with each other.
 - **Big numbers:** "x2" pulses (1 ↔ 1.06). 2x passes use a sliding rainbow gradient (the notes: make 2x stand out with a rainbow).
 - **Timers:** the starter pack's ticks in red `Chrome` (screenshots 17-19). The server boost's ticks with a pulsing ring in its last minute.
@@ -501,7 +501,7 @@ The house style stays: sharp corners, black outlines, studs, block buttons, `Chr
 - **In the world (R12):**
   - A 2x Strength sign on each training stand.
   - 2x Luck and Auto Open signs, and a Lucky Geode pedestal (spinning geode, "Odds" and "Buy" prompts), at the Geode Shop.
-  - The exclusive Rok stand.
+  - The exclusive Pet stand.
 - **At the moment of need:**
   - Not enough cash: the covering pack, plus a Robux button beside each cash price (R11).
   - "Bag full!": Big Backpack.
@@ -509,7 +509,7 @@ The house style stays: sharp corners, black outlines, studs, block buttons, `Chr
   - The server boost's last minute: the chain card.
   - Join: Welcome back.
   - `LuckToggle`: 2x Luck.
-- **Not a lobby shop stall:** the shop opens from anywhere. The exclusive Rok and Lucky Geode pedestals are the lobby's in-world sales spots.
+- **Not a lobby shop stall:** the shop opens from anywhere. The exclusive Pet and Lucky Geode pedestals are the lobby's in-world sales spots.
 
 ## 8. How scattered purchase points route
 One client controller, `PurchaseController`, replaces `CashPackController` (which becomes its cash-pack part). It is the only code that prompts purchases and listens for the purchase-finished events. Everything calls it by catalogue key: `Prompt(key)`, `PromptCash(shortfall)`, `Gift(key)`.
@@ -521,7 +521,7 @@ One client controller, `PurchaseController`, replaces `CashPackController` (whic
 | Geode Shop | Cash geodes | Plus a "Lucky" tab that opens the shop's Geodes tab |
 | Rebirth Skip | Shows 25 | Removed |
 | Cannon `RobuxButton` | Hidden | Covering pack price |
-| Training stand, Geode Shop signs, Lucky pedestal, exclusive Rok stand | none | `Components/PurchaseSign` (tag `PurchaseSign`, attribute `Item`) |
+| Training stand, Geode Shop signs, Lucky pedestal, exclusive Pet stand | none | `Components/PurchaseSign` (tag `PurchaseSign`, attribute `Item`) |
 | Shop, HUD offer, pills, run-out and chain cards, Starter popup, Welcome back | none | `Prompt(key)` / `Gift(key)` |
 
 ## 9. Architecture
@@ -532,7 +532,7 @@ One client controller, `PurchaseController`, replaces `CashPackController` (whic
   - `Boosts` (with `CapSeconds` 21600, `TasteSeconds` 300) and `ServerBoosts` (`Seconds` 900, `CapSeconds` 7200, `ChainOfferSeconds` 60).
   - `LuckyGeodes` (first, 1, 3, 10).
   - `StarterPack` (`OfferSeconds` 86400, contents, `SecondChance`).
-  - `OfflineClaim`, `Exclusives` (each `{ RokKey, ProductId, RobuxPrice, Stock, StockKey }`), `PassMultipliers`, `BackpackBonus`.
+  - `OfflineClaim`, `Exclusives` (each `{ PetKey, ProductId, RobuxPrice, Stock, StockKey }`), `PassMultipliers`, `BackpackBonus`.
   - `LuckConfig.GamepassId` and the planned `AutoOpenConfig.GamepassId` move here.
 - **`RobuxShopConfig.luau`** (new): tabs, colours, ribbons, offer rotation and `Motion`.
 - **`CashPackConfig`:** adds Mega.
@@ -543,7 +543,7 @@ One client controller, `PurchaseController`, replaces `CashPackController` (whic
 In `PlayerData.luau`, update `Data`, `Template` and `Validate` together. These are new fields only, so no migration is needed.
 - `Passes: { [string]: boolean }`: owned through Roblox (cached) or a gift.
 - `Boosts: { [string]: number }`: seconds left per boost.
-- `StarterPack: { Bought, RokPending, OfferEndsAt, SecondChanceUsed }`.
+- `StarterPack: { Bought, PetPending, OfferEndsAt, SecondChanceUsed }`.
 - `Offline: { LastAmount, LastAt }`.
 - `Offers: { TasteGiven, FirstLuckyBought }`.
 - `GiftsReceived: { [string]: number }` (last 100) and `GiftCredits: { [string]: number }`.
@@ -572,7 +572,7 @@ In `PlayerData.luau`, update `Data`, `Template` and `Validate` together. These a
   - **Backpack:** `PetService:CanAdd` uses the Big Backpack bonus.
   - **Luck:** `GeodeService/Luck` adds the Server 2x Luck boost.
 - **`GeodeService`:** Lucky geode config (`RollAtLeast` Rare, a forced modifier roll), `SetLuckyGeodeZone`, pity on the base zone's counters. Auto Open never buys `RobuxOnly` geodes.
-- **`PedestalService`:** records the offline amount, sets `WelcomeBackDue`, and handles `IncomeRule = "BestTimes"` Roks.
+- **`PedestalService`:** records the offline amount, sets `WelcomeBackDue`, and handles `IncomeRule = "BestTimes"` Pets.
 - **`ExclusiveService`** (new, small): the global stock count, read every 60 s and incremented after confirmed sales, and the stand's state attributes.
 - **Champ and exclusives:** `SellShop` refuses them, and `IndexService` lists them in an Exclusive row that isn't counted for completion or claims.
 
@@ -597,7 +597,7 @@ In `PlayerData.luau`, update `Data`, `Template` and `Validate` together. These a
   - `PurchaseBanner` (gift and server boost announcements)
   - `GiftReceivedPopup`
 - `Components/PurchaseSign` for every in-world purchase spot. `Components/ExclusiveStand`.
-- Edits: `Rebirth` (remove Skip), `CannonShop`, `Shop`, `GeodeStand`, `Roks` and `TrainingUpgradeSign` (the Robux button by cash prices), `GeodeStand` (Luck, Auto Open, Bag full, Lucky tab).
+- Edits: `Rebirth` (remove Skip), `CannonShop`, `Shop`, `GeodeStand`, `Pets` and `TrainingUpgradeSign` (the Robux button by cash prices), `GeodeStand` (Luck, Auto Open, Bag full, Lucky tab).
 
 ### Studio (with the `studio-ui` skill; save the place)
 - **Back up first:** copy `StarterGui.RobuxShop` to `ServerStorage.UIBackup.RobuxShop`.
@@ -606,16 +606,16 @@ In `PlayerData.luau`, update `Data`, `Template` and `Validate` together. These a
 - **World:**
   - A `PurchaseSign` on `Model_BasePlot`'s training stand.
   - Two signs and the Lucky Geode pedestal at the Geode Shop.
-  - The exclusive Rok stand in the lobby. The user places it; keep the aisles clear.
+  - The exclusive Pet stand in the lobby. The user places it; keep the aisles clear.
 - **Icons:**
   - Reused: Strength arm, money.
-  - New: clover, Auto Open, Backpack, clock, VIP crown, gift box, the Lucky Geode (a geode with a rainbow crystal), Champ, and the exclusive Rok (`item-icons`).
+  - New: clover, Auto Open, Backpack, clock, VIP crown, gift box, the Lucky Geode (a geode with a rainbow crystal), Champ, and the exclusive Pet (`item-icons`).
   - The user imports new PNGs through Studio so they land in the group.
 
 ### Making the products
 - **Developer products:** about 40 (items plus gift twins), made through Open Cloud by a script that writes the ids into `MonetizationConfig` ([[Open Cloud Key]] has the dev product scope).
 - **Game passes:** 6, made by the user in the Creator Dashboard, or through Open Cloud with a game pass scope.
-- **Names and descriptions** state exactly what each item does. The Lucky Geode descriptions say "random Rare or better Rok, odds shown in game".
+- **Names and descriptions** state exactly what each item does. The Lucky Geode descriptions say "random Rare or better Pet, odds shown in game".
 
 ## 10. Safe purchase handling (summary)
 - **Normal developer products:** `ProcessReceipt` is unchanged. The receipt id and reward go in one profile and are confirmed after one save holds both. Grants don't yield.
@@ -636,14 +636,14 @@ In `PlayerData.luau`, update `Data`, `Template` and `Validate` together. These a
   - Halves to quarters the minutes of income needed for auras, cannons, stands and slots.
   - The biggest possible chop reaches about 3.2-3.6x the next stand at x4. That check protected the cash packs from free jackpots, and these players paid or were boosted, so accept it.
 - **Lucky Geodes:**
-  - **Pedestal income for payers:** Rare+ Roks of your zone with a modifier go straight onto pedestals. A buyer's pedestal income can jump from about 15% of income toward the Legendary/Secret level of that zone. Model: a "Lucky buyer" row on Collection (10 Lucky Geodes per zone).
-  - **Sell value per Robux:** a Lucky Rok sells for 60 s of income, or 100 s if modified (all of them are). Check that Robux spent on Lucky Geodes and sold doesn't beat the same Robux in cash packs by much. If it does, lower modified sell value for `RobuxOnly` Roks, not the cash packs.
+  - **Pedestal income for payers:** Rare+ Pets of your zone with a modifier go straight onto pedestals. A buyer's pedestal income can jump from about 15% of income toward the Legendary/Secret level of that zone. Model: a "Lucky buyer" row on Collection (10 Lucky Geodes per zone).
+  - **Sell value per Robux:** a Lucky Pet sells for 60 s of income, or 100 s if modified (all of them are). Check that Robux spent on Lucky Geodes and sold doesn't beat the same Robux in cash packs by much. If it does, lower modified sell value for `RobuxOnly` Pets, not the cash packs.
   - **Pity:** paid cracks move the zone's counters, so a 10-pack gets a buyer closer to the Legendary guarantee. Intended.
 - **2x Luck and Server 2x Luck:** the Jungle hatch-and-sell worst case is already 96%. **Run the model with luck x2 and x3 before either goes on sale.** If the Jungle passes 100%, lower Jungle Legendary/Secret sell values or raise the Jungle geode price.
-- **2x Cash + Auto Open:** with the first auto-open design (buys and cracks anywhere), the Snow Roks page dropped to about 3.9 min for players with both; accepted for payers. Auto Open has since moved to the pit with owned geodes only ([[Auto Open At The Pit]]), so the player buys geodes by hand and this floor no longer applies. Re-check it when the model is re-run.
-- **Exclusive Rok (3x your best):** one pedestal earning 3x your best Rok adds about +40% to pedestal income at 8 slots, about +6% of total income. Model: an Exclusive row.
+- **2x Cash + Auto Open:** with the first auto-open design (buys and cracks anywhere), the Snow Pets page dropped to about 3.9 min for players with both; accepted for payers. Auto Open has since moved to the pit with owned geodes only ([[Auto Open At The Pit]]), so the player buys geodes by hand and this floor no longer applies. Re-check it when the model is re-run.
+- **Exclusive Pet (3x your best):** one pedestal earning 3x your best Pet adds about +40% to pedestal income at 8 slots, about +6% of total income. Model: an Exclusive row.
 - **Claim x3:** about 7 min of total income, under one stand.
-- **Starter pack:** right after the tutorial, about 10-15 min of early progress plus a Rare+ Forest Rok. Champ fades from the Jungle on.
+- **Starter pack:** right after the tutorial, about 10-15 min of early progress plus a Rare+ Forest Pet. Champ fades from the Jungle on.
 - **Mega pack:** 350 geodes of your zone is about 12-25 min of income, below most next stands.
 - **Model v10:** multiplier inputs (off by default), "with passes", "boosted x4" and "Lucky buyer" check rows, the Exclusive and Champ rows, and luck x3 for the hatch-and-sell worst case.
 
@@ -660,7 +660,7 @@ In `PlayerData.luau`, update `Data`, `Template` and `Validate` together. These a
 10. **Popups, rail, pills, banner, gift picker:** show each one, then wire it.
 11. **In-world signs, the Lucky pedestal and the exclusive stand.** The user places them.
 12. **Make the products and passes** (script plus Dashboard), put the ids in config, and test real prompts and a real gift in a published test place.
-13. **Models and icons:** Champ, the first exclusive Rok, the Lucky Geode (`model-workflow`, `item-icons`).
+13. **Models and icons:** Champ, the first exclusive Pet, the Lucky Geode (`model-workflow`, `item-icons`).
 14. **Docs:**
     - Balance model v10.
     - Master Game Plan §10 filled in.
@@ -687,4 +687,4 @@ In `PlayerData.luau`, update `Data`, `Template` and `Validate` together. These a
 - **Studio UI isn't in git:** back up, and remind the user to save the place.
 
 ## Out of scope
-Skipping rebirths or stands, personal luck potions, Robux training mats (R13), auto-chop, trading, a Robux-spent leaderboard, Rok upgrade skips, base floors and extra pedestal slots, and analytics funnels (separate To Do; this plan's shop, prompt, purchase, gift and server boost events are its hook points).
+Skipping rebirths or stands, personal luck potions, Robux training mats (R13), auto-chop, trading, a Robux-spent leaderboard, Pet upgrade skips, base floors and extra pedestal slots, and analytics funnels (separate To Do; this plan's shop, prompt, purchase, gift and server boost events are its hook points).

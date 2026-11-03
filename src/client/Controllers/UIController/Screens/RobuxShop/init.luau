@@ -10,7 +10,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RobuxShopConfig = require(ReplicatedStorage.Config.RobuxShopConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
-local RokModifier = require(ReplicatedStorage.RokModifier)
+local PetModifier = require(ReplicatedStorage.PetModifier)
 local CashPack = require(ReplicatedStorage.Utils.CashPack)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -194,7 +194,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				end
 				Cards.SetIcon(tile, Cards.PetIcon(chance.PetKey) or "", false)
 				Cards.SetText(tile, "Odds", NumberFormat.Percent(chance.Chance))
-				Cards.SetText(tile, "Income", `${NumberFormat.Rate(RokModifier.Rate(chance.PetKey, nil))}/s`)
+				Cards.SetText(tile, "Income", `${NumberFormat.Rate(PetModifier.Rate(chance.PetKey, nil))}/s`)
 				tile.Parent = items
 				table.insert(tiles, tile)
 			end
@@ -406,7 +406,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local function buildExclusives()
 		for _, item in MonetizationConfig.Exclusives.Items do
-			local pet = PetConfig.Pets[item.RokKey]
+			local pet = PetConfig.Pets[item.PetKey]
 			local tray, inner = card("WideCard", "Purple", true)
 			if not tray or not inner or not pet then
 				continue
@@ -417,7 +417,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			Cards.SetText(inner, "Ribbon", texts.ExclusiveRibbon)
 			Cards.SetText(inner, "Headline", "")
 			Cards.SetText(inner, "Timer", "")
-			local icon = Cards.PetIcon(item.RokKey)
+			local icon = Cards.PetIcon(item.PetKey)
 			Cards.SetIcon(inner, icon or IconConfig.Crown, icon == nil)
 			Cards.SetVisible(inner, "Perks", false)
 			Cards.SetVisible(inner, "AltButton", false)

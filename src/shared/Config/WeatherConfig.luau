@@ -30,7 +30,6 @@ export type Modifier = {
 }
 
 export type WeatherSettings = {
-	PeriodSeconds: number,
 	DurationSeconds: number,
 	WarningSeconds: number,
 	CatchIntervalSeconds: number,
@@ -40,7 +39,6 @@ export type WeatherSettings = {
 	StormRockChance: number,
 	StartStormRocksPerZone: number,
 	HatchChance: number,
-	ClockSeed: number,
 	Events: { Event },
 	Modifiers: { [string]: Modifier },
 	WeatherAttribute: string,
@@ -48,10 +46,10 @@ export type WeatherSettings = {
 	EndsAtAttribute: string,
 	NextAtAttribute: string,
 	ModifierAttribute: string,
-	RokTag: string,
+	PetTag: string,
 	CaughtAtAttribute: string,
-	RokVFXName: string,
-	RokVFXReferenceStuds: number,
+	PetVFXName: string,
+	PetVFXReferenceStuds: number,
 	RockVFXName: string,
 	RockWeatherAttribute: string,
 	NoticeKindPrefix: string,
@@ -87,8 +85,7 @@ export type WeatherSettings = {
 }
 
 local WeatherConfig: WeatherSettings = {
-	PeriodSeconds = 1800,
-	DurationSeconds = 300,
+	DurationSeconds = 240,
 	WarningSeconds = 60,
 	CatchIntervalSeconds = 60,
 	CatchChance = 0.025,
@@ -97,7 +94,6 @@ local WeatherConfig: WeatherSettings = {
 	StormRockChance = 0.25,
 	StartStormRocksPerZone = 4,
 	HatchChance = 0.25,
-	ClockSeed = 7349,
 	Events = {
 		{
 			Key = "Sandstorm",
@@ -285,16 +281,16 @@ local WeatherConfig: WeatherSettings = {
 	EndsAtAttribute = "WeatherEndsAt",
 	NextAtAttribute = "NextWeatherAt",
 	ModifierAttribute = "Modifier",
-	RokTag = "ModifiedRok",
+	PetTag = "ModifiedPet",
 	CaughtAtAttribute = "ModifierCaughtAt",
-	RokVFXName = "ModifierVFX",
-	RokVFXReferenceStuds = 4,
+	PetVFXName = "ModifierVFX",
+	PetVFXReferenceStuds = 4,
 	RockVFXName = "WeatherVFX",
 	RockWeatherAttribute = "Weather",
 	NoticeKindPrefix = "Weather_",
 	WarningText = "%s in 1 minute!",
-	StartText = "A %s is here! Roks can catch %s (x%s)",
-	EndText = "The %s is over",
+	StartText = "%s is here! %s x%s",
+	EndText = "%s is over",
 	CatchText = "%s caught %s! $%s/s → $%s/s",
 	StartSoundKey = "SFX_Weather_Start",
 	LookTweenSeconds = 4,

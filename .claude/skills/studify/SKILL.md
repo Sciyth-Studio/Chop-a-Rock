@@ -5,7 +5,7 @@ description: Use when building something for Chop a Rock out of Studio parts rat
 
 # Stud-style part builds
 
-Adapted from the downloaded `studify` skill (2026-10-27), cut down to fit this project's vault. The rules here are for things built from `Part`, `WedgePart`, `CornerWedgePart`, `TrussPart` and the occasional union. Rocks, Roks, stalls, stands and anything else that comes from Blender stay on `model-workflow`; they sit alongside part builds and are not banned.
+Adapted from the downloaded `studify` skill (2026-10-27), cut down to fit this project's vault. The rules here are for things built from `Part`, `WedgePart`, `CornerWedgePart`, `TrussPart` and the occasional union. Rocks, Pets, stalls, stands and anything else that comes from Blender stay on `model-workflow`; they sit alongside part builds and are not banned.
 
 Read first: vault [[Keep Decor Simple]], [[Studs On Models By Default]], [[Tintable Mesh Textures]], [[Zone Line]] (zone colours), [[Ask The User To Look]], [[No All Caps In UI]] (sign text too). When the job matches a group in `references/INDEX.md`, open 3-6 of those reference images before building and treat them as the target for silhouette, colour balance and prop vocabulary.
 

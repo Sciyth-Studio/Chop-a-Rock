@@ -75,7 +75,13 @@ local function goodZone(chopController: any): GuiObject?
 	end
 	local frame = zone :: Frame
 	local good: ChopZones.Band? = nil
-	for _, band in ChopZones.Bands(chopController:GetZoneCenter(), chopController:GetStrengthRatio()) do
+	for _, band in
+		ChopZones.Bands(
+			chopController:GetZoneCenter(),
+			chopController:GetStrengthRatio(),
+			ChopZones.IsTouch(Players.LocalPlayer)
+		)
+	do
 		if band.Quality == ChopQuality.Good then
 			good = band
 		end

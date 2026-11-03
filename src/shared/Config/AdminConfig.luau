@@ -9,7 +9,7 @@ local MonetizationConfig = require(script.Parent.MonetizationConfig)
 local PetConfig = require(script.Parent.PetConfig)
 local RarityConfig = require(script.Parent.RarityConfig)
 local RockConfig = require(script.Parent.RockConfig)
-local RokSizeConfig = require(script.Parent.RokSizeConfig)
+local PetSizeConfig = require(script.Parent.PetSizeConfig)
 local ShopConfig = require(script.Parent.ShopConfig)
 local WeatherConfig = require(script.Parent.WeatherConfig)
 
@@ -146,11 +146,11 @@ for _, event in WeatherConfig.Events do
 end
 
 local sizeChoices: { Choice } = {}
-for _, key in RokSizeConfig.Order do
-	table.insert(sizeChoices, { Value = key, Label = RokSizeConfig.Sizes[key].DisplayName })
+for _, key in PetSizeConfig.Order do
+	table.insert(sizeChoices, { Value = key, Label = PetSizeConfig.Sizes[key].DisplayName })
 end
 
-local rokChoices: { Choice } = {}
+local petChoices: { Choice } = {}
 local rockChoices: { Choice } = {}
 local indexChoices: { Choice } = { { Value = "All", Label = "All" } }
 for _, page in IndexConfig.Pages do
@@ -163,7 +163,7 @@ for _, page in IndexConfig.Pages do
 			local pet = PetConfig.Pets[key]
 			local rock = (RockConfig.Rocks :: any)[key]
 			if page.Kind == "Pets" and pet then
-				table.insert(rokChoices, { Value = key, Label = `{pet.DisplayName} ({pet.Rarity})` })
+				table.insert(petChoices, { Value = key, Label = `{pet.DisplayName} ({pet.Rarity})` })
 			elseif page.Kind == "Rocks" and rock then
 				table.insert(rockChoices, { Value = key, Label = `{zone.DisplayName}: {rock.DisplayName}` })
 			end
@@ -226,7 +226,7 @@ local AdminConfig: AdminSettings = {
 	BaseWarpLabel = "My Base",
 	BaseSpawnName = "BaseSpawn",
 	WalkSpeedSource = "Admin",
-	Tabs = { "Setup", "Move", "Player", "Roks", "Geodes", "Chop", "Events", "Shop" },
+	Tabs = { "Setup", "Move", "Player", "Pets", "Geodes", "Chop", "Events", "Shop" },
 	PresetTab = "Setup",
 	WarpTab = "Move",
 	Commands = {
@@ -391,58 +391,58 @@ local AdminConfig: AdminSettings = {
 			Alias = "lbweek",
 		},
 		{
-			Id = "GrantRok",
-			Label = "Grant Rok",
-			Tab = "Roks",
+			Id = "GrantPet",
+			Label = "Grant Pet",
+			Tab = "Pets",
 			Kind = "Choice",
-			Choices = rokChoices,
-			Alias = "rok",
+			Choices = petChoices,
+			Alias = "pet",
 		},
 		{
-			Id = "GrantPet",
-			Label = "Grant Random Rok",
-			Tab = "Roks",
+			Id = "GrantRandomPet",
+			Label = "Grant Random Pet",
+			Tab = "Pets",
 			Kind = "Button",
 			Shortcut = Enum.KeyCode.P,
-			Alias = "randomrok",
+			Alias = "randompet",
 		},
 		{
-			Id = "SetRokTrait",
-			Label = "Held Rok: Set Trait",
-			Tab = "Roks",
+			Id = "SetPetTrait",
+			Label = "Held Pet: Set Trait",
+			Tab = "Pets",
 			Kind = "Choice",
 			Choices = traitChoices,
 			Alias = "trait",
 		},
 		{
 			Id = "GiveModifier",
-			Label = "Held Rok: Set Modifier",
-			Tab = "Roks",
+			Label = "Held Pet: Set Modifier",
+			Tab = "Pets",
 			Kind = "Choice",
 			Choices = modifierChoices,
 			Alias = "modifier",
 		},
 		{
-			Id = "SetRokSize",
-			Label = "Held Rok: Set Size",
-			Tab = "Roks",
+			Id = "SetPetSize",
+			Label = "Held Pet: Set Size",
+			Tab = "Pets",
 			Kind = "Choice",
 			Choices = sizeChoices,
 			Alias = "size",
 		},
-		{ Id = "FillBackpack", Label = "Fill Backpack", Tab = "Roks", Kind = "Button", Alias = "fill" },
-		{ Id = "ClearBackpack", Label = "Clear Backpack", Tab = "Roks", Kind = "Button", Alias = "clear" },
+		{ Id = "FillBackpack", Label = "Fill Backpack", Tab = "Pets", Kind = "Button", Alias = "fill" },
+		{ Id = "ClearBackpack", Label = "Clear Backpack", Tab = "Pets", Kind = "Button", Alias = "clear" },
 		{
 			Id = "FillPedestals",
 			Label = "Fill All Pedestals",
-			Tab = "Roks",
+			Tab = "Pets",
 			Kind = "Button",
 			Alias = "pedestals",
 		},
 		{
 			Id = "IndexComplete",
 			Label = "Index: Complete",
-			Tab = "Roks",
+			Tab = "Pets",
 			Kind = "Choice",
 			Choices = indexChoices,
 			Alias = "index",
@@ -450,7 +450,7 @@ local AdminConfig: AdminSettings = {
 		{
 			Id = "IndexReset",
 			Label = "Index: Reset",
-			Tab = "Roks",
+			Tab = "Pets",
 			Kind = "Choice",
 			Choices = indexChoices,
 			Alias = "unindex",
@@ -458,7 +458,7 @@ local AdminConfig: AdminSettings = {
 		{
 			Id = "IndexClaimAll",
 			Label = "Index: Claim All",
-			Tab = "Roks",
+			Tab = "Pets",
 			Kind = "Button",
 			Alias = "claimall",
 		},
@@ -627,12 +627,20 @@ local AdminConfig: AdminSettings = {
 			Alias = "diamondend",
 		},
 		{
-			Id = "ForceRush",
-			Label = "Next Rock: Rush",
+			Id = "ForceGolden",
+			Label = "Next Rock: Golden",
 			Tab = "Events",
 			Kind = "Button",
 			Shortcut = Enum.KeyCode.R,
-			Alias = "rush",
+			Alias = "golden",
+		},
+		{
+			Id = "ForceWildGeode",
+			Label = "Next Rock: Wild Geode",
+			Tab = "Events",
+			Kind = "Button",
+			Shortcut = Enum.KeyCode.J,
+			Alias = "wildgeode",
 		},
 		{
 			Id = "StartGeodeFall",
@@ -696,7 +704,7 @@ local AdminConfig: AdminSettings = {
 		},
 		{
 			Id = "GrantExclusive",
-			Label = "Grant Exclusive Rok",
+			Label = "Grant Exclusive Pet",
 			Tab = "Shop",
 			Kind = "Choice",
 			Choices = exclusiveChoices,
@@ -704,7 +712,7 @@ local AdminConfig: AdminSettings = {
 		},
 		{
 			Id = "ResetExclusive",
-			Label = "Reset Exclusive Rok",
+			Label = "Reset Exclusive Pet",
 			Tab = "Shop",
 			Kind = "Choice",
 			Choices = exclusiveChoices,
@@ -751,7 +759,6 @@ local AdminConfig: AdminSettings = {
 			Strength = 500,
 			Rebirths = 1,
 			AuraTier = 3,
-			PedestalSlots = 5,
 			Geodes = { Forest = 3 },
 			Pets = { "Bloky", "Bloky", "Sprout", "Shroomy", "Nesty" },
 		},
@@ -760,17 +767,16 @@ local AdminConfig: AdminSettings = {
 			Label = "Late Game",
 			Cash = 1000000,
 			Strength = 12500,
-			Rebirths = 1,
+			Rebirths = 3,
 			AuraTier = 5,
-			PedestalSlots = 8,
 			Geodes = { Forest = 10 },
 			Pets = { "Bloky", "Sprout", "Shroomy", "Nesty", "Berry", "Treebo", "Berry", "Nesty" },
 			CompleteIndex = true,
 		},
 	},
 	Limits = {
-		Cash = 1e15,
-		Strength = 1e15,
+		Cash = 1e24,
+		Strength = 1e24,
 		WalkSpeed = 250,
 		OfflineHours = 48,
 		GeodeGrant = 1e6,

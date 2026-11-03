@@ -23,10 +23,10 @@ Configs in `src/shared/Config/`, `AssetRegistry`, server-authoritative chop with
 
 ### Built ahead of MVP (pulled forward by the user)
 - Geodes, hatching and the hatch reveal; luck affects hatch rarity.
-- Roks (pet rocks) as Backpack tools, six forest Roks.
-- Six bases, pedestals with flat $/s onto earnings pads, slots, Equip Best, the Roks panel, offline income (50%, 4-hour cap).
+- Pets (pet rocks) as Backpack tools, six forest Pets.
+- Six bases, pedestals with flat $/s onto earnings pads, slots, Equip Best, the Pets panel, offline income (50%, 4-hour cap).
 - Sell Shop.
-- Index (Roks + Rocks pages, claims, zone completion bonus).
+- Index (Pets + Rocks pages, claims, zone completion bonus).
 - Per-player rock spawning in spawn areas.
 - Shop pads, admin panel.
 - Desert zone with three placeholder rocks; jungle, ocean and snow bases laid (floor and terrace walls).
@@ -41,11 +41,11 @@ Hot Streak, Rush Rocks, countdowns on shared special rocks, and the Diamond Rock
 
 ## Phase 6 — More zones
 Zone order: forest → desert → jungle → ocean → snow (`new-zone` skill).
-- Desert: real rock models to replace the placeholders, Roks, geode, Index page.
-- Jungle, ocean, snow: rock lineups need approval; the ocean Rok lineup needs revisiting for the deep-ocean theme.
+- Desert: real rock models to replace the placeholders, Pets, geode, Index page.
+- Jungle, ocean, snow: rock lineups need approval; the ocean Pet lineup needs revisiting for the deep-ocean theme.
 
 ## Phase 7 — Polish and tooling
-- Item icons for Roks and rocks (`IconSystemPlan.md`, waiting on decisions D1–D6).
+- Item icons for Pets and rocks (`IconSystemPlan.md`, waiting on decisions D1–D6).
 - Ascended Chop (1 in 1,000) — `[TBD]`, not built until the user picks it up.
 
 ## Later updates (not scheduled)

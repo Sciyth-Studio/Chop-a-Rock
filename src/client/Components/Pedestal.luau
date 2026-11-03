@@ -7,9 +7,9 @@ local Component = require(ReplicatedStorage.Packages.Component)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
-local RokModifier = require(ReplicatedStorage.RokModifier)
-local RokSize = require(ReplicatedStorage.RokSize)
-local RokSizeConfig = require(ReplicatedStorage.Config.RokSizeConfig)
+local PetModifier = require(ReplicatedStorage.PetModifier)
+local PetSize = require(ReplicatedStorage.PetSize)
+local PetSizeConfig = require(ReplicatedStorage.Config.PetSizeConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
@@ -89,17 +89,17 @@ return function(_controllers: { [string]: any })
 			local modifier = if type(modifierValue) == "string" then modifierValue else nil
 			local incomeValue = pedestal:GetAttribute("Income")
 			local income = if type(incomeValue) == "number" then incomeValue else nil
-			local modifierConfig = RokModifier.Get(modifier)
-			local sizeValue = pedestal:GetAttribute(RokSizeConfig.Attribute)
+			local modifierConfig = PetModifier.Get(modifier)
+			local sizeValue = pedestal:GetAttribute(PetSizeConfig.Attribute)
 			local size = if type(sizeValue) == "string" then sizeValue else nil
 			if title then
 				title.Text = if state == "Locked" then "Locked" elseif pet then pet.DisplayName else ""
 			end
 			if sizeLabel then
-				local isShown = pet ~= nil and state ~= "Locked" and RokSize.IsShown(size)
+				local isShown = pet ~= nil and state ~= "Locked" and PetSize.IsShown(size)
 				sizeLabel.Visible = isShown
 				if isShown then
-					local sizeConfig = RokSize.Get(size)
+					local sizeConfig = PetSize.Get(size)
 					sizeLabel.Text = sizeConfig.DisplayName
 					Typography.ApplyTextStyle(sizeLabel, sizeConfig.TextStyle)
 					sizeLabel.Position = if modifierConfig and modifierLabel
@@ -109,8 +109,8 @@ return function(_controllers: { [string]: any })
 			end
 			local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
 			if part and part:IsA("BasePart") then
-				local lift = (RokSize.Scale(if pet then size else nil) - 1)
-					* RokSizeConfig.InfoLiftStudsPerScale
+				local lift = (PetSize.Scale(if pet then size else nil) - 1)
+					* PetSizeConfig.InfoLiftStudsPerScale
 				infoGui.StudsOffsetWorldSpace =
 					Vector3.new(0, part.Size.Y / 2 + PedestalConfig.InfoHeightStuds + lift, 0)
 			end
@@ -135,7 +135,7 @@ return function(_controllers: { [string]: any })
 				detail.Text = if state == "Locked"
 					then (if type(price) == "number" then `${NumberFormat.Compact(price)}` else "")
 					elseif pet then `${NumberFormat.Rate(
-						RokModifier.Rate(petKey :: string, modifier, income)
+						PetModifier.Rate(petKey :: string, modifier, income)
 					)}/s`
 					else ""
 				detail.Visible = detail.Text ~= ""
@@ -209,7 +209,7 @@ return function(_controllers: { [string]: any })
 				"PetKey",
 				"Income",
 				WeatherConfig.ModifierAttribute,
-				RokSizeConfig.Attribute,
+				PetSizeConfig.Attribute,
 			}
 		do
 			self.Trove:Connect(pedestal:GetAttributeChangedSignal(name), function()

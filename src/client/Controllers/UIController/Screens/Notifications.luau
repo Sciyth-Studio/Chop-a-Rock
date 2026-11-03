@@ -17,6 +17,7 @@ type Entry = {
 	Frame: Frame,
 	Label: TextLabel,
 	Stroke: UIStroke?,
+	Icon: ImageLabel?,
 	Token: number,
 }
 
@@ -29,6 +30,25 @@ local function findChild(root: Instance, name: string, className: string): Insta
 	end
 	warn(`[Notifications] Missing {className} "{name}" in {root:GetFullName()}`)
 	return nil
+end
+
+local function findIcon(frame: Frame, icon: string?): ImageLabel?
+	local image = frame:FindFirstChild("Icon")
+	if not image or not image:IsA("ImageLabel") then
+		return nil
+	end
+	image.Visible = icon ~= nil
+	if not icon then
+		return nil
+	end
+	image.Image = icon
+	return image
+end
+
+local function placeIcon(label: TextLabel, image: ImageLabel)
+	local width = label.AbsoluteSize.X
+	local share = if width > 0 then label.TextBounds.X / width else 0
+	image.Position = UDim2.new(0.5 - share / 2, -NotificationConfig.IconGapPixels, 0.5, 0)
 end
 
 local function style(label: TextLabel, stroke: UIStroke?, kind: string)
@@ -86,6 +106,9 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if entry.Stroke then
 			TweenService:Create(entry.Stroke, info, { Transparency = transparency }):Play()
 		end
+		if entry.Icon then
+			TweenService:Create(entry.Icon, info, { ImageTransparency = transparency }):Play()
+		end
 	end
 
 	local function remove(entry: Entry)
@@ -120,7 +143,7 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	local function show(kind: string, message: string)
+	local function show(kind: string, message: string, icon: string?)
 		LocalSound.Play(NotificationConfig.SoundKey)
 		for _, entry in entries do
 			if entry.Kind == kind and entry.Message == message then
@@ -149,6 +172,17 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if stroke then
 			stroke.Transparency = 1
 		end
+		local image = findIcon(frame, icon)
+		if image then
+			image.ImageTransparency = 1
+			local textLabel = label
+			frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+				placeIcon(textLabel, image)
+			end)
+			label:GetPropertyChangedSignal("TextBounds"):Connect(function()
+				placeIcon(textLabel, image)
+			end)
+		end
 		frame.Visible = true
 		frame.Parent = container
 
@@ -159,6 +193,7 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			Frame = frame,
 			Label = label,
 			Stroke = stroke,
+			Icon = image,
 			Token = 0,
 		}
 		table.insert(entries, entry)
@@ -202,6 +237,7 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		local stroke = label:FindFirstChildWhichIsA("UIStroke")
+		findIcon(frame, nil)
 		frame.Name = `Pinned{id}`
 		frame.LayoutOrder = NotificationConfig.PinnedLayoutOrder + order
 		frame.Visible = true

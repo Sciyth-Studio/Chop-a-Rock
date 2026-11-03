@@ -48,16 +48,16 @@ local function message(pending: Pending): string
 	local where = label(pending.Key)
 	local passed = pending.Passed
 	if #passed == 0 then
-		return `You're #{pending.Rank} in {where}!`
+		return `#{pending.Rank} in {where}!`
 	end
 	local who = passed[1].Name
 	if #passed > 1 then
-		who = `{who} and {#passed - 1} more`
+		who = `{who} +{#passed - 1}`
 	end
 	if pending.Rank then
-		return `You passed {who}! You're #{pending.Rank} in {where}`
+		return `Passed {who}! #{pending.Rank}`
 	end
-	return `You passed {who} in {where}!`
+	return `Passed {who}!`
 end
 
 local function deliver(player: Player, pending: Pending, notify: (Player, string) -> ())

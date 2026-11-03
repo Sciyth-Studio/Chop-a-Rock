@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local CashPopConfig = require(ReplicatedStorage.Config.CashPopConfig)
 local ChopApproach = require(ReplicatedStorage.Utils.ChopApproach)
@@ -17,7 +18,7 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local Packets = require(ReplicatedStorage.Packets)
-local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
+local GoldenRockConfig = require(ReplicatedStorage.Config.GoldenRockConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -66,6 +67,8 @@ local activeCanBreak = true
 local masterStartClock: number? = nil
 local chopCamera: CFrame? = nil
 local releaseToken = 0
+local mouseRelease: RBXScriptConnection? = nil
+local reportedTouch: boolean? = nil
 
 local function smooth(alpha: number): number
 	local clamped = math.clamp(alpha, 0, 1)
@@ -216,6 +219,14 @@ local function flashScreen()
 	tween:Play()
 end
 
+local function unbindRelease()
+	ContextActionService:UnbindAction(RELEASE_ACTION)
+	if mouseRelease then
+		mouseRelease:Disconnect()
+		mouseRelease = nil
+	end
+end
+
 local function endMinigame()
 	if not minigameActive then
 		return
@@ -223,7 +234,7 @@ local function endMinigame()
 	minigameActive = false
 	releaseToken += 1
 	activeChanged:Fire(false)
-	ContextActionService:UnbindAction(RELEASE_ACTION)
+	unbindRelease()
 	ContextActionService:UnbindAction(LEAVE_ACTION)
 	if activeTrove then
 		activeTrove:Destroy()
@@ -239,6 +250,13 @@ local function endMinigame()
 	end
 end
 
+local function release()
+	local elapsed = os.clock() - minigameStartTime
+	frozenPosition = ChopZones.Position(elapsed, ChopZones.IsTouch(Players.LocalPlayer))
+	Packets.ChopRelease:Fire(elapsed)
+	unbindRelease()
+end
+
 local function bindRelease()
 	releaseToken += 1
 	local token = releaseToken
@@ -246,18 +264,40 @@ local function bindRelease()
 		if token ~= releaseToken or not minigameActive or frozenPosition ~= nil then
 			return
 		end
+		unbindRelease()
 		ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
 			if inputState == Enum.UserInputState.Begin then
-				local elapsed = os.clock() - minigameStartTime
-				frozenPosition = ChopZones.Position(elapsed)
-				Packets.ChopRelease:Fire(elapsed)
-				ContextActionService:UnbindAction(RELEASE_ACTION)
+				release()
 				return Enum.ContextActionResult.Sink
 			end
 			return Enum.ContextActionResult.Pass
 		end, true, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
 		ContextActionService:SetTitle(RELEASE_ACTION, "Chop")
+		mouseRelease = UserInputService.InputBegan:Connect(function(input: InputObject, isProcessed: boolean)
+			if not isProcessed and input.UserInputType == Enum.UserInputType.MouseButton1 then
+				release()
+			end
+		end)
 	end)
+end
+
+local function reportInput(inputType: Enum.UserInputType)
+	local isTouch: boolean
+	if inputType == Enum.UserInputType.Touch then
+		isTouch = true
+	elseif
+		inputType == Enum.UserInputType.Keyboard
+		or string.find(inputType.Name, "Mouse")
+		or string.find(inputType.Name, "Gamepad")
+	then
+		isTouch = false
+	else
+		return
+	end
+	if isTouch ~= reportedTouch then
+		reportedTouch = isTouch
+		Packets.ChopTouch:Fire(isTouch)
+	end
 end
 
 local function leaveMinigame()
@@ -427,7 +467,8 @@ function ChopController.GetCursorPosition(_self: any): number
 	if not minigameActive then
 		return 0
 	end
-	return frozenPosition or ChopZones.Position(os.clock() - minigameStartTime)
+	return frozenPosition
+		or ChopZones.Position(os.clock() - minigameStartTime, ChopZones.IsTouch(Players.LocalPlayer))
 end
 
 function ChopController.Init(self: any, controllers: { [string]: any })
@@ -444,6 +485,8 @@ end
 
 function ChopController.Start(self: any)
 	local trove = self._trove :: TroveInstance
+	reportInput(UserInputService:GetLastInputType())
+	trove:Connect(UserInputService.LastInputTypeChanged, reportInput)
 	trove:Add(
 		Packets.ChopMinigameStart.OnClientEvent:Connect(
 			function(
@@ -508,8 +551,8 @@ function ChopController.Start(self: any)
 		Packets.ChopResult.OnClientEvent:Connect(
 			function(quality: number, payout: number, _damage: number, health: number, multiplier: number)
 				print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
-				local isRush = activeRock ~= nil
-					and activeRock:GetAttribute(RushRockConfig.EndsAtAttribute) ~= nil
+				local isGolden = activeRock ~= nil
+					and activeRock:GetAttribute(GoldenRockConfig.GoldenAttribute) ~= nil
 				local isMaster = quality == ChopQuality.Master
 				if isMaster and activeTrove then
 					masterStartClock = os.clock()
@@ -548,14 +591,14 @@ function ChopController.Start(self: any)
 						LocalSound.Play("SFX_Money_Gain")
 						if popAt then
 							cashPopController:Play(popAt, CashPopConfig.Chop)
-							if isRush then
+							if isGolden then
 								local total = math.floor(
-									multiplier * RushRockConfig.PayoutMultiplier * 100 + 0.5
+									multiplier * GoldenRockConfig.PayoutMultiplier * 100 + 0.5
 								) / 100
 								cashPopController:PlayText(popAt, payout, total, {
-									Main = RushRockConfig.PopMain,
-									Light = RushRockConfig.PopLight,
-									Dark = RushRockConfig.PopDark,
+									Main = GoldenRockConfig.PopMain,
+									Light = GoldenRockConfig.PopLight,
+									Dark = GoldenRockConfig.PopDark,
 								})
 							elseif multiplier > 1 then
 								cashPopController:PlayText(popAt, payout, multiplier)

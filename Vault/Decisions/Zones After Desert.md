@@ -1,15 +1,15 @@
 ---
-description: 2026-10-10 APPROVED plan for the jungle, ocean and snow chop rocks, Rok lineups and geodes; chop rocks built as placeholders, Roks and geodes wait on models.
+description: 2026-10-10 APPROVED plan for the jungle, ocean and snow chop rocks, Pet lineups and geodes; chop rocks built as placeholders, Pets and geodes wait on models.
 type: decision
 ---
 # Zones after the desert (approved 2026-10-10)
 
-Approved by the user 2026-10-10 ("balancing can only really be fixed by playing"), so numbers are still [PLAYTEST] drafts to tune. Built so far: the nine placeholder chop rocks, entrance signs and spawn areas (see [[Zone Line]]). Roks, geodes and stands are not built; they wait on real models. Zone order and floor colours: [[Zone Line]]. Build steps once approved: the `new-zone` skill. Names follow [[Simple Names No Material Clash]] (no sand, ice, lava, crystal, pearl-as-material, diamond). Roks follow [[Roks Stay Rocks]]: Bloky's body and eyes ([[Bloky Reference]]), theme only from a prop on top, never an animal.
+Approved by the user 2026-10-10 ("balancing can only really be fixed by playing"), so numbers are still [PLAYTEST] drafts to tune. Built so far: the nine placeholder chop rocks, entrance signs and spawn areas (see [[Zone Line]]). Pets, geodes and stands are not built; they wait on real models. Zone order and floor colours: [[Zone Line]]. Build steps once approved: the `new-zone` skill. Names follow [[Simple Names No Material Clash]] (no sand, ice, lava, crystal, pearl-as-material, diamond). Pets follow [[Pets Stay Rocks]]: Bloky's body and eyes ([[Bloky Reference]]), theme only from a prop on top, never an animal.
 
 ## Rule used for the numbers
 - Rocks: `StrengthRequired` x5 and `BasePayout` x4 per tier, continuing from `DesertThird` (12,500 / 51,200). All use `RespawnSeconds` 0.8, `TemplateKey` `Model_Rock_<RockKey>`.
 - Geode: strength = 5 x the zone's First rock strength, price = 12.5 x its First payout (the forest's 10 / 500 against Stone 2 / 40). The desert has no geode in config yet, so its row is the same rule applied (shown for the chain only).
-- Rok income ($/s): forest is 1 / 2 / 5 / 12 / 30 / 150. Each zone multiplies it by (zone First rock payout / 40), the same factor its rocks and geode price grow by: desert x80, jungle x5,120, ocean x327,680, snow x20,971,520. A geode then always costs 500 s of a Common's income, and Roks stay as relevant as chopping in every zone. Claude's recommendation 2026-10-10; the user had no preference. Sell value stays 100 s of income.
+- Pet income ($/s): forest is 1 / 2 / 5 / 12 / 30 / 150. Each zone multiplies it by (zone First rock payout / 40), the same factor its rocks and geode price grow by: desert x80, jungle x5,120, ocean x327,680, snow x20,971,520. A geode then always costs 500 s of a Common's income, and Pets stay as relevant as chopping in every zone. Claude's recommendation 2026-10-10; the user had no preference. Sell value stays 100 s of income.
 - Big numbers are fine (user, 2026-10-10): kids like feeling rich, and purchasing power stays the same as long as costs scale too. The answer is more money sinks, not smaller numbers. The money text needs the short form (K/M/B/T) the HUD already uses; check it before building snow.
 - Odds shift weight upward per zone, like the forest pattern (60 / 25 / 10 / 3.9 / 1 / 0.1). Secret stays rare enough to be an announcement.
 
@@ -43,8 +43,8 @@ Model: reuse `Model_Geode_Basic` / `Model_GeodeSplit_Basic` tinted to the zone, 
 | Ocean | Ocean Geode | 39,062,500 | 491,520,000 (x3 since 2026-10-19, [[Balance Pass Oct 18]]) |
 | Snow | Snow Geode | 4,882,812,500 | 36,700,160,000 (x3.5 since 2026-10-19, [[Balance Pass Oct 18]]) |
 
-## Roks
-Rarity colours as in the master plan. Looks are Bloky body plus one prop on top. The jungle and snow names come from the master plan §03 lineup; the ocean is rewritten for deep ocean (the old Sailor / Matey pirate and beach Roks are dropped, so this also answers the To Do item "Ocean Rok lineup").
+## Pets
+Rarity colours as in the master plan. Looks are Bloky body plus one prop on top. The jungle and snow names come from the master plan §03 lineup; the ocean is rewritten for deep ocean (the old Sailor / Matey pirate and beach Pets are dropped, so this also answers the To Do item "Ocean Pet lineup").
 
 ### Jungle (income x5,120, odds 55 / 25 / 12 / 6 / 1.8 / 0.2)
 | Rarity | Name | Look | $/s | Odds % |
@@ -66,7 +66,7 @@ Rarity colours as in the master plan. Looks are Bloky body plus one prop on top.
 | Legendary | Glowy | Anglerfish-style glowing lure: a lamp on a curved stalk from its forehead (user liked this 2026-10-10) | 9,830,400 | 2.6 |
 | Secret | Chompy | Wears a grey shark-costume hood (dorsal fin, tail fin, open toothy jaw framing its face) with glowing cyan gill stripes (user, 2026-10-19; replaces Venty's vent chimney, which replaced Beamy) | 49,152,000 | 0.4 |
 
-Doubloony (pirate coins) was dropped 2026-10-10 as too pirate for the deep ocean. Glowy's lure is a prop and the body stays a rock (no fish body), per Roks Stay Rocks.
+Doubloony (pirate coins) was dropped 2026-10-10 as too pirate for the deep ocean. Glowy's lure is a prop and the body stays a rock (no fish body), per Pets Stay Rocks.
 
 ### Snow (income x20,971,520, odds 45 / 25 / 16 / 10 / 3.5 / 0.5)
 | Rarity | Name | Look | $/s | Odds % |
@@ -83,6 +83,6 @@ Epic and up roll a trait at hatch (existing 25% rule), so Epic, Legendary and Se
 ## Open for the user
 - Approve or change the rock names, colours and sizes.
 - Money sinks to match the big numbers (needs its own plan).
-- Desert Roks (Pointy, Spike, Howdy, Flowy, Ankhy, Sunny) and the Desert Geode are still not in config; they wait on the user modelling the desert rocks and geodes. Desert Rok income would be forest x80 (80 / 160 / 400 / 960 / 2,400 / 12,000).
+- Desert Pets (Pointy, Spike, Howdy, Flowy, Ankhy, Sunny) and the Desert Geode are still not in config; they wait on the user modelling the desert rocks and geodes. Desert Pet income would be forest x80 (80 / 160 / 400 / 960 / 2,400 / 12,000).
 
 **Realistic rock colours (user, 2026-10-23):** the user asked for "more reasonable and realistic" body colours, which replaces the 2026-10-10 "colours stay as they are". Body colours are now Desert 222,180,115 / 196,105,55 / 160,78,48; Jungle 112,128,96 / 88,98,90 / 150,112,72 (Tiki face 95,62,38); Ocean 110,125,135 / 72,86,100 / 200,172,140; Snow 128,138,150 / 88,98,115 / 150,165,180 (First / Second / Third). Props kept their bright colours. Applied to each `Model_Rock_<Key>`, its split pieces, `Model_RockPreview_<Key>` and the Rock Showcase copies. The placeholder colour column above is history.

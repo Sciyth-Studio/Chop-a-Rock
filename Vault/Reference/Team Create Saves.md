@@ -4,7 +4,7 @@ type: reference
 ---
 # Team Create saves as you go
 
-Team Create is on for the Chop a Rock place (user, 2026-10-29). Edits made in Edit mode, by the user or through the Studio MCP, save to Roblox's servers as they happen. A Studio restart before a manual save lost nothing: the toolbar session reopened Studio and found the final `StarterGui.Toolbar` and Roks panel there.
+Team Create is on for the Chop a Rock place (user, 2026-10-29). Edits made in Edit mode, by the user or through the Studio MCP, save to Roblox's servers as they happen. A Studio restart before a manual save lost nothing: the toolbar session reopened Studio and found the final `StarterGui.Toolbar` and Pets panel there.
 
 - Don't add "save the place in Studio" to-do items, or ask the user to save after Studio work.
 - Changes made during a Play test never persist, Team Create or not.

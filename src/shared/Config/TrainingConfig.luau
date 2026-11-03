@@ -12,7 +12,6 @@ export type Stand = {
 }
 
 export type TrainingSettings = {
-	StrengthUnit: string,
 	ChopIntervalSeconds: number,
 	Stands: { Stand },
 	StandModelName: string,
@@ -31,7 +30,6 @@ export type TrainingSettings = {
 }
 
 local TrainingConfig: TrainingSettings = {
-	StrengthUnit = "N",
 	ChopIntervalSeconds = 1,
 	Stands = {
 		{
@@ -57,7 +55,7 @@ local TrainingConfig: TrainingSettings = {
 		{
 			Key = "Steel",
 			DisplayName = "Steel",
-			Rebirths = 2,
+			Rebirths = 4,
 			StrengthPerRep = 2000,
 			TemplateKey = "Model_TrainingStand_Steel",
 			BreakSound = "SFX_Train_Steel",
@@ -67,7 +65,7 @@ local TrainingConfig: TrainingSettings = {
 		{
 			Key = "Vault",
 			DisplayName = "Vault",
-			Rebirths = 3,
+			Rebirths = 7,
 			StrengthPerRep = 200000,
 			TemplateKey = "Model_TrainingStand_Vault",
 			BreakSound = "SFX_Train_Vault",
@@ -77,7 +75,7 @@ local TrainingConfig: TrainingSettings = {
 		{
 			Key = "Core",
 			DisplayName = "Energy Core",
-			Rebirths = 4,
+			Rebirths = 10,
 			StrengthPerRep = 15000000,
 			TemplateKey = "Model_TrainingStand_Core",
 			BreakSound = "SFX_Train_Core",
@@ -87,7 +85,7 @@ local TrainingConfig: TrainingSettings = {
 		{
 			Key = "Cosmic",
 			DisplayName = "Cosmic",
-			Rebirths = 5,
+			Rebirths = 13,
 			StrengthPerRep = 5000000000,
 			TemplateKey = "Model_TrainingStand_Cosmic",
 			BreakSound = "SFX_Train_Cosmic",

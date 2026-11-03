@@ -51,15 +51,15 @@ local FreeGiftConfig: FreeGiftSettings = {
 	}),
 	RewardImage = IconConfig.Cash5,
 	Steps = {
-		table.freeze({ Title = "1. Like the game", Image = "rbxassetid://125216111619355", Action = "Like" }),
+		table.freeze({ Title = "1. Like the game", Image = "rbxassetid://93695998180737", Action = "Like" }),
 		table.freeze({
 			Title = "2. Favorite the game",
-			Image = "rbxassetid://76440492325219",
+			Image = "rbxassetid://138695166719600",
 			Action = "Favorite",
 		}),
 		table.freeze({
 			Title = "3. Join the community",
-			Image = "rbxassetid://91515294617775",
+			Image = "rbxassetid://126557040840800",
 			Action = "Join",
 		}),
 	},

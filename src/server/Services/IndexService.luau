@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local IndexRewards = require(ReplicatedStorage.IndexRewards)
@@ -79,7 +80,8 @@ function IndexService.ClaimZone(_self: any, player: Player, pageKey: string, zon
 	services.NotificationService:Notify(
 		player,
 		"Unlock",
-		`{zone.DisplayName} {page.DisplayName} complete! +{math.floor(IndexConfig.ZoneCashBonus * 100 + 0.5)}% Money`
+		`Index done! +{math.floor(IndexConfig.ZoneCashBonus * 100 + 0.5)}% Money`,
+		IconConfig.Index
 	)
 	return true
 end
