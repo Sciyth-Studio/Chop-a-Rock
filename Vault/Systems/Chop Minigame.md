@@ -11,7 +11,8 @@ Take from the reference: the camera angle and the bar's size and place only. The
 
 ## The bar
 - `StarterGui.ChopBar` (`Screens/ChopBar.luau`) is a copy of the old `ChopMeter` turned sideways, with its `UICorner`s removed. `Bar` is 916x96 centred at 83.5% height, as measured from the user's 1080p reference. `RampGradient` rotation is 0, and `Cursor` is the same white line, 8 wide. Position 0 is the left end, 1 the right.
-- All five quality colours stay as they were, solid.
+- All five quality colours stay as they were, solid. The outline is 7 px (user asked for thicker than the old 4).
+- Close is a red block button under the bar: `LeaveRoot` (220x72 at 93% height, holds `ScreenScale`) > `LeaveBlock` (copied from a `TeleportBar` button) > `LeaveButton`. It keeps `ButtonFeel` hover because the `ScreenScale` sits on the wrapper.
 - The `Toolbar` screen (hotbar and Pets button) closes during a chop and reopens after it, with the `TeleportBar`.
 - `TutorialChopBarHint` sits above the Good band, arrow pointing down. `Spotlight`'s `TutorialGoodZone` is a vertical slice of `Bar`.
 
