@@ -79,11 +79,11 @@ def slab_box(slab, p, lift):
     return (-w / 2, w / 2, -w / 2, w / 2 + p["BACK_EXTRA"], z0 - lift, z1, p["SLAB_BEVEL"])
 
 
-def build_floor(color=(20, 20, 20), p=P):
+def build_floor(color=(59, 59, 59), p=P):
     return finish(join_boxes("BasePlot_Floor", [slab_box(p["SLABS"][-1], p, 0.01)]), "BasePlotFloor", color)
 
 
-def build_edge(color=(20, 20, 20), p=P):
+def build_edge(color=(59, 59, 59), p=P):
     boxes = [slab_box(slab, p, 0.01 if i else 0.0) for i, slab in enumerate(p["SLABS"][:-1])]
     return finish(join_boxes("BasePlot_Edge", boxes), "BasePlotEdge", color)
 
@@ -128,11 +128,11 @@ def pad_frame_boxes(p=P):
     return out
 
 
-def build_pad_frames(color=(128, 128, 128), p=P):
+def build_pad_frames(color=(125, 125, 125), p=P):
     return finish(join_boxes("BasePlot_PadFrames", pad_frame_boxes(p)), "BasePlotPadFrame", color)
 
 
-def build_pad_centres(color=(128, 128, 128), p=P):
+def build_pad_centres(color=(82, 82, 82), p=P):
     f = p["FLOOR_H"]
     inner = p["PAD"] / 2 - p["PAD_RIM_W"] + 0.02
     return {
@@ -155,7 +155,7 @@ def path_boxes(p=P):
     return out
 
 
-def build_path(color=(128, 128, 128), p=P):
+def build_path(color=(125, 125, 125), p=P):
     return finish(join_boxes("BasePlot_Path", path_boxes(p)), "BasePlotPath", color)
 
 
@@ -178,21 +178,21 @@ def trim_boxes(p=P):
     return out
 
 
-def build_trim(color=(255, 255, 255), p=P):
+def build_trim(color=(125, 125, 125), p=P):
     trim = join_boxes("BasePlot_Trim", trim_boxes(p))
     rb.planar_stud_uvs(trim.data)
     rb._finish(trim, rb.plain_material("BasePlotTrim", color))
     return trim, rb.stats(trim.data)
 
 
-def build_pen(color=(60, 170, 60), p=P):
+def build_pen(color=(82, 82, 82), p=P):
     top = p["FLOOR_H"] + p["PEN_H"]
     x, y0, y1 = p["PEN_X"], p["PEN_Y0"], p["PEN_Y1"]
     pen = box("BasePlot_Pen", -x, x, y0, y1, top - p["PEN_TOP_H"], top, 0.15)
     return finish(pen, "BasePlotPen", color)
 
 
-def build_pen_side(color=(60, 170, 60), p=P):
+def build_pen_side(color=(125, 125, 125), p=P):
     x, y0, y1, inset = p["PEN_X"], p["PEN_Y0"], p["PEN_Y1"], 0.02
     bottom = p["FLOOR_H"] - 0.01
     side = box("BasePlot_PenSide", -x + inset, x - inset, y0 + inset, y1 - inset, bottom, bottom + p["PEN_H"] - p["PEN_TOP_H"] + 0.02)
@@ -241,11 +241,11 @@ def rail_boxes(p=P):
     return out
 
 
-def build_fence_posts(color=(255, 255, 255), p=P):
+def build_fence_posts(color=(125, 125, 125), p=P):
     return finish(join_boxes("BasePlot_FencePosts", fence_boxes(p)), "BasePlotFencePost", color)
 
 
-def build_fence_rails(color=(255, 255, 255), p=P):
+def build_fence_rails(color=(125, 125, 125), p=P):
     return finish(join_boxes("BasePlot_FenceRails", rail_boxes(p)), "BasePlotFenceRail", color)
 
 
