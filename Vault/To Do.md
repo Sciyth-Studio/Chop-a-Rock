@@ -8,6 +8,7 @@ updated: 2026-10-29
 Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off (deletes them) when they're done and verified in code, and adds new ones as the user approves work. Only list things that matter now; see [[Only Surface Blocking Opens]]. Pre-launch work from Hud's Guide lives in [[Launch Checklist]]; move an item here once the user picks it up.
 
 ## Next
+- [ ] Zone geodes, enemies and the new base (approved 2026-11-03, not built): `ZoneGeodesPlan.md`, see [[Zone Geodes And Enemies]]. Next: commit the 2026-11-03 work on `master`, then the Balance Model pass
 - [ ] Tutorial + hints (2026-10-27, in playtest by the user): 5-step tutorial, aura, Boulder and rebirth hints, 4-word text, one line on screen, head start, idle highlight, completion banner, camera turns to walk targets, Starter Offer after the Boulder hint. See [[Tutorial]]
 - [ ] Finish world 1: Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins + the Golem boss (added 2026-10-28, planned and approved 2026-10-29 in `World1Plan.md`, see [[World 1 Plan]]; not built). Next: reference sheets and models, Swamp first
 - [ ] Toolbar follow-up (merged 2026-10-29): check the hotbar hides during geode cracks and the intro
