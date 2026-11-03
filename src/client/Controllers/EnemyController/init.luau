@@ -313,7 +313,7 @@ local function onFightEnded(zone: string, result: string)
 	if result == "Won" then
 		if enemy then
 			Effects.Defeat(enemy.Position + Vector3.new(0, enemy.Height / 2, 0))
-			Motion.Set(enemy, "Defeat", now)
+			Motion.Knock(enemy, feetPosition() or enemy.Position, now)
 		end
 		holdUntil = now + EnemyConfig.WinHoldSeconds
 		EnemyController.ResultShown:Fire(result)

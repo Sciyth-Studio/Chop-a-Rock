@@ -53,12 +53,16 @@ function Motion.Set(enemy: Enemy, state: State, now: number)
 		enemy.SlamAt = now + EnemyConfig.SlamEverySeconds
 	elseif state == "Rise" then
 		enemy.Position = enemy.Home
-		enemy.Model:ScaleTo(enemy.Scale)
 	end
 end
 
 function Motion.Stagger(enemy: Enemy, now: number)
 	enemy.StaggerAt = now
+end
+
+function Motion.Knock(enemy: Enemy, from: Vector3, now: number)
+	enemy.Away = flat(enemy.Position - from, enemy.Facing)
+	Motion.Set(enemy, "Defeat", now)
 end
 
 function Motion.Flee(enemy: Enemy, from: Vector3, now: number)
@@ -112,10 +116,15 @@ function Motion.Step(enemy: Enemy, dt: number, now: number, feet: Vector3?): boo
 			Motion.Set(enemy, "Gone", now)
 		end
 	elseif enemy.State == "Defeat" then
-		local alpha = math.min(elapsed / EnemyConfig.DefeatSeconds, 1)
-		enemy.Model:ScaleTo(math.max(enemy.Scale * (1 - alpha), 0.01))
-		pose(enemy, 0, now)
-		if alpha >= 1 then
+		enemy.Position += enemy.Away * EnemyConfig.KnockSpeedStuds * zoneScale * dt
+		local lift = EnemyConfig.KnockUpStuds * zoneScale * elapsed
+			- EnemyConfig.KnockGravity * zoneScale * elapsed * elapsed / 2
+		local position = enemy.Position + Vector3.new(0, lift, 0)
+		enemy.Model:PivotTo(
+			CFrame.lookAt(position, position + enemy.Facing)
+				* CFrame.Angles(EnemyConfig.KnockSpinRadians * elapsed, 0, 0)
+		)
+		if elapsed >= EnemyConfig.DefeatSeconds then
 			Motion.Set(enemy, "Gone", now)
 		end
 	elseif enemy.State == "Rise" then
