@@ -32,7 +32,7 @@ A flat 2 min hatch and Pet x4 pushed Pets to 60-97% of income from the Desert on
 - **If nothing is waiting:** the grant returns false and the receipt stays pending, so Roblox retries it on the next join or purchase and it skips whatever is hatching then. Nothing is lost, but the player sees no effect until then. A saved skip credit would fix that and needs a `PlayerData` field.
 - **Auto Open:** gone from `MonetizationConfig` (pass, VIP `Includes`, gift twin), `RobuxShopConfig` and `IconConfig`. `AutoOpenConfig`, `GeodeService/AutoOpen` and `Screens/AutoOpenButton` stay until the main session removes them. Until then the pit's Auto Open prompt does nothing when triggered.
 - **On Roblox:** the Auto Open pass already reads as off sale. Still to do by the user: take "Gift: Auto Open" (3722325313) off sale and drop "Auto Open" from the VIP pass description.
-- **VIP price (open):** without Auto Open the struck price falls from 1,045 to 846, so 799 is about 6% off instead of 24%. The user decides whether to reprice it.
+- **VIP price:** stays 799 (user, 2026-11-03). Without Auto Open the struck price falls from 1,045 to 846, so it's about 6% off instead of 24%.
 
 ## Still open
 - Which 2 of each zone's 3 rocks the geode looks are based on.

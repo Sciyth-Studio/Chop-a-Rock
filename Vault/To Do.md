@@ -25,7 +25,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
   - Tester's suggestion: watch someone new play the first few minutes without helping
 
 ## Waiting on the user
-- Zone geodes, Robux side: confirm the skip-wait dev product (9 R$); take "Gift: Auto Open" (3722325313) off sale; drop "Auto Open" from the VIP pass description; decide VIP's price now that it's worth 846, not 1,045. See [[Zone Geodes And Enemies]]
+- Zone geodes, Robux side: confirm the skip-wait dev product (9 R$); take "Gift: Auto Open" (3722325313) off sale; drop "Auto Open" from the VIP pass description. See [[Zone Geodes And Enemies]]
 
 ## Deferred until the user raises it
 - Ascended Chop (1 in 1,000)
