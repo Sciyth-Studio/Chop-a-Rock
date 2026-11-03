@@ -60,7 +60,7 @@ local function find(screenName: string, path: { string }): GuiObject?
 end
 
 local function goodZone(chopController: any): GuiObject?
-	local bar = find("ChopMeter", { "Bar" })
+	local bar = find("ChopBar", { "Bar" })
 	if not bar then
 		return nil
 	end
@@ -89,8 +89,8 @@ local function goodZone(chopController: any): GuiObject?
 	if not good then
 		return nil
 	end
-	frame.Position = UDim2.fromScale(0, 1 - good.High)
-	frame.Size = UDim2.fromScale(1, good.High - good.Low)
+	frame.Position = UDim2.fromScale(good.Low, 0)
+	frame.Size = UDim2.fromScale(good.High - good.Low, 1)
 	return frame
 end
 
@@ -127,7 +127,7 @@ end
 
 function Spotlight.Destroy(state: State)
 	state.Spotlight:Destroy()
-	local bar = find("ChopMeter", { "Bar" })
+	local bar = find("ChopBar", { "Bar" })
 	local zone = if bar then bar:FindFirstChild(zoneName) else nil
 	if zone then
 		zone:Destroy()

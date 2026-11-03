@@ -81,7 +81,7 @@ end
 
 local function meterBar(): GuiObject?
 	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
-	local meter = if playerGui then playerGui:FindFirstChild("ChopMeter") else nil
+	local meter = if playerGui then playerGui:FindFirstChild("ChopBar") else nil
 	local bar = if meter
 			and meter:IsA("ScreenGui")
 			and meter.Enabled
@@ -121,11 +121,11 @@ function ChopHint.Update(state: State, chopController: any, key: string?, dt: nu
 	local cursor = chopController:GetCursorPosition()
 	local isNow = cursor >= band.Low and cursor <= band.High
 	setNow(state, isNow, key)
-	local middle = 1 - (band.Low + band.High) / 2
-	local top = bar.AbsolutePosition
+	local middle = (band.Low + band.High) / 2
+	local corner = bar.AbsolutePosition
 	local size = bar.AbsoluteSize
 	state.Pointer.Position =
-		UDim2.fromOffset(top.X - TutorialConfig.ChopHintGapPixels, top.Y + size.Y * middle)
+		UDim2.fromOffset(corner.X + size.X * middle, corner.Y - TutorialConfig.ChopHintGapPixels)
 	state.Clock += dt
 	if state.Pulse then
 		state.Pulse.Scale = if isNow

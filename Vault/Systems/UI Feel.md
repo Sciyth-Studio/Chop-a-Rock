@@ -41,7 +41,7 @@ Approved 2026-10-14. The user asked for "buttons growing darker when hovered + s
 ## Gotchas
 - `UIScale` scales around the object's `AnchorPoint`. ButtonFeel re-anchors free-positioned boxes to 0.5,0.5 once at bind and shifts `Position` by the exact UDim difference, so they don't move. Code that positions a button itself must use its anchor (`Hud.luau` invite button does).
 - Inside a `UIListLayout`, a `UIScale` pivots at the top-left and pushes the siblings. Inside a `UIGridLayout`, it scales around the cell centre with no reflow. So the menu buttons, teleport bar, Index tabs and Sell Shop sort list were switched to `UIGridLayout` (named `GridLayout`) on 2026-10-14. The old list layouts are in `ServerStorage.UIBackup`. Buttons still in a list (the admin command list) only darken and don't grow.
-- A box that already has another `UIScale` (a `ScreenScale` root such as `ChopMeter.LeaveButton`) doesn't grow.
+- A box that already has another `UIScale` (a `ScreenScale` root such as `ChopBar.LeaveButton`) doesn't grow.
 
 ## Still to do
 - Phase 5 (user): listen to the sounds, swap alternates, tune volumes and the drafted numbers in a playtest.

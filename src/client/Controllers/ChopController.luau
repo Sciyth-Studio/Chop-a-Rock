@@ -26,10 +26,11 @@ type TroveInstance = typeof(Trove.new())
 
 local RELEASE_ACTION = "ChopRelease"
 local LEAVE_ACTION = "ChopLeave"
-local METER_SCREEN = "ChopMeter"
+local METER_SCREEN = "ChopBar"
 local LETTERBOX_SCREEN = "Letterbox"
 local TELEPORT_BAR_SCREEN = "TeleportBar"
 local RESULT_DISPLAY_SECONDS = 0.7
+local MAX_CAMERA_RAY_HITS = 8
 
 local function styleFor(quality: number): ChopStyleConfig.QualityStyle
 	return ChopStyleConfig.Qualities[quality] or ChopStyleConfig.Fallback
@@ -66,6 +67,17 @@ local minigameStartTime = 0
 local activeCanBreak = true
 local masterStartClock: number? = nil
 local chopCamera: CFrame? = nil
+local windUpCamera: CFrame? = nil
+local cameraFrom: CFrame? = nil
+local cameraTo: CFrame? = nil
+local cameraMoveStart = 0
+local cameraMoveSeconds = 1
+local cameraSettled = true
+local cinematicEndClock = 0
+local shakeStart = 0
+local shakeIntensity = 0
+local shakeDuration = 0
+local cameraReturnToken = 0
 local releaseToken = 0
 local mouseRelease: RBXScriptConnection? = nil
 local reportedTouch: boolean? = nil
@@ -73,6 +85,91 @@ local reportedTouch: boolean? = nil
 local function smooth(alpha: number): number
 	local clamped = math.clamp(alpha, 0, 1)
 	return clamped * clamped * (3 - 2 * clamped)
+end
+
+local function moveCamera(target: CFrame?, seconds: number)
+	local camera = workspace.CurrentCamera
+	if not (camera and target) then
+		return
+	end
+	cameraFrom = camera.CFrame
+	cameraTo = target
+	cameraMoveStart = os.clock()
+	cameraMoveSeconds = seconds
+	cameraSettled = false
+end
+
+local function startShake(intensity: number, duration: number)
+	shakeStart = os.clock()
+	shakeIntensity = intensity
+	shakeDuration = duration
+	cameraSettled = false
+end
+
+local function stepCamera()
+	local camera = workspace.CurrentCamera
+	local from = cameraFrom
+	local to = cameraTo
+	if cameraSettled or not (camera and from and to) or camera.CameraType ~= Enum.CameraType.Scriptable then
+		return
+	end
+	local now = os.clock()
+	if now < cinematicEndClock then
+		return
+	end
+	local alpha = (now - cameraMoveStart) / cameraMoveSeconds
+	local frame = if alpha >= 1 then to else from:Lerp(to, smooth(alpha))
+	local shakeElapsed = now - shakeStart
+	if shakeElapsed < shakeDuration then
+		local strength = shakeIntensity * (1 - shakeElapsed / shakeDuration)
+		frame = frame
+			* CFrame.new(
+				(math.random() * 2 - 1) * strength,
+				(math.random() * 2 - 1) * strength,
+				(math.random() * 2 - 1) * strength
+			)
+	elseif alpha >= 1 then
+		cameraSettled = true
+	end
+	camera.CFrame = frame
+end
+
+local function clearCameraDistance(origin: Vector3, target: Vector3, ignored: { Instance }): number
+	local direction = target - origin
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = ignored
+	params.IgnoreWater = true
+	for _ = 1, MAX_CAMERA_RAY_HITS do
+		local hit = workspace:Raycast(origin, direction, params)
+		if not hit then
+			break
+		end
+		local part = hit.Instance
+		local model = part:FindFirstAncestorOfClass("Model")
+		if part.Transparency >= 1 or (model and model:FindFirstChildOfClass("Humanoid")) then
+			params:AddToFilter(part)
+		else
+			return math.max(hit.Distance - ChopConfig.WindUpCameraWallMarginStuds, 0)
+		end
+	end
+	return direction.Magnitude
+end
+
+local function windUpShot(rock: BasePart, rootTarget: CFrame, character: Model, fallback: CFrame): CFrame
+	local rootPosition = rootTarget.Position
+	local flatRoot =
+		CFrame.lookAt(rootPosition, Vector3.new(rock.Position.X, rootPosition.Y, rock.Position.Z))
+	local offset = ChopConfig.WindUpCameraOffset
+	local origin = rootPosition + Vector3.new(0, offset.Y, 0)
+	local desired = (flatRoot * CFrame.new(offset)).Position
+	local clear = clearCameraDistance(origin, desired, { character, rock })
+	if clear < ChopConfig.WindUpCameraMinDistanceStuds then
+		return fallback
+	end
+	local position = origin + (desired - origin).Unit * clear
+	local lookHeight = math.min(rock.Position.Y, rootPosition.Y + ChopConfig.WindUpCameraMaxLookHeightStuds)
+	return CFrame.lookAt(position, Vector3.new(rock.Position.X, lookHeight, rock.Position.Z))
 end
 
 local function masterShots(): (CFrame?, CFrame?, CFrame?)
@@ -96,7 +193,8 @@ local function masterShots(): (CFrame?, CFrame?, CFrame?)
 end
 
 local function playMasterCinematic(trove: TroveInstance, camera: Camera)
-	local base = chopCamera or camera.CFrame
+	local startFrame = camera.CFrame
+	local base = chopCamera or startFrame
 	local side, faceStart, faceEnd = masterShots()
 	if not (side and faceStart and faceEnd) then
 		return
@@ -107,6 +205,7 @@ local function playMasterCinematic(trove: TroveInstance, camera: Camera)
 	local total = MasterChopConfig.ImpactDelaySeconds
 	local blend = MasterChopConfig.CinematicFaceBlendFraction
 	local startClock = os.clock()
+	cinematicEndClock = startClock + total
 	local connection: RBXScriptConnection
 	connection = RunService.RenderStepped:Connect(function()
 		local elapsed = os.clock() - startClock
@@ -116,7 +215,7 @@ local function playMasterCinematic(trove: TroveInstance, camera: Camera)
 			return
 		end
 		if elapsed < sideEnd then
-			camera.CFrame = base:Lerp(side, smooth(elapsed / sideEnd))
+			camera.CFrame = startFrame:Lerp(side, smooth(elapsed / sideEnd))
 		elseif elapsed < faceEndTime then
 			local progress = (elapsed - sideEnd) / faceSeconds
 			if progress < blend then
@@ -187,24 +286,6 @@ local function flashMaster()
 	tween:Play()
 end
 
-local function shakeCamera(camera: Camera, baseCFrame: CFrame, intensity: number, duration: number)
-	local startTime = os.clock()
-	local connection: RBXScriptConnection
-	connection = RunService.RenderStepped:Connect(function()
-		local elapsed = os.clock() - startTime
-		if elapsed >= duration then
-			camera.CFrame = baseCFrame
-			connection:Disconnect()
-			return
-		end
-		local decay = 1 - elapsed / duration
-		local offsetX = (math.random() * 2 - 1) * intensity * decay
-		local offsetY = (math.random() * 2 - 1) * intensity * decay
-		local offsetZ = (math.random() * 2 - 1) * intensity * decay
-		camera.CFrame = baseCFrame * CFrame.new(offsetX, offsetY, offsetZ)
-	end)
-end
-
 local function flashScreen()
 	local effect = Instance.new("ColorCorrectionEffect")
 	effect.Name = "PerfectFlash"
@@ -243,6 +324,13 @@ local function endMinigame()
 	frozenPosition = nil
 	masterStartClock = nil
 	chopCamera = nil
+	windUpCamera = nil
+	cameraFrom = nil
+	cameraTo = nil
+	cameraSettled = true
+	cinematicEndClock = 0
+	shakeDuration = 0
+	cameraReturnToken += 1
 	activeRock = nil
 	local camera = workspace.CurrentCamera
 	if camera then
@@ -255,6 +343,8 @@ local function release()
 	frozenPosition = ChopZones.Position(elapsed, ChopZones.IsTouch(Players.LocalPlayer))
 	Packets.ChopRelease:Fire(elapsed)
 	unbindRelease()
+	cameraReturnToken += 1
+	moveCamera(chopCamera, ChopConfig.ImpactCameraSeconds)
 end
 
 local function bindRelease()
@@ -363,14 +453,16 @@ local function beginMinigame(
 	end
 
 	local camera = workspace.CurrentCamera
-	local cameraStart: CFrame? = nil
-	local cameraTarget: CFrame? = nil
 	if camera then
 		camera.CameraType = Enum.CameraType.Scriptable
-		cameraStart = camera.CFrame
 		local cameraPos = rock.Position + offset(ChopConfig.CameraOffsetFromRock) * rockScale
-		cameraTarget = CFrame.new(cameraPos, rock.Position + offset(ChopConfig.CameraLookOffset))
-		chopCamera = cameraTarget
+		local impactShot = CFrame.new(cameraPos, rock.Position + offset(ChopConfig.CameraLookOffset))
+		chopCamera = impactShot
+		windUpCamera = if character and rootTarget
+			then windUpShot(rock, rootTarget, character, impactShot)
+			else impactShot
+		moveCamera(windUpCamera, ChopConfig.CameraTransitionSeconds)
+		trove:Connect(RunService.RenderStepped, stepCamera)
 	end
 
 	local transitionStart = os.clock()
@@ -378,9 +470,6 @@ local function beginMinigame(
 	transition = RunService.RenderStepped:Connect(function()
 		local progress = math.clamp((os.clock() - transitionStart) / ChopConfig.CameraTransitionSeconds, 0, 1)
 		local eased = progress * progress * (3 - 2 * progress)
-		if camera and cameraStart and cameraTarget then
-			camera.CFrame = cameraStart:Lerp(cameraTarget, eased)
-		end
 		if rootPart and rootStart and rootTarget then
 			rootPart.CFrame = rootStart:Lerp(rootTarget, eased)
 			rootPart.AssemblyLinearVelocity = Vector3.zero
@@ -545,6 +634,10 @@ function ChopController.Start(self: any)
 		end
 		minigameStartTime = os.clock()
 		bindRelease()
+		cameraReturnToken += 1
+		if cameraTo ~= windUpCamera then
+			moveCamera(windUpCamera, ChopConfig.WindUpCameraReturnSeconds)
+		end
 		self.RoundStarted:Fire()
 	end))
 	trove:Add(
@@ -554,6 +647,10 @@ function ChopController.Start(self: any)
 				local isGolden = activeRock ~= nil
 					and activeRock:GetAttribute(GoldenRockConfig.GoldenAttribute) ~= nil
 				local isMaster = quality == ChopQuality.Master
+				cameraReturnToken += 1
+				if cameraTo ~= chopCamera then
+					moveCamera(chopCamera, ChopConfig.ImpactCameraSeconds)
+				end
 				if isMaster and activeTrove then
 					masterStartClock = os.clock()
 					startMasterWindUp(activeTrove)
@@ -572,18 +669,13 @@ function ChopController.Start(self: any)
 				elseif quality == ChopQuality.Perfect then
 					flashScreen()
 				end
-				local camera = workspace.CurrentCamera
-				if camera and camera.CameraType == Enum.CameraType.Scriptable then
-					shakeCamera(
-						camera,
-						if isMaster and chopCamera then chopCamera else camera.CFrame,
-						qualityShakeIntensity(quality),
-						if isMaster
-							then MasterChopConfig.ShakeDurationSeconds
-							elseif quality == ChopQuality.Perfect then ChopConfig.PerfectShakeDurationSeconds
-							else ChopConfig.ShakeDurationSeconds
-					)
-				end
+				startShake(
+					qualityShakeIntensity(quality),
+					if isMaster
+						then MasterChopConfig.ShakeDurationSeconds
+						elseif quality == ChopQuality.Perfect then ChopConfig.PerfectShakeDurationSeconds
+						else ChopConfig.ShakeDurationSeconds
+				)
 				if payout > 0 then
 					local rock = activeRock
 					local popAt = if rock then rock.Position + Vector3.new(0, rock.Size.Y / 2, 0) else nil
@@ -613,6 +705,18 @@ function ChopController.Start(self: any)
 					task.delay(holdSeconds, function()
 						endMinigame()
 					end)
+				else
+					local token = cameraReturnToken
+					task.delay(
+						if isMaster
+							then MasterChopConfig.StrikeHoldSeconds + ChopConfig.ImpactCameraHoldSeconds
+							else ChopConfig.ImpactCameraHoldSeconds,
+						function()
+							if token == cameraReturnToken then
+								moveCamera(windUpCamera, ChopConfig.WindUpCameraReturnSeconds)
+							end
+						end
+					)
 				end
 			end
 		)
