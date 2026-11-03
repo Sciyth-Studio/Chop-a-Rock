@@ -10,6 +10,13 @@ export type Scene = {
 	Anchor: BasePart,
 }
 
+export type ShownPet = {
+	Model: Model,
+	Scale: number,
+	Facing: CFrame,
+	Lift: number,
+}
+
 export type Pose = {
 	Height: number,
 	Scale: number,

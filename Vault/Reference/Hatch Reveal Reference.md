@@ -17,3 +17,5 @@ Take from it (layout and content; text style per [[UI Text Style]]):
 The user's geode sequence (2026-10-06): after the chop, the geode **hovers about 4 studs up**, **turns white**, then **expands by an amount that depends on the Pet's rarity**, before the reveal screen.
 
 Related: [[Geode Reference]], [[UI Style References]]
+
+**Replaced 2026-11-03:** the full-screen card is gone ([[Geodes As Inventory Items]]). The hover, white, spin and rarity steps stay and play at the pad with the camera free. After the pop the Pet stands there for `PetShowSeconds` with `UI_HatchRevealLabel` above it (`HatchController/Scene.ShowPet`). `StarterGui.HatchReveal` is unused once this is merged and can be moved to `ServerStorage.UIBackup`.

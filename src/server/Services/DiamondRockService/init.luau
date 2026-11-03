@@ -190,11 +190,7 @@ local function onChopRequest(player: Player)
 	if os.clock() < diamond.UpAt - DiamondRockConfig.RiseSlackSeconds then
 		return
 	end
-	if
-		services.RockService:HasSession(player)
-		or services.GeodeFallService:HasSession(player)
-		or not services.DataService:GetData(player)
-	then
+	if services.RockService:HasSession(player) or not services.DataService:GetData(player) then
 		return
 	end
 	local position = rootPosition(player)

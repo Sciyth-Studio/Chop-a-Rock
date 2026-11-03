@@ -12,6 +12,7 @@ local Tutorial = require(ReplicatedStorage.Tutorial)
 local Effects = require(script.Effects)
 local HatchPads = require(script.HatchPads)
 local Opening = require(script.Opening)
+local Tools = require(script.Tools)
 local Types = require(script.Types)
 
 local GeodeService = { Name = "GeodeService" }
@@ -22,11 +23,12 @@ local random = Random.new()
 local plots: { [Model]: { Types.Pad } } = {}
 local placeAllPrompts: { [Model]: ProximityPrompt } = {}
 local oddsPrompts: { [Model]: ProximityPrompt } = {}
-local lockedUntil: { [Player]: number } = {}
+local padLocks: { [BasePart]: number } = {}
+local revealUntil: { [Player]: number } = {}
 local luckyZones: { [Player]: string } = {}
 
-local function isLocked(player: Player): boolean
-	return os.clock() < (lockedUntil[player] or 0)
+local function isPadLocked(pad: Types.Pad): boolean
+	return os.clock() < (padLocks[pad.Part] or 0)
 end
 
 local function padsOf(player: Player): { Types.Pad }?
@@ -41,8 +43,8 @@ local function refresh(player: Player)
 	if not data or not plot or not pads then
 		return
 	end
-	local canAct = not isLocked(player)
-	local nextGeode = GeodeOrder.Pick(data.Geodes)
+	Tools.Sync(player, data.Geodes)
+	local nextGeode = GeodeOrder.Pick(data.Geodes, Tools.Held(player))
 	local geode = if nextGeode then GeodeConfig.Geodes[nextGeode] else nil
 	local empty = 0
 	for index, pad in pads do
@@ -50,7 +52,7 @@ local function refresh(player: Player)
 		if not record then
 			empty += 1
 		end
-		HatchPads.Render(pad, player, record, canAct, geode)
+		HatchPads.Render(pad, player, record, not isPadLocked(pad), geode)
 	end
 	local odds = oddsPrompts[plot]
 	if odds then
@@ -60,17 +62,17 @@ local function refresh(player: Player)
 	local placeAll = placeAllPrompts[plot]
 	if placeAll then
 		placeAll:SetAttribute("OwnerUserId", player.UserId)
-		placeAll:SetAttribute("Active", canAct and empty > 1 and HatchPads.OwnedCount(data) > 1)
+		placeAll:SetAttribute("Active", empty > 1 and HatchPads.OwnedCount(data) > 1)
 	end
 end
 
-local function lock(player: Player, seconds: number)
-	lockedUntil[player] = os.clock() + seconds
-	player:SetAttribute(GeodeConfig.CrackingAttribute, true)
+local function lockPad(player: Player, pad: Types.Pad, seconds: number)
+	local now = os.clock()
+	padLocks[pad.Part] = now + seconds
+	revealUntil[player] = math.max(revealUntil[player] or 0, now + seconds)
 	refresh(player)
 	task.delay(seconds, function()
 		if player.Parent then
-			player:SetAttribute(GeodeConfig.CrackingAttribute, nil)
 			refresh(player)
 		end
 	end)
@@ -81,16 +83,18 @@ local function onPad(plot: Model, index: number, player: Player)
 	local data = services.DataService:GetData(player)
 	if
 		not data
-		or isLocked(player)
 		or services.BaseService:GetPlot(player) ~= plot
 		or services.RockService:HasSession(player)
 	then
 		return
 	end
 	local pad = plots[plot][index]
+	if isPadLocked(pad) then
+		return
+	end
 	local record = data.HatchPads[tostring(index)]
 	if not record then
-		HatchPads.Place(context, player, index, GeodeOrder.Pick(data.Geodes))
+		HatchPads.Place(context, player, index, GeodeOrder.Pick(data.Geodes, Tools.Held(player)))
 		services.DataService:RequestSave(player)
 		refresh(player)
 	elseif HatchPads.IsReady(record) then
@@ -102,7 +106,7 @@ local function onPad(plot: Model, index: number, player: Player)
 		if seconds then
 			HatchPads.Clear(context, player, index)
 			services.DataService:RequestSave(player)
-			lock(player, seconds)
+			lockPad(player, pad, seconds)
 		end
 	end
 end
@@ -110,11 +114,11 @@ end
 local function onPlaceAll(plot: Model, player: Player)
 	local services = context.Services
 	local data = services.DataService:GetData(player)
-	if not data or isLocked(player) or services.BaseService:GetPlot(player) ~= plot then
+	if not data or services.BaseService:GetPlot(player) ~= plot then
 		return
 	end
-	for index in plots[plot] do
-		if not data.HatchPads[tostring(index)] then
+	for index, pad in plots[plot] do
+		if not data.HatchPads[tostring(index)] and not isPadLocked(pad) then
 			local geodeKey = GeodeOrder.Pick(data.Geodes)
 			if not geodeKey then
 				break
@@ -165,6 +169,18 @@ function GeodeService.GrantGeodes(_self: any, player: Player, geodeKey: string, 
 	return true
 end
 
+function GeodeService.HasBagRoom(_self: any, player: Player): boolean
+	local data = context.Services.DataService:GetData(player)
+	if not data then
+		return false
+	end
+	local held = context.Services.PetService:Count(player) + HatchPads.OwnedCount(data)
+	for _ in data.HatchPads do
+		held += 1
+	end
+	return held < context.Services.PassService:GetBackpackSize(player)
+end
+
 function GeodeService.SkipHatch(_self: any, player: Player, padIndex: number): boolean
 	local data = context.Services.DataService:GetData(player)
 	local record = if data then data.HatchPads[tostring(padIndex)] else nil
@@ -195,7 +211,7 @@ function GeodeService.GrantLucky(_self: any, player: Player, amount: number): st
 end
 
 function GeodeService.IsRevealing(_self: any, player: Player): boolean
-	return isLocked(player)
+	return os.clock() < (revealUntil[player] or 0)
 end
 
 function GeodeService.ForceNextRarity(_self: any, player: Player, rarityKey: string)
@@ -255,7 +271,7 @@ function GeodeService.Start(_self: any)
 		end
 	end))
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
-		lockedUntil[player] = nil
+		revealUntil[player] = nil
 		luckyZones[player] = nil
 		context.ForcedRarities[player] = nil
 	end))
@@ -270,6 +286,8 @@ function GeodeService.Destroy(_self: any)
 	table.clear(plots)
 	table.clear(placeAllPrompts)
 	table.clear(oddsPrompts)
+	table.clear(padLocks)
+	table.clear(revealUntil)
 	Effects.Reset()
 	trove:Clean()
 end

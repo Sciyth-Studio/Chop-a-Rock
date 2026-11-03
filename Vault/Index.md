@@ -69,7 +69,8 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Stand Name Signs]] — shop / "Wood Training" name billboards (Arm Shop deleted 2026-10-18) above the stands; BillboardGuis don't show in screen_capture
 - [[Geode Reference]] — closed + split geode sheets; flat chipped faces, no bumps, crystals are a separate rarity-coloured part
 - [[Geode Stand Reference]] — per-zone pedestal geodes are bought from; tapered stone plinth with corner crystals
-- [[Hatch Reveal Reference]] — full-screen Pet reveal (big name, odds %, NEW!, sunburst, money stat, "Click to continue"); geode hovers, turns white, grows by rarity
+- [[Hatch Reveal Reference]] — the old full-screen Pet reveal (big name, odds %, NEW!, sunburst, money stat); the card was replaced 2026-11-03 by an in-world label, the geode's hover, white and rarity steps stay
+- [[Free Camera Hatch Reference]] — 2026-11-03 frames from the user's clip: the egg opens where it sits while you walk and turn the camera, then the Pet stands there with its name and $/s
 - [[Index UI Reference]] — three simulator Index screenshots: zone card grid, detail pane with rewards and Claim, Claim All, variant tabs down the side
 - [[Cannon Shop UI Reference]] — 2026-10-20 inspo for the Cannon Shop (tried, then dropped for the Aura Shop look): zone-tinted tall cards per tier (preview, zone block, cash + Robux price, Unequip), subtitle + cash line, footer line
 - [[Geode Stand UI Reference]] — egg-shop screenshots for the stand's odds/buy modal: header, 3x2 pet cards with %, big buttons; opened by prompt
@@ -121,7 +122,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 _One note per game system as they're worked on._
 - [[Bases]] — 6 plots cloned onto `BaseSpot` plates in a U around the centre shops; claim on join, per-base `BaseSpawn`, owner-only training stand; owner signpost (headshot + username) by the entrance; plots leaked on leave until 2026-10-28 (`PlayerRemoving` sees Parent nil → `DataSessions:BeginRelease`)
 - [[Rock Spawning]] — per-player rocks rise in `RockSpawnArea` boxes; each rock kind spawns in its own strip, weakest by the `ZoneEntrance` (2026-10-29); server keeps data, client draws rocks and effects; forest floor is rotated and sits on the Baseplate
-- [[Zone Geodes]] — 2026-11-03, not playtested: 4 free geodes per player per zone in a clear ring (`ZoneGeodeRing` markers the user can move), 30 s respawn, `RequestFight` then `GrantGeodes`; `GrantWithoutEnemyService` flag until enemies merge; zones 6-10 have rings but no geodes yet; `ZoneGeodeService`, `ZoneGeodeController`, `ZoneGeodeConfig`, `Utils/ZoneRings`
+- [[Zone Geodes]] — 2026-11-03, not playtested: 4 free geodes per player per zone, anywhere in the zone clear of walls, decor and your rocks; 30 s respawn; going for one starts the enemy fight; `ZoneGeodeService`, `ZoneGeodeController`, `ZoneGeodeConfig`, admin Spawn Zone Geode
 - [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands, Reset Player Data (name + press twice), testing-speed commands, Ctrl+Shift+Space command bar, data snapshots; add a command = config entry + `AdminService/Commands` handler
 - [[Global Announcements]] — admin `Global Message` (Events tab, `announce`) → filtered, gold 8 s notification in every server via MessagingService; bypasses the Notifications setting; `AnnouncementService`, `AnnouncementConfig`
 - [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
@@ -136,7 +137,7 @@ _One note per game system as they're worked on._
 - [[Shop Pads]] — neon floor rectangles open the Geode, Sell and Aura shops on approach, "Open" prompt to reopen while standing on one; `ShopPad` tag + `Screen` attribute; Beam width gotcha
 - [[Settings]] — master Volume with -/+, Music/SFX/Low Graphics/Auto Equip/Notifications toggles; what each does
 - [[Golden Rocks]] — replaced Rush Rocks 2026-11-03: 2% draft chance a rock spawns gold, x3 pay, no timer; `RockController/Golden`, `GoldenRockConfig`, admin Ctrl+Shift+R
-- [[Geode Fall]] — built 2026-10-20, first playtest fixes in (hover, despawn, damage cap, own VFX, aura hidden): one geode per player, max 4 (2026-11-03), crash into random zones players have reached, rolled by the Event Clock, first chop claims, Rare+ Pet; `GeodeFallService`, `RockController/GeodeFall`, `GeodeFallConfig`, admin Ctrl+Shift+F; anti-teleport sampling; RockService now reserves several areas
+- [[Geode Fall]] — one geode per player, max 4, crashes into reached zones; since 2026-11-03 first to press Take gets a Falling Geode item (Rare or better), no chop or fight; `GeodeFallService`, `RockController/GeodeFall`, `GeodeFallConfig`, admin Ctrl+Shift+F; anti-teleport sampling
 - [[Diamond Rock]] — shared server rock rolled by the Event Clock at a random clear spot, beacon, no timer pill since 2026-11-03, 60 s, paid per hit by damage share; `DiamondRockService`, `DiamondRockConfig`, admin Ctrl+Shift+D / T
 - [[Chop Minigame]] — 2026-11-03 draft: original bar style turned horizontal (`ChopBar`), hotbar hidden, over-the-shoulder wind-up camera that moves to the chop camera on release; wall pull-in; numbers in `ChopConfig`
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
@@ -180,6 +181,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, built 2026-10-28 (see [[Auto Open]])
 - [[World 1 Plan]] — 2026-10-29: zones 6-10 Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins; stands Meteor/Sun/Black Hole/Galaxy; always-awake co-op Golem boss opens world 2; never time-gate a milestone; `World1Plan.md`
 - [[Zone Geodes And Enemies]] — 2026-11-03, approved, not built: free geodes in zones guarded by a personal enemy (spam click, launched if you lose), 8 hatch pads at a remodelled base, 8 best Pets pay your account; shop, cracking, pity, Auto Open and Wild Geodes go; `ZoneGeodesPlan.md`
+- [[Geodes As Inventory Items]] — 2026-11-03: geodes are held items (hotbar first, Pets panel), placed and opened on hatch pads with the camera free and an in-world Pet label; Geode Fall is a plain pickup that keeps Rare or better; zone geodes spawn anywhere in the zone
 - [[Rock Props Reuse Decor]] — 2026-10-31: a rock prop that exists as zone decor (acacia, bamboo, cattails, termite mound...) uses the real meshlab decor mesh, white + `2022 Stud` so vertex colours show; MeshSlicer keeps those colours on live cuts
 
 - [[Wild Geodes]] — 2026-10-29, approved and built (see [[Wild Geode]]): the user kept the shop and added random geodes hidden in rocks; crack on the break, better-than-normal odds (Uncommon+ draft), no tell

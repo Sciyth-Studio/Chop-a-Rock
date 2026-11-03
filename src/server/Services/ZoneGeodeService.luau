@@ -58,28 +58,24 @@ local function zoneGeodes(geodes: { [number]: Geode }, zone: string): { Geode }
 	return list
 end
 
-local function hasBagRoom(player: Player, data: any): boolean
-	local held = services.PetService:Count(player)
-	for _, count in data.Geodes do
-		held += count
-	end
-	for _ in data.HatchPads or {} do
-		held += 1
-	end
-	return held < services.PassService:GetBackpackSize(player)
+local function blockRadius(zone: string): number
+	local size = ZoneGeodeConfig.ClearanceSize * ZoneScale.Of(zone)
+	return Vector2.new(size.X, size.Z).Magnitude / 2
+end
+
+local function blockOwner(id: number): string
+	return `ZoneGeode{id}`
 end
 
 local function pickSpot(player: Player, zone: string, geodes: { Geode }): Vector3?
 	local rings = services.RockService:GetRings()
 	local scale = ZoneScale.Of(zone)
 	local root = rootOf(player)
+	local radius = blockRadius(zone)
 	local valid: { Vector3 } = {}
-	for _, position in services.RockService:GetRingSpots(zone) do
+	for _, position in services.RockService:GetGeodeSpots(zone) do
 		local ring = ZoneRings.Containing(rings, zone, position)
-		if
-			not ring
-			or flatDistance(position, ring.Center) < ring.Radius * ZoneGeodeConfig.CentreClearRatio
-		then
+		if ring and flatDistance(position, ring.Center) < ring.Radius * ZoneGeodeConfig.CentreClearRatio then
 			continue
 		end
 		if root and flatDistance(position, root.Position) < ZoneGeodeConfig.PlayerClearanceStuds then
@@ -92,7 +88,7 @@ local function pickSpot(player: Player, zone: string, geodes: { Geode }): Vector
 				break
 			end
 		end
-		if isFree then
+		if isFree and services.RockService:IsClearOfRocks(player, zone, position, radius) then
 			table.insert(valid, position)
 		end
 	end
@@ -107,6 +103,7 @@ local function place(player: Player, zone: string, position: Vector3)
 	end
 	nextId += 1
 	geodes[nextId] = { Id = nextId, Zone = zone, Position = position, IsFighting = false }
+	services.RockService:BlockSpot(player, blockOwner(nextId), zone, position, blockRadius(zone))
 	Packets.ZoneGeodeSpawned:FireClient(
 		player,
 		nextId,
@@ -128,7 +125,7 @@ local function spawnGeode(player: Player, zone: string): boolean
 	end
 	local position = pickSpot(player, zone, existing)
 	if not position then
-		warnOnce(zone, `[ZoneGeodeService] No free ring spot in {zone}`)
+		warnOnce(zone, `[ZoneGeodeService] No free geode spot in {zone}`)
 		return false
 	end
 	place(player, zone, position)
@@ -150,7 +147,7 @@ local function grant(player: Player, geode: Geode)
 	if not geodes or geodes[geode.Id] ~= geode or not data then
 		return
 	end
-	if not hasBagRoom(player, data) then
+	if not services.GeodeService:HasBagRoom(player) then
 		services.NotificationService:Notify(player, "Error", ZoneGeodeConfig.BagFullText, IconConfig.Backpack)
 		return
 	end
@@ -158,15 +155,14 @@ local function grant(player: Player, geode: Geode)
 		return
 	end
 	geodes[geode.Id] = nil
+	services.RockService:UnblockSpot(player, blockOwner(geode.Id))
 	Packets.ZoneGeodeRemoved:FireClient(player, geode.Id)
 	services.NotificationService:Notify(player, "Purchase", `+1 {GeodeConfig.Geodes[geode.Zone].DisplayName}`)
 	scheduleSpawn(player, geode.Zone, ZoneGeodeConfig.RespawnSeconds)
 end
 
 local function isBusy(player: Player): boolean
-	return services.RockService:HasSession(player)
-		or services.DiamondRockService:HasSession(player)
-		or services.GeodeFallService:HasSession(player)
+	return services.RockService:HasSession(player) or services.DiamondRockService:HasSession(player)
 end
 
 local function onTake(player: Player, id: number)
@@ -190,7 +186,7 @@ local function onTake(player: Player, id: number)
 		services.NotificationService:Notify(player, "Error", ZoneGeodeConfig.TooWeakText)
 		return
 	end
-	if not hasBagRoom(player, data) then
+	if not services.GeodeService:HasBagRoom(player) then
 		services.NotificationService:Notify(player, "Error", ZoneGeodeConfig.BagFullText, IconConfig.Backpack)
 		return
 	end

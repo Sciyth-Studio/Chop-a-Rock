@@ -235,6 +235,7 @@ local map: { [string]: AssetEntry } = {
 	Model_LeaderboardCrown = { Category = "Models", InstanceName = "Model_LeaderboardCrown" },
 	Model_RockSplit_DiamondRock = { Category = "Models", InstanceName = "Model_RockSplit_DiamondRock" },
 	UI_DiamondLabel = { Category = "VFX", InstanceName = "DiamondLabel" },
+	UI_HatchRevealLabel = { Category = "VFX", InstanceName = "HatchRevealLabel" },
 	VFX_Diamond_Glow = { Category = "VFX", InstanceName = "VFX_Diamond_Glow" },
 	VFX_Diamond_Ring = { Category = "VFX", InstanceName = "VFX_Diamond_Ring" },
 	VFX_Diamond_Shards = { Category = "VFX", InstanceName = "VFX_Diamond_Shards" },

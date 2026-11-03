@@ -113,9 +113,6 @@ local function launch(player: Player, key: string): boolean
 	if not character or not humanoid or humanoid.Health <= 0 or not root or not root:IsA("BasePart") then
 		return false
 	end
-	if services.GeodeService:IsRevealing(player) then
-		return false
-	end
 	local now = os.clock()
 	local last = lastLaunch[player]
 	if last and now - last < CannonConfig.CooldownSeconds then

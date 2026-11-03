@@ -39,11 +39,16 @@ local function findGround(origin: Vector3, depth: number, excluded: { Instance }
 	return ground
 end
 
-local function isClear(cframe: CFrame, size: Vector3, excluded: { Instance }): boolean
+local function isClear(
+	cframe: CFrame,
+	size: Vector3,
+	excluded: { Instance },
+	includeGhosts: boolean?
+): boolean
 	local params = OverlapParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = excluded
-	params.RespectCanCollide = true
+	params.RespectCanCollide = not includeGhosts
 	params.MaxParts = 1
 	return #workspace:GetPartBoundsInBox(cframe, size, params) == 0
 end
@@ -82,7 +87,7 @@ local function fitsGeode(ground: RaycastResult, size: Vector3, areas: { Instance
 	local excluded = table.clone(areas)
 	table.insert(excluded, ground.Instance)
 	local lift = RockSpawnConfig.ClearanceLiftStuds
-	return isClear(CFrame.new(ground.Position + Vector3.new(0, size.Y / 2 + lift, 0)), size, excluded)
+	return isClear(CFrame.new(ground.Position + Vector3.new(0, size.Y / 2 + lift, 0)), size, excluded, true)
 end
 
 function SpawnPoints.FitsRing(
@@ -167,7 +172,7 @@ function SpawnPoints.Sample(
 	local minNormalY = math.cos(math.rad(RockSpawnConfig.MaxSlopeDegrees))
 	local spacing = RockSpawnConfig.SampleSpacingStuds
 	local result: { [string]: { Types.Spot } } = {}
-	local ringResult: { [string]: { Vector3 } } = {}
+	local geodeResult: { [string]: { Vector3 } } = {}
 	local sliceStarted = os.clock()
 	for _, area in areas do
 		local zone = area:GetAttribute(RockSpawnConfig.ZoneAttribute)
@@ -187,8 +192,8 @@ function SpawnPoints.Sample(
 		end
 		local list = result[zone] or {}
 		result[zone] = list
-		local ringList = ringResult[zone] or {}
-		ringResult[zone] = ringList
+		local geodeList = geodeResult[zone] or {}
+		geodeResult[zone] = geodeList
 		local geodeSize = ZoneGeodeConfig.ClearanceSize * ZoneScale.Of(zone)
 		local size = area.Size
 		local zoneSpacing = spacing * ZoneScale.Of(zone)
@@ -211,11 +216,8 @@ function SpawnPoints.Sample(
 				if not ground or ground.Normal.Y < minNormalY then
 					continue
 				end
-				if
-					ZoneRings.Containing(rings, zone, ground.Position)
-					and fitsGeode(ground, geodeSize, excluded)
-				then
-					table.insert(ringList, ground.Position)
+				if fitsGeode(ground, geodeSize, excluded) then
+					table.insert(geodeList, ground.Position)
 				end
 				local spot: Types.Spot = { Position = ground.Position, Fits = {}, Largest = nil }
 				for _, shape in zoneShapes do
@@ -237,7 +239,7 @@ function SpawnPoints.Sample(
 	for _, area in areas do
 		area.Transparency = 1
 	end
-	return result, ringResult
+	return result, geodeResult
 end
 
 return SpawnPoints
