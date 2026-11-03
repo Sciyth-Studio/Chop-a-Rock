@@ -32,7 +32,7 @@ local ZoneGeodeController = {
 local function refreshPrompt(geode: ClientGeode)
 	geode.Prompt.Enabled = geode.IsUp
 		and not chopController:IsMinigameActive()
-		and not Tutorial.IsActive(Tutorial.StepOf(dataController:Get({ "Tutorial" })))
+		and Tutorial.CanTakeGeode(Tutorial.StepOf(dataController:Get({ "Tutorial" })))
 end
 
 local function refreshAll()

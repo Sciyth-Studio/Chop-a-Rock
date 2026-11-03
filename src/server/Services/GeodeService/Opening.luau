@@ -43,7 +43,7 @@ local function forcedPet(context: Types.Context, player: Player, geodeKey: strin
 end
 
 local function isFirstPet(data: any, geodeKey: string): boolean
-	if Tutorial.StepOf(data.Tutorial) ~= Tutorial.Crack or next(data.Pets) ~= nil then
+	if Tutorial.StepOf(data.Tutorial) ~= Tutorial.Open or next(data.Pets) ~= nil then
 		return false
 	end
 	for _, entry in GeodeConfig.Geodes[geodeKey].Pets do

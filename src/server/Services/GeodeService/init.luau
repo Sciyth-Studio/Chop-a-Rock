@@ -8,10 +8,10 @@ local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Effects = require(script.Effects)
 local HatchPads = require(script.HatchPads)
 local Opening = require(script.Opening)
-local Purchasing = require(script.Purchasing)
 local Types = require(script.Types)
 
 local GeodeService = { Name = "GeodeService" }
@@ -21,6 +21,7 @@ local context: Types.Context = { Services = {}, ForcedRarities = {} }
 local random = Random.new()
 local plots: { [Model]: { Types.Pad } } = {}
 local placeAllPrompts: { [Model]: ProximityPrompt } = {}
+local oddsPrompts: { [Model]: ProximityPrompt } = {}
 local lockedUntil: { [Player]: number } = {}
 local luckyZones: { [Player]: string } = {}
 
@@ -51,10 +52,15 @@ local function refresh(player: Player)
 		end
 		HatchPads.Render(pad, player, record, canAct, geode)
 	end
+	local odds = oddsPrompts[plot]
+	if odds then
+		odds:SetAttribute("OwnerUserId", player.UserId)
+		odds:SetAttribute("Active", not Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)))
+	end
 	local placeAll = placeAllPrompts[plot]
 	if placeAll then
 		placeAll:SetAttribute("OwnerUserId", player.UserId)
-		placeAll:SetAttribute("Active", canAct and empty > 1 and Purchasing.OwnedCount(data) > 1)
+		placeAll:SetAttribute("Active", canAct and empty > 1 and HatchPads.OwnedCount(data) > 1)
 	end
 end
 
@@ -132,6 +138,11 @@ local function setupPlot(plot: Model)
 		trove:Add(pad.Prompt.Triggered:Connect(function(player: Player)
 			onPad(plot, index, player)
 		end))
+	end
+	local odds = HatchPads.SetupOdds(plot)
+	if odds then
+		oddsPrompts[plot] = odds
+		trove:Add(odds)
 	end
 	local placeAll = HatchPads.SetupPlaceAll(plot)
 	if placeAll then
@@ -225,13 +236,6 @@ function GeodeService.Start(_self: any)
 		refresh(player)
 	end)
 
-	Packets.BuyGeode.OnServerInvoke = function(player: Player, geodeKey: string, amount: number): boolean
-		local bought = Purchasing.Buy(context, player, geodeKey, amount)
-		if bought then
-			refresh(player)
-		end
-		return bought
-	end
 	local elapsed = 0
 	trove:Add(RunService.Heartbeat:Connect(function(dt: number)
 		elapsed += dt
@@ -258,7 +262,6 @@ function GeodeService.Start(_self: any)
 end
 
 function GeodeService.Destroy(_self: any)
-	Packets.BuyGeode.OnServerInvoke = nil
 	for _, pads in plots do
 		for _, pad in pads do
 			HatchPads.ClearDisplay(pad)
@@ -266,6 +269,7 @@ function GeodeService.Destroy(_self: any)
 	end
 	table.clear(plots)
 	table.clear(placeAllPrompts)
+	table.clear(oddsPrompts)
 	Effects.Reset()
 	trove:Clean()
 end

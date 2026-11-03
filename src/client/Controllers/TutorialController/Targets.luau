@@ -8,6 +8,7 @@ local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
+local ZoneGeodeConfig = require(ReplicatedStorage.Config.ZoneGeodeConfig)
 
 export type Target = {
 	Position: Vector3,
@@ -141,6 +142,35 @@ local function cannonEntry(label: string): Target?
 	}
 end
 
+local function nearestZoneGeode(): Target?
+	local folder = workspace:FindFirstChild(ZoneGeodeConfig.FolderName)
+	local from = rootPosition()
+	if not folder or not from then
+		return nil
+	end
+	local nearest: Model? = nil
+	local nearestDistance = math.huge
+	for _, child in folder:GetChildren() do
+		if child:IsA("Model") then
+			local distance = (child:GetPivot().Position - from).Magnitude
+			if distance < nearestDistance then
+				nearest, nearestDistance = child, distance
+			end
+		end
+	end
+	if not nearest then
+		return nil
+	end
+	local position = nearest:GetPivot().Position
+	return {
+		Position = position,
+		Goal = standOff(position, from),
+		Adornee = nearest :: Instance,
+		Label = "Geode",
+		ArriveStuds = ZoneGeodeConfig.PromptRangeStuds,
+	}
+end
+
 local function hatchPad(data: any): Target?
 	local plot = Targets.OwnPlot()
 	if not plot then
@@ -172,9 +202,9 @@ function Targets.For(step: number, data: any): Target?
 		return trainingStand()
 	elseif Tutorial.IsChopping(step) then
 		return nearestRock(TutorialConfig.FirstChopRockKey)
-	elseif step == Tutorial.BuyGeode then
-		return shopPad("GeodeStand", "Geode")
-	elseif step == Tutorial.Crack then
+	elseif step == Tutorial.GetGeode then
+		return nearestZoneGeode()
+	elseif step == Tutorial.Place or step == Tutorial.Open then
 		return hatchPad(data)
 	end
 	return nil

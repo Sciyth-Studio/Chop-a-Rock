@@ -15,12 +15,10 @@ export type Hint = {
 local Teleports = {}
 
 local function destinationFor(step: number): string?
-	if Tutorial.IsTraining(step) or step == Tutorial.Crack or step == Tutorial.Collect then
+	if Tutorial.IsTraining(step) or step == Tutorial.Place or step == Tutorial.Open then
 		return "Base"
-	elseif Tutorial.IsChopping(step) then
+	elseif Tutorial.IsChopping(step) or step == Tutorial.GetGeode then
 		return "Rocks"
-	elseif step == Tutorial.BuyGeode then
-		return "Geode"
 	end
 	return nil
 end

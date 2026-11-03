@@ -176,7 +176,7 @@ local function onTake(player: Player, id: number)
 	if not geode or geode.IsFighting or not data or isBusy(player) then
 		return
 	end
-	if Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
+	if not Tutorial.CanTakeGeode(Tutorial.StepOf(data.Tutorial)) then
 		return
 	end
 	local root = rootOf(player)

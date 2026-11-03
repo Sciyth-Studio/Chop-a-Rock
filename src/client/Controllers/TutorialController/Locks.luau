@@ -21,9 +21,9 @@ local Locks = {}
 local reasons = {
 	[Tutorial.Train] = "Train first!",
 	[Tutorial.Chop] = "Chop first!",
-	[Tutorial.BuyGeode] = "Geode first!",
-	[Tutorial.Crack] = "Hatch first!",
-	[Tutorial.Collect] = "Cash first!",
+	[Tutorial.GetGeode] = "Geode first!",
+	[Tutorial.Place] = "Place first!",
+	[Tutorial.Open] = "Open first!",
 	[Tutorial.Final] = "Almost!",
 }
 

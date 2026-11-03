@@ -1,7 +1,6 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 
 export type State = {
@@ -13,9 +12,9 @@ export type State = {
 local Tutorial = {
 	Train = 1,
 	Chop = 2,
-	BuyGeode = 3,
-	Crack = 4,
-	Collect = 5,
+	GetGeode = 3,
+	Place = 4,
+	Open = 5,
 	Final = 6,
 	Done = 7,
 	AuraBought = 8,
@@ -31,9 +30,9 @@ Tutorial.LastMilestone = Tutorial.Played60Min
 Tutorial.Funnel = {
 	"Train",
 	"Chop",
-	"BuyGeode",
-	"Crack",
-	"Collect",
+	"GetGeode",
+	"PlaceGeode",
+	"OpenGeode",
 	"Final",
 	"Done",
 	"AuraBought",
@@ -46,10 +45,10 @@ Tutorial.Funnel = {
 
 Tutorial.Titles = {
 	[Tutorial.Train] = "Break the boards!",
-	[Tutorial.Chop] = "Chop rocks for cash!",
-	[Tutorial.BuyGeode] = "Buy a geode!",
-	[Tutorial.Crack] = "Hatch your geode!",
-	[Tutorial.Collect] = "Step on green pad!",
+	[Tutorial.Chop] = "Chop some rocks!",
+	[Tutorial.GetGeode] = "Grab a geode!",
+	[Tutorial.Place] = "Place your geode!",
+	[Tutorial.Open] = "Open your geode!",
 	[Tutorial.Final] = "You're ready! Go chop!",
 }
 
@@ -80,50 +79,28 @@ function Tutorial.CanChop(step: number): boolean
 	return not Tutorial.IsActive(step) or Tutorial.IsChopping(step)
 end
 
-function Tutorial.PadScreen(step: number): string?
-	if step == Tutorial.BuyGeode then
-		return "GeodeStand"
-	end
-	return nil
+function Tutorial.IsPadOpen(step: number, _screen: string): boolean
+	return not Tutorial.IsActive(step)
 end
 
-function Tutorial.IsPadOpen(step: number, screen: string): boolean
-	return not Tutorial.IsActive(step) or Tutorial.PadScreen(step) == screen
+function Tutorial.CanTakeGeode(step: number): boolean
+	return not Tutorial.IsActive(step) or step == Tutorial.GetGeode
+end
+
+function Tutorial.RocksBroken(data: any): number
+	local index = if type(data) == "table" then data.Index else nil
+	local rocks = if type(index) == "table" then index.Rocks else nil
+	local count = if type(rocks) == "table" then rocks[TutorialConfig.FirstChopRockKey] else nil
+	return if type(count) == "number" then count else 0
 end
 
 function Tutorial.CanBuyAura(step: number): boolean
 	return not Tutorial.IsActive(step)
 end
 
-function Tutorial.CanBuyGeode(step: number): boolean
-	return not Tutorial.IsActive(step) or step == Tutorial.BuyGeode
-end
-
-function Tutorial.GeodePrice(): number
-	return TutorialConfig.GeodePrice
-end
-
-function Tutorial.GeodeCost(step: number, geodeKey: string, amount: number): number
-	local geode = GeodeConfig.Geodes[geodeKey]
-	if not geode then
-		return 0
-	end
-	if step == Tutorial.BuyGeode and geodeKey == TutorialConfig.GeodeKey and amount == 1 then
-		return TutorialConfig.GeodePrice
-	end
-	return geode.Price * amount
-end
-
 function Tutorial.StrengthGoal(step: number): number?
 	if step == Tutorial.Train then
 		return TutorialConfig.TrainGoal
-	end
-	return nil
-end
-
-function Tutorial.CashGoal(step: number): number?
-	if step == Tutorial.Chop or step == Tutorial.BuyGeode then
-		return Tutorial.GeodePrice()
 	end
 	return nil
 end

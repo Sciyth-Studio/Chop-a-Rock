@@ -63,39 +63,44 @@ local function setStep(player: Player, step: number)
 	end
 end
 
-local function geodeCount(data: any): number
+local function padCount(data: any): number
 	local total = 0
-	for _, count in data.Geodes do
-		total += count
-	end
 	for _ in data.HatchPads do
 		total += 1
 	end
 	return total
 end
 
+local function bagCount(data: any): number
+	local total = 0
+	for _, count in data.Geodes do
+		total += count
+	end
+	return total
+end
+
 local function decide(player: Player, data: any, step: number): number
 	local hasPet = next(data.Pets) ~= nil
-	local geodes = geodeCount(data)
 	if step == Tutorial.Final then
 		return step
 	end
 	if hasPet then
 		return if services.GeodeService:IsRevealing(player) then step else Tutorial.Final
 	end
-	if geodes > 0 then
-		return Tutorial.Crack
+	if padCount(data) > 0 then
+		return Tutorial.Open
 	end
-	if step == Tutorial.Crack or step == Tutorial.Collect then
-		return Tutorial.BuyGeode
+	if bagCount(data) > 0 then
+		return Tutorial.Place
+	end
+	if step == Tutorial.Place or step == Tutorial.Open then
+		return Tutorial.GetGeode
 	end
 	local taps = data.Tutorial.Taps or 0
 	if step == Tutorial.Train then
 		return if data.Strength >= TutorialConfig.TrainGoal and taps > 0 then Tutorial.Chop else step
 	elseif step == Tutorial.Chop then
-		return if data.Cash >= Tutorial.GeodePrice() then Tutorial.BuyGeode else step
-	elseif step == Tutorial.BuyGeode then
-		return if data.Cash < Tutorial.GeodePrice() then Tutorial.Chop else step
+		return if Tutorial.RocksBroken(data) >= TutorialConfig.FirstChopRocks then Tutorial.GetGeode else step
 	end
 	return step
 end

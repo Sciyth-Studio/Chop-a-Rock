@@ -10,7 +10,6 @@ local RebirthHint = require(ReplicatedStorage.RebirthHint)
 local RockHint = require(ReplicatedStorage.RockHint)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
-local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -169,13 +168,8 @@ local function titleFor(step: number): string?
 		return `{title} {current}/{strengthGoal}`
 	end
 	if Tutorial.IsChopping(step) then
-		local goal = Tutorial.CashGoal(step) or 0
-		local cash = dataController:Get({ "Cash" })
-		if type(cash) ~= "number" or cash <= 0 then
-			return title
-		end
-		local current = math.min(cash, goal)
-		return `{title} ${NumberFormat.Commas(current)}/${NumberFormat.Commas(goal)}`
+		local goal = TutorialConfig.FirstChopRocks
+		return `{title} {math.min(Tutorial.RocksBroken(dataController:Get()), goal)}/{goal}`
 	end
 	return title
 end
@@ -189,15 +183,23 @@ local function detailFor(step: number, target: Targets.Target?): string?
 			return nil
 		end
 		return if near then `{promptKey(adornee, "Train", false)} to train` else nil
-	elseif step == Tutorial.Crack then
+	elseif step == Tutorial.GetGeode then
+		return if near then `{promptKey(adornee, "Take", false)} to take!` else nil
+	elseif step == Tutorial.Place then
+		return if near then `{promptKey(adornee, "Place", true)} to place!` else nil
+	elseif step == Tutorial.Open then
+		local isReady = adornee ~= nil
+			and adornee:GetAttribute("ReadyAt") ~= nil
+			and workspace:GetServerTimeNow() >= adornee:GetAttribute("ReadyAt")
+		if not isReady then
+			return "Hatching..."
+		end
 		return if near then `{promptKey(adornee, "Open", true)} to hatch!` else nil
 	elseif Tutorial.IsChopping(step) then
 		if chopController:IsMinigameActive() then
 			return `{releaseKey()} in glow!`
 		end
 		return if near then `{promptKey(adornee, "Chop", true)} to chop!` else nil
-	elseif step == Tutorial.BuyGeode then
-		return if isOpen("GeodeStand") then "Buy one Forest Geode!" else nil
 	end
 	return nil
 end
@@ -297,9 +299,6 @@ local function update(dt: number)
 		step = shownStep
 	end
 	if shownStep ~= step then
-		if shownStep == Tutorial.BuyGeode and step > Tutorial.BuyGeode and isOpen("GeodeStand") then
-			controllers.UIController:Close("GeodeStand")
-		end
 		if shownStep and step > shownStep then
 			LocalSound.Play(
 				if step == Tutorial.Final then TutorialConfig.FinalSoundKey else TutorialConfig.StepSoundKey
@@ -310,9 +309,7 @@ local function update(dt: number)
 		shownStep = step
 	end
 	local target = Targets.For(step, data)
-	local isDoing = chopController:IsMinigameActive()
-		or controllers.TrainingController:IsTraining()
-		or (step == Tutorial.BuyGeode and isOpen("GeodeStand"))
+	local isDoing = chopController:IsMinigameActive() or controllers.TrainingController:IsTraining()
 	local isIdle = checkIdle(current.Guide, step ~= Tutorial.Final and not isDoing)
 	local teleport = if isDoing then nil else Teleports.For(step, target, clickVerb(), isIdle)
 	local button = if teleport then teleport.Button else Spotlight.TargetFor(step, data, chopController)

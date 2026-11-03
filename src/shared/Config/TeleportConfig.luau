@@ -48,7 +48,7 @@ local TeleportConfig: TeleportSettings = {
 		{ Id = "Base", Label = "Base", IsBase = true, Marker = "" },
 		{ Id = "Aura", Label = "Aura", IsBase = false, Marker = "AuraShop" },
 		{ Id = "Sell", Label = "Sell", IsBase = false, Marker = "SellShop" },
-		{ Id = "Geode", Label = "Geode", IsBase = false, Marker = "GeodeShop" },
+
 		{ Id = "Cannon", Label = "Cannon", IsBase = false, Marker = "CannonShop" },
 		{ Id = "Rocks", Label = "Rocks", IsBase = false, Marker = "Rocks" },
 	},
@@ -57,7 +57,7 @@ local TeleportConfig: TeleportSettings = {
 		FanName = "ShopFan",
 		OptionSuffix = "Option",
 		PopScaleName = "PopScale",
-		Options = { "Aura", "Cannon", "Sell", "Geode" },
+		Options = { "Aura", "Cannon", "Sell" },
 		Columns = 2,
 		GapScale = 0.15,
 		SpacingScale = 0.95,

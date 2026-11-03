@@ -1,6 +1,5 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
@@ -8,19 +7,17 @@ local GeodeStandConfig = require(ReplicatedStorage.Config.GeodeStandConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
-local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local ShopConfig = require(ReplicatedStorage.Config.ShopConfig)
+local CollectionService = game:GetService("CollectionService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
-local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
-local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local Tutorial = require(ReplicatedStorage.Tutorial)
 local Types = require(script.Parent.Parent.Types)
 
 local SCREEN_NAME = "GeodeStand"
@@ -37,13 +34,6 @@ type Card = {
 type Tab = {
 	GeodeKey: string,
 	Button: TextButton,
-	Fill: Instance?,
-}
-
-type BuyButton = {
-	Amount: number,
-	Button: TextButton,
-	Label: TextLabel?,
 	Fill: Instance?,
 }
 
@@ -106,9 +96,7 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local template: Frame? = find(gui, "CardTemplate", "Frame", true)
 	local title: TextLabel? = find(gui, "Title", "TextLabel", true)
 	local closeButton: TextButton? = find(gui, "CloseButton", "TextButton", true)
-	local blocker: TextButton? = find(gui, "Blocker", "TextButton", true)
 	local toggle: TextButton? = find(gui, "LuckToggle", "TextButton", true)
-	local blockerLabel: TextLabel? = if blocker then find(blocker, "Label", "TextLabel", false) else nil
 	local tabsFrame: GuiObject? = find(gui, "Tabs", "GuiObject", true)
 	local tabTemplate: TextButton? = find(gui, "TabTemplate", "TextButton", true)
 
@@ -121,45 +109,20 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local geodeKey: string? = nil
 	local showGamepassOdds = false
 	local luckPrompted = false
-	local isBuying = false
 	local cards: { Card } = {}
-	local buttons: { BuyButton } = {}
 	local tabs: { Tab } = {}
 
 	local orderedKeys = GeodeOrder.Sorted()
 
-	for _, entry in { { Name = "BuyOne", Amount = 1 }, { Name = "BuyThree", Amount = 3 } } do
-		local button: TextButton? = find(gui, entry.Name, "TextButton", true)
-		if button then
-			table.insert(buttons, {
-				Amount = entry.Amount,
-				Button = button,
-				Label = find(button, "Label", "TextLabel", false),
-				Fill = button:FindFirstChild("Fill", true),
-			})
+	for _, name in { "BuyOne", "BuyThree", "Blocker" } do
+		local hiddenButton = gui:FindFirstChild(name, true)
+		if hiddenButton and hiddenButton:IsA("GuiObject") then
+			hiddenButton.Visible = false
 		end
 	end
 
 	local function read(path: { string }): any
 		return dataController:Get(path)
-	end
-
-	local function count(value: any): number
-		local total = 0
-		if type(value) == "table" then
-			for _, item in value do
-				total += if type(item) == "number" then item else 1
-			end
-		end
-		return total
-	end
-
-	local function freeSlots(): number
-		local hasBigBackpack = Players.LocalPlayer:GetAttribute(
-			MonetizationConfig.PassAttributePrefix .. "Backpack"
-		) == true
-		local size = PetConfig.MaxPets + if hasBigBackpack then MonetizationConfig.BackpackBonus else 0
-		return size - count(read({ "Pets" })) - count(read({ "Geodes" }))
 	end
 
 	local function refreshOdds()
@@ -201,60 +164,6 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	local function refreshButtons()
-		local geode = if geodeKey then GeodeConfig.Geodes[geodeKey] else nil
-		if not geode then
-			return
-		end
-		local cash = read({ "Cash" })
-		local peakStrength = read({ "PeakStrength" })
-		cash = if type(cash) == "number" then cash else 0
-		peakStrength = if type(peakStrength) == "number" then peakStrength else 0
-		local slots = freeSlots()
-		local blockedText: string? = nil
-		if peakStrength < geode.StrengthRequired then
-			blockedText = string.format(
-				GeodeStandConfig.NeedStrengthFormat,
-				NumberFormat.Commas(geode.StrengthRequired)
-			)
-		elseif slots < 1 then
-			blockedText = if context.Controllers.PurchaseController:OwnsPass("Backpack")
-				then GeodeStandConfig.BagFullText
-				else GeodeStandConfig.BagFullUpsellText
-		end
-		if blocker then
-			blocker.Visible = blockedText ~= nil
-		end
-		setText(blockerLabel, blockedText or "")
-		local showThree = false
-		local step = Tutorial.StepOf(read({ "Tutorial" }))
-		for _, button in buttons do
-			local price = Tutorial.GeodeCost(step, geodeKey :: string, button.Amount)
-			local canBuy = cash >= price and slots >= button.Amount
-			if button.Amount > 1 then
-				showThree = canBuy
-			end
-			button.Button:SetAttribute("Shimmer", canBuy and blockedText == nil)
-			setText(button.Label, NumberFormat.Commas(price))
-			paint(
-				button.Fill,
-				if canBuy then GeodeStandConfig.Palette.Affordable else GeodeStandConfig.Palette.Unavailable
-			)
-		end
-		for _, button in buttons do
-			local visible = blockedText == nil and (button.Amount == 1 or showThree)
-			button.Button.Visible = visible
-			if button.Amount == 1 then
-				local offset = GeodeStandConfig.ButtonCenterOffsetPixels
-					+ if showThree
-						then -GeodeStandConfig.PairButtonOffsetPixels
-						else GeodeStandConfig.SingleButtonOffsetPixels
-				button.Button.Position =
-					UDim2.new(0.5, offset, button.Button.Position.Y.Scale, button.Button.Position.Y.Offset)
-			end
-		end
-	end
-
 	local function refreshTabs()
 		for _, tab in tabs do
 			paint(
@@ -270,7 +179,6 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		refreshTabs()
 		refreshCards()
 		refreshOdds()
-		refreshButtons()
 	end
 
 	local function defaultKey(): string?
@@ -355,32 +263,6 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	for _, button in buttons do
-		trove:Add(button.Button.Activated:Connect(function()
-			local key = geodeKey
-			if isBuying or not key then
-				return
-			end
-			local cash = read({ "Cash" })
-			local price = Tutorial.GeodeCost(Tutorial.StepOf(read({ "Tutorial" })), key, button.Amount)
-			local shortfall = price - (if type(cash) == "number" then cash else 0)
-			if shortfall > 0 then
-				context.Feedback(button.Button, false)
-				context.Controllers.CashPackController:Prompt(shortfall)
-				return
-			end
-			isBuying = true
-			task.spawn(function()
-				local isBought = Packets.BuyGeode:Fire(key, button.Amount) == true
-				if isBought then
-					LocalSound.Play("SFX_Money_Gain")
-				end
-				context.Feedback(button.Button, isBought)
-				isBuying = false
-			end)
-		end))
-	end
-
 	if toggle then
 		trove:Add(toggle.Activated:Connect(function()
 			showGamepassOdds = not showGamepassOdds
@@ -393,28 +275,25 @@ function GeodeStand.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end))
 	end
 
-	if blocker then
-		trove:Add(blocker.Activated:Connect(function()
-			local purchases = context.Controllers.PurchaseController
-			if freeSlots() < 1 and not purchases:OwnsPass("Backpack") then
-				purchases:PromptPass("Backpack")
-			end
-		end))
-	end
-
 	if closeButton then
 		trove:Add(closeButton.Activated:Connect(function()
 			context.Close(SCREEN_NAME)
 		end))
 	end
 
-	for _, path in { { "Cash" }, { "PeakStrength" }, { "Pets" }, { "Geodes" }, { "Index" }, { "Tutorial" } } do
+	for _, path in { { "PeakStrength" }, { "Index" } } do
 		trove:Add(dataController:Observe(path, function()
 			if geodeKey then
 				refresh()
 			end
 		end))
 	end
+
+	trove:Add(ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
+		if CollectionService:HasTag(prompt, GeodeConfig.OddsPromptTag) then
+			context.Open(SCREEN_NAME)
+		end
+	end))
 
 	return {
 		Modal = true,

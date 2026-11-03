@@ -60,6 +60,31 @@ function HatchPads.SetupPlaceAll(plot: Model): ProximityPrompt?
 	return prompt
 end
 
+function HatchPads.SetupOdds(plot: Model): ProximityPrompt?
+	local path = plot:FindFirstChild(GeodeConfig.HatchPathPartName, true)
+	if not path or not path:IsA("BasePart") then
+		return nil
+	end
+	local spot = Instance.new("Attachment")
+	spot.Name = "GeodeOddsSpot"
+	spot.Position = GeodeConfig.OddsPromptOffset
+	spot.Parent = path
+	local prompt = newPrompt("OddsPrompt", spot, 0)
+	prompt.ActionText = GeodeConfig.OddsPromptText
+	prompt.KeyboardKeyCode = GeodeConfig.OddsPromptKey
+	prompt.GamepadKeyCode = GeodeConfig.OddsPromptGamepadKey
+	CollectionService:AddTag(prompt, GeodeConfig.OddsPromptTag)
+	return prompt
+end
+
+function HatchPads.OwnedCount(data: any): number
+	local total = 0
+	for _, count in data.Geodes do
+		total += count
+	end
+	return total
+end
+
 function HatchPads.IsReady(record: any): boolean
 	return os.time() >= record.ReadyAt
 end

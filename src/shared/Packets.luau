@@ -114,7 +114,6 @@ local Packets = {
 		Packet.NumberF32
 	),
 	Rebirth = Packet("Rebirth"):Response(Packet.Boolean8):RateLimit(2, 1),
-	BuyGeode = Packet("BuyGeode", Packet.String, Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	GeodeHatched = Packet(
 		"GeodeHatched",
 		Packet.Instance,
