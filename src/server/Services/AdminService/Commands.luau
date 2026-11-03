@@ -429,6 +429,10 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, "no landed Geode Fall")
 		end
 	end,
+	SpawnZoneGeode = function(context: Types.Context, player: Player, _argument: string)
+		local _spawned, message = context.Services.ZoneGeodeService:SpawnNear(player)
+		notify(context, player, message)
+	end,
 	SpawnSpots = function(context: Types.Context, player: Player, _argument: string)
 		local isShown = context.Services.RockService:ToggleSpawnSpots(player)
 		notify(context, player, if isShown then "spawn spots shown" else "spawn spots hidden")

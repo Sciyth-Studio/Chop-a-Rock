@@ -658,6 +658,13 @@ local AdminConfig: AdminSettings = {
 			Alias = "geodefallend",
 		},
 		{
+			Id = "SpawnZoneGeode",
+			Label = "Spawn Zone Geode",
+			Tab = "Events",
+			Kind = "Button",
+			Alias = "zonegeode",
+		},
+		{
 			Id = "ToggleFakePass",
 			Label = "Toggle Fake Pass (Studio)",
 			Tab = "Shop",

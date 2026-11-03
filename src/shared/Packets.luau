@@ -48,6 +48,17 @@ local Packets = {
 	DiamondEnded = Packet("DiamondEnded"),
 	GeodeFallChop = Packet("GeodeFallChop", Packet.NumberU16):RateLimit(3, 1),
 	GeodeFallChopped = Packet("GeodeFallChopped", Packet.NumberU16, Packet.NumberU8, Packet.Boolean8),
+	ZoneGeodeReady = Packet("ZoneGeodeReady"):RateLimit(2, 1),
+	ZoneGeodeSpawned = Packet(
+		"ZoneGeodeSpawned",
+		Packet.NumberU32,
+		Packet.String,
+		Packet.NumberU8,
+		Packet.Vector3F32,
+		Packet.NumberF32
+	),
+	ZoneGeodeTake = Packet("ZoneGeodeTake", Packet.NumberU32):RateLimit(5, 1),
+	ZoneGeodeRemoved = Packet("ZoneGeodeRemoved", Packet.NumberU32),
 	ChopEnded = Packet("ChopEnded"),
 	RockSpawnSpots = Packet("RockSpawnSpots", { Packet.Vector3F32 }, { Packet.String }),
 	ChopRoundStart = Packet("ChopRoundStart", Packet.NumberF64):RateLimit(5, 1),

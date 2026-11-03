@@ -17,6 +17,7 @@ local GoldenRockConfig = require(ReplicatedStorage.Config.GoldenRockConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
+local ZoneRings = require(ReplicatedStorage.Utils.ZoneRings)
 local FirstMaster = require(script.FirstMaster)
 local Session = require(script.Session)
 local SpawnPoints = require(script.SpawnPoints)
@@ -28,6 +29,7 @@ local RockService = {
 	Name = "RockService",
 	Chopped = Signal.new() :: Signal.Signal<Player>,
 	RockBroken = Signal.new() :: Signal.Signal<Player, string, Vector3, number>,
+	Sampled = Signal.new() :: Signal.Signal<>,
 }
 
 local trove = Trove.new()
@@ -36,6 +38,8 @@ local services: { [string]: any } = {}
 
 local shapes: { [string]: Types.Shape } = {}
 local spots: { [string]: { Types.Spot } } = {}
+local rings: { ZoneRings.Ring } = {}
+local ringSpots: { [string]: { Vector3 } } = {}
 local strips: { [string]: { [string]: number } } = {}
 local owned: { [Player]: { [number]: Types.Rock } } = {}
 local generations: { [Player]: number } = {}
@@ -458,9 +462,11 @@ function RockService.Start(_self: any)
 			table.insert(areas, tagged)
 		end
 	end
+	rings = ZoneRings.Read()
+	ZoneRings.Hide()
 	trove:Add(task.spawn(function()
 		local started = os.clock()
-		local sampled = SpawnPoints.Sample(shapes)
+		local sampled, sampledRings = SpawnPoints.Sample(shapes, rings)
 		local zoneConfigs: { [string]: RockSpawnConfig.Zone } = RockSpawnConfig.Zones
 		for zone, zoneConfig in zoneConfigs do
 			local entrance = Strips.Entrance(areas, zone)
@@ -476,10 +482,12 @@ function RockService.Start(_self: any)
 			end
 		end
 		spots = sampled
+		ringSpots = sampledRings
 		isSampled = true
 		for zone, zoneSpots in spots do
+			local ringCount = if ringSpots[zone] then #ringSpots[zone] else 0
 			print(
-				`[RockService] {zone}: {#zoneSpots} spawn spots ({string.format(
+				`[RockService] {zone}: {#zoneSpots} spawn spots, {ringCount} ring spots ({string.format(
 					"%.0f",
 					(os.clock() - started) * 1000
 				)} ms)`
@@ -491,6 +499,7 @@ function RockService.Start(_self: any)
 				onReady(player)
 			end
 		end
+		RockService.Sampled:Fire()
 	end))
 
 	trove:Add(Packets.RockReady.OnServerEvent:Connect(onReady))
@@ -609,6 +618,18 @@ function RockService.GetZoneAt(_self: any, position: Vector3): string?
 	return nil
 end
 
+function RockService.IsSampled(_self: any): boolean
+	return isSampled
+end
+
+function RockService.GetRings(_self: any): { ZoneRings.Ring }
+	return rings
+end
+
+function RockService.GetRingSpots(_self: any, zone: string): { Vector3 }
+	return ringSpots[zone] or {}
+end
+
 function RockService.FindRingSpot(
 	_self: any,
 	zone: string,
@@ -629,9 +650,13 @@ function RockService.FindRingSpot(
 			table.insert(excluded, player.Character)
 		end
 	end
+	local ringMargin = Vector2.new(size.X, size.Z).Magnitude / 2
 	for _ = 1, math.min(tries, #zoneSpots) do
 		local spot = zoneSpots[random:NextInteger(1, #zoneSpots)]
 		if isAllowed and not isAllowed(spot.Position) then
+			continue
+		end
+		if ZoneRings.Overlaps(rings, spot.Position, ringMargin) then
 			continue
 		end
 		if SpawnPoints.FitsRing(spot.Position, rotation, size, standDistance, slots, excluded) then
@@ -731,6 +756,8 @@ function RockService.Destroy(_self: any)
 	table.clear(forcedGolden)
 	table.clear(areas)
 	table.clear(reserved)
+	table.clear(rings)
+	table.clear(ringSpots)
 end
 
 return RockService
