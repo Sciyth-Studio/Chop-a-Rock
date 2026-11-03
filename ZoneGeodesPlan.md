@@ -68,17 +68,19 @@ The Golem keeps its approved plan (chop meter, weak spots, co-op), so the final 
 | Number | Draft | Why |
 |---|---|---|
 | Geodes out per zone | 4 per player (user), new one 30 s after a pickup | Enough to find one quickly. Hatch pads are the real limit. |
-| Hatch time | 2 min, the same in every zone | 8 pads gives up to 240 Pets an hour. Fast manual cracking is about 450-700. |
+| Hatch time | Forest 30 s, Desert 2 min, Jungle 4, Ocean 5, Snow 8, Swamp 11, Savanna 12, Bamboo Forest 15, Volcano 20, Golem Ruins 27 min (user, 2026-11-03) | About 20 hatches per zone. A flat 2 min pushed Pets to 60-97% of income from the Desert on. |
 | Tutorial's first hatch | 5 s | Must not stall the first minutes. |
 | Timer while offline | Keeps running | A reason to come back. |
-| Pet income | x4 on every Pet | Pets were about 15% of income in the 2026-10-18 model. x4 takes them near 40%. To check in the model. |
-| Sell value | 15 s of income (was 60) | With x4 income, a Pet sells for the same money as today. Selling is now pure profit, so this must not rise with income. |
+| Pet income | Forest x2, Desert and Jungle x1.5, Ocean x1.25, Snow and Swamp x1, Savanna to Golem Ruins x0.75 (user, 2026-11-03) | Pets 30-53% of income at the end of each zone in Balance Model v12, tab New Loop. |
+| Sell value | 15 s of income (was 60) | Selling is now pure profit. It is under 4% of income in the model. |
 | Legendary and Secret odds | x1.2 | Replaces lost chop luck and pity. Simulated Forest with pity gave 1.32% Legendary+ against 1.1% base. |
 | Luck pass and boosts | Stay, applied when you open | Saving ready geodes for a luck boost becomes a small trick for players. |
 | Skip wait dev product | 9 R$ per geode, no skip-all (user) | The same price as a Lucky Geode. |
-| Offline income | Unchanged: 12.5%, 2 h cap, paid on join | Shown on the Welcome Back card. |
+| Offline income | 4% (was 12.5%), 2 h cap, paid on join (user, 2026-11-03) | One offline session stays at or under one stand. Shown on the Welcome Back card. |
 
 Hatch odds roll when you open the geode, not when you place it.
+
+Open after playtesting: without pity a Secret takes about 2.5-5 hours of hatching per zone in the model, against a 60 min target. Left as is for now; a playtest decides.
 
 ## 6. Base remodel (Blender, `model-workflow`)
 `Model_BasePlot` stays on its 64 x 64 footprint, with the entrance at local -Z.
@@ -142,7 +144,7 @@ Pet motion stays client-side, building on `Components/IdlePet`: hops, turning, p
 
 ## 11. Build order
 1. Commit the 2026-11-03 work and sync this branch with `master`.
-2. Balance Model new version with sections 4 and 5. Numbers get approved here.
+2. Balance Model new version with sections 4 and 5. Done 2026-11-03: v12, tab New Loop.
 3. Base remodel and ring markers, so the rest has a place to test in.
 4. Hatch pads, the pen and direct income, testing with admin-granted geodes. Remove pads, pit and pity.
 5. Zone geodes with free pickup, then remove the shop and Wild Geodes.

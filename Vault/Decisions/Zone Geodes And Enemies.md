@@ -21,9 +21,13 @@ Approved by the user 2026-11-03. Full plan with every rule, draft number and bui
 - Removed: chop-quality luck, pity, Auto Open (nobody owned the pass). Kept: [[Geode Fall]].
 
 ## Claude's drafts the user agreed to
-40 clicks at the gate, 15 s limit, enemy flees at 25x the weakest rock, 2 min hatch, Pet income x4, sell value 15 s, Legendary and Secret odds x1.2, rebirth multiplier on all cash, Wild Geodes removed, weakest-rock gate for zones 6-10 (replacing the second-rock gate in `World1Plan.md`). Geode `Price` stays as a hidden value so [[Cash Packs]] keep working.
+40 clicks at the gate, 15 s limit, enemy flees at 25x the weakest rock, sell value 15 s, Legendary and Secret odds x1.2, rebirth multiplier on all cash, Wild Geodes removed, weakest-rock gate for zones 6-10 (replacing the second-rock gate in `World1Plan.md`). Geode `Price` stays as a hidden value so [[Cash Packs]] keep working.
+
+## Numbers after the Balance Model pass (user, 2026-11-03)
+A flat 2 min hatch and Pet x4 pushed Pets to 60-97% of income from the Desert on, because free geodes make a player's best 8 far better than the model's old fixed lineup. The user chose instead: hatch time 30 s, 2, 4, 5, 8, 11, 12, 15, 20, 27 min (Forest to Golem Ruins), Pet income x2, 1.5, 1.5, 1.25, 1, 1, 0.75, 0.75, 0.75, 0.75, offline rate 4%. Pets are 30-53% of income at the end of each zone ([[Balance Model]] v12, tab New Loop).
 
 ## Still open
-Which 2 of each zone's 3 rocks the geode looks are based on.
+- Which 2 of each zone's 3 rocks the geode looks are based on.
+- A Secret takes about 2.5-5 hours of hatching per zone with no pity. Left as is; a playtest decides.
 
 Related: [[Bases]], [[Pedestals]], [[Geode Shop]], [[Auto Open]], [[Wild Geode]], [[Tutorial]], [[Rock Spawning]], [[World 1 Plan]]
