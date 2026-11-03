@@ -4,7 +4,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
@@ -39,23 +38,17 @@ local function qualityColor(quality: number): Color3
 	return ChopStyleConfig.Qualities[quality].Color
 end
 
-type Piece = { Low: number, High: number, Color: Color3, Transparency: number }
+type Piece = { Low: number, High: number, Color: Color3 }
 
 local MIN_PIECE = 0.0001
 local EDGE = 0.0005
 
-local function buildRamp(center: number, strengthRatio: number): (ColorSequence, NumberSequence)
+local function buildRamp(center: number, strengthRatio: number): ColorSequence
 	local bands = ChopZones.Bands(center, strengthRatio, ChopZones.IsTouch(Players.LocalPlayer))
 	local pieces: { Piece } = {}
 	local function addPiece(low: number, high: number, quality: number)
 		if high - low > MIN_PIECE then
-			local isBody = quality == ChopQuality.Mid
-			table.insert(pieces, {
-				Low = low,
-				High = high,
-				Color = if isBody then ChopConfig.MeterBodyColor else qualityColor(quality),
-				Transparency = if isBody then ChopConfig.MeterBodyTransparency else 0,
-			})
+			table.insert(pieces, { Low = low, High = high, Color = qualityColor(quality) })
 		end
 	end
 	for index, band in bands do
@@ -73,22 +66,20 @@ local function buildRamp(center: number, strengthRatio: number): (ColorSequence,
 	table.sort(pieces, function(first: Piece, second: Piece)
 		return first.Low < second.Low
 	end)
-	local colors: { ColorSequenceKeypoint } = {}
-	local transparencies: { NumberSequenceKeypoint } = {}
+	local keypoints: { ColorSequenceKeypoint } = {}
 	local lastTime = -1
-	local function push(time: number, piece: Piece)
+	local function push(time: number, color: Color3)
 		local clamped = math.clamp(time, 0, 1)
 		if clamped > lastTime then
-			table.insert(colors, ColorSequenceKeypoint.new(clamped, piece.Color))
-			table.insert(transparencies, NumberSequenceKeypoint.new(clamped, piece.Transparency))
+			table.insert(keypoints, ColorSequenceKeypoint.new(clamped, color))
 			lastTime = clamped
 		end
 	end
 	for index, piece in pieces do
-		push(if index == 1 then 0 else piece.Low + EDGE, piece)
-		push(if index == #pieces then 1 else piece.High, piece)
+		push(if index == 1 then 0 else piece.Low + EDGE, piece.Color)
+		push(if index == #pieces then 1 else piece.High, piece.Color)
 	end
-	return ColorSequence.new(colors), NumberSequence.new(transparencies)
+	return ColorSequence.new(keypoints)
 end
 
 function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
@@ -135,21 +126,18 @@ function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local function applyRamp()
 		local canBreak = if chopController then chopController:CanBreakRock() else true
-		local color = crackColor
-		local transparency = NumberSequence.new(0)
-		if canBreak then
-			color, transparency = buildRamp(
+		local ramp = if canBreak
+			then buildRamp(
 				if chopController then chopController:GetZoneCenter() else 0.5,
 				if chopController then chopController:GetStrengthRatio() else 1
 			)
-		end
+			else crackColor
 		if fill then
 			fill.Size = UDim2.new(1, 0, 1, 0)
 			fill.Visible = true
 		end
 		if rampGradient then
-			rampGradient.Color = color
-			rampGradient.Transparency = transparency
+			rampGradient.Color = ramp
 		end
 	end
 

@@ -1,5 +1,5 @@
 ---
-description: 2026-11-03 horizontal chop bar with a flexed-arm marker; over-the-shoulder camera on wind-up, chop camera for the impact
+description: 2026-11-03 original chop bar style turned horizontal, square corners; over-the-shoulder camera on wind-up, chop camera for the impact; hotbar hidden
 type: system
 ---
 # Chop Minigame
@@ -7,11 +7,12 @@ type: system
 **2026-11-03, draft, not playtested.** Look and camera from the user's reference. Timing and quality rules didn't change (`ChopZones`, `ChopTiming`, server judging). Rocks, Geode Fall and the Diamond Rock all share it.
 
 ![[Chop Bar Reference.webp]]
-Take from the reference: wide bar low on screen, thin black outline, translucent body, red at the end, flexed-arm marker, camera behind the player's back with the target in the middle.
+Take from the reference: the camera angle and the bar's size and place only. The user corrected a first try that copied its translucent body and arm marker: the bar keeps the game's own style, only turned horizontal, with square corners.
 
 ## The bar
-- `StarterGui.ChopBar` (`Screens/ChopBar.luau`): `Bar` 1400x96 at 77% height, `Fill` + `RampGradient` (rotation 0), `Cursor` holding the Strength icon with black outlines. Position 0 is the left end, 1 the right.
-- Colours map to the reference: Bad is solid red, Mid is the translucent body (`ChopConfig.MeterBodyColor`, `MeterBodyTransparency`), Good, Great and Perfect stay solid green, blue, purple. "Too weak" rocks fill the bar red.
+- `StarterGui.ChopBar` (`Screens/ChopBar.luau`) is a copy of the old `ChopMeter` turned sideways, with its `UICorner`s removed. `Bar` is 916x96 centred at 83.5% height, as measured from the user's 1080p reference. `RampGradient` rotation is 0, and `Cursor` is the same white line, 8 wide. Position 0 is the left end, 1 the right.
+- All five quality colours stay as they were, solid.
+- The `Toolbar` screen (hotbar and Pets button) closes during a chop and reopens after it, with the `TeleportBar`.
 - `TutorialChopBarHint` sits above the Good band, arrow pointing down. `Spotlight`'s `TutorialGoodZone` is a vertical slice of `Bar`.
 
 ## The camera
