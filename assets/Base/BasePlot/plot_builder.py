@@ -185,7 +185,7 @@ def build_trim(color=(125, 125, 125), p=P):
     return trim, rb.stats(trim.data)
 
 
-def build_pen(color=(82, 82, 82), p=P):
+def build_pen(color=(22, 103, 0), p=P):
     top = p["FLOOR_H"] + p["PEN_H"]
     x, y0, y1 = p["PEN_X"], p["PEN_Y0"], p["PEN_Y1"]
     pen = box("BasePlot_Pen", -x, x, y0, y1, top - p["PEN_TOP_H"], top, 0.15)
