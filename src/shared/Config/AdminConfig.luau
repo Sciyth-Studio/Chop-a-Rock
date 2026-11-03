@@ -12,6 +12,7 @@ local RockConfig = require(script.Parent.RockConfig)
 local PetSizeConfig = require(script.Parent.PetSizeConfig)
 local ShopConfig = require(script.Parent.ShopConfig)
 local WeatherConfig = require(script.Parent.WeatherConfig)
+local ZoneScaleConfig = require(script.Parent.ZoneScaleConfig)
 
 export type Kind = "Button" | "Number" | "Choice" | "Text"
 
@@ -169,6 +170,11 @@ for _, page in IndexConfig.Pages do
 			end
 		end
 	end
+end
+
+local zoneChoices: { Choice } = {}
+for _, zone in ZoneScaleConfig.Order do
+	table.insert(zoneChoices, { Value = zone, Label = zone })
 end
 
 local traitChoices: { Choice } = { { Value = "None", Label = "No Trait" } }
@@ -635,6 +641,14 @@ local AdminConfig: AdminSettings = {
 			Tab = "Events",
 			Kind = "Button",
 			Alias = "geodefallend",
+		},
+		{
+			Id = "StartEnemyFight",
+			Label = "Start Enemy Fight",
+			Tab = "Events",
+			Kind = "Choice",
+			Choices = zoneChoices,
+			Alias = "fight",
 		},
 		{
 			Id = "ToggleFakePass",

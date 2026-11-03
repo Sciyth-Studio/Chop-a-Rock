@@ -13,6 +13,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.ComponentController),
 	require(script.Parent.Controllers.ChopController),
 	require(script.Parent.Controllers.RockController),
+	require(script.Parent.Controllers.EnemyController),
 	require(script.Parent.Controllers.ChopAnimationController),
 	require(script.Parent.Controllers.HatchController),
 	require(script.Parent.Controllers.TrainingController),
