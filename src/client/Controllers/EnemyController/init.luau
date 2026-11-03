@@ -14,9 +14,11 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
+local Arrows = require(script.Arrows)
 local Effects = require(script.Effects)
 local Launch = require(script.Launch)
 local Motion = require(script.Motion)
+local Sequence = require(script.Sequence)
 
 type TroveInstance = typeof(Trove.new())
 
@@ -25,6 +27,9 @@ export type FightView = {
 	Name: string,
 	Health: number,
 	MaxHealth: number,
+	StartedAt: number,
+	FightsAt: number,
+	Anchor: Vector3?,
 }
 
 local HIT_ACTION = "EnemyFightHit"
@@ -36,12 +41,21 @@ local uiController: any = nil
 local fight: FightView? = nil
 local inputTrove: TroveInstance? = nil
 local launchTrove: TroveInstance? = nil
+local stageTrove: TroveInstance? = nil
+local screensTrove: TroveInstance? = nil
+local arrowTrove: TroveInstance? = nil
+local strike: (() -> ())? = nil
+local holdUntil: number? = nil
+local holdEnemy: Motion.Enemy? = nil
+local dangerNow = 0
 local lastClick = 0
 
 local EnemyController = {
 	Name = "EnemyController",
 	FightChanged = nil :: any,
 	HealthChanged = nil :: any,
+	ResultShown = nil :: any,
+	Clicked = nil :: any,
 	_trove = nil :: TroveInstance?,
 }
 
@@ -119,7 +133,7 @@ local function click()
 		return
 	end
 	local now = os.clock()
-	if now - lastClick < 1 / EnemyConfig.ClientClicksPerSecond then
+	if now < current.FightsAt or now - lastClick < 1 / EnemyConfig.ClientClicksPerSecond then
 		return
 	end
 	lastClick = now
@@ -129,6 +143,10 @@ local function click()
 		Motion.Stagger(enemy, now)
 		Effects.Hit(enemy.Position + Vector3.new(0, enemy.Height / 2, 0))
 	end
+	if strike then
+		strike()
+	end
+	EnemyController.Clicked:Fire()
 end
 
 local function bindInput()
@@ -164,24 +182,90 @@ local function unbindInput()
 	end
 end
 
-local function onFightStarted(zone: string, maxHealth: number, startHealth: number)
+local function hideScreens()
+	local trove = screensTrove
+	if not trove then
+		return
+	end
+	trove:Clean()
+	for _, name in EnemyConfig.HiddenScreens do
+		if uiController:IsOpen(name) then
+			uiController:Close(name)
+			trove:Add(function()
+				uiController:Open(name)
+			end)
+		end
+	end
+end
+
+local function endStage()
+	holdUntil = nil
+	local enemy = holdEnemy
+	holdEnemy = nil
+	if enemy and enemy.State == "Hold" then
+		Motion.Set(enemy, "Return", os.clock())
+	end
+	strike = nil
+	dangerNow = 0
+	if stageTrove then
+		stageTrove:Clean()
+	end
+	uiController:Close(EnemyConfig.ScreenName)
+end
+
+local function startStage(enemy: Motion.Enemy?, startedAt: number)
+	local character, root, humanoid = characterParts()
+	local feet = feetPosition()
+	local trove = stageTrove
+	if not trove or not character or not root or not humanoid or not feet then
+		return
+	end
+	local context: Sequence.Context = {
+		Trove = trove,
+		Character = character,
+		Root = root,
+		Humanoid = humanoid,
+		Enemy = enemy,
+		Feet = feet,
+		StartedAt = startedAt,
+		GetDanger = function(): number
+			return dangerNow
+		end,
+	}
+	Sequence.Hold(context)
+	Sequence.Camera(context)
+	Sequence.Tint(context)
+	strike = Sequence.Strikes(context)
+end
+
+local function onFightStarted(zone: string, maxHealth: number, startHealth: number, introSeconds: number)
+	endStage()
+	if arrowTrove then
+		arrowTrove:Clean()
+	end
 	local pet = PetConfig.Pets[EnemyRules.PetKey(zone)]
+	local now = os.clock()
 	fight = {
 		Zone = zone,
 		Name = if pet then pet.DisplayName else zone,
 		Health = startHealth,
 		MaxHealth = maxHealth,
+		StartedAt = now,
+		FightsAt = now + introSeconds,
+		Anchor = feetPosition(),
 	}
 	unbindInput()
 	bindInput()
 	local enemy = enemies[zone]
 	if enemy then
 		if enemy.State == "Gone" or enemy.State == "Defeat" then
-			Motion.Set(enemy, "Rise", os.clock())
+			Motion.Set(enemy, "Rise", now)
 		end
 		setVisible(enemy, true)
-		Motion.Set(enemy, "Charge", os.clock())
+		Motion.Set(enemy, "Charge", now)
 	end
+	hideScreens()
+	startStage(enemy, now)
 	uiController:Open(EnemyConfig.ScreenName)
 	EnemyController.FightChanged:Fire(fight)
 end
@@ -190,36 +274,62 @@ local function onFightHit(health: number)
 	local current = fight
 	if current then
 		current.Health = health
+		local share = 1 - math.clamp(health / math.max(current.MaxHealth, 1e-9), 0, 1)
+		dangerNow = math.clamp(1 - share / EnemyConfig.StartShare, 0, 1)
 		EnemyController.HealthChanged:Fire(health, current.MaxHealth)
 	end
 end
 
+local function launchPlayer(zone: string, enemy: Motion.Enemy?, target: Vector3?)
+	local character, root = characterParts()
+	if not character or not root or not launchTrove then
+		return
+	end
+	Effects.Launch(root.Position)
+	Launch.Play(
+		launchTrove,
+		character,
+		if enemy then enemy.Position else root.Position,
+		ZoneScale.Of(zone),
+		function(hit: RaycastResult)
+			Effects.Dent(hit)
+			if target and arrowTrove then
+				Arrows.Show(arrowTrove, character, target)
+			end
+		end
+	)
+end
+
 local function onFightEnded(zone: string, result: string)
+	local target = fight and fight.Anchor
 	fight = nil
 	unbindInput()
-	uiController:Close(EnemyConfig.ScreenName)
+	if screensTrove then
+		screensTrove:Clean()
+	end
 	EnemyController.FightChanged:Fire(nil)
 	local enemy = enemies[zone]
 	local now = os.clock()
-	if enemy then
-		if result == "Won" then
+	if result == "Won" then
+		if enemy then
 			Effects.Defeat(enemy.Position + Vector3.new(0, enemy.Height / 2, 0))
 			Motion.Set(enemy, "Defeat", now)
-		else
+		end
+		holdUntil = now + EnemyConfig.WinHoldSeconds
+		EnemyController.ResultShown:Fire(result)
+	elseif result == "Lost" then
+		if enemy then
+			Motion.Set(enemy, "Hold", now)
+			holdEnemy = enemy
+		end
+		holdUntil = now + EnemyConfig.LoseHoldSeconds
+		EnemyController.ResultShown:Fire(result)
+		launchPlayer(zone, enemy, target)
+	else
+		if enemy then
 			Motion.Set(enemy, "Return", now)
 		end
-	end
-	if result == "Lost" then
-		local character, root = characterParts()
-		if character and root and launchTrove then
-			Effects.Launch(root.Position)
-			Launch.Play(
-				launchTrove,
-				character,
-				if enemy then enemy.Position else root.Position,
-				ZoneScale.Of(zone)
-			)
-		end
+		endStage()
 	end
 end
 
@@ -238,6 +348,9 @@ end
 
 local function step(dt: number)
 	local now = os.clock()
+	if holdUntil and now >= holdUntil then
+		endStage()
+	end
 	local feet = feetPosition()
 	local strength = dataController:Get({ "Strength" })
 	local strengthNumber = if type(strength) == "number" then strength else 0
@@ -273,7 +386,12 @@ function EnemyController.Init(self: any, controllers: { [string]: any })
 	self._trove = Trove.new()
 	self.FightChanged = Signal.new()
 	self.HealthChanged = Signal.new()
+	self.ResultShown = Signal.new()
+	self.Clicked = Signal.new()
 	launchTrove = Trove.new()
+	stageTrove = Trove.new()
+	screensTrove = Trove.new()
+	arrowTrove = Trove.new()
 	dataController = controllers.DataController
 	uiController = controllers.UIController
 end
@@ -297,10 +415,15 @@ end
 
 function EnemyController.Destroy(self: any)
 	unbindInput()
-	if launchTrove then
-		launchTrove:Destroy()
-		launchTrove = nil
+	for _, owned: any in { launchTrove, stageTrove, screensTrove, arrowTrove } do
+		if owned then
+			owned:Destroy()
+		end
 	end
+	launchTrove, stageTrove, screensTrove, arrowTrove = nil, nil, nil, nil
+	holdUntil = nil
+	holdEnemy = nil
+	strike = nil
 	if self._trove then
 		self._trove:Destroy()
 		self._trove = nil
@@ -315,9 +438,11 @@ function EnemyController.Destroy(self: any)
 		self.FightChanged:Destroy()
 		self.FightChanged = nil
 	end
-	if self.HealthChanged then
-		self.HealthChanged:Destroy()
-		self.HealthChanged = nil
+	for _, name in { "HealthChanged", "ResultShown", "Clicked" } do
+		if self[name] then
+			self[name]:Destroy()
+			self[name] = nil
+		end
 	end
 end
 

@@ -16,19 +16,28 @@ function Fight.New(
 	onResult: (result: Types.Result) -> ()
 ): Types.Fight
 	local maxHealth = EnemyRules.MaxHealth(zone)
+	local startsAt = now + EnemyRules.IntroSeconds()
 	return {
 		Zone = zone,
 		Anchor = anchor,
 		LeaveStuds = EnemyRules.LeaveStuds(zone),
 		MaxHealth = maxHealth,
 		Health = maxHealth * EnemyConfig.StartShare,
-		PushedAt = now,
+		StartsAt = startsAt,
+		PushedAt = startsAt,
 		ShownAt = 0,
 		OnResult = onResult,
 	}
 end
 
+function Fight.HasStarted(fight: Types.Fight, now: number): boolean
+	return now >= fight.StartsAt
+end
+
 function Fight.Push(fight: Types.Fight, now: number): boolean
+	if not Fight.HasStarted(fight, now) then
+		return false
+	end
 	local elapsed = now - fight.PushedAt
 	fight.PushedAt = now
 	fight.Health =

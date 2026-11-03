@@ -3,7 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 
-export type State = "Home" | "Charge" | "Fight" | "Return" | "Flee" | "Defeat" | "Gone" | "Rise"
+export type State = "Home" | "Charge" | "Fight" | "Hold" | "Return" | "Flee" | "Defeat" | "Gone" | "Rise"
 
 export type Enemy = {
 	Zone: string,
@@ -41,7 +41,8 @@ local function pose(enemy: Enemy, lift: number, now: number)
 end
 
 local function standPoint(enemy: Enemy, feet: Vector3): Vector3
-	return feet + flat(enemy.Position - feet, enemy.Facing) * (enemy.Radius + EnemyConfig.StandOffStuds)
+	local standOff = EnemyConfig.StandOffStuds * enemy.Scale / EnemyConfig.ModelScale
+	return feet + flat(enemy.Position - feet, enemy.Facing) * (enemy.Radius + standOff)
 end
 
 function Motion.Set(enemy: Enemy, state: State, now: number)
@@ -91,6 +92,8 @@ function Motion.Step(enemy: Enemy, dt: number, now: number, feet: Vector3?): boo
 			return true
 		end
 		pose(enemy, if slamming >= 0 then hop(slamming, EnemyConfig.SlamHopStuds * zoneScale) else 0, now)
+	elseif enemy.State == "Hold" then
+		pose(enemy, 0, now)
 	elseif enemy.State == "Return" then
 		local alpha = math.min(elapsed / EnemyConfig.ReturnSeconds, 1)
 		enemy.Position = enemy.From:Lerp(enemy.Home, alpha)

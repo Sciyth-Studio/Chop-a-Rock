@@ -105,6 +105,52 @@ function Effects.Launch(position: Vector3)
 	sound(EnemyConfig.LaunchSoundKey, anchor)
 end
 
+function Effects.Swirl(position: Vector3)
+	burst(EnemyConfig.SwirlKey, position)
+end
+
+local function makeDentPart(size: Vector3, color: Color3, cframe: CFrame): Part
+	local part = Instance.new("Part")
+	part.Name = "FightDent"
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanQuery = false
+	part.CanTouch = false
+	part.Material = Enum.Material.Slate
+	part.Size = size
+	part.Color = color
+	part.CFrame = cframe
+	part.Parent = workspace
+	task.delay(EnemyConfig.DentSeconds, function()
+		part:Destroy()
+	end)
+	return part
+end
+
+function Effects.Dent(hit: RaycastResult)
+	local instance = hit.Instance
+	local ground = if instance:IsA("BasePart") and not instance:IsA("Terrain")
+		then instance.Color
+		else EnemyConfig.DentFallbackColor
+	local radius = EnemyConfig.DentRadiusStuds
+	local hole = makeDentPart(
+		Vector3.new(0.1, radius * 2, radius * 2),
+		ground:Lerp(Color3.new(0, 0, 0), EnemyConfig.DentDarken),
+		CFrame.new(hit.Position + Vector3.new(0, 0.05, 0)) * CFrame.Angles(0, 0, math.pi / 2)
+	)
+	hole.Shape = Enum.PartType.Cylinder
+	for index = 1, EnemyConfig.DentChunkCount do
+		local angle = index / EnemyConfig.DentChunkCount * math.pi * 2
+		local chunk = CFrame.new(hit.Position + Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius)
+			* CFrame.Angles(math.rad(25), angle, math.rad(25))
+		local size = EnemyConfig.DentChunkStuds
+		makeDentPart(Vector3.new(size, size, size), ground, chunk)
+	end
+	local anchor = anchorAt(hit.Position)
+	dust(anchor)
+	sound(EnemyConfig.SlamSoundKey, anchor)
+end
+
 function Effects.Shown(position: Vector3, kind: string)
 	if kind == "Won" then
 		Effects.Defeat(position)

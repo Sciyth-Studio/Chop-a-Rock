@@ -12,11 +12,12 @@ Step 6 of `ZoneGeodesPlan.md`, decision in [[Zone Geodes And Enemies]]. Built 20
 - **Client:** `EnemyController` draws all the enemies (`workspace.Enemies`, local only) and moves them in `Motion`: idle, charge, chase, slam, stagger, return, flee, defeat, rise. Enemies at home are skipped when you're far away.
 - **Rules:** `Utils/EnemyRules` is shared, so the client's flee check and the server use the same numbers.
 - **Home:** the floor under the zone's `ZoneGeodeRing` marker, or under `RockSpawnArea` if it has none.
-- **Screen:** `StarterGui.EnemyFight` with `Screens/EnemyFight`: name, time left (turns red at 5 s), health bar and a hint for each input type.
+- **Flow (2026-11-03, drafts, from [[Fight Flow Reference]]):** a 1.4 s banner while the enemy charges, a 0.6 s count on each of 3-2-1 with camera cuts (`Shots`), then the fixed side camera. The bar shows on "1" and only moves after 3.2 s; the server ignores clicks until then. Your movement is locked, the HUD is hidden (`HiddenScreens`), each click plays your chop strike, and the scene tints red as you drop below half (`Sequence`). The result banner holds for 1.2 s on a win and 1.6 s on a loss. A loss adds the launch trail, a dent where you land and red arrows back to where you fought (`Arrows`).
+- **Screen:** `StarterGui.EnemyFight` with `Screens/EnemyFight`: tug-of-war bar in `Container`, plus `Banner`, `Count`, `Result`, and `Words` with a hidden `WordTemplate`. Text and word lists are in `EnemyConfig`.
 - **Admin:** `Start Enemy Fight` in the Events tab, alias `fight`, choice of zone. It reports the result as a notification.
 
 ## Choices made while building
-- Walking away is measured from where you stood when the fight started, not from the enemy's home. An admin fight or a geode at the edge of a ring would otherwise end at once. The distance is 60 studs x zone scale.
+- Movement is locked in a fight, so the distance check now only catches teleports and respawns. It's measured from where you stood when the fight started, 60 studs x zone scale.
 - Starting a fight ends chops and training through `TeleportService:EndActivities` and puts away the held Pet.
 - Prompts are off on the client during a fight (`ProximityPromptService.Enabled`), so you can't start a chop mid-fight. `RockService` itself doesn't check for a fight.
 - Input: left click and screen taps anywhere, plus E, Space, R2, X and an on-screen Hit button on touch.

@@ -53,7 +53,8 @@ Playtesting on 2026-11-03 showed Pets earn far less than chopping and that crack
 | Clicks | At the gate a click moves the bar 3%, so 6 clicks a second wins in about 4 s and 3 a second in about 17 s *draft*. Strength multiplies the push. |
 | Losing | The bar reaches your end, about 8 s of not clicking. |
 | Lose | Launched away, enemy goes home, geode stays. Try again straight away. |
-| Walk or teleport away | Fight ends the same way, without the launch *draft*. |
+| Fight flow | Follows the user's reference clip, 2026-11-03: banner while the enemy charges, a 3-2-1 countdown with camera cuts (3.2 s before the bar moves), fixed side camera with the HUD hidden, a result banner and a landing dent with arrows back *draft*. See `Fight Flow Reference` in the vault. |
+| Walking away | You can't walk during a fight: movement is locked. A teleport or respawn still ends it, without the launch. |
 | Clicks | Counted on the server, capped at about 15 a second *draft*, so an autoclicker is only as good as a very fast player. |
 | Runs away | At 25x the zone's weakest rock, which is the zone's toughest rock *draft*. It flees when you come near and you take the geode. |
 | Getting the geode | Only after the win, or once it has fled, so teleports and cannons can't dodge the fight. |

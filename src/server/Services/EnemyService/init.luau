@@ -72,10 +72,10 @@ end
 
 local function onClick(player: Player)
 	local fight = fights[player]
-	if not fight or not clickLimiter:Allow(player) then
+	local now = os.clock()
+	if not fight or not Fight.HasStarted(fight, now) or not clickLimiter:Allow(player) then
 		return
 	end
-	local now = os.clock()
 	if Fight.Push(fight, now) then
 		finish(player, fight, "Lost")
 		return
@@ -167,7 +167,13 @@ function EnemyService.RequestFight(
 	services.PetService:PutAway(player)
 	local fight = Fight.New(zone, position, os.clock(), onResult)
 	fights[player] = fight
-	Packets.EnemyFightStarted:FireClient(player, zone, fight.MaxHealth, fight.Health)
+	Packets.EnemyFightStarted:FireClient(
+		player,
+		zone,
+		fight.MaxHealth,
+		fight.Health,
+		EnemyRules.IntroSeconds()
+	)
 	return true
 end
 
