@@ -31,7 +31,7 @@ local AnalyticsConfig: AnalyticsSettings = {
 	Sources = {
 		Chop = table.freeze({ Type = gameplay, Sku = "Chop" }),
 		StormRock = table.freeze({ Type = gameplay, Sku = "StormRock" }),
-		RushRock = table.freeze({ Type = gameplay, Sku = "RushRock" }),
+		GoldenRock = table.freeze({ Type = gameplay, Sku = "GoldenRock" }),
 		DiamondRock = table.freeze({ Type = gameplay, Sku = "DiamondRock" }),
 		Pad = table.freeze({ Type = gameplay, Sku = "Pad" }),
 		Offline = table.freeze({ Type = reward, Sku = "Offline" }),
@@ -46,7 +46,6 @@ local AnalyticsConfig: AnalyticsSettings = {
 	Sinks = {
 		Aura = table.freeze({ Type = shop, Sku = "Aura" }),
 		Geode = table.freeze({ Type = shop, Sku = "Geode" }),
-		Cannon = table.freeze({ Type = shop, Sku = "Cannon" }),
 		PedestalSlot = table.freeze({ Type = shop, Sku = "PedestalSlot" }),
 		TrainingUpgrade = table.freeze({ Type = shop, Sku = "TrainingUpgrade" }),
 		Rebirth = table.freeze({ Type = gameplay, Sku = "Rebirth" }),

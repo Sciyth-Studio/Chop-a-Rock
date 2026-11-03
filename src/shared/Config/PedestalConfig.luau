@@ -23,15 +23,9 @@ export type PedestalSettings = {
 }
 
 local PedestalConfig: PedestalSettings = {
-	StartingSlots = 3,
+	StartingSlots = 8,
 	UnlockOrder = { 1, 5, 2, 6, 3, 7, 4, 8 },
-	SlotPrices = {
-		[4] = 1000,
-		[5] = 4000,
-		[6] = 15000,
-		[7] = 60000,
-		[8] = 250000,
-	},
+	SlotPrices = {},
 	OfflineRateMultiplier = 0.125,
 	FlushSeconds = 15,
 	PetScale = 2,

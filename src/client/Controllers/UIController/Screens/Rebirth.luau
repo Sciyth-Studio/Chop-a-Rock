@@ -2,7 +2,6 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
-local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
@@ -64,8 +63,6 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local cashAfter: TextLabel? = find(gui, "CashAfter", "TextLabel")
 	local strengthBefore: TextLabel? = find(gui, "StrengthBefore", "TextLabel")
 	local strengthAfter: TextLabel? = find(gui, "StrengthAfter", "TextLabel")
-	local luckBefore: TextLabel? = find(gui, "LuckBefore", "TextLabel")
-	local luckAfter: TextLabel? = find(gui, "LuckAfter", "TextLabel")
 	local levelText: TextLabel? = find(gui, "LevelText", "TextLabel")
 	local levelBar: Frame? = find(gui, "LevelBar", "Frame")
 	local fill: Frame? = if levelBar then find(levelBar, "Fill", "Frame") else nil
@@ -104,8 +101,6 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			comingSoon.Visible = false
 		end
 		local cashNow = currentRebirth.CashMultiplier
-		setText(luckBefore, `+{math.floor(currentRebirth.LuckBonus * 100 + 0.5)}% Luck`)
-		setText(luckAfter, `+{math.floor(nextRebirth.LuckBonus * 100 + 0.5)}% Luck`)
 		setText(beforeTitle, `Rebirth {rebirths}`)
 		setText(afterTitle, `Rebirth {rebirths + 1}`)
 		setText(cashBefore, `{NumberFormat.Multiplier(cashNow)} Cash`)
@@ -117,7 +112,7 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			levelText,
 			`Strength: {NumberFormat.Compact(math.floor(math.min(strength, required)))}/{NumberFormat.Compact(
 				required
-			)} {TrainingConfig.StrengthUnit}`
+			)}`
 		)
 		if fill then
 			fill.Size = UDim2.fromScale(math.clamp(strength / required, 0, 1), 1)

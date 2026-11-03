@@ -26,4 +26,7 @@ Playtest, one player: spawned in the forest, beacon, label, pill and prompt up; 
 
 2026-10-21: a Master on a Diamond Rock left the letterbox up until the rock died (it closed only on chop end). `ChopController` now closes it on the next `ChopRoundStart`. User-tested in the snow zone: a strong save one-shots the forest diamond with a Master, so test multi-hit behaviour in a later zone.
 
-Related: [[Rock Spawning]], [[Rush Rocks]], [[Chop Effects]], [[Admin Panel]]
+Related: [[Rock Spawning]], [[Golden Rocks]], [[Chop Effects]], [[Admin Panel]]
+
+## Change 2026-11-03 (user)
+The `DiamondRockPill` timer is gone; the spawn notification names the zone.

@@ -1,30 +1,14 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Packets = require(ReplicatedStorage.Packets)
-local ScaleConfig = require(ReplicatedStorage.Config.ScaleConfig)
 local TeleportConfig = require(ReplicatedStorage.Config.TeleportConfig)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
 
 local TeleportBar = {}
-
-local function placePill(container: GuiObject)
-	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
-	local pillGui = if playerGui then playerGui:FindFirstChild(TeleportConfig.PillScreenName) else nil
-	local pill = if pillGui then pillGui:FindFirstChild(TeleportConfig.ContainerName) else nil
-	if not pill or not pill:IsA("GuiObject") then
-		return
-	end
-	local pillScale = pill:FindFirstChild(ScaleConfig.ScaleName)
-	local divisor = if pillScale and pillScale:IsA("UIScale") then pillScale.Scale else 1
-	local bottom = container.AbsolutePosition.Y + container.AbsoluteSize.Y + TeleportConfig.PillGapPixels
-	local position = pill.Position
-	pill.Position = UDim2.new(position.X.Scale, position.X.Offset, 0, bottom / divisor)
-end
 
 function TeleportBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	local trove = Trove.new()
@@ -130,10 +114,6 @@ function TeleportBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	if containerInstance and containerInstance:IsA("GuiObject") then
 		local container = containerInstance
 		container.Size = UDim2.fromOffset(TeleportConfig.BarWidthPixels, 0)
-		trove:Connect(container:GetPropertyChangedSignal("AbsoluteSize"), function()
-			placePill(container)
-		end)
-		placePill(container)
 	else
 		warn(`[TeleportBar] Layout disabled; needs Container in {gui:GetFullName()}`)
 	end

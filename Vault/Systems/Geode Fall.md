@@ -38,3 +38,6 @@ Design and approval: [[Geode Fall Event]]. All numbers are drafts in `GeodeFallC
 "the geodes don't land on the ground (they hover)", "the vfx are lacking", "the beacon and ui timer don't despawn properly". Fixed: landing height (pivot at the base), effects remade as the four templates above, beacon/label cleared on crack or timeout instead of when the model goes 12 s later.
 
 Related: [[Geode Fall Event]], [[Diamond Rock]], [[Geode Shop]], [[Hatch Reveal Reference]], [[Admin Panel]]
+
+## Change 2026-11-03 (user)
+Count is one geode per player in the server, capped at 4 (`MaxCount`). Each geode sends its own "Geode falling in <zone>!" notification, identical ones stack as x2; one "landed" line follows. The `GeodeFallPill` timer is gone.

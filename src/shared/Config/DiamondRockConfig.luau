@@ -65,8 +65,6 @@ export type DiamondRockSettings = {
 	ShakeDistance: number,
 	ShakeSeconds: number,
 	ShakeStuds: number,
-	PillScreen: string,
-	PillText: string,
 }
 
 local DiamondRockConfig: DiamondRockSettings = {
@@ -134,8 +132,6 @@ local DiamondRockConfig: DiamondRockSettings = {
 	ShakeDistance = 90,
 	ShakeSeconds = 0.6,
 	ShakeStuds = 0.6,
-	PillScreen = "DiamondRockPill",
-	PillText = "Diamond Rock: %s  %d:%02d",
 }
 
 return table.freeze(DiamondRockConfig)

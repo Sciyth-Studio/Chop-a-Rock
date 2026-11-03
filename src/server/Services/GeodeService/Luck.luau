@@ -7,9 +7,7 @@ local Types = require(script.Parent.Types)
 local Luck = {}
 
 function Luck.Total(context: Types.Context, player: Player, quality: number): number
-	local data = context.Services.DataService:GetData(player)
-	local rebirths = if data then data.Rebirths else 0
-	local bonus = (LuckConfig.TimingBonusByQuality[quality] or 0) + rebirths * LuckConfig.PerRebirthBonus
+	local bonus = LuckConfig.TimingBonusByQuality[quality] or 0
 	local passMultiplier = if context.Services.PassService:Owns(player, "Luck")
 		then LuckConfig.GamepassMultiplier
 		else 1

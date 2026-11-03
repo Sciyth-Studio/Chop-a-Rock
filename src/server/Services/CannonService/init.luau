@@ -2,7 +2,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -176,23 +175,23 @@ function CannonService.IsLaunching(_self: any, player: Player): boolean
 	return flights[player] ~= nil
 end
 
-function CannonService.Buy(_self: any, player: Player, key: string): boolean
+function CannonService.UnlockReached(_self: any, player: Player)
 	local data = services.DataService:GetData(player)
-	local cannon = cannons[key]
-	if not data or not cannon or data.Cannons[key] then
-		return false
+	if not data then
+		return
 	end
-	if data.Strength < cannon.StrengthRequired or data.Cash < cannon.Price then
-		return false
+	local newest: string? = nil
+	for _, cannon in CannonConfig.Cannons do
+		if not data.Cannons[cannon.Key] and data.PeakStrength >= cannon.StrengthRequired then
+			services.DataService:Set(player, { "Cannons", cannon.Key }, true)
+			services.NotificationService:Notify(player, "Unlock", `{cannon.DisplayName} unlocked!`)
+			newest = cannon.Key
+		end
 	end
-	if not services.DataService:AdjustCash(player, -cannon.Price, AnalyticsConfig.Sinks.Cannon, key) then
-		return false
+	if newest then
+		CannonService:Equip(player, newest)
+		services.DataService:RequestSave(player)
 	end
-	services.DataService:Set(player, { "Cannons", key }, true)
-	CannonService:Equip(player, key)
-	services.NotificationService:Notify(player, "Purchase", `Bought {cannon.DisplayName}!`)
-	services.DataService:RequestSave(player)
-	return true
 end
 
 function CannonService.Equip(_self: any, player: Player, key: string): boolean
@@ -265,31 +264,29 @@ function CannonService.Start(_self: any)
 		windows[player] = nil
 		wasInForest[player] = nil
 	end)
-	Packets.BuyCannon.OnServerInvoke = function(player: Player, key: string): boolean
-		return CannonService:Buy(player, key)
-	end
 	Packets.EquipCannon.OnServerInvoke = function(player: Player, key: string): boolean
 		return CannonService:Equip(player, key)
 	end
 	Packets.FireCannon.OnServerInvoke = function(player: Player): boolean
 		return CannonService:Fire(player)
 	end
-	if regions.Entry and regions.Area then
-		trove:Add(task.spawn(function()
-			while true do
-				task.wait(CannonConfig.Trigger.CheckSeconds)
-				for _, player in Players:GetPlayers() do
-					if services.DataService:GetData(player) then
+	local hasRegions = regions.Entry ~= nil and regions.Area ~= nil
+	trove:Add(task.spawn(function()
+		while true do
+			task.wait(CannonConfig.Trigger.CheckSeconds)
+			for _, player in Players:GetPlayers() do
+				if services.DataService:GetData(player) then
+					CannonService:UnlockReached(player)
+					if hasRegions then
 						sample(player)
 					end
 				end
 			end
-		end))
-	end
+		end
+	end))
 end
 
 function CannonService.Destroy(_self: any)
-	Packets.BuyCannon.OnServerInvoke = nil
 	Packets.EquipCannon.OnServerInvoke = nil
 	Packets.FireCannon.OnServerInvoke = nil
 	for _, flight in flights do

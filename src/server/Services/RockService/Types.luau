@@ -36,13 +36,6 @@ export type Reserved = {
 	Radius: number,
 }
 
-export type RushState = {
-	ChopSeconds: number,
-	LastChopAt: number?,
-	ActiveId: number?,
-	IsScheduled: boolean,
-}
-
 export type Session = {
 	Rock: Rock,
 	CanBreak: boolean,

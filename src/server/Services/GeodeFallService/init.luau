@@ -134,7 +134,6 @@ local function endFall(fall: Types.Fall)
 	end
 	if current == fall then
 		current = nil
-		Spawning.PublishFall(nil)
 	end
 	print(`[GeodeFallService] Geode Fall in {fall.Label} ended, {fall.Left} of {fall.Total} left`)
 end
@@ -210,7 +209,6 @@ end
 
 local function finishOne(fall: Types.Fall)
 	fall.Left -= 1
-	Spawning.PublishFall(if current == fall then fall else nil)
 	if fall.Left <= 0 then
 		endFall(fall)
 	end
@@ -313,7 +311,7 @@ local function startFall(zone: string?, lifetimeSeconds: number?): (boolean, str
 		return false, "no players have reached a zone"
 	end
 	local picks: { string } = {}
-	for _ = 1, Spawning.Count(#peaks) do
+	for _ = 1, Spawning.Count(#Players:GetPlayers()) do
 		table.insert(picks, zones[random:NextInteger(1, #zones)])
 	end
 	local now = os.clock()
@@ -329,8 +327,9 @@ local function startFall(zone: string?, lifetimeSeconds: number?): (boolean, str
 		IsEnding = false,
 	}
 	current = fall
-	Spawning.PublishFall(fall)
-	notifyAll(string.format(GeodeFallConfig.WarningText, fall.Label))
+	for _, pick in picks do
+		notifyAll(string.format(GeodeFallConfig.WarningText, pick))
+	end
 	for _, track in tracks do
 		track.Position = nil
 	end
@@ -350,11 +349,12 @@ local function startFall(zone: string?, lifetimeSeconds: number?): (boolean, str
 			endFall(fall)
 			return
 		end
-		Spawning.PublishFall(fall)
 	end)
 	task.delay(GeodeFallConfig.WarningSeconds, function()
 		if current == fall and not fall.IsEnding then
-			notifyAll(string.format(GeodeFallConfig.LandedText, fall.Left, fall.Label))
+			for _, geode in fall.Geodes do
+				notifyAll(string.format(GeodeFallConfig.LandedText, geode.Zone))
+			end
 		end
 	end)
 	task.delay(fall.EndsAt - now, expire, fall)
@@ -532,7 +532,6 @@ function GeodeFallService.Init(_self: any, registry: { [string]: any })
 end
 
 function GeodeFallService.Start(_self: any)
-	Spawning.PublishFall(nil)
 	for _, player in Players:GetPlayers() do
 		track(player)
 	end
@@ -583,7 +582,6 @@ function GeodeFallService.SetTimeLeft(_self: any, seconds: number): boolean
 		return false
 	end
 	fall.EndsAt = os.clock() + seconds
-	Spawning.PublishFall(fall)
 	for _, geode in fall.Geodes do
 		geode.Part:SetAttribute(GeodeFallConfig.EndsAtAttribute, Spawning.ServerTime(fall.EndsAt))
 	end

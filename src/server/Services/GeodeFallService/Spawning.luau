@@ -48,9 +48,7 @@ function Spawning.Label(zones: { string }): string
 end
 
 function Spawning.Count(playerCount: number): number
-	local extra = math.max(0, playerCount - GeodeFallConfig.ExtraAfterPlayers)
-		// GeodeFallConfig.PlayersPerExtra
-	return math.min(GeodeFallConfig.BaseCount + extra, GeodeFallConfig.MaxCount)
+	return math.clamp(playerCount, 1, GeodeFallConfig.MaxCount)
 end
 
 function Spawning.KeepOutPoints(): { Vector3 }
@@ -150,20 +148,6 @@ end
 
 function Spawning.ServerTime(clock: number): number
 	return workspace:GetServerTimeNow() + (clock - os.clock())
-end
-
-function Spawning.PublishFall(fall: Types.Fall?)
-	workspace:SetAttribute(GeodeFallConfig.PillZoneAttribute, if fall then fall.Label else "")
-	workspace:SetAttribute(
-		GeodeFallConfig.PillLandsAtAttribute,
-		if fall then Spawning.ServerTime(fall.LandsAt) else 0
-	)
-	workspace:SetAttribute(
-		GeodeFallConfig.PillEndsAtAttribute,
-		if fall then Spawning.ServerTime(fall.EndsAt) else 0
-	)
-	workspace:SetAttribute(GeodeFallConfig.PillLeftAttribute, if fall then fall.Left else 0)
-	workspace:SetAttribute(GeodeFallConfig.PillTotalAttribute, if fall then fall.Total else 0)
 end
 
 function Spawning.Hide(model: Model)

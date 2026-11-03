@@ -17,4 +17,4 @@ Design and the user's answers: [[Wild Geodes]]. All numbers are drafts in `WildG
 ## Checked
 `check.ps1` passes (format, types, build). Not playtested. Watch whether the hatch reveal camera and the chop camera's exit fight each other on a break, and how it looks next to a Master's strike hold.
 
-Related: [[Wild Geodes]], [[Geode Shop]], [[Geode Fall]], [[Rush Rocks]], [[Rock Spawning]], [[Admin Panel]]
+Related: [[Wild Geodes]], [[Geode Shop]], [[Geode Fall]], [[Golden Rocks]], [[Rock Spawning]], [[Admin Panel]]

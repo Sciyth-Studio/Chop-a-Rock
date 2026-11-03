@@ -30,3 +30,9 @@ In a balance review the user said Robux should "pay for currency to upgrade trai
 
 ## Change 2026-10-21: cash packs replace the stand products
 Instead of renaming them, the user chose generic currency products "that can fill the gap": the [[Cash Packs]]. The sign's Robux button is gone. Pressing the cash button while short of cash opens the Robux prompt for the smallest pack that covers it. The five stand products are off sale on Roblox. `RobuxPrice`, `RobuxProductId` and `GrantStandCash` were removed.
+
+## Change 2026-11-03: rebirth luck removed
+The user removed the rebirth luck bonus. Rebirth now gives cash multiplier and the stand unlock only. Rebirthing also stops training. Rebirth pacing is under review (see [[To Do]]).
+
+## Change 2026-11-03: one rebirth per rock (user)
+The user chose a rebirth at every rock over every 2 rocks. `StrengthGrowth` is 5, so gates are 100, 500, 2,500, 12,500 and so on: three rebirths per zone, and each rebirth opens one new rock because the strength cap is the next gate. Drafts, not in the [[Balance Model]] yet: stands unlock at rebirths 1, 4, 7, 10, 13, so each stand arrives at the same strength as before, and `MultiplierPerRebirth` is 0.1 (was 0.25). No per-rebirth training multiplier was added. Reaching 12,500 now takes 720 reps at x1 aura, against 600 before, so the longest run of each stand is unchanged (500 reps on Brick). Old saves are not migrated: their rebirth count is below the new scale and their gates are low until they catch up.

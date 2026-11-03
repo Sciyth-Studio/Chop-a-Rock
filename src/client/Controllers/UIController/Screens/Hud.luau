@@ -6,7 +6,6 @@ local SocialService = game:GetService("SocialService")
 local TweenService = game:GetService("TweenService")
 local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
-local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local ScaleConfig = require(ReplicatedStorage.Config.ScaleConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local NumberTicker = require(ReplicatedStorage.Utils.NumberTicker)
@@ -237,7 +236,7 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	bindMoney()
 	bindData("Strength", { "Strength" }, function(value: number): string
-		return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
+		return `{NumberFormat.Compact(value)}`
 	end)
 	bind("FriendBoost", "FriendBoost", function(value: number): string
 		return `+{NumberFormat.Compact(value)}% [Friends]`

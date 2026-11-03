@@ -17,8 +17,6 @@ export type TeleportSettings = {
 	ContainerName: string,
 	BarWidthPixels: number,
 	StreamTimeoutSeconds: number,
-	PillGapPixels: number,
-	PillScreenName: string,
 	Destinations: { Destination },
 	ShopFan: {
 		Button: string,
@@ -46,8 +44,6 @@ local TeleportConfig: TeleportSettings = {
 	ContainerName = "Container",
 	BarWidthPixels = 645,
 	StreamTimeoutSeconds = 2,
-	PillGapPixels = 8,
-	PillScreenName = "DiamondRockPill",
 	Destinations = {
 		{ Id = "Base", Label = "Base", IsBase = true, Marker = "" },
 		{ Id = "Aura", Label = "Aura", IsBase = false, Marker = "AuraShop" },

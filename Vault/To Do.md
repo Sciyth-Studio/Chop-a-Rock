@@ -14,6 +14,15 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Wild Geodes (built 2026-10-29, not playtested): after 4-6 min of chopping, the next rock you break had a geode hidden in it and opens straight into the hatch reveal; luck from the breaking chop, Uncommon or better, no tell. Timer and floor are drafts. See [[Wild Geode]]
 - [ ] Stepped hatch reveal (added 2026-10-31, not planned yet): the geode cracks showing a lower rarity's colours, shudders, then steps up to the real rarity, sometimes more than once, like slot reels stopping one by one. The Pet is rolled before the reveal starts, so it's presentation only, and only real wins get the bigger build-up (no fake near misses). Builds on the reveal's grow-by-rarity ([[Hatch Reveal Reference]]). Propose the steps and timing per rarity before building
 
+- [ ] Notes and tester feedback, 2026-11-03. Code done, passes check.ps1, not playtested: rebirth stops training, Geode Fall count = players capped at 4 with one notification per geode, Geode Fall and Diamond Rock pills removed, all 8 pedestals free (old saves migrated), rebirth luck removed, minigame hitbox no longer offset by the top inset.
+  - Second playtest notes done in code 2026-11-03, passes check.ps1, not playtested: chop input delay 0.1 s (draft, was 0.3), "N" removed from strength, landing notifications name the zone, Rush Rocks replaced by [[Golden Rocks]]. Base and income redesign moved to its own session
+  - New asks: anime-style chop slashes in the player's aura colour; explain Board Slice for young kids; aura reminders
+  - Studio, once the place is open: change the Cannon Shop subtitle "Buy once. Fire forever."; delete `StarterGui.GeodeFallPill` and `DiamondRockPill`; remove `LuckBefore` and `LuckAfter` from the Rebirth panel; square the chop meter bar's corners; move the rock health bar left of the chop animation in the same style, getting more cracked as health drops; make the Free Gift pad's yellow border more visible (user wrote "lower the transparency"); starter pack and 2x power/strength rework, 2x icons scale with hover; redo the right-side UI
+  - Map: scale up zone-side decor and add taller grass-coloured walls on top of the terraces
+  - Rebirth every rock built 2026-11-03, drafts in [[Rebirth Gated By Strength]]; the Balance Model needs a new version
+  - Needs the user's decision: Brick price and rate (the slow early game), geode Pet income, full list of milestone hints (new aura, new training, rebirth time, new geode, training upgrade in the tutorial), skipping the geode cutscene
+  - Tester's suggestion: watch someone new play the first few minutes without helping
+
 ## Waiting on the user
 
 ## Deferred until the user raises it

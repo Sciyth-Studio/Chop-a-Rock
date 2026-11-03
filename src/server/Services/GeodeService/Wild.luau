@@ -47,7 +47,7 @@ function Wild.CanCrack(context: Types.Context, player: Player, zone: string): bo
 	if Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) or data.PeakStrength < geode.StrengthRequired then
 		return false
 	end
-	return services.PetService:CanAdd(player, 1) and not services.RockService:IsRushOut(player)
+	return services.PetService:CanAdd(player, 1)
 end
 
 function Wild.Spot(player: Player, ground: Vector3): Attachment

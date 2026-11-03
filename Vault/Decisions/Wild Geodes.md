@@ -47,4 +47,4 @@ A geode costs about 2-3 s of income ([[Balance Pass Oct 18]]), so one every ~5 m
 ## Still open
 - Is Uncommon enough, and is about one every 5 min of chopping right? Both are drafts.
 
-Related: [[Wild Geode]], [[Geode Shop]], [[Geode Fall]], [[Rush Rocks]], [[Rock Spawning]], [[Event Clock]]
+Related: [[Wild Geode]], [[Geode Shop]], [[Geode Fall]], [[Golden Rocks]], [[Rock Spawning]], [[Event Clock]]

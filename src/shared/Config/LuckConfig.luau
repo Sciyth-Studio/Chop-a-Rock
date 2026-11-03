@@ -4,7 +4,6 @@ local ChopQuality = require(script.Parent.Parent.ChopQuality)
 
 export type LuckSettings = {
 	TimingBonusByQuality: { [number]: number },
-	PerRebirthBonus: number,
 	LuckyShareCap: number,
 	GamepassMultiplier: number,
 }
@@ -18,7 +17,6 @@ local LuckConfig: LuckSettings = {
 		[ChopQuality.Perfect] = 0.25,
 		[ChopQuality.Master] = 1,
 	},
-	PerRebirthBonus = 0.1,
 	LuckyShareCap = 0.9,
 	GamepassMultiplier = 2,
 }

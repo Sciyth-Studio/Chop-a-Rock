@@ -6,7 +6,7 @@ type: decision
 
 **Status: approved 2026-10-20 ("Build Geode Fall as the note says, including the Backpack full warning") and built the same day; how it works and where it lives: [[Geode Fall]]. The numbers below are still drafts. Built differently from this note: luck has no effect on the Rare+ split (every Rare+ rarity is lucky and scaled the same).**
 
-The user wants geodes that spawn on the map as a random event, give guaranteed good Pets, and are shared by the whole server so "everyone races to get them", because "the game kinda lacks competition between players". Every event so far is personal ([[Rush Rocks]], [[Weather]]) or shared but co-op ([[Diamond Rock]] pays everyone by damage share). Geode Fall is the first event where one player wins something and another doesn't.
+The user wants geodes that spawn on the map as a random event, give guaranteed good Pets, and are shared by the whole server so "everyone races to get them", because "the game kinda lacks competition between players". Every event so far is personal ([[Golden Rocks]], [[Weather]]) or shared but co-op ([[Diamond Rock]] pays everyone by damage share). Geode Fall is the first event where one player wins something and another doesn't.
 
 ## How a fall plays
 1. **Warning (10 s):** a server-wide notification and a HUD pill: "Geodes falling in the Jungle!" Only the zone is shown, not the spots, so nobody gets there before anyone else.
@@ -61,4 +61,4 @@ Diamond Rock spot-finding and area reserve, its beacon/label/pill pattern, `Chop
 - **Full Backpack:** "they don't get it and it respawns."
 - **Model:** "just a geode with vfx". Each zone's existing geode model (`GeodeConfig.Geodes[zone].ModelKey` / `SplitModelKey`) with a falling trail, landing impact and a glow while it waits. No new model.
 
-Related: [[Diamond Rock]], [[Geode Shop]], [[Weather]], [[Rush Rocks]], [[Balance Model]], [[Hatch Reveal Reference]]
+Related: [[Diamond Rock]], [[Geode Shop]], [[Weather]], [[Golden Rocks]], [[Balance Model]], [[Hatch Reveal Reference]]

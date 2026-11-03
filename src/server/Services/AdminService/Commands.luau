@@ -339,11 +339,11 @@ local Commands: { [string]: Types.Handler } = {
 		context.Services.RockService:ForceNextMaster(player)
 		notify(context, player, "next chop is a Master")
 	end,
-	ForceRush = function(context: Types.Context, player: Player, _argument: string)
-		if context.Services.RockService:ForceRush(player) then
-			notify(context, player, "next broken rock comes back as a Rush Rock")
+	ForceGolden = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.RockService:ForceGolden(player) then
+			notify(context, player, "next rock to spawn is Golden")
 		else
-			notify(context, player, "a Rush Rock is already out")
+			notify(context, player, "a Golden Rock is already due")
 		end
 	end,
 	ForceWildGeode = function(context: Types.Context, player: Player, _argument: string)

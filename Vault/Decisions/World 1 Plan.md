@@ -38,3 +38,5 @@ Related: [[Rebirth Gated By Strength]], [[Auras]], [[Zone Line]], [[Diamond Rock
 | Rune Rock | 130,135,120 | Neon runes 170,80,255 |
 | Pillar Boulder | 95,100,90 | column 220,215,200 |
 | Statue Boulder | 175,165,140 | stone fist 145,145,140 |
+
+**2026-11-01 Pet prompts:** lineup + six sheet prompts for each zone 6-10 are in `assets/Pets/<Zone>/Prompts.md` (Swamp, Savanna, Bamboo, Volcano, Ruins), Snow's format, body colours from the zone tables above. Not run yet.

@@ -18,7 +18,7 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local Packets = require(ReplicatedStorage.Packets)
-local RushRockConfig = require(ReplicatedStorage.Config.RushRockConfig)
+local GoldenRockConfig = require(ReplicatedStorage.Config.GoldenRockConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -551,8 +551,8 @@ function ChopController.Start(self: any)
 		Packets.ChopResult.OnClientEvent:Connect(
 			function(quality: number, payout: number, _damage: number, health: number, multiplier: number)
 				print(`[ChopController] {styleFor(quality).Name} chop, payout={payout}`)
-				local isRush = activeRock ~= nil
-					and activeRock:GetAttribute(RushRockConfig.EndsAtAttribute) ~= nil
+				local isGolden = activeRock ~= nil
+					and activeRock:GetAttribute(GoldenRockConfig.GoldenAttribute) ~= nil
 				local isMaster = quality == ChopQuality.Master
 				if isMaster and activeTrove then
 					masterStartClock = os.clock()
@@ -591,14 +591,14 @@ function ChopController.Start(self: any)
 						LocalSound.Play("SFX_Money_Gain")
 						if popAt then
 							cashPopController:Play(popAt, CashPopConfig.Chop)
-							if isRush then
+							if isGolden then
 								local total = math.floor(
-									multiplier * RushRockConfig.PayoutMultiplier * 100 + 0.5
+									multiplier * GoldenRockConfig.PayoutMultiplier * 100 + 0.5
 								) / 100
 								cashPopController:PlayText(popAt, payout, total, {
-									Main = RushRockConfig.PopMain,
-									Light = RushRockConfig.PopLight,
-									Dark = RushRockConfig.PopDark,
+									Main = GoldenRockConfig.PopMain,
+									Light = GoldenRockConfig.PopLight,
+									Dark = GoldenRockConfig.PopDark,
 								})
 							elseif multiplier > 1 then
 								cashPopController:PlayText(popAt, payout, multiplier)

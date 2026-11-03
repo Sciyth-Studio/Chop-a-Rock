@@ -448,7 +448,7 @@ local hintKinds: { HintKind } = {
 		Shared = CannonHint,
 		View = CannonHintView.View,
 		ScreenName = TutorialConfig.CannonHint.ScreenName,
-		IdleStages = { CannonHint.Buy },
+		IdleStages = { CannonHint.Fire },
 		CloseStages = {},
 	},
 }

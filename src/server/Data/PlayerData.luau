@@ -413,6 +413,9 @@ function PlayerData.Migrate(data: any)
 	if data.TrainingTier == nil and natural(data.Rebirths) then
 		data.TrainingTier = TrainingStands.IndexForRebirths(data.Rebirths)
 	end
+	if natural(data.PedestalSlots) and data.PedestalSlots < PedestalConfig.StartingSlots then
+		data.PedestalSlots = PedestalConfig.StartingSlots
+	end
 	local settings = data.Settings
 	if type(settings) == "table" and type(settings.Music) == "number" then
 		if settings.Volume == nil and settings.Music > 0 then

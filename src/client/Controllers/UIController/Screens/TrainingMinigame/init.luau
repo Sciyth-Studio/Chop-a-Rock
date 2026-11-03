@@ -12,7 +12,6 @@ local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local NumberTicker = require(ReplicatedStorage.Utils.NumberTicker)
 local Packets = require(ReplicatedStorage.Packets)
-local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local TrainingMinigameConfig = require(ReplicatedStorage.Config.TrainingMinigameConfig)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -198,9 +197,8 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 	end
 
 	local function toPlayfield(position: Vector3): Vector2
-		local inset = GuiService:GetGuiInset()
 		local origin = if playfield then playfield.AbsolutePosition else Vector2.zero
-		return Vector2.new(position.X + inset.X, position.Y + inset.Y) - origin
+		return Vector2.new(position.X, position.Y) - origin
 	end
 
 	local function slice(piece: Pieces.Piece, direction: Vector2)
@@ -450,12 +448,7 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		if isPlaying and gain > 0 and gainTemplate and playfield then
 			table.insert(
 				effects,
-				Effects.Gain(
-					gainTemplate,
-					playfield,
-					lastSlicePosition,
-					`+{NumberFormat.Compact(gain)} {TrainingConfig.StrengthUnit}`
-				)
+				Effects.Gain(gainTemplate, playfield, lastSlicePosition, `+{NumberFormat.Compact(gain)}`)
 			)
 		end
 	end))
@@ -472,7 +465,7 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 	if strengthLabel then
 		local label = strengthLabel
 		local strengthTicker = NumberTicker.new(function(value: number): string
-			return `{NumberFormat.Compact(value)} {TrainingConfig.StrengthUnit}`
+			return `{NumberFormat.Compact(value)}`
 		end, function(text: string)
 			label.Text = text
 		end)
