@@ -31,7 +31,7 @@ export type ZoneGeodeSettings = {
 
 local ZoneGeodeConfig: ZoneGeodeSettings = {
 	RingTag = "ZoneGeodeRing",
-	GrantWithoutEnemyService = true,
+	GrantWithoutEnemyService = false,
 	GeodesPerZone = 4,
 	RespawnSeconds = 30,
 	RetrySeconds = 5,
