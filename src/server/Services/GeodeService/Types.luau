@@ -5,29 +5,10 @@ export type Context = {
 	ForcedRarities: { [Player]: string },
 }
 
-export type Pit = {
-	ModelKey: string,
-	Model: Model,
+export type Pad = {
 	Part: BasePart,
-}
-
-export type Session = {
-	GeodeKey: string,
 	Spot: Attachment,
-	Model: Model?,
-	Part: BasePart?,
-	StrengthRatio: number,
-	Center: number,
-	StartTime: number,
-	IsAuto: boolean,
-	IsWild: boolean,
-	IsCracked: boolean,
-}
-
-export type WildTimer = {
-	ChopSeconds: number,
-	LastChopAt: number?,
-	DueSeconds: number,
+	Prompt: ProximityPrompt,
 }
 
 return {}

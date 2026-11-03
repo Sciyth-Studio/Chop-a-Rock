@@ -10,7 +10,7 @@ local Types = require(script.Parent.Types)
 
 local Purchasing = {}
 
-function Purchasing.UnopenedCount(data: any): number
+function Purchasing.OwnedCount(data: any): number
 	local total = 0
 	for _, count in data.Geodes do
 		total += count
@@ -18,14 +18,12 @@ function Purchasing.UnopenedCount(data: any): number
 	return total
 end
 
-function Purchasing.OwnedKinds(data: any): number
-	local kinds = 0
-	for _, count in data.Geodes do
-		if count > 0 then
-			kinds += 1
-		end
+function Purchasing.UnopenedCount(data: any): number
+	local total = Purchasing.OwnedCount(data)
+	for _ in data.HatchPads do
+		total += 1
 	end
-	return kinds
+	return total
 end
 
 function Purchasing.Buy(context: Types.Context, player: Player, geodeKey: any, amount: any): boolean

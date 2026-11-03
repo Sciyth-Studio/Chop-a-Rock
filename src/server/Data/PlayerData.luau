@@ -21,6 +21,11 @@ export type Pet = {
 	Income: number?,
 }
 
+export type HatchPad = {
+	GeodeKey: string,
+	ReadyAt: number,
+}
+
 export type Weekly = {
 	Week: number,
 	Strength: number,
@@ -55,12 +60,10 @@ export type Data = {
 	Playtime: number,
 	Weekly: Weekly,
 	Geodes: { [string]: number },
-	SelectedGeode: string,
-	Pity: { [string]: { [string]: number } },
+	HatchPads: { [string]: HatchPad },
 	Pets: { [string]: Pet },
 	NextPetId: number,
 	PedestalSlots: number,
-	PedestalEarnings: { [string]: number },
 	Index: {
 		Pets: { [string]: number },
 		Rocks: { [string]: number },
@@ -103,12 +106,10 @@ PlayerData.Template = {
 	Playtime = 0,
 	Weekly = { Week = 0, Strength = 0, PerfectChops = 0, Playtime = 0, MoneyPerSecond = 0 },
 	Geodes = {},
-	SelectedGeode = "",
-	Pity = {},
+	HatchPads = {},
 	Pets = {},
 	NextPetId = 1,
 	PedestalSlots = PedestalConfig.StartingSlots,
-	PedestalEarnings = {},
 	Index = {
 		Pets = {},
 		Rocks = {},
@@ -243,15 +244,17 @@ function PlayerData.Validate(data: any): boolean
 	if data.Geodes ~= nil and not counts(data.Geodes) then
 		return false
 	end
-	if data.SelectedGeode ~= nil and type(data.SelectedGeode) ~= "string" then
-		return false
-	end
-	if data.Pity ~= nil then
-		if type(data.Pity) ~= "table" then
+	if data.HatchPads ~= nil then
+		if type(data.HatchPads) ~= "table" then
 			return false
 		end
-		for geodeKey, misses in data.Pity do
-			if type(geodeKey) ~= "string" or #geodeKey == 0 or not counts(misses) then
+		for padKey, record in data.HatchPads do
+			if
+				type(padKey) ~= "string"
+				or type(record) ~= "table"
+				or type(record.GeodeKey) ~= "string"
+				or not natural(record.ReadyAt)
+			then
 				return false
 			end
 		end
@@ -271,16 +274,6 @@ function PlayerData.Validate(data: any): boolean
 	end
 	if data.PedestalSlots ~= nil and (not natural(data.PedestalSlots) or data.PedestalSlots < 1) then
 		return false
-	end
-	if data.PedestalEarnings ~= nil then
-		if type(data.PedestalEarnings) ~= "table" then
-			return false
-		end
-		for slot, amount in data.PedestalEarnings do
-			if type(slot) ~= "string" or #slot == 0 or not finite(amount) or amount < 0 then
-				return false
-			end
-		end
 	end
 	if data.Index ~= nil then
 		local index = data.Index
@@ -416,6 +409,18 @@ function PlayerData.Migrate(data: any)
 	if natural(data.PedestalSlots) and data.PedestalSlots < PedestalConfig.StartingSlots then
 		data.PedestalSlots = PedestalConfig.StartingSlots
 	end
+	if type(data.PedestalEarnings) == "table" then
+		local banked = 0
+		for _, amount in data.PedestalEarnings do
+			if finite(amount) and amount > 0 then
+				banked += amount
+			end
+		end
+		data.Cash = (if natural(data.Cash) then data.Cash else 0) + math.floor(banked)
+	end
+	data.PedestalEarnings = nil
+	data.Pity = nil
+	data.SelectedGeode = nil
 	local settings = data.Settings
 	if type(settings) == "table" and type(settings.Music) == "number" then
 		if settings.Volume == nil and settings.Music > 0 then

@@ -4,6 +4,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -123,46 +124,6 @@ local function shopPad(screen: string, label: string): Target?
 	return nil
 end
 
-local function geodePit(): Target?
-	local plot = Targets.OwnPlot()
-	local spot = if plot then plot:FindFirstChild("GeodeSpot", true) else nil
-	if not spot or not spot:IsA("Attachment") then
-		return nil
-	end
-	local adornee = spot.Parent or spot
-	return {
-		Position = spot.WorldPosition,
-		Goal = standOff(spot.WorldPosition, rootPosition()),
-		Adornee = adornee :: Instance,
-		Label = "Pit",
-		ArriveStuds = 10,
-	}
-end
-
-local function earningsPad(data: any): Target?
-	local plot = Targets.OwnPlot()
-	if not plot or type(data) ~= "table" or type(data.Pets) ~= "table" then
-		return nil
-	end
-	for _, pet in data.Pets do
-		if type(pet.Slot) == "number" then
-			local pedestal = plot:FindFirstChild(`Pedestal{pet.Slot}`, true)
-			local pad = if pedestal then pedestal:FindFirstChild("EarningsPad", true) else nil
-			if pad and pad:IsA("BasePart") then
-				return {
-					Position = pad.Position,
-					Goal = pad.Position,
-					Adornee = pad :: Instance,
-					Label = "Cash",
-					ArriveStuds = math.max(pad.Size.X, pad.Size.Z) / 2,
-					StopStuds = TutorialConfig.PadStopStuds,
-				}
-			end
-		end
-	end
-	return nil
-end
-
 local function cannonEntry(label: string): Target?
 	local folder = workspace:FindFirstChild(CannonConfig.Trigger.FolderName)
 	local entry = if folder then folder:FindFirstChild(CannonConfig.Trigger.EntryName) else nil
@@ -180,6 +141,32 @@ local function cannonEntry(label: string): Target?
 	}
 end
 
+local function hatchPad(data: any): Target?
+	local plot = Targets.OwnPlot()
+	if not plot then
+		return nil
+	end
+	local pads = if type(data) == "table" then data.HatchPads else nil
+	local index = 1
+	if type(pads) == "table" then
+		for key in pads do
+			index = tonumber(key) or index
+			break
+		end
+	end
+	local pad = plot:FindFirstChild(`{GeodeConfig.HatchPadPrefix}{index}`, true)
+	if not pad or not pad:IsA("BasePart") then
+		return nil
+	end
+	return {
+		Position = pad.Position,
+		Goal = standOff(pad.Position, rootPosition()),
+		Adornee = pad :: Instance,
+		Label = "Pad",
+		ArriveStuds = 10,
+	}
+end
+
 function Targets.For(step: number, data: any): Target?
 	if Tutorial.IsTraining(step) then
 		return trainingStand()
@@ -188,9 +175,7 @@ function Targets.For(step: number, data: any): Target?
 	elseif step == Tutorial.BuyGeode then
 		return shopPad("GeodeStand", "Geode")
 	elseif step == Tutorial.Crack then
-		return geodePit()
-	elseif step == Tutorial.Collect then
-		return earningsPad(data)
+		return hatchPad(data)
 	end
 	return nil
 end

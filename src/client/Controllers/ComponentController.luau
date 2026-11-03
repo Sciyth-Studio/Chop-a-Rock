@@ -6,6 +6,7 @@ local factories: { (controllers: { [string]: any }) -> any } = {
 	require(script.Parent.Parent.Components.OwnedPrompt),
 	require(script.Parent.Parent.Components.ShopPad),
 	require(script.Parent.Parent.Components.Pedestal),
+	require(script.Parent.Parent.Components.HatchPadInfo),
 	require(script.Parent.Parent.Components.ChopDummy),
 	require(script.Parent.Parent.Components.TrainingUpgradeSign),
 	require(script.Parent.Parent.Components.IdlePet),

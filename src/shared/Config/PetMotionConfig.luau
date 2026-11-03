@@ -18,6 +18,17 @@ export type PetMotionSettings = {
 	LandSquash: number,
 	LandSeconds: number,
 	LandBounces: number,
+	HopRunMin: number,
+	HopRunMax: number,
+	HopStuds: number,
+	HopSeconds: number,
+	HopHeightStuds: number,
+	HopStretch: number,
+	HopPauseSeconds: number,
+	HopRestMinSeconds: number,
+	HopRestMaxSeconds: number,
+	HopLandSeconds: number,
+	HopLandSquash: number,
 }
 
 local PetMotionConfig: PetMotionSettings = {
@@ -38,6 +49,17 @@ local PetMotionConfig: PetMotionSettings = {
 	LandSquash = 0.25,
 	LandSeconds = 0.5,
 	LandBounces = 1.5,
+	HopRunMin = 2,
+	HopRunMax = 6,
+	HopStuds = 3,
+	HopSeconds = 0.35,
+	HopHeightStuds = 1.6,
+	HopStretch = 0.12,
+	HopPauseSeconds = 0.25,
+	HopRestMinSeconds = 1.5,
+	HopRestMaxSeconds = 5,
+	HopLandSeconds = 0.18,
+	HopLandSquash = 0.14,
 }
 
 return table.freeze(PetMotionConfig)

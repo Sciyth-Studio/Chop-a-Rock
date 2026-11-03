@@ -26,7 +26,6 @@ local function endActivities(player: Player)
 	services.RockService:EndSession(player)
 	services.DiamondRockService:EndSession(player)
 	services.GeodeFallService:EndSession(player)
-	services.GeodeService:EndSession(player)
 	services.TrainingService:Stop(player)
 	Packets.ChopEnded:FireClient(player)
 end

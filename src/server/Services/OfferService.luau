@@ -67,7 +67,6 @@ function OfferService.GrantOfflineClaim(_self: any, player: Player): boolean
 	local amount = data.Offline.LastAmount * offline.ExtraMultiplier
 	services.DataService:Set(player, { "Offline", "LastAmount" }, 0)
 	player:SetAttribute(offline.DueAttribute, nil)
-	services.PedestalService:CollectAll(player)
 	if amount > 0 then
 		services.DataService:AdjustCash(
 			player,
@@ -123,9 +122,6 @@ function OfferService.Start(_self: any)
 		openStarterWindow(player)
 	end))
 	trove:Add(services.PedestalService.OfflineEarned:Connect(recordOffline))
-	trove:Add(Packets.ClaimOffline.OnServerEvent:Connect(function(player: Player)
-		services.PedestalService:CollectAll(player)
-	end))
 	trove:Add(Packets.StarterOfferShown.OnServerEvent:Connect(function(player: Player)
 		player:SetAttribute(starter.DueAttribute, nil)
 	end))

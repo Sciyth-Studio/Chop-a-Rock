@@ -1,6 +1,5 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
@@ -8,7 +7,6 @@ local CashPopConfig = require(ReplicatedStorage.Config.CashPopConfig)
 local HotStreakConfig = require(ReplicatedStorage.Config.HotStreakConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
-local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
@@ -64,16 +62,6 @@ local function spawnCoins(position: Vector3, profile: CashPopConfig.CashPopProfi
 		coin.AssemblyAngularVelocity = Vector3.new(0, CashPopConfig.CoinSpinRadPerSec, 0)
 		task.delay(CashPopConfig.CoinLifetimeSeconds + math.random() * 0.2, fadeOut, coin)
 	end
-end
-
-local function feetPosition(): Vector3?
-	local character = Players.LocalPlayer.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	local rootPart = humanoid and humanoid.RootPart
-	if not humanoid or not rootPart then
-		return nil
-	end
-	return rootPart.Position - Vector3.new(0, rootPart.Size.Y / 2 + humanoid.HipHeight, 0)
 end
 
 function CashPopController.Play(_self: any, position: Vector3, profile: CashPopConfig.CashPopProfile)
@@ -185,15 +173,7 @@ function CashPopController.Init(self: any, _controllers: { [string]: any })
 	end
 end
 
-function CashPopController.Start(self: any)
-	local trove = self._trove :: TroveInstance
-	trove:Add(Packets.PadCollected.OnClientEvent:Connect(function()
-		local feet = feetPosition()
-		if feet then
-			self:Play(feet, CashPopConfig.Pad)
-		end
-	end))
-end
+function CashPopController.Start(_self: any) end
 
 function CashPopController.Destroy(self: any)
 	if self._trove then

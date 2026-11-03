@@ -6,13 +6,11 @@ local Types = require(script.Parent.Types)
 
 local Luck = {}
 
-function Luck.Total(context: Types.Context, player: Player, quality: number): number
-	local bonus = LuckConfig.TimingBonusByQuality[quality] or 0
+function Luck.Total(context: Types.Context, player: Player): number
 	local passMultiplier = if context.Services.PassService:Owns(player, "Luck")
 		then LuckConfig.GamepassMultiplier
 		else 1
-	local multiplier = passMultiplier + context.Services.BoostService:GetBonus(player, "Luck")
-	return (1 + bonus) * multiplier
+	return passMultiplier + context.Services.BoostService:GetBonus(player, "Luck")
 end
 
 return Luck

@@ -11,7 +11,6 @@ local PLOT_TAG = "BasePlot"
 local SPOT_TAG = "BaseSpot"
 local PLOT_KEY = "Model_BasePlot"
 local OWNER_ATTRIBUTE = "OwnerUserId"
-local CRACK_SPOT_NAME = "GeodeSpot"
 local SPAWN_NAME = "BaseSpawn"
 
 local BaseService = {
@@ -154,15 +153,6 @@ end
 
 function BaseService.GetOwner(_self: any, plot: Model): Player?
 	return owners[plot]
-end
-
-function BaseService.GetCrackSpot(_self: any, player: Player): Attachment?
-	local plot = claims[player]
-	if not plot then
-		return nil
-	end
-	local spot = plot:FindFirstChild(CRACK_SPOT_NAME, true)
-	return if spot and spot:IsA("Attachment") then spot else nil
 end
 
 function BaseService.Init(_self: any, registry: { [string]: any })

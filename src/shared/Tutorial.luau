@@ -48,7 +48,7 @@ Tutorial.Titles = {
 	[Tutorial.Train] = "Break the boards!",
 	[Tutorial.Chop] = "Chop rocks for cash!",
 	[Tutorial.BuyGeode] = "Buy a geode!",
-	[Tutorial.Crack] = "Crack your geode!",
+	[Tutorial.Crack] = "Hatch your geode!",
 	[Tutorial.Collect] = "Step on green pad!",
 	[Tutorial.Final] = "You're ready! Go chop!",
 }

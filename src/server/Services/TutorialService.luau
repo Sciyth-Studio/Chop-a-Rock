@@ -17,7 +17,6 @@ local TutorialService = {
 local trove = Trove.new()
 local services: { [string]: any } = {}
 local finishing: { [Player]: boolean } = {}
-local collected: { [Player]: boolean } = {}
 
 local function logFunnel(player: Player, step: number)
 	local name = Tutorial.Funnel[step]
@@ -51,7 +50,6 @@ local function setStep(player: Player, step: number)
 	local previous = data.Tutorial.Step
 	services.DataService:Set(player, { "Tutorial", "Step" }, step)
 	services.DataService:Set(player, { "Tutorial", "Taps" }, 0)
-	collected[player] = nil
 	if step > previous then
 		logFurthest(player, data, math.min(step, Tutorial.Done))
 	end
@@ -70,16 +68,10 @@ local function geodeCount(data: any): number
 	for _, count in data.Geodes do
 		total += count
 	end
-	return total
-end
-
-local function hasPlacedPet(data: any): boolean
-	for _, pet in data.Pets do
-		if pet.Slot ~= nil then
-			return true
-		end
+	for _ in data.HatchPads do
+		total += 1
 	end
-	return false
+	return total
 end
 
 local function decide(player: Player, data: any, step: number): number
@@ -89,13 +81,7 @@ local function decide(player: Player, data: any, step: number): number
 		return step
 	end
 	if hasPet then
-		if step < Tutorial.Collect then
-			return if services.GeodeService:IsRevealing(player) then step else Tutorial.Collect
-		end
-		if not hasPlacedPet(data) or collected[player] then
-			return Tutorial.Final
-		end
-		return step
+		return if services.GeodeService:IsRevealing(player) then step else Tutorial.Final
 	end
 	if geodes > 0 then
 		return Tutorial.Crack
@@ -185,20 +171,11 @@ local function onTrained(player: Player)
 	check(player)
 end
 
-local function onCollected(player: Player)
-	local data = services.DataService:GetData(player)
-	if data and Tutorial.StepOf(data.Tutorial) == Tutorial.Collect then
-		collected[player] = true
-		check(player)
-	end
-end
-
 function TutorialService.Reset(_self: any, player: Player)
 	if not services.DataService:GetData(player) then
 		return
 	end
 	finishing[player] = nil
-	collected[player] = nil
 	setStep(player, Tutorial.Train)
 	services.DataService:Set(player, { "Tutorial", "Taps" }, 0)
 	check(player)
@@ -210,15 +187,12 @@ end
 
 function TutorialService.Start(_self: any)
 	trove:Add(services.TrainingService.Trained:Connect(onTrained))
-	trove:Add(services.PedestalService.Collected:Connect(onCollected))
 	trove:Add(services.DataService.PlayerLoaded:Connect(function(player: Player)
 		finishing[player] = nil
-		collected[player] = nil
 		check(player)
 	end))
 	trove:Connect(Players.PlayerRemoving, function(player: Player)
 		finishing[player] = nil
-		collected[player] = nil
 	end)
 	trove:Add(task.spawn(function()
 		while true do
@@ -233,7 +207,6 @@ end
 function TutorialService.Destroy(_self: any)
 	trove:Destroy()
 	table.clear(finishing)
-	table.clear(collected)
 end
 
 return TutorialService

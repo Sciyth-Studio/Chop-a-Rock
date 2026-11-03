@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Component = require(ReplicatedStorage.Packages.Component)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local PetMotionConfig = require(ReplicatedStorage.Config.PetMotionConfig)
+local PetHop = require(script.Parent.PetHop)
 
 type PartState = {
 	Part: BasePart,
@@ -21,6 +22,7 @@ type IdlePet = {
 	NextBlink: number,
 	LandStart: number?,
 	IsResting: boolean,
+	Hop: PetHop.Hop?,
 }
 
 local random = Random.new()
@@ -120,6 +122,7 @@ return function(_controllers: { [string]: any })
 				})
 			end
 		end
+		self.Hop = PetHop.New(model, self.Base)
 		local placedAt = model:GetAttribute(PetMotionConfig.PlacedAtAttribute)
 		if type(placedAt) == "number" then
 			local age = workspace:GetServerTimeNow() - placedAt
@@ -145,6 +148,12 @@ return function(_controllers: { [string]: any })
 		end
 		local now = os.clock()
 		local lift, stretch = landing(self, now)
+		if self.Hop then
+			local hopLift, hopStretch, base = PetHop.Step(self.Hop, now)
+			self.Base = base
+			lift += hopLift
+			stretch += hopStretch
+		end
 		if not LowGraphics.IsOn() then
 			stretch += PetMotionConfig.BreatheAmount * math.sin(
 				2 * math.pi * now / PetMotionConfig.BreathePeriodSeconds + self.Phase

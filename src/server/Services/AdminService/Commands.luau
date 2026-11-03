@@ -20,7 +20,6 @@ local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local WalkSpeedConfig = require(ReplicatedStorage.Config.WalkSpeedConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
-local HatchPity = require(ReplicatedStorage.HatchPity)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -346,10 +345,6 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, "a Golden Rock is already due")
 		end
 	end,
-	ForceWildGeode = function(context: Types.Context, player: Player, _argument: string)
-		context.Services.GeodeService:ForceWild(player)
-		notify(context, player, "next broken rock hides a Wild Geode")
-	end,
 	WeatherStart = function(context: Types.Context, player: Player, argument: string)
 		if context.Services.WeatherService:Force(argument) then
 			notify(context, player, `{argument} started`)
@@ -524,20 +519,6 @@ local Commands: { [string]: Types.Handler } = {
 		end
 		context.Services.GeodeService:ForceNextRarity(player, rarity)
 		notify(context, player, `next hatch is {rarity}`)
-	end,
-	PityDue = function(context: Types.Context, player: Player, argument: string)
-		local rarity = Arguments.Match(argument, GeodeConfig.PityRarities)
-		local geodeKey = zoneGeode(context, player)
-		local threshold = if rarity and geodeKey then HatchPity.Threshold(geodeKey, rarity) else nil
-		local data = context.Services.DataService:GetData(player)
-		if not rarity or not geodeKey or not threshold or not data then
-			notify(context, player, `no pity called {argument}`)
-			return
-		end
-		local counts = table.clone(data.Pity[geodeKey] or {})
-		counts[rarity] = threshold - 1
-		context.Services.DataService:Set(player, { "Pity", geodeKey }, counts)
-		notify(context, player, `next {geodeKey} Geode crack is a guaranteed {rarity}`)
 	end,
 	FillBackpack = function(context: Types.Context, player: Player, _argument: string)
 		local room = context.Services.PassService:GetBackpackSize(player)

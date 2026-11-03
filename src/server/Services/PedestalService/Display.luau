@@ -4,7 +4,6 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
-local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PetAura = require(ServerScriptService.Utils.PetAura)
@@ -12,72 +11,17 @@ local PetSize = require(ReplicatedStorage.PetSize)
 local PetSizeConfig = require(ReplicatedStorage.Config.PetSizeConfig)
 local PetMotionConfig = require(ReplicatedStorage.Config.PetMotionConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
-local Types = require(script.Parent.Types)
 
-local PROMPT_NAME = "PedestalPrompt"
-local OWNED_PROMPT_TAG = "OwnedPrompt"
-
-export type SlotView = {
-	State: "Locked" | "Empty" | "Placed",
-	PetKey: string?,
+export type PenPetView = {
+	PetKey: string,
 	Modifier: string?,
 	Size: string?,
 	Income: number?,
-	Price: number?,
-	Earnings: Types.SlotEarnings?,
-	CanPlace: boolean,
 }
 
 local Display = {}
 
-function Display.Pedestals(plot: Model): { [number]: Model }
-	local pedestals: { [number]: Model } = {}
-	local folder = plot:FindFirstChild(PedestalConfig.FolderName)
-	if not folder then
-		return pedestals
-	end
-	for _, child in folder:GetChildren() do
-		local slot = child:GetAttribute("SlotIndex")
-		if child:IsA("Model") and type(slot) == "number" then
-			pedestals[slot] = child
-		end
-	end
-	return pedestals
-end
-
-function Display.PedestalPart(pedestal: Model): BasePart?
-	local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
-	return if part and part:IsA("BasePart") then part else nil
-end
-
-function Display.Pad(pedestal: Model): BasePart?
-	local pad = pedestal:FindFirstChild(PedestalConfig.PadPartName)
-	return if pad and pad:IsA("BasePart") then pad else nil
-end
-
-function Display.EnsurePrompt(pedestal: Model): ProximityPrompt?
-	local part = Display.PedestalPart(pedestal)
-	if not part then
-		warn(`[PedestalService] {pedestal:GetFullName()} has no "{PedestalConfig.PedestalPartName}" part`)
-		return nil
-	end
-	local existing = part:FindFirstChild(PROMPT_NAME)
-	if existing and existing:IsA("ProximityPrompt") then
-		return existing
-	end
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = PROMPT_NAME
-	prompt.HoldDuration = PedestalConfig.PromptHoldSeconds
-	prompt.Style = Enum.ProximityPromptStyle.Custom
-	prompt.MaxActivationDistance = PedestalConfig.PromptRangeStuds
-	prompt.RequiresLineOfSight = false
-	prompt:SetAttribute("Active", false)
-	CollectionService:AddTag(prompt, OWNED_PROMPT_TAG)
-	prompt.Parent = part
-	pedestal.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
-	CollectionService:AddTag(pedestal, PedestalConfig.PedestalTag)
-	return prompt
-end
+local random = Random.new()
 
 local function setModifier(model: Instance, modifier: string?, isCatch: boolean)
 	if model:GetAttribute(WeatherConfig.ModifierAttribute) == modifier then
@@ -94,34 +38,20 @@ local function setModifier(model: Instance, modifier: string?, isCatch: boolean)
 	end
 end
 
-local function setPet(pedestal: Model, petKey: string?, modifier: string?, size: string?, scale: number?)
-	local current = pedestal:FindFirstChild(PedestalConfig.DisplayName)
-	if
-		current
-		and current:GetAttribute("PetKey") == petKey
-		and current:GetAttribute(PetSizeConfig.Attribute) == size
-	then
-		setModifier(current, modifier, true)
-		return
-	end
-	if current then
-		current:Destroy()
-	end
-	local pet = if petKey then PetConfig.Pets[petKey] else nil
-	local part = Display.PedestalPart(pedestal)
-	if not pet or not part then
-		return
+local function buildPet(petKey: string, size: string?, scale: number): Model?
+	local pet = PetConfig.Pets[petKey]
+	if not pet then
+		return nil
 	end
 	local asset = AssetRegistry.get(pet.ModelKey)
 	if not asset:IsA("Model") then
 		asset:Destroy()
-		return
+		return nil
 	end
 	local model = asset :: Model
-	model.Name = PedestalConfig.DisplayName
 	model:SetAttribute("PetKey", petKey)
 	model:SetAttribute(PetSizeConfig.Attribute, size)
-	local petScale = (scale or PedestalConfig.PetScale) * PetSize.Scale(size)
+	local petScale = scale * PetSize.Scale(size)
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			descendant.Anchored = true
@@ -130,83 +60,104 @@ local function setPet(pedestal: Model, petKey: string?, modifier: string?, size:
 			descendant.CanTouch = false
 		end
 	end
-	PetAura.Attach(model, petKey :: string, petScale)
+	PetAura.Attach(model, petKey, petScale)
 	model:ScaleTo(petScale)
-	local top = part.CFrame * CFrame.new(0, part.Size.Y / 2, 0)
-	model:PivotTo(CFrame.new(top.Position) * pedestal:GetPivot().Rotation)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	model:SetAttribute(PetMotionConfig.PlacedAtAttribute, workspace:GetServerTimeNow())
 	CollectionService:AddTag(model, PetMotionConfig.Tag)
-	setModifier(model, modifier, false)
-	model.Parent = pedestal
+	return model
 end
 
 function Display.ShowPet(pedestal: Model, petKey: string?, scale: number?)
-	setPet(pedestal, petKey, nil, nil, scale)
-end
-
-function Display.Render(pedestal: Model, owner: Player, view: SlotView)
-	local pet = if view.PetKey then PetConfig.Pets[view.PetKey] else nil
-	pedestal:SetAttribute("OwnerUserId", owner.UserId)
-	pedestal:SetAttribute("State", view.State)
-	pedestal:SetAttribute("PetKey", if pet then view.PetKey else nil)
-	pedestal:SetAttribute(WeatherConfig.ModifierAttribute, if pet then view.Modifier else nil)
-	pedestal:SetAttribute(PetSizeConfig.Attribute, if pet then view.Size else nil)
-	pedestal:SetAttribute("Income", if pet then view.Income else nil)
-	pedestal:SetAttribute("Price", view.Price)
-	local earnings = view.Earnings
-	pedestal:SetAttribute("Rate", if earnings then earnings.Rate else 0)
-	pedestal:SetAttribute("Banked", if earnings then earnings.Banked else 0)
-	pedestal:SetAttribute("BankedAt", if earnings then earnings.BankedAt else 0)
-	setPet(
-		pedestal,
-		if pet then view.PetKey else nil,
-		if pet then view.Modifier else nil,
-		if pet then view.Size else nil
-	)
-
-	local prompt = Display.EnsurePrompt(pedestal)
-	if not prompt then
+	local current = pedestal:FindFirstChild(PedestalConfig.DisplayName)
+	if current and current:GetAttribute("PetKey") == petKey then
 		return
 	end
-	prompt:SetAttribute("OwnerUserId", owner.UserId)
-	if view.State == "Locked" then
-		prompt.ActionText = "Unlock"
-		prompt.ObjectText = if view.Price then `${NumberFormat.Compact(view.Price)}` else ""
-		prompt:SetAttribute("Active", view.Price ~= nil)
-	elseif view.State == "Placed" then
-		prompt.ActionText = "Pick up"
-		prompt.ObjectText = if view.PetKey then PetSize.Name(view.PetKey, view.Modifier, view.Size) else ""
-		prompt:SetAttribute("Active", true)
-	else
-		prompt.ActionText = "Place"
-		prompt.ObjectText = ""
-		prompt:SetAttribute("Active", view.CanPlace)
+	if current then
+		current:Destroy()
+	end
+	local part = pedestal:FindFirstChild(PedestalConfig.PedestalPartName)
+	local model = if petKey then buildPet(petKey, nil, scale or PedestalConfig.PetScale) else nil
+	if not model or not part or not part:IsA("BasePart") then
+		if model then
+			model:Destroy()
+		end
+		return
+	end
+	model.Name = PedestalConfig.DisplayName
+	local top = part.CFrame * CFrame.new(0, part.Size.Y / 2, 0)
+	model:PivotTo(CFrame.new(top.Position) * pedestal:GetPivot().Rotation)
+	model.Parent = pedestal
+end
+
+function Display.Pen(plot: Model): BasePart?
+	local pen = plot:FindFirstChild(PedestalConfig.PenPartName, true)
+	return if pen and pen:IsA("BasePart") then pen else nil
+end
+
+local function penFolder(plot: Model): Folder
+	local folder = plot:FindFirstChild(PedestalConfig.PenFolderName)
+	if folder and folder:IsA("Folder") then
+		return folder
+	end
+	local created = Instance.new("Folder")
+	created.Name = PedestalConfig.PenFolderName
+	created.Parent = plot
+	return created
+end
+
+function Display.RenderPen(plot: Model, owner: Player, views: { [number]: PenPetView })
+	local pen = Display.Pen(plot)
+	if not pen then
+		return
+	end
+	local folder = penFolder(plot)
+	local halfX = pen.Size.X / 2 - PedestalConfig.PenMarginStuds
+	local halfZ = pen.Size.Z / 2 - PedestalConfig.PenMarginStuds
+	local top = pen.CFrame * CFrame.new(0, pen.Size.Y / 2, 0)
+	for _, slot in PedestalConfig.UnlockOrder do
+		local name = `PenPet{slot}`
+		local view = views[slot]
+		local current = folder:FindFirstChild(name)
+		if
+			current
+			and (
+				not view
+				or current:GetAttribute("PetKey") ~= view.PetKey
+				or current:GetAttribute(PetSizeConfig.Attribute) ~= view.Size
+			)
+		then
+			current:Destroy()
+			current = nil
+		end
+		if view and not current then
+			local model = buildPet(view.PetKey, view.Size, PedestalConfig.PetScale)
+			if model then
+				model.Name = name
+				local x, z = random:NextNumber(-halfX, halfX), random:NextNumber(-halfZ, halfZ)
+				model:PivotTo(
+					top * CFrame.new(x, 0, z) * CFrame.Angles(0, random:NextNumber(0, 2 * math.pi), 0)
+				)
+				model:SetAttribute(PedestalConfig.HopCenterAttribute, top.Position)
+				model:SetAttribute(PedestalConfig.HopHalfSizeAttribute, Vector3.new(halfX, 0, halfZ))
+				CollectionService:AddTag(model, PedestalConfig.PenPetTag)
+				setModifier(model, view.Modifier, false)
+				model.Parent = folder
+				current = model
+			end
+		end
+		if view and current then
+			current:SetAttribute("OwnerUserId", owner.UserId)
+			current:SetAttribute("Income", view.Income)
+			setModifier(current, view.Modifier, true)
+		end
 	end
 end
 
-function Display.Clear(pedestal: Model)
-	for _, name in
-		{
-			"OwnerUserId",
-			"State",
-			"PetKey",
-			WeatherConfig.ModifierAttribute,
-			PetSizeConfig.Attribute,
-			"Price",
-			"Rate",
-			"Banked",
-			"BankedAt",
-		}
-	do
-		pedestal:SetAttribute(name, nil)
-	end
-	setPet(pedestal, nil, nil, nil)
-	local part = Display.PedestalPart(pedestal)
-	local prompt = if part then part:FindFirstChild(PROMPT_NAME) else nil
-	if prompt and prompt:IsA("ProximityPrompt") then
-		prompt:SetAttribute("OwnerUserId", nil)
-		prompt:SetAttribute("Active", false)
+function Display.ClearPen(plot: Model)
+	local folder = plot:FindFirstChild(PedestalConfig.PenFolderName)
+	if folder then
+		folder:ClearAllChildren()
 	end
 end
 

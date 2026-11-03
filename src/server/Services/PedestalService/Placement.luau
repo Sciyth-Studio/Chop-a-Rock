@@ -42,19 +42,6 @@ function Placement.Sanitize(context: Types.Context, player: Player)
 	end
 end
 
-function Placement.Place(context: Types.Context, player: Player, slot: number, petId: string): boolean
-	local data = context.Services.DataService:GetData(player)
-	local pet = if data then data.Pets[petId] else nil
-	if not data or not pet or pet.Slot ~= nil or not PetConfig.Pets[pet.Key] then
-		return false
-	end
-	if not PedestalSlots.IsUnlocked(data.PedestalSlots, slot) or PedestalSlots.Placed(data.Pets)[slot] then
-		return false
-	end
-	setSlot(context, player, petId, slot)
-	return true
-end
-
 function Placement.PickUp(context: Types.Context, player: Player, slot: number): boolean
 	local data = context.Services.DataService:GetData(player)
 	local petId = if data then PedestalSlots.Placed(data.Pets)[slot] else nil

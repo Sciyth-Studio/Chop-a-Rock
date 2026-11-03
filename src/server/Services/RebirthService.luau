@@ -53,9 +53,6 @@ function RebirthService.Rebirth(_self: any, player: Player): boolean
 	end
 	replica:SetValues({}, values)
 	Analytics.LogCash(player, AnalyticsConfig.Sinks.Rebirth, -lostCash, data.Cash, tostring(data.Rebirths))
-	if RebirthConfig.ResetCash then
-		services.PedestalService:ClearEarnings(player)
-	end
 	if RebirthConfig.ResetAuraTier then
 		services.AuraService:SetTier(player, 1)
 	end

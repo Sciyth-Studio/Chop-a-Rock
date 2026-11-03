@@ -69,6 +69,7 @@ function Presets.Apply(context: Types.Context, player: Player, preset: AdminConf
 		NextPetId = nextPetId,
 		Index = index,
 		Geodes = table.clone(preset.Geodes or {}),
+		HatchPads = {},
 	}
 	overrides.Cash = preset.Cash
 	overrides.Strength = strength

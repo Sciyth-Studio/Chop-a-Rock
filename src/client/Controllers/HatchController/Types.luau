@@ -26,7 +26,6 @@ export type Hatch = {
 	Trait: string?,
 	Modifier: string?,
 	Size: string?,
-	IsPity: boolean,
 }
 
 return {}

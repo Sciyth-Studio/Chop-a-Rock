@@ -1,15 +1,9 @@
 --!strict
 
-export type SlotEarnings = {
-	Rate: number,
-	Banked: number,
-	BankedAt: number,
-}
-
 export type Session = {
-	Slots: { [number]: SlotEarnings },
-	LastCollect: { [number]: number },
-	Offline: { [number]: number },
+	Rate: number,
+	Carry: number,
+	Unlogged: number,
 }
 
 export type Context = {

@@ -189,13 +189,13 @@ local function detailFor(step: number, target: Targets.Target?): string?
 			return nil
 		end
 		return if near then `{promptKey(adornee, "Train", false)} to train` else nil
-	elseif Tutorial.IsChopping(step) or step == Tutorial.Crack then
+	elseif step == Tutorial.Crack then
+		return if near then `{promptKey(adornee, "Open", true)} to hatch!` else nil
+	elseif Tutorial.IsChopping(step) then
 		if chopController:IsMinigameActive() then
 			return `{releaseKey()} in glow!`
 		end
-		local action = if step == Tutorial.Crack then "Crack" else "Chop"
-		local verb = if step == Tutorial.Crack then "crack" else "chop"
-		return if near then `{promptKey(adornee, action, true)} to {verb}!` else nil
+		return if near then `{promptKey(adornee, "Chop", true)} to chop!` else nil
 	elseif step == Tutorial.BuyGeode then
 		return if isOpen("GeodeStand") then "Buy one Forest Geode!" else nil
 	end
@@ -320,8 +320,7 @@ local function update(dt: number)
 	if isIdle then
 		detail = idleDetail(detail, button ~= nil, target ~= nil)
 	end
-	local isChopHint = (Tutorial.IsChopping(step) or step == Tutorial.Crack)
-		and chopController:IsMinigameActive()
+	local isChopHint = Tutorial.IsChopping(step) and chopController:IsMinigameActive()
 	local isPanelOpen = isOpen("GeodeStand") or isOpen("Shop") or isOpen("SellShop")
 	local isQuiet = isChopHint or isPanelOpen
 	setText(if isQuiet then nil else titleFor(step), if isQuiet then nil else detail)
@@ -356,7 +355,7 @@ local function update(dt: number)
 	Layout.Update(current.Layout, not (isOpen("Shop") or isOpen("GeodeStand") or isOpen("SellShop")))
 
 	if current.ChopHint then
-		local isChopStep = Tutorial.IsChopping(step) or step == Tutorial.Crack
+		local isChopStep = Tutorial.IsChopping(step)
 		local isChopping = isChopStep and chopController:IsMinigameActive()
 		if not isChopping then
 			chopSince = nil

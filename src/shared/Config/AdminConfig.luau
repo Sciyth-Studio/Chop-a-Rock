@@ -191,11 +191,6 @@ for _, key in RarityConfig.Order do
 	table.insert(rarityChoices, { Value = key, Label = RarityConfig.Rarities[key].DisplayName })
 end
 
-local pityChoices: { Choice } = {}
-for _, key in GeodeConfig.PityRarities do
-	table.insert(pityChoices, { Value = key, Label = RarityConfig.Rarities[key].DisplayName })
-end
-
 local qualityChoices: { Choice } = {}
 for _, key in { "Perfect", "Great", "Good", "Mid", "Bad" } do
 	table.insert(qualityChoices, { Value = key, Label = key })
@@ -502,14 +497,6 @@ local AdminConfig: AdminSettings = {
 			Alias = "secret",
 		},
 		{
-			Id = "PityDue",
-			Label = "Pity: Next Due",
-			Tab = "Geodes",
-			Kind = "Choice",
-			Choices = pityChoices,
-			Alias = "pity",
-		},
-		{
 			Id = "ForceMaster",
 			Label = "Next Chop: Master",
 			Tab = "Chop",
@@ -633,14 +620,6 @@ local AdminConfig: AdminSettings = {
 			Kind = "Button",
 			Shortcut = Enum.KeyCode.R,
 			Alias = "golden",
-		},
-		{
-			Id = "ForceWildGeode",
-			Label = "Next Rock: Wild Geode",
-			Tab = "Events",
-			Kind = "Button",
-			Shortcut = Enum.KeyCode.J,
-			Alias = "wildgeode",
 		},
 		{
 			Id = "StartGeodeFall",

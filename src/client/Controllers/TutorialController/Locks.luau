@@ -22,7 +22,7 @@ local reasons = {
 	[Tutorial.Train] = "Train first!",
 	[Tutorial.Chop] = "Chop first!",
 	[Tutorial.BuyGeode] = "Geode first!",
-	[Tutorial.Crack] = "Crack first!",
+	[Tutorial.Crack] = "Hatch first!",
 	[Tutorial.Collect] = "Cash first!",
 	[Tutorial.Final] = "Almost!",
 }
