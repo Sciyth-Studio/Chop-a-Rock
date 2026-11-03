@@ -22,6 +22,7 @@ local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
 local HatchPity = require(ReplicatedStorage.HatchPity)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
+local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Arguments = require(script.Parent.Arguments)
@@ -420,6 +421,23 @@ local Commands: { [string]: Types.Handler } = {
 	StartGeodeFall = function(context: Types.Context, player: Player, _argument: string)
 		local _started, message = context.Services.GeodeFallService:Spawn(player)
 		notify(context, player, message)
+	end,
+	StartEnemyFight = function(context: Types.Context, player: Player, argument: string)
+		if not EnemyRules.IsZone(argument) then
+			notify(context, player, "choose a zone")
+			return
+		end
+		local isStarted = context.Services.EnemyService:RequestFight(
+			player,
+			argument,
+			function(result: string)
+				notify(context, player, `{argument} fight: {result}`)
+			end
+		)
+		if not isStarted then
+			local needed = NumberFormat.Compact(EnemyRules.WeakestRock(argument))
+			notify(context, player, `no fight: needs {needed} Strength and no fight running`)
+		end
 	end,
 	GeodeFallTimeLeft = function(context: Types.Context, player: Player, _argument: string)
 		local seconds = GeodeFallConfig.AdminLifetimeSeconds

@@ -152,6 +152,7 @@ _One note per game system as they're worked on._
 - [[Player List]] — 2026-10-28 Roblox-style top-right `leaderstats`: Strength, Money, Rebirths as NumberValues ranked by Strength, 0.5 s refresh; `PlayerListService`, `PlayerListConfig`
 - [[Leaderboards]] — four global lobby boards (Strength, Money/s, Perfect Chops, Playtime), 60 s refresh, #1 statue; `LeaderboardService`, `Components/Leaderboard`, `LeaderboardConfig`; boulder-style mesh slabs with the board on a `BoardFace` part; weekly tab, #1 crown + chat tag, pass toasts (2026-10-22, `CrownController`, `Passes`)
 - [[Free Gift]] — 2026-10-28 lobby pad by the entrance opens a "Free Gift!" panel (like, favorite, join steps); Claim checks Sciyth Studio group membership server-side (`GetGroupsAsync`, not cached `IsInGroup`), once per player (`Offers.FreeGift`), cash worth 3 zone geodes; meshlab cash chest on the pad since 2026-10-30; `FreeGiftService`, `Screens/FreeGift`, `FreeGiftConfig`
+- [[Zone Enemies]] — built 2026-11-03, not playtested: one personal enemy per zone (scaled-up Common Pet), spam-click fights through `EnemyService:RequestFight`, launched if you lose, flees at 25x; `EnemyService`, `EnemyController`, `EnemyConfig`, `Screens/EnemyFight`, admin `fight`
 - [[Wild Geode]] — 2026-10-29, not playtested: after 4-6 min of chopping the next rock you break had a geode hidden in it; the break opens it into the hatch reveal, luck from that chop, Uncommon+, pity counts, no tell; `GeodeService/Wild`, `WildGeodeConfig`, admin Ctrl+Shift+J
 
 ## Decisions
