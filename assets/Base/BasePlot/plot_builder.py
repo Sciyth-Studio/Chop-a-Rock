@@ -1,9 +1,7 @@
-import random
 import sys
 
 import bmesh
 import bpy
-from mathutils import Vector
 
 rb = sys.modules["rock_builder"]
 H = 0.5
@@ -11,10 +9,14 @@ COLLECTION = "BasePlot"
 
 P = dict(
     SLABS=((64.0, 0.0, 0.6), (62.0, 0.6, 1.4), (60.0, 1.4, 2.4)),
+    BACK_EXTRA=30.0,
     FLOOR_H=2.4, SLAB_BEVEL=0.12,
     WALK_HALF=4.0, WALK_H=0.4, TRIM_W=0.6, TRIM_H=0.1,
-    SLOT=9.0, SLOT_H=0.3, SLOT_X=21.0, SLOT_YS=(-19.5, -6.5, 6.5, 19.5),
-    PIT_Y=0.0, PIT_INNER=16.0, FRAME_W=1.5, FRAME_H=0.5, PIT_DEPTH=0.5,
+    PAD=9.0, PAD_XS=(11.0, 22.0), PAD_YS=(-21.0, -10.0),
+    PAD_BASE_H=0.1, PAD_RIM_W=1.0, PAD_RIM_H=0.5,
+    PEN_X=28.0, PEN_Y0=2.0, PEN_Y1=58.0, PEN_H=2.0, PEN_TOP_H=0.4,
+    STAIR_Y=-4.0, STAIR_STEPS=3,
+    FENCE_H=3.0, POST=1.2, POST_GAP=7.0, RAIL=0.6, RAIL_ZS=(1.1, 2.3), FENCE_INSET=0.7,
 )
 
 
@@ -66,23 +68,24 @@ def join_boxes(name, boxes):
     return new_obj(name, bm)
 
 
+def finish(obj, material, color):
+    rb.planar_stud_uvs(obj.data)
+    rb._finish(obj, rb.plain_material(material, color))
+    return obj, rb.stats(obj.data)
+
+
+def slab_box(slab, p, lift):
+    w, z0, z1 = slab
+    return (-w / 2, w / 2, -w / 2, w / 2 + p["BACK_EXTRA"], z0 - lift, z1, p["SLAB_BEVEL"])
+
+
 def build_floor(color=(20, 20, 20), p=P):
-    w, z0, z1 = p["SLABS"][-1]
-    floor = box("BasePlot_Floor", -w / 2, w / 2, -w / 2, w / 2, z0 - 0.01, z1, p["SLAB_BEVEL"])
-    pi = p["PIT_INNER"] / 2
-    pit = box("tmp_pit", -pi, pi, p["PIT_Y"] - pi, p["PIT_Y"] + pi, p["FLOOR_H"] - p["PIT_DEPTH"], p["FLOOR_H"] + 1)
-    rb.boolean(floor, pit, "DIFFERENCE")
-    rb._remove_object("tmp_pit")
-    bm = bmesh.new()
-    bm.from_mesh(floor.data)
-    for i, (sw, sz0, sz1) in enumerate(p["SLABS"][:-1]):
-        box_bm(bm, -sw / 2, sw / 2, -sw / 2, sw / 2, sz0 - (0.01 if i else 0.0), sz1, p["SLAB_BEVEL"])
-    bm.to_mesh(floor.data)
-    bm.free()
-    rb.clean_mesh(floor.data, 0.0)
-    rb.planar_stud_uvs(floor.data)
-    rb._finish(floor, rb.plain_material("BasePlotFloor", color))
-    return floor, rb.stats(floor.data)
+    return finish(join_boxes("BasePlot_Floor", [slab_box(p["SLABS"][-1], p, 0.01)]), "BasePlotFloor", color)
+
+
+def build_edge(color=(20, 20, 20), p=P):
+    boxes = [slab_box(slab, p, 0.01 if i else 0.0) for i, slab in enumerate(p["SLABS"][:-1])]
+    return finish(join_boxes("BasePlot_Edge", boxes), "BasePlotEdge", color)
 
 
 def carpet_boxes(p=P):
@@ -97,37 +100,69 @@ def carpet_boxes(p=P):
     return out
 
 
-def stone_boxes(p=P):
-    f = p["FLOOR_H"]
-    top_half = p["SLABS"][-1][0] / 2
-    pi, py, fw, fh = p["PIT_INNER"] / 2, p["PIT_Y"], p["FRAME_W"], p["FRAME_H"]
-    out = [
-        (-p["WALK_HALF"], p["WALK_HALF"], -top_half, py - pi - fw + 0.01, f - 0.01, f + p["WALK_H"], 0.0),
-        (-pi - fw, pi + fw, py + pi, py + pi + fw, f - 0.01, f + fh, 0.1),
-        (-pi - fw, pi + fw, py - pi - fw, py - pi, f - 0.01, f + fh, 0.1),
-        (-pi - fw, -pi, py - pi, py + pi, f - 0.01, f + fh, 0.1),
-        (pi, pi + fw, py - pi, py + pi, f - 0.01, f + fh, 0.1),
+def stair_rects(p=P):
+    f, t = p["FLOOR_H"], p["WALK_H"]
+    count = p["STAIR_STEPS"]
+    depth = (p["PEN_Y0"] - p["STAIR_Y"]) / count
+    rise = (p["PEN_H"] - t) / count
+    return [
+        (p["STAIR_Y"] + i * depth, p["PEN_Y0"] + p["FENCE_INSET"], f + t + (i + 1) * rise)
+        for i in range(count)
     ]
-    out += carpet_boxes(p)
-    sh = p["SLOT"] / 2
-    for s in (-1, 1):
-        for y in p["SLOT_YS"]:
-            cx = s * p["SLOT_X"]
-            out.append((cx - sh, cx + sh, y - sh, y + sh, f - 0.01, f + p["SLOT_H"], 0.1))
+
+
+def pad_centres(p=P):
+    return [(s * x, y) for s in (-1, 1) for x in p["PAD_XS"] for y in p["PAD_YS"]]
+
+
+def pad_frame_boxes(p=P):
+    f = p["FLOOR_H"]
+    half, rim = p["PAD"] / 2, p["PAD_RIM_W"]
+    top = f + p["PAD_RIM_H"]
+    out = []
+    for cx, y in pad_centres(p):
+        out.append((cx - half, cx + half, y + half - rim, y + half, f - 0.01, top, 0.1))
+        out.append((cx - half, cx + half, y - half, y - half + rim, f - 0.01, top, 0.1))
+        out.append((cx - half, cx - half + rim, y - half + rim, y + half - rim, f - 0.01, top, 0.1))
+        out.append((cx + half - rim, cx + half, y - half + rim, y + half - rim, f - 0.01, top, 0.1))
     return out
 
 
-def build_stone(color=(128, 128, 128), p=P):
-    stone = join_boxes("BasePlot_Stone", stone_boxes(p))
-    rb.planar_stud_uvs(stone.data)
-    rb._finish(stone, rb.plain_material("BasePlotStone", color))
-    return stone, rb.stats(stone.data)
+def build_pad_frames(color=(128, 128, 128), p=P):
+    return finish(join_boxes("BasePlot_PadFrames", pad_frame_boxes(p)), "BasePlotPadFrame", color)
+
+
+def build_pad_centres(color=(128, 128, 128), p=P):
+    f = p["FLOOR_H"]
+    inner = p["PAD"] / 2 - p["PAD_RIM_W"] + 0.02
+    return {
+        f"pad{i}": finish(
+            box(f"BasePlot_Pad{i}", cx - inner, cx + inner, y - inner, y + inner, f - 0.01, f + p["PAD_BASE_H"]),
+            "BasePlotPad",
+            color,
+        )[1]
+        for i, (cx, y) in enumerate(pad_centres(p), 1)
+    }
+
+
+def path_boxes(p=P):
+    f = p["FLOOR_H"]
+    top_half = p["SLABS"][-1][0] / 2
+    wh = p["WALK_HALF"]
+    out = [(-wh, wh, -top_half, p["STAIR_Y"] + 0.01, f - 0.01, f + p["WALK_H"], 0.0)]
+    out += carpet_boxes(p)
+    out += [(-wh, wh, y0, y1, f - 0.01, z1, 0.0) for y0, y1, z1 in stair_rects(p)]
+    return out
+
+
+def build_path(color=(128, 128, 128), p=P):
+    return finish(join_boxes("BasePlot_Path", path_boxes(p)), "BasePlotPath", color)
 
 
 def trim_boxes(p=P):
     wh, tw, t, th, over = p["WALK_HALF"], p["TRIM_W"], p["WALK_H"], p["TRIM_H"], 0.05
     slabs = p["SLABS"][::-1]
-    back = p["PIT_Y"] - p["PIT_INNER"] / 2 - p["FRAME_W"] + 0.01
+    back = p["STAIR_Y"] + 0.01
     rects = []
     for upper, lower in zip(slabs, slabs[1:]):
         face = -upper[0] / 2
@@ -135,6 +170,7 @@ def trim_boxes(p=P):
         rects.append((face - t - over, face, lower[2] - 0.01, upper[2] + t + th))
         back = face - t - over
     rects.append((-slabs[-1][0] / 2, back, slabs[-1][2] - 0.01, slabs[-1][2] + t + th))
+    rects += [(y0, y1, p["FLOOR_H"] - 0.01, z1 + th) for y0, y1, z1 in stair_rects(p)]
     out = []
     for s in (-1, 1):
         xa, xb = sorted((s * (wh - tw), s * (wh + over)))
@@ -149,111 +185,111 @@ def build_trim(color=(255, 255, 255), p=P):
     return trim, rb.stats(trim.data)
 
 
-def clip(poly, a, b):
-    mid = (a + b) / 2
-    n = b - a
+def build_pen(color=(60, 170, 60), p=P):
+    top = p["FLOOR_H"] + p["PEN_H"]
+    x, y0, y1 = p["PEN_X"], p["PEN_Y0"], p["PEN_Y1"]
+    pen = box("BasePlot_Pen", -x, x, y0, y1, top - p["PEN_TOP_H"], top, 0.15)
+    return finish(pen, "BasePlotPen", color)
+
+
+def build_pen_side(color=(60, 170, 60), p=P):
+    x, y0, y1, inset = p["PEN_X"], p["PEN_Y0"], p["PEN_Y1"], 0.02
+    bottom = p["FLOOR_H"] - 0.01
+    side = box("BasePlot_PenSide", -x + inset, x - inset, y0 + inset, y1 - inset, bottom, bottom + p["PEN_H"] - p["PEN_TOP_H"] + 0.02)
+    return finish(side, "BasePlotPenSide", color)
+
+
+def spaced(a, b, gap):
+    count = max(1, round((b - a) / gap))
+    return [a + (b - a) * i / count for i in range(count + 1)]
+
+
+def fence_boxes(p=P):
+    base = p["FLOOR_H"] + p["PEN_H"] - 0.01
+    top = base + p["FENCE_H"]
+    half, rail = p["POST"] / 2, p["RAIL"] / 2
+    x1 = p["PEN_X"] - p["FENCE_INSET"]
+    y0, y1 = p["PEN_Y0"] + p["FENCE_INSET"], p["PEN_Y1"] - p["FENCE_INSET"]
+    gap = p["WALK_HALF"] + half
+    posts = set()
+    for x in spaced(-x1, x1, p["POST_GAP"]):
+        posts.add((round(x, 3), y1))
+    for y in spaced(y0, y1, p["POST_GAP"]):
+        posts.add((-x1, round(y, 3)))
+        posts.add((x1, round(y, 3)))
+    for s in (-1, 1):
+        for x in spaced(gap, x1, p["POST_GAP"]):
+            posts.add((round(s * x, 3), y0))
+    return [(x - half, x + half, y - half, y + half, base, top, 0.08) for x, y in sorted(posts)]
+
+
+def rail_boxes(p=P):
+    base = p["FLOOR_H"] + p["PEN_H"] - 0.01
+    half, rail = p["POST"] / 2, p["RAIL"] / 2
+    x1 = p["PEN_X"] - p["FENCE_INSET"]
+    y0, y1 = p["PEN_Y0"] + p["FENCE_INSET"], p["PEN_Y1"] - p["FENCE_INSET"]
+    gap = p["WALK_HALF"] + half
     out = []
-    for i, cur in enumerate(poly):
-        prev = poly[i - 1]
-        cin = (cur - mid).dot(n) <= 0
-        pin = (prev - mid).dot(n) <= 0
-        if cin != pin:
-            d = cur - prev
-            t = (mid - prev).dot(n) / d.dot(n)
-            out.append(prev + d * t)
-        if cin:
-            out.append(cur)
+    for z in p["RAIL_ZS"]:
+        zb, zt = base + z - rail, base + z + rail
+        out.append((-x1, x1, y1 - rail, y1 + rail, zb, zt, 0.0))
+        for s in (-1, 1):
+            xa, xb = sorted((s * x1 - rail, s * x1 + rail))
+            out.append((xa, xb, y0, y1, zb, zt, 0.0))
+            xa, xb = sorted((s * gap, s * x1))
+            out.append((xa, xb, y0 - rail, y0 + rail, zb, zt, 0.0))
     return out
 
 
-def shrink(poly, gap):
-    poly = [v for i, v in enumerate(poly) if (v - poly[i - 1]).length > 1e-4]
-    c = sum(poly, Vector((0, 0))) / len(poly)
-    lines = []
-    for i, a in enumerate(poly):
-        b = poly[(i + 1) % len(poly)]
-        d = (b - a).normalized()
-        n = Vector((d.y, -d.x))
-        if (c - a).dot(n) > 0:
-            n = -n
-        lines.append((a - n * gap / 2, d))
-    out = []
-    for i in range(len(lines)):
-        (p1, d1), (p2, d2) = lines[i - 1], lines[i]
-        den = d1.x * d2.y - d1.y * d2.x
-        if abs(den) < 1e-6:
-            out.append(p2)
-            continue
-        t = ((p2.x - p1.x) * d2.y - (p2.y - p1.y) * d2.x) / den
-        out.append(p1 + d1 * t)
-    return out
+def build_fence_posts(color=(255, 255, 255), p=P):
+    return finish(join_boxes("BasePlot_FencePosts", fence_boxes(p)), "BasePlotFencePost", color)
 
 
-def build_crack(color=(90, 90, 90), seed=4, grid=4, gap=0.5, p=P):
-    rng = random.Random(seed)
-    pi = p["PIT_INNER"] / 2
-    cell = p["PIT_INNER"] / grid
-    seeds = []
-    for i in range(grid):
-        for j in range(grid):
-            seeds.append(Vector((-pi + (i + 0.5 + rng.uniform(-0.35, 0.35)) * cell,
-                                 -pi + (j + 0.5 + rng.uniform(-0.35, 0.35)) * cell)))
-    square = [Vector((-pi, -pi)), Vector((pi, -pi)), Vector((pi, pi)), Vector((-pi, pi))]
-    bm = bmesh.new()
-    z0 = p["FLOOR_H"] - p["PIT_DEPTH"] - 0.01
-    for s in seeds:
-        poly = square
-        for o in seeds:
-            if o is not s:
-                poly = clip(poly, s, o)
-        poly = shrink(poly, gap)
-        z1 = p["FLOOR_H"] - p["PIT_DEPTH"] + rng.uniform(0.35, 0.65)
-        bot = [bm.verts.new(Vector((v.x * H, (v.y + p["PIT_Y"]) * H, z0 * H))) for v in poly]
-        top = [bm.verts.new(Vector((v.x * H, (v.y + p["PIT_Y"]) * H, z1 * H))) for v in poly]
-        bm.faces.new(list(reversed(bot)))
-        tf = bm.faces.new(top)
-        for i in range(len(poly)):
-            j = (i + 1) % len(poly)
-            bm.faces.new([bot[i], bot[j], top[j], top[i]])
-        bmesh.ops.bevel(bm, geom=list(tf.edges), offset=0.12 * H, segments=1, affect="EDGES", profile=0.5, clamp_overlap=True)
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    bmesh.ops.dissolve_degenerate(bm, dist=1e-4, edges=bm.edges)
-    obj = new_obj("BasePlot_Crack", bm)
-    rb.planar_stud_uvs(obj.data)
-    rb._finish(obj, rb.plain_material("BasePlotCrack", color))
-    return obj, rb.stats(obj.data)
+def build_fence_rails(color=(255, 255, 255), p=P):
+    return finish(join_boxes("BasePlot_FenceRails", rail_boxes(p)), "BasePlotFenceRail", color)
 
 
 def build_all():
-    return {
+    for old in ("BasePlot_Crack", "BasePlot_Stone", "BasePlot_Fence"):
+        rb._remove_object(old)
+    stats = {
         "floor": build_floor()[1],
-        "stone": build_stone()[1],
+        "edge": build_edge()[1],
+        "path": build_path()[1],
         "trim": build_trim()[1],
-        "crack": build_crack()[1],
+        "padframes": build_pad_frames()[1],
+        "pen": build_pen()[1],
+        "penside": build_pen_side()[1],
+        "posts": build_fence_posts()[1],
+        "rails": build_fence_rails()[1],
     }
+    stats.update(build_pad_centres())
+    return stats
 
 
 def preview_extras(p=P):
-    pad_mat = rb.plain_material("PreviewPad", (40, 230, 60))
-    ped_mat = rb.plain_material("PreviewPedestal", (128, 128, 128))
+    pet_mat = rb.plain_material("PreviewPet", (150, 150, 150))
+    geode_mat = rb.plain_material("PreviewGeode", (200, 120, 230))
     out = []
-    f = p["FLOOR_H"] + p["SLOT_H"]
-    for s in (-1, 1):
-        for i, y in enumerate(p["SLOT_YS"]):
-            cx = s * p["SLOT_X"]
-            ped = box(f"Preview_Ped{s}{i}", cx - 4, cx + 4, y - 4, y + 4, f, f + 2.7, 0.15)
-            rb._finish(ped, ped_mat)
-            x = s * (p["SLOT_X"] - 8.25)
-            pad = box(f"Preview_Pad{s}{i}", x - 1.75, x + 1.75, y - 3.25, y + 3.25, p["FLOOR_H"], p["FLOOR_H"] + 0.2)
-            rb._finish(pad, pad_mat)
-            out += [ped, pad]
+    z = p["FLOOR_H"] + p["PEN_H"]
+    pets = [(-18, 18, 5), (-6, 30, 5), (10, 16, 6), (20, 38, 5), (-20, 48, 6), (2, 48, 10), (17, 52, 5), (-10, 40, 5)]
+    for i, (x, y, s) in enumerate(pets):
+        pet = box(f"Preview_Pet{i}", x - s / 2, x + s / 2, y - s / 2, y + s / 2, z, z + s, 0.2)
+        rb._finish(pet, pet_mat)
+        out.append(pet)
+    f = p["FLOOR_H"] + p["PAD_BASE_H"]
+    for i, (cx, y) in enumerate([(-11, -21), (11, -10), (22, -21)]):
+        geode = box(f"Preview_Geode{i}", cx - 2.5, cx + 2.5, y - 2.5, y + 2.5, f, f + 5, 0.4)
+        rb._finish(geode, geode_mat)
+        out.append(geode)
     return out
 
 
 def render_set(objs, d, prefix):
     rb.setup_preview_scene()
     bpy.context.scene.camera.data.clip_end = 1000.0
-    rb.render_preview(objs, d + rf"\{prefix}_34.png", (42.0, -58.0, 34.0), target=(0, 0, 0))
-    rb.render_preview(objs, d + rf"\{prefix}_top.png", (0.01, -0.01, 80.0), target=(0, 0, 0))
-    rb.render_preview(objs, d + rf"\{prefix}_front.png", (0, -62.0, 3.0), target=(0, 0, 1.2))
-    rb.render_preview(objs, d + rf"\{prefix}_edge.png", (-7.0, -24.0, 3.5), target=(0, -15, 0.6))
+    rb.render_preview(objs, d + rf"\{prefix}_34.png", (46.0, -44.0, 42.0), target=(0, 10, 0))
+    rb.render_preview(objs, d + rf"\{prefix}_top.png", (0.01, 10.0, 110.0), target=(0, 10, 0))
+    rb.render_preview(objs, d + rf"\{prefix}_front.png", (0, -46.0, 8.0), target=(0, 8, 1.2))
+    rb.render_preview(objs, d + rf"\{prefix}_back.png", (-40.0, 58.0, 22.0), target=(0, 18, 1.2))
+    rb.render_preview(objs, d + rf"\{prefix}_stairs.png", (10.0, -26.0, 8.0), target=(0, -3, 1.2))

@@ -83,9 +83,9 @@ Hatch odds roll when you open the geode, not when you place it.
 Open after playtesting: without pity a Secret takes about 2.5-5 hours of hatching per zone in the model, against a 60 min target. Left as is for now; a playtest decides.
 
 ## 6. Base remodel (Blender, `model-workflow`)
-`Model_BasePlot` stays on its 64 x 64 footprint, with the entrance at local -Z.
-- **Front:** 8 hatch pads, each with a spot for a geode and a label for its timer or "Ready!".
-- **Back:** a fenced raised platform where the 8 earning Pets hop around.
+`Model_BasePlot` grows to 64 x 94 studs: 30 studs longer at the back, with the front and pivot where they are now, and the entrance at local -Z. The lobby expands to match (user). No reference sheet: built straight from the old base (user).
+- **Front:** 8 hatch pads, 2x2 on each side of the path, each with a spot for a geode and a label for its timer or "Ready!".
+- **Back:** a fenced raised square platform, 56 x 56 studs, where the 8 earning Pets hop around. Path steps lead through a gap in the fence. Upgrades will expand the pen later (user), not part of this plan.
 - **Removed:** the pit, all pedestals and all earnings pads.
 - **Kept:** training stand and upgrade sign, `BaseSpawn`, owner sign.
 
