@@ -16,7 +16,7 @@ local EnemyService = { Name = "EnemyService" }
 
 local trove = Trove.new()
 local services: { [string]: any } = {}
-local homes: { [string]: Vector3 } = {}
+local homes: { [string]: Homes.Home } = {}
 local fights: { [Player]: Types.Fight } = {}
 local readied: { [Player]: true } = {}
 local sinceCheck = 0
@@ -99,8 +99,10 @@ local function onReady(player: Player)
 			player,
 			zone,
 			EnemyRules.PetKey(zone),
-			home,
-			EnemyRules.ModelScale(zone)
+			home.Position,
+			EnemyRules.ModelScale(zone),
+			home.AreaMin,
+			home.AreaMax
 		)
 	end
 end
