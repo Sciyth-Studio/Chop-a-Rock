@@ -58,6 +58,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[UI Style References]] — screenshots of panel UI the user likes; open before building or restyling menus
 - [[Studded Panel Style Reference]] — 2026-10-05 restyle target: dark stud body, striped gradient headers, white/black-stroke text, sharp black outlines
 - [[Tintable Mesh Textures]] — studs are the 2022 MaterialVariants in MaterialService (`2022 Inlet`, `2022 Stud` = outlet); copy MaterialVariant with Material
+- [[Fight Flow Reference]] — 2026-11-03 clip of another game's fight the user wants ours designed like: charge banner, 3-2-1 camera cuts, side-on tug of war, red tint, result banner, landing dent and arrows
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
 - [[Zone Line]] — scaled x1.15 per zone since 2026-10-30 (table at top; Ruins 774 wide, line ends z 3217, arena to 4695); zone order forest → desert → jungle → ocean → snow → swamp → savanna → bamboo → volcano → ruins + walled square boss arena (6-10 are blockouts; signs never say "Golem"); folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours, whole-stud grid and the lobby gap fix

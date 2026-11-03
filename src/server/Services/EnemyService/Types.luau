@@ -8,7 +8,8 @@ export type Fight = {
 	LeaveStuds: number,
 	MaxHealth: number,
 	Health: number,
-	EndsAt: number,
+	StartsAt: number,
+	PushedAt: number,
 	ShownAt: number,
 	OnResult: (result: Result) -> (),
 }

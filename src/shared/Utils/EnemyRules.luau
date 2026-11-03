@@ -31,6 +31,21 @@ function EnemyRules.MaxHealth(zone: string): number
 	return EnemyRules.WeakestRock(zone) * EnemyConfig.HealthClicksAtGate
 end
 
+function EnemyRules.IntroSeconds(): number
+	return EnemyConfig.IntroBannerSeconds + EnemyConfig.CountSeconds * EnemyConfig.CountFrom
+end
+
+function EnemyRules.IntroPhase(elapsed: number): ("Banner" | "Count" | "Fight", number)
+	if elapsed < EnemyConfig.IntroBannerSeconds then
+		return "Banner", 0
+	end
+	local counted = math.floor((elapsed - EnemyConfig.IntroBannerSeconds) / EnemyConfig.CountSeconds)
+	if counted < EnemyConfig.CountFrom then
+		return "Count", EnemyConfig.CountFrom - counted
+	end
+	return "Fight", 0
+end
+
 function EnemyRules.CanFight(strength: number, zone: string): boolean
 	return strength >= EnemyRules.WeakestRock(zone)
 end

@@ -89,7 +89,7 @@ def build_edge(color=(59, 59, 59), p=P):
 
 
 def carpet_boxes(p=P):
-    wh, t = p["WALK_HALF"], p["WALK_H"]
+    wh, t = p["WALK_HALF"] - p["TRIM_W"], p["WALK_H"]
     slabs = p["SLABS"]
     out = []
     for upper, lower in zip(slabs[:0:-1], slabs[-2::-1]):
@@ -148,10 +148,12 @@ def build_pad_centres(color=(82, 82, 82), p=P):
 def path_boxes(p=P):
     f = p["FLOOR_H"]
     top_half = p["SLABS"][-1][0] / 2
-    wh = p["WALK_HALF"]
+    wh = p["WALK_HALF"] - p["TRIM_W"]
+    pen_top = f + p["PEN_H"] - 0.02
+    stair_end = p["PEN_Y0"] + 0.2
     out = [(-wh, wh, -top_half, p["STAIR_Y"] + 0.01, f - 0.01, f + p["WALK_H"], 0.0)]
     out += carpet_boxes(p)
-    out += [(-wh, wh, y0, y1, f - 0.01, z1, 0.0) for y0, y1, z1 in stair_rects(p)]
+    out += [(-wh, wh, y0, min(y1, stair_end), f - 0.01, min(z1, pen_top), 0.0) for y0, y1, z1 in stair_rects(p)]
     return out
 
 
@@ -169,7 +171,7 @@ def trim_boxes(p=P):
         rects.append((face, back, upper[2] - 0.01, upper[2] + t + th))
         rects.append((face - t - over, face, lower[2] - 0.01, upper[2] + t + th))
         back = face - t - over
-    rects.append((-slabs[-1][0] / 2, back, slabs[-1][2] - 0.01, slabs[-1][2] + t + th))
+    rects.append((-slabs[-1][0] / 2 + 0.02, back, slabs[-1][2] - 0.01, slabs[-1][2] + t + th))
     rects += [(y0, y1, p["FLOOR_H"] - 0.01, z1 + th) for y0, y1, z1 in stair_rects(p)]
     out = []
     for s in (-1, 1):
