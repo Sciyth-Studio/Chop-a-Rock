@@ -5,6 +5,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local RockTemplate = require(ReplicatedStorage.RockTemplate)
+local ZoneGeodeConfig = require(ReplicatedStorage.Config.ZoneGeodeConfig)
+local ZoneRings = require(ReplicatedStorage.Utils.ZoneRings)
 local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Types = require(script.Parent.Types)
 
@@ -76,6 +78,13 @@ local function fits(shape: Types.Shape, ground: RaycastResult, areas: { Instance
 	)
 end
 
+local function fitsGeode(ground: RaycastResult, size: Vector3, areas: { Instance }): boolean
+	local excluded = table.clone(areas)
+	table.insert(excluded, ground.Instance)
+	local lift = RockSpawnConfig.ClearanceLiftStuds
+	return isClear(CFrame.new(ground.Position + Vector3.new(0, size.Y / 2 + lift, 0)), size, excluded)
+end
+
 function SpawnPoints.FitsRing(
 	position: Vector3,
 	rotation: CFrame,
@@ -135,7 +144,10 @@ function SpawnPoints.Shape(key: string): Types.Shape?
 	return shape
 end
 
-function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Types.Spot } }
+function SpawnPoints.Sample(
+	shapes: { [string]: Types.Shape },
+	rings: { ZoneRings.Ring }
+): ({ [string]: { Types.Spot } }, { [string]: { Vector3 } })
 	local areas: { BasePart } = {}
 	for _, tagged in CollectionService:GetTagged(RockSpawnConfig.AreaTag) do
 		if tagged:IsA("BasePart") and tagged:IsDescendantOf(workspace) then
@@ -155,6 +167,7 @@ function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Ty
 	local minNormalY = math.cos(math.rad(RockSpawnConfig.MaxSlopeDegrees))
 	local spacing = RockSpawnConfig.SampleSpacingStuds
 	local result: { [string]: { Types.Spot } } = {}
+	local ringResult: { [string]: { Vector3 } } = {}
 	local sliceStarted = os.clock()
 	for _, area in areas do
 		local zone = area:GetAttribute(RockSpawnConfig.ZoneAttribute)
@@ -174,6 +187,9 @@ function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Ty
 		end
 		local list = result[zone] or {}
 		result[zone] = list
+		local ringList = ringResult[zone] or {}
+		ringResult[zone] = ringList
+		local geodeSize = ZoneGeodeConfig.ClearanceSize * ZoneScale.Of(zone)
 		local size = area.Size
 		local zoneSpacing = spacing * ZoneScale.Of(zone)
 		local columnsX = math.max(1, math.floor(size.X / zoneSpacing))
@@ -195,9 +211,18 @@ function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Ty
 				if not ground or ground.Normal.Y < minNormalY then
 					continue
 				end
+				if
+					ZoneRings.Containing(rings, zone, ground.Position)
+					and fitsGeode(ground, geodeSize, excluded)
+				then
+					table.insert(ringList, ground.Position)
+				end
 				local spot: Types.Spot = { Position = ground.Position, Fits = {}, Largest = nil }
 				for _, shape in zoneShapes do
-					if fits(shape, ground, excluded) then
+					if
+						not ZoneRings.Overlaps(rings, ground.Position, shape.Radius)
+						and fits(shape, ground, excluded)
+					then
 						spot.Fits[shape.Key] = true
 						spot.Largest = spot.Largest or shape.Key
 					end
@@ -212,7 +237,7 @@ function SpawnPoints.Sample(shapes: { [string]: Types.Shape }): { [string]: { Ty
 	for _, area in areas do
 		area.Transparency = 1
 	end
-	return result
+	return result, ringResult
 end
 
 return SpawnPoints

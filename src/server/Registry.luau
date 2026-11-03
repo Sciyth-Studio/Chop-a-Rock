@@ -38,6 +38,7 @@ local services: { Lifecycle.System } = {
 	require(script.Parent.Services.CannonService),
 	require(script.Parent.Services.GeodeFallService),
 	require(script.Parent.Services.EnemyService),
+	require(script.Parent.Services.ZoneGeodeService),
 	require(script.Parent.Services.EventClockService),
 	require(script.Parent.Services.CannonHintService),
 	require(script.Parent.Services.AuraHintService),
