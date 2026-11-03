@@ -8,7 +8,6 @@ local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local Tutorial = require(ReplicatedStorage.Tutorial)
 local Effects = require(script.Effects)
 local HatchPads = require(script.HatchPads)
 local Opening = require(script.Opening)
@@ -21,7 +20,6 @@ local context: Types.Context = { Services = {}, ForcedRarities = {} }
 local random = Random.new()
 local plots: { [Model]: { Types.Pad } } = {}
 local placeAllPrompts: { [Model]: ProximityPrompt } = {}
-local oddsPrompts: { [Model]: ProximityPrompt } = {}
 local lockedUntil: { [Player]: number } = {}
 local luckyZones: { [Player]: string } = {}
 
@@ -51,11 +49,6 @@ local function refresh(player: Player)
 			empty += 1
 		end
 		HatchPads.Render(pad, player, record, canAct, geode)
-	end
-	local odds = oddsPrompts[plot]
-	if odds then
-		odds:SetAttribute("OwnerUserId", player.UserId)
-		odds:SetAttribute("Active", not Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)))
 	end
 	local placeAll = placeAllPrompts[plot]
 	if placeAll then
@@ -138,11 +131,6 @@ local function setupPlot(plot: Model)
 		trove:Add(pad.Prompt.Triggered:Connect(function(player: Player)
 			onPad(plot, index, player)
 		end))
-	end
-	local odds = HatchPads.SetupOdds(plot)
-	if odds then
-		oddsPrompts[plot] = odds
-		trove:Add(odds)
 	end
 	local placeAll = HatchPads.SetupPlaceAll(plot)
 	if placeAll then
@@ -269,7 +257,6 @@ function GeodeService.Destroy(_self: any)
 	end
 	table.clear(plots)
 	table.clear(placeAllPrompts)
-	table.clear(oddsPrompts)
 	Effects.Reset()
 	trove:Clean()
 end

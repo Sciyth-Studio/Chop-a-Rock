@@ -60,7 +60,6 @@ local UIFeelConfig: UIFeelSettings = {
 	ClickSound = "SFX_UI_Click",
 	OpenSounds = table.freeze({
 		Shop = "SFX_UI_ShopBell",
-		GeodeStand = "SFX_UI_ShopBell",
 		SellShop = "SFX_UI_ShopBell",
 		RobuxShop = "SFX_UI_ShopBell",
 	}),

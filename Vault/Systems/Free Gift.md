@@ -1,13 +1,22 @@
 ---
-description: Free Gift popup (2026-10-28) — lobby pad by the entrance opens a "Free Gift!" panel; Claim checks Sciyth Studio group membership server-side, once per player, for cash worth 3 of your zone's geode.
+description: Free Gift popup (2026-10-28) — lobby pad by the entrance opens a "Free Gift!" panel; Claim checks the favorite on the client (since 2026-11-03) and Sciyth Studio group membership server-side, once per player, for cash worth 3 of your zone's geode. Likes can't be checked.
 type: system
 ---
 # Free Gift
 
+**What Claim checks (user 2026-11-03: "make the free gift actually check for the things that are checkable"; replaces the 2026-10-28 decision below, which said favorites can't be read)**
+| Step | Can Roblox tell us? | What happens on Claim |
+|---|---|---|
+| 1. Like | No. No API reads a player's like. | Asked for, never checked |
+| 2. Favorite | Client only, after the player allows inventory access: `AvatarEditorService:PromptAllowInventoryReadAccess`, then `GetFavoriteAsync(PlaceId, Asset)`. The server has no call for it; the only other route is an undocumented web endpoint through a third-party proxy, not used. | Not favorited: red hint "Favorite the game first!", shake, nothing sent to the server. Favoriting through the step's prompt counts for the session (`PromptSetFavoriteCompleted` Success) even if the read is stale. If the player declines access, the read errors, or there is no answer in `FavoriteCheckSeconds` (30, draft), the step can't be checked and doesn't block the claim. |
+| 3. Join | Yes, on the server (`GetGroupsAsync`) | Not a member: "Join the community first!", nothing paid. |
+
+The favorite check is a client check: a modified client can skip it. Only membership and the once-per-player flag are enforced by the server. Reward is a one-time small cash amount, so that risk was accepted. Not yet seen in Play (2026-11-03): the access prompt, a real `GetFavoriteAsync` result for a place id (Edit only confirmed the permission error), the "Favorite the game first!" hint. Check these first if players can't claim. Whether rewarding likes and favorites is fine under Roblox's rules wasn't settled; forum posts disagree.
+
 The user asked (2026-10-28) for a "Free Gift! Limited time!" screen like the reference in [[Studded Panel Style Reference]] (`Panel Style Ref Free Gift.webp`): big reward picture, three step cards with screenshots (1. Like the game, 2. Favorite the game, 3. Join the community) and a green Claim button.
 
 **Decisions (user, 2026-10-28)**
-- Claim checks only the community (group) membership. Roblox can't check likes, and favorites can't be read back, so those two steps are still shown and asked for but don't gate the claim.
+- Claim checked only the community (group) membership; likes and favorites didn't gate it. Superseded for favorites on 2026-11-03, see the table above.
 - Reward: cash worth 3 of the player's zone geode (`CashPack.GeodeValue(3, strength)`, the Small cash pack's size). Draft size.
 - No automatic popup. A pad near the lobby entrance, off to the side, opens it like a shop pad.
 

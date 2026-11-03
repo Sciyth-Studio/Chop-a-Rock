@@ -21,7 +21,6 @@ local modules: { [string]: Types.ScreenModule } = {
 	CannonShop = require(script.Screens.CannonShop),
 	CannonFire = require(script.Screens.CannonFire),
 	EnemyFight = require(script.Screens.EnemyFight),
-	GeodeStand = require(script.Screens.GeodeStand),
 	Index = require(script.Screens.Index),
 	Pets = require(script.Screens.Pets),
 	Toolbar = require(script.Screens.Toolbar),
