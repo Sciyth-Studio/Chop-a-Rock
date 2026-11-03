@@ -16,6 +16,7 @@ local PurchaseService = { Name = "PurchaseService" }
 local registry: { [string]: any } = {}
 local trove = Trove.new()
 local giftTargets: { [Player]: GiftTarget } = {}
+local skipHatchPads: { [Player]: number } = {}
 local maxReceipts = 100
 
 local function prune(receipts: { [string]: number })
@@ -226,6 +227,10 @@ function PurchaseService.SimulateGift(_self: any, buyer: Player, giftKey: string
 	return "nobody else here, so you got a gift credit"
 end
 
+function PurchaseService.GetSkipHatchPad(_self: any, player: Player): number?
+	return skipHatchPads[player]
+end
+
 function PurchaseService.Init(_self: any, services: { [string]: any })
 	registry = services
 end
@@ -244,6 +249,16 @@ function PurchaseService.Start(_self: any)
 			end
 		end)
 	)
+	trove:Add(Packets.SetSkipHatchPad.OnServerEvent:Connect(function(player: Player, padIndex: number)
+		if
+			type(padIndex) == "number"
+			and padIndex >= 1
+			and padIndex <= MonetizationConfig.SkipHatch.PadCount
+			and padIndex % 1 == 0
+		then
+			skipHatchPads[player] = padIndex
+		end
+	end))
 	Packets.SendGiftCredit.OnServerInvoke = function(player: Player, userId: number, giftKey: string): boolean
 		if type(userId) ~= "number" or type(giftKey) ~= "string" then
 			return false
@@ -263,6 +278,7 @@ function PurchaseService.Start(_self: any)
 	end))
 	trove:Connect(Players.PlayerRemoving, function(player: Player)
 		giftTargets[player] = nil
+		skipHatchPads[player] = nil
 	end)
 end
 
@@ -271,6 +287,7 @@ function PurchaseService.Destroy(_self: any)
 	Packets.SendGiftCredit.OnServerInvoke = nil
 	trove:Destroy()
 	table.clear(giftTargets)
+	table.clear(skipHatchPads)
 end
 
 return PurchaseService

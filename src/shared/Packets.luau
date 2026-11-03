@@ -132,6 +132,7 @@ local Packets = {
 	SelectGeode = Packet("SelectGeode", Packet.String):RateLimit(5, 1),
 	StopAutoOpen = Packet("StopAutoOpen"):RateLimit(2, 1),
 	SetGiftTarget = Packet("SetGiftTarget", Packet.NumberF64, Packet.String):RateLimit(4, 1),
+	SetSkipHatchPad = Packet("SetSkipHatchPad", Packet.NumberU8):RateLimit(4, 1),
 	RobuxShopOpened = Packet("RobuxShopOpened"):RateLimit(3, 1),
 	RobuxShopPrompted = Packet("RobuxShopPrompted", Packet.String, Packet.NumberF64):RateLimit(4, 1),
 	SendGiftCredit = Packet("SendGiftCredit", Packet.NumberF64, Packet.String)

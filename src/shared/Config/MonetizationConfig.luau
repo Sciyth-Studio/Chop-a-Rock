@@ -39,6 +39,12 @@ export type LuckyGeodeProduct = {
 	IsFirstOnly: boolean,
 }
 
+export type SkipHatchProduct = {
+	ProductId: number?,
+	RobuxPrice: number,
+	PadCount: number,
+}
+
 export type StarterPack = {
 	ProductId: number?,
 	RobuxPrice: number,
@@ -153,6 +159,7 @@ export type MonetizationSettings = {
 	LuckyGeodeProducts: { LuckyGeodeProduct },
 	FirstLuckyOfferKey: string,
 	RandomItemsRestrictedAttribute: string,
+	SkipHatch: SkipHatchProduct,
 	StarterPack: StarterPack,
 	OfflineClaim: OfflineClaim,
 	BoostPill: BoostPillSettings,
@@ -207,13 +214,6 @@ local MonetizationConfig: MonetizationSettings = {
 			RobuxPrice = 199,
 		},
 		{
-			Key = "AutoOpen",
-			DisplayName = "Auto Open",
-			Blurb = "Your pit cracks geodes for you",
-			GamepassId = 2053686145,
-			RobuxPrice = 199,
-		},
-		{
 			Key = "Backpack",
 			DisplayName = "Big Backpack",
 			Blurb = "Room for 100 more Pets",
@@ -226,7 +226,7 @@ local MonetizationConfig: MonetizationSettings = {
 			Blurb = "Every pass, a VIP tag and a gold name",
 			GamepassId = 2053344170,
 			RobuxPrice = 799,
-			Includes = { "Luck", "Strength", "Cash", "AutoOpen", "Backpack" },
+			Includes = { "Luck", "Strength", "Cash", "Backpack" },
 		},
 	},
 	PassAttributePrefix = "Pass",
@@ -300,6 +300,11 @@ local MonetizationConfig: MonetizationSettings = {
 	},
 	FirstLuckyOfferKey = "FirstLuckyGeode",
 	RandomItemsRestrictedAttribute = "RandomItemsRestricted",
+	SkipHatch = {
+		ProductId = nil,
+		RobuxPrice = 9,
+		PadCount = 8,
+	},
 	StarterPack = {
 		ProductId = 3722325285,
 		RobuxPrice = 29,
@@ -393,7 +398,6 @@ local MonetizationConfig: MonetizationSettings = {
 		{ Key = "Pass_Luck", Kind = "Pass", Target = "Luck", ProductId = 3722325304 },
 		{ Key = "Pass_Strength", Kind = "Pass", Target = "Strength", ProductId = 3722325307 },
 		{ Key = "Pass_Cash", Kind = "Pass", Target = "Cash", ProductId = 3722325310 },
-		{ Key = "Pass_AutoOpen", Kind = "Pass", Target = "AutoOpen", ProductId = 3722325313 },
 		{ Key = "Pass_Backpack", Kind = "Pass", Target = "Backpack", ProductId = 3722325315 },
 		{ Key = "Pass_VIP", Kind = "Pass", Target = "VIP", ProductId = 3722325318 },
 		{ Key = "Boost_Cash_15", Kind = "Boost", Target = "Cash", Index = 1, ProductId = 3722325325 },

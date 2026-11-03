@@ -17,7 +17,6 @@ local IconConfig = {
 	Skip = "rbxassetid://102429972816165",
 	ServerBadge = "rbxassetid://91457041311285",
 	LuckyGeode = "rbxassetid://86432488077969",
-	AutoOpen = "rbxassetid://88428093722478",
 	Cash1 = "rbxassetid://101112809904563",
 	Cash2 = "rbxassetid://120312068437386",
 	Cash3 = "rbxassetid://118503914460480",

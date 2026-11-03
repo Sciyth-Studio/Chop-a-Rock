@@ -78,6 +78,26 @@ for _, product in MonetizationConfig.LuckyGeodeProducts do
 	end
 end
 
+local skipHatchProductId = MonetizationConfig.SkipHatch.ProductId
+if skipHatchProductId then
+	Products[skipHatchProductId] = function(player: Player, services: { [string]: any }): boolean
+		local geodeService = services.GeodeService
+		if type(geodeService.SkipHatch) ~= "function" then
+			return false
+		end
+		local chosenPad = services.PurchaseService:GetSkipHatchPad(player)
+		if chosenPad and geodeService:SkipHatch(player, chosenPad) then
+			return true
+		end
+		for padIndex = 1, MonetizationConfig.SkipHatch.PadCount do
+			if padIndex ~= chosenPad and geodeService:SkipHatch(player, padIndex) then
+				return true
+			end
+		end
+		return false
+	end
+end
+
 for _, boost in MonetizationConfig.ServerBoosts do
 	local productId = boost.ProductId
 	if productId then
