@@ -88,7 +88,8 @@ function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	ViewportScale.Bind(gui, trove)
 	local chopController = context.Controllers.ChopController
 
-	local fill = findFrame(gui, "Fill")
+	local bar = findFrame(gui, "Bar")
+	local fill = if bar then findFrame(bar, "Fill") else nil
 	local rampGradientInstance = if fill then fill:FindFirstChild("RampGradient") else nil
 	local rampGradient: UIGradient? = if rampGradientInstance and rampGradientInstance:IsA("UIGradient")
 		then rampGradientInstance
@@ -104,7 +105,7 @@ function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		else ColorSequence.new(Color3.new(1, 1, 1))
 	local rainbowRotation = if resultGradient then resultGradient.Rotation else 0
 
-	local cursor = findFrame(gui, "Cursor")
+	local cursor = if bar then findFrame(bar, "Cursor") else nil
 	local healthBar = findFrame(gui, "HealthBar")
 	local healthFillInstance = if healthBar then healthBar:FindFirstChild("HealthFill", true) else nil
 	local healthFill: Frame? = if healthFillInstance and healthFillInstance:IsA("Frame")
