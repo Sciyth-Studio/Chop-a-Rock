@@ -25,7 +25,6 @@ export type FightView = {
 	Name: string,
 	Health: number,
 	MaxHealth: number,
-	EndsAt: number,
 }
 
 local HIT_ACTION = "EnemyFightHit"
@@ -165,14 +164,13 @@ local function unbindInput()
 	end
 end
 
-local function onFightStarted(zone: string, maxHealth: number, seconds: number)
+local function onFightStarted(zone: string, maxHealth: number, startHealth: number)
 	local pet = PetConfig.Pets[EnemyRules.PetKey(zone)]
 	fight = {
 		Zone = zone,
 		Name = if pet then pet.DisplayName else zone,
-		Health = maxHealth,
+		Health = startHealth,
 		MaxHealth = maxHealth,
-		EndsAt = os.clock() + seconds,
 	}
 	unbindInput()
 	bindInput()

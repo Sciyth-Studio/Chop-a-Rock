@@ -49,8 +49,9 @@ Playtesting on 2026-11-03 showed Pets earn far less than chopping and that crack
 | Rule | Value |
 |---|---|
 | Gate | Current Strength at least the zone's weakest rock. Below it the geode refuses you: "Get stronger!" |
-| Enemy health | Weakest rock strength x 40, so 40 clicks at the gate *draft* |
-| Time limit | 15 s, so about 3 clicks a second wins at the gate *draft*. Running out of time is how you lose. |
+| Tug of war | Replaced the health bar and 15 s limit after the user's reference, 2026-11-03. A You vs enemy bar starts in the middle. Your clicks push it towards the enemy, it pushes back 6% of the bar a second *draft*. |
+| Clicks | At the gate a click moves the bar 3%, so 6 clicks a second wins in about 4 s and 3 a second in about 17 s *draft*. Strength multiplies the push. |
+| Losing | The bar reaches your end, about 8 s of not clicking. |
 | Lose | Launched away, enemy goes home, geode stays. Try again straight away. |
 | Walk or teleport away | Fight ends the same way, without the launch *draft*. |
 | Clicks | Counted on the server, capped at about 15 a second *draft*, so an autoclicker is only as good as a very fast player. |

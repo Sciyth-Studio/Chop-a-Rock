@@ -1,14 +1,13 @@
 --!strict
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local Input = require(ReplicatedStorage.Packages.Input)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Types = require(script.Parent.Parent.Types)
 
@@ -40,58 +39,35 @@ function EnemyFight.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	ViewportScale.Bind(gui, trove)
 
 	local nameLabel: TextLabel? = find(gui, "EnemyName", "TextLabel")
-	local timeLabel: TextLabel? = find(gui, "TimeLeft", "TextLabel")
+	local youLabel: TextLabel? = find(gui, "YouName", "TextLabel")
 	local hintLabel: TextLabel? = find(gui, "Hint", "TextLabel")
+	local tapLeft: TextLabel? = find(gui, "TapLeft", "TextLabel")
+	local tapRight: TextLabel? = find(gui, "TapRight", "TextLabel")
 	local fill: Frame? = find(gui, "Fill", "Frame")
+	local enemyFill: Frame? = find(gui, "EnemyFill", "Frame")
+	local divider: Frame? = find(gui, "Divider", "Frame")
+	local face: ImageLabel? = find(gui, "Face", "ImageLabel")
 	BlockButton.Paint(fill, {
+		Edge = EnemyConfig.YouEdge,
+		Center = EnemyConfig.YouCenter,
+		Studs = EnemyConfig.YouStuds,
+	})
+	BlockButton.Paint(enemyFill, {
 		Edge = EnemyConfig.HealthEdge,
 		Center = EnemyConfig.HealthCenter,
 		Studs = EnemyConfig.HealthStuds,
 	})
-
-	local fillTween: Tween? = nil
-	local shownSeconds = -1
-	local isWarning = false
-
-	local function setHealth(health: number, maxHealth: number)
-		local bar = fill
-		if not bar then
-			return
-		end
-		if fillTween then
-			fillTween:Cancel()
-		end
-		local ratio = if maxHealth > 0 then math.clamp(health / maxHealth, 0, 1) else 0
-		local tween = TweenService:Create(
-			bar,
-			TweenInfo.new(EnemyConfig.HealthTweenSeconds),
-			{ Size = UDim2.fromScale(ratio, 1) }
-		)
-		fillTween = tween
-		tween:Play()
+	setPair(gui, youLabel, EnemyConfig.YouText)
+	if face then
+		face.Image = `rbxthumb://type=AvatarHeadShot&id={Players.LocalPlayer.UserId}&w=150&h=150`
 	end
 
-	local function setWarning(warning: boolean)
-		isWarning = warning
-		if timeLabel then
-			local style = if warning then EnemyConfig.TimeWarningStyle else EnemyConfig.TimeNormalStyle
-			Typography.ApplyTextStyle(timeLabel, style)
-		end
-	end
+	local shownShare = EnemyConfig.StartShare
 
-	trove:Add(controller.HealthChanged:Connect(setHealth))
 	trove:Add(controller.FightChanged:Connect(function(view: any)
-		if not view then
-			return
-		end
-		setPair(gui, nameLabel, view.Name)
-		shownSeconds = -1
-		setWarning(false)
-		if fillTween then
-			fillTween:Cancel()
-		end
-		if fill then
-			fill.Size = UDim2.fromScale(1, 1)
+		if view then
+			setPair(gui, nameLabel, view.Name)
+			shownShare = EnemyConfig.StartShare
 		end
 	end))
 	trove:Add(Input.PreferredInput.observe(function(preferred: Enum.PreferredInput)
@@ -102,21 +78,25 @@ function EnemyFight.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		setPair(gui, hintLabel, hint)
 		return nil
 	end))
-	trove:Add(RunService.Heartbeat:Connect(function()
+	trove:Add(RunService.Heartbeat:Connect(function(dt: number)
 		local view = if gui.Enabled then controller:GetFight() else nil
 		if not view then
 			return
 		end
-		local remaining = math.max(view.EndsAt - os.clock(), 0)
-		local seconds = math.ceil(remaining)
-		if seconds == shownSeconds then
-			return
+		local target = 1 - math.clamp(view.Health / math.max(view.MaxHealth, 1e-9), 0, 1)
+		shownShare += (target - shownShare) * math.min(dt * EnemyConfig.BarFollowSpeed, 1)
+		if fill then
+			fill.Size = UDim2.fromScale(shownShare, 1)
 		end
-		shownSeconds = seconds
-		setPair(gui, timeLabel, `{seconds}s`)
-		local warning = remaining <= EnemyConfig.TimeWarningSeconds
-		if warning ~= isWarning then
-			setWarning(warning)
+		if divider then
+			divider.Position = UDim2.fromScale(shownShare, 0.5)
+		end
+		local pulse = 1 + EnemyConfig.TapPulseAmount * math.sin(os.clock() * EnemyConfig.TapPulseSpeed)
+		for _, tap in { tapLeft, tapRight } :: { TextLabel? } do
+			local scale = if tap then tap:FindFirstChildOfClass("UIScale") else nil
+			if scale then
+				scale.Scale = pulse
+			end
 		end
 	end))
 
@@ -130,9 +110,6 @@ function EnemyFight.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			gui.Enabled = false
 		end,
 		Destroy = function(_self: Types.Screen)
-			if fillTween then
-				fillTween:Cancel()
-			end
 			trove:Destroy()
 		end,
 	}
