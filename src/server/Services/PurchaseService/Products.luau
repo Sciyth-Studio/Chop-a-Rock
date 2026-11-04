@@ -78,19 +78,15 @@ for _, product in MonetizationConfig.LuckyGeodeProducts do
 	end
 end
 
-local skipHatchProductId = MonetizationConfig.SkipHatch.ProductId
-if skipHatchProductId then
-	Products[skipHatchProductId] = function(player: Player, services: { [string]: any }): boolean
+for zone, productId in MonetizationConfig.SkipHatch.Products do
+	Products[productId] = function(player: Player, services: { [string]: any }): boolean
 		local geodeService = services.GeodeService
-		if type(geodeService.SkipHatch) ~= "function" then
-			return false
-		end
 		local chosenPad = services.PurchaseService:GetSkipHatchPad(player)
-		if chosenPad and geodeService:SkipHatch(player, chosenPad) then
+		if chosenPad and geodeService:SkipHatch(player, chosenPad, zone) then
 			return true
 		end
 		for padIndex = 1, MonetizationConfig.SkipHatch.PadCount do
-			if padIndex ~= chosenPad and geodeService:SkipHatch(player, padIndex) then
+			if padIndex ~= chosenPad and geodeService:SkipHatch(player, padIndex, zone) then
 				return true
 			end
 		end

@@ -231,6 +231,15 @@ function PurchaseService.GetSkipHatchPad(_self: any, player: Player): number?
 	return skipHatchPads[player]
 end
 
+function PurchaseService.PromptSkipHatch(_self: any, player: Player, padIndex: number, zone: string)
+	local productId = MonetizationConfig.SkipHatch.Products[zone]
+	if not productId then
+		return
+	end
+	skipHatchPads[player] = padIndex
+	MarketplaceService:PromptProductPurchase(player, productId)
+end
+
 function PurchaseService.Init(_self: any, services: { [string]: any })
 	registry = services
 end
@@ -249,16 +258,6 @@ function PurchaseService.Start(_self: any)
 			end
 		end)
 	)
-	trove:Add(Packets.SetSkipHatchPad.OnServerEvent:Connect(function(player: Player, padIndex: number)
-		if
-			type(padIndex) == "number"
-			and padIndex >= 1
-			and padIndex <= MonetizationConfig.SkipHatch.PadCount
-			and padIndex % 1 == 0
-		then
-			skipHatchPads[player] = padIndex
-		end
-	end))
 	Packets.SendGiftCredit.OnServerInvoke = function(player: Player, userId: number, giftKey: string): boolean
 		if type(userId) ~= "number" or type(giftKey) ~= "string" then
 			return false

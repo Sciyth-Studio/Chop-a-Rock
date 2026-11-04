@@ -49,9 +49,10 @@ function TeleportBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			local height = slot.Frame.Size.Y.Scale
 			local column = (index - 1) % fanSettings.Columns
 			local row = (index - 1) // fanSettings.Columns
+			local rowCount = math.min(fanSettings.Columns, #fanSlots - row * fanSettings.Columns)
 			local position = if isOpen
 				then UDim2.fromScale(
-					0.5 + (column - (fanSettings.Columns - 1) / 2) * fanSettings.ColumnSpacingScale,
+					0.5 + (column - (rowCount - 1) / 2) * fanSettings.ColumnSpacingScale,
 					1 + fanSettings.GapScale + height / 2 + row * fanSettings.SpacingScale
 				)
 				else fanCenter

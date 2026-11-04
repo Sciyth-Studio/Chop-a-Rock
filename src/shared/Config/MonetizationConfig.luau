@@ -40,7 +40,7 @@ export type LuckyGeodeProduct = {
 }
 
 export type SkipHatchProduct = {
-	ProductId: number?,
+	Products: { [string]: number },
 	RobuxPrice: number,
 	PadCount: number,
 }
@@ -312,7 +312,18 @@ local MonetizationConfig: MonetizationSettings = {
 	FirstLuckyOfferKey = "FirstLuckyGeode",
 	RandomItemsRestrictedAttribute = "RandomItemsRestricted",
 	SkipHatch = {
-		ProductId = nil,
+		Products = {
+			Forest = 3728039606,
+			Desert = 3728039608,
+			Jungle = 3728039609,
+			Ocean = 3728039611,
+			Snow = 3728039614,
+			Swamp = 3728039618,
+			Savanna = 3728039621,
+			Bamboo = 3728039623,
+			Volcano = 3728039629,
+			Ruins = 3728039630,
+		},
 		RobuxPrice = 9,
 		PadCount = 8,
 	},

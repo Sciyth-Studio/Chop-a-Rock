@@ -87,14 +87,6 @@ function PurchaseController.PromptLucky(_self: any, index: number): boolean
 	return promptProduct(product.ProductId)
 end
 
-function PurchaseController.PromptSkipHatch(_self: any, padIndex: number): boolean
-	local productId = MonetizationConfig.SkipHatch.ProductId
-	if productId then
-		Packets.SetSkipHatchPad:Fire(padIndex)
-	end
-	return promptProduct(productId)
-end
-
 function PurchaseController.PromptStarterPack(_self: any): boolean
 	return promptProduct(MonetizationConfig.StarterPack.ProductId)
 end

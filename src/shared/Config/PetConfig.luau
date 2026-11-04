@@ -23,7 +23,6 @@ export type PetSettings = {
 	PendingCheckSeconds: number,
 	SellValueSeconds: number,
 	ToolScale: number,
-	ToolGrip: CFrame,
 	TraitChance: number,
 	TraitRarities: { [string]: boolean },
 	Traits: { [string]: Trait },
@@ -233,7 +232,6 @@ local PetConfig: PetSettings = {
 	PendingCheckSeconds = 5,
 	SellValueSeconds = 15,
 	ToolScale = 0.6,
-	ToolGrip = CFrame.new(0, -0.3, 0.6),
 	TraitChance = 0.25,
 	TraitRarities = {
 		Epic = true,

@@ -36,6 +36,7 @@ export type GeodeSettings = {
 	PlacePromptText: string,
 	PlaceAllPromptText: string,
 	OpenPromptText: string,
+	SkipPromptText: string,
 	HatchReadyText: string,
 	HatchLabelHeightStuds: number,
 	PickPromptKey: Enum.KeyCode,
@@ -48,7 +49,6 @@ export type GeodeSettings = {
 	FallingMinRarity: string,
 	ToolKeyAttribute: string,
 	ToolScale: number,
-	ToolGrip: CFrame,
 }
 
 local RockConfig = require(script.Parent.RockConfig)
@@ -175,6 +175,7 @@ local GeodeConfig: GeodeSettings = {
 	PlacePromptText = "Place",
 	PlaceAllPromptText = "Place All",
 	OpenPromptText = "Open",
+	SkipPromptText = "Skip Wait",
 	HatchReadyText = "Ready!",
 	HatchLabelHeightStuds = 7,
 	PickPromptKey = Enum.KeyCode.F,
@@ -187,7 +188,6 @@ local GeodeConfig: GeodeSettings = {
 	FallingMinRarity = "Rare",
 	ToolKeyAttribute = "GeodeKey",
 	ToolScale = 0.5,
-	ToolGrip = CFrame.new(0, 0, 0.8),
 }
 
 local baseKeys: { string } = {}

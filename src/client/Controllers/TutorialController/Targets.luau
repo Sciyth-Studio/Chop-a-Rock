@@ -17,6 +17,7 @@ export type Target = {
 	Label: string?,
 	ArriveStuds: number,
 	StopStuds: number?,
+	MarkerHeight: number?,
 }
 
 local Targets = {}
@@ -178,9 +179,11 @@ local function hatchPad(data: any): Target?
 	end
 	local pads = if type(data) == "table" then data.HatchPads else nil
 	local index = 1
+	local hasGeode = false
 	if type(pads) == "table" then
 		for key in pads do
 			index = tonumber(key) or index
+			hasGeode = true
 			break
 		end
 	end
@@ -192,8 +195,9 @@ local function hatchPad(data: any): Target?
 		Position = pad.Position,
 		Goal = standOff(pad.Position, rootPosition()),
 		Adornee = pad :: Instance,
-		Label = "Pad",
+		Label = if hasGeode then nil else "Pad",
 		ArriveStuds = 10,
+		MarkerHeight = if hasGeode then TutorialConfig.HatchMarkerHeight else nil,
 	}
 end
 

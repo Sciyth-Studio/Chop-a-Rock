@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
+local HeldGrip = require(ReplicatedStorage.Utils.HeldGrip)
 
 local Tools = {}
 
@@ -40,7 +41,7 @@ local function build(geodeKey: string): Tool?
 	local tool = Instance.new("Tool")
 	tool.Name = geode.DisplayName
 	tool.CanBeDropped = false
-	tool.Grip = GeodeConfig.ToolGrip
+	tool.Grip = HeldGrip.For(model, handle)
 	tool:SetAttribute(GeodeConfig.ToolKeyAttribute, geodeKey)
 	for _, child in model:GetChildren() do
 		child.Parent = tool

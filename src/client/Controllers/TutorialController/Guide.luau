@@ -211,10 +211,18 @@ function Guide.HidePath(guide: Guide)
 	end
 end
 
-function Guide.DrawMarker(guide: Guide, position: Vector3, adornee: Instance, text: string?, dt: number)
+function Guide.DrawMarker(
+	guide: Guide,
+	position: Vector3,
+	adornee: Instance,
+	text: string?,
+	dt: number,
+	height: number?
+)
 	guide.Clock += dt
 	local bob = math.sin(guide.Clock * TutorialConfig.MarkerBobSpeed) * TutorialConfig.MarkerBobStuds
-	guide.Anchor.CFrame = CFrame.new(position + Vector3.new(0, TutorialConfig.MarkerHeight + bob, 0))
+	guide.Anchor.CFrame =
+		CFrame.new(position + Vector3.new(0, (height or TutorialConfig.MarkerHeight) + bob, 0))
 	guide.Marker.Enabled = true
 	local markerSize = TutorialConfig.MarkerSize
 		* (if guide.IsUrgent then TutorialConfig.IdleMarkerScale else 1)

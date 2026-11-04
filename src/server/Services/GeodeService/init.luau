@@ -50,7 +50,7 @@ local function refresh(player: Player)
 		if not record then
 			empty += 1
 		end
-		HatchPads.Render(pad, player, record, not isPadLocked(pad), geode)
+		HatchPads.Render(pad, player, record, not isPadLocked(pad), geode, HatchPads.CanSkip(data))
 	end
 	local placeAll = placeAllPrompts[plot]
 	if placeAll then
@@ -100,6 +100,11 @@ local function onPad(plot: Model, index: number, player: Player)
 			HatchPads.Clear(context, player, index)
 			services.DataService:RequestSave(player)
 			lockPad(player, pad, seconds)
+		end
+	elseif HatchPads.CanSkip(data) then
+		local geode = GeodeConfig.Geodes[record.GeodeKey]
+		if geode then
+			services.PurchaseService:PromptSkipHatch(player, index, geode.TabName)
 		end
 	end
 end
@@ -169,10 +174,11 @@ function GeodeService.HasBagRoom(_self: any, player: Player): boolean
 	return held < context.Services.PassService:GetBackpackSize(player)
 end
 
-function GeodeService.SkipHatch(_self: any, player: Player, padIndex: number): boolean
+function GeodeService.SkipHatch(_self: any, player: Player, padIndex: number, zone: string): boolean
 	local data = context.Services.DataService:GetData(player)
 	local record = if data then data.HatchPads[tostring(padIndex)] else nil
-	if not record or HatchPads.IsReady(record) then
+	local geode = if record then GeodeConfig.Geodes[record.GeodeKey] else nil
+	if not record or not geode or geode.TabName ~= zone or HatchPads.IsReady(record) then
 		return false
 	end
 	context.Services.DataService:Set(player, { "HatchPads", tostring(padIndex), "ReadyAt" }, os.time())
