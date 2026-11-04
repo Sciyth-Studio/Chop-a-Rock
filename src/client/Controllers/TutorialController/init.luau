@@ -338,7 +338,14 @@ local function update(dt: number)
 		else
 			Guide.DrawPath(current.Guide, { from, target.Goal }, dt, target.StopStuds)
 		end
-		Guide.DrawMarker(current.Guide, target.Position, target.Adornee, target.Label, dt)
+		Guide.DrawMarker(
+			current.Guide,
+			target.Position,
+			target.Adornee,
+			target.Label,
+			dt,
+			target.MarkerHeight
+		)
 	else
 		Guide.HidePath(current.Guide)
 		Guide.HideMarker(current.Guide)
@@ -527,7 +534,14 @@ local function updateHint(dt: number)
 		else
 			Guide.DrawPath(current.Guide, { from, target.Goal }, dt, target.StopStuds)
 		end
-		Guide.DrawMarker(current.Guide, target.Position, target.Adornee, target.Label, dt)
+		Guide.DrawMarker(
+			current.Guide,
+			target.Position,
+			target.Adornee,
+			target.Label,
+			dt,
+			target.MarkerHeight
+		)
 	else
 		Guide.HidePath(current.Guide)
 		Guide.HideMarker(current.Guide)

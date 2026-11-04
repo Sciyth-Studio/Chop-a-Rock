@@ -91,6 +91,10 @@ function EnemyFight.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		Center = EnemyConfig.HealthCenter,
 		Studs = EnemyConfig.HealthStuds,
 	})
+	local healthBar: Frame? = find(gui, "HealthBar", "Frame")
+	if healthBar then
+		healthBar.BackgroundColor3 = EnemyConfig.BarEdgeColor
+	end
 	setPair(gui, youLabel, EnemyConfig.YouText)
 	setPair(gui, banner, EnemyConfig.BannerText)
 	if face then

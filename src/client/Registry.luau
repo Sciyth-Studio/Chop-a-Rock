@@ -16,6 +16,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.EnemyController),
 	require(script.Parent.Controllers.ZoneGeodeController),
 	require(script.Parent.Controllers.ChopAnimationController),
+	require(script.Parent.Controllers.HeldItemController),
 	require(script.Parent.Controllers.HatchController),
 	require(script.Parent.Controllers.TrainingController),
 	require(script.Parent.Controllers.GuideController),

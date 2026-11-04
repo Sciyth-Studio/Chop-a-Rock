@@ -4,6 +4,7 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local HeldGrip = require(ReplicatedStorage.Utils.HeldGrip)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PetAura = require(ServerScriptService.Utils.PetAura)
@@ -49,7 +50,7 @@ local function build(id: string, petKey: string, modifier: string?, income: numb
 	tool.Name = PetSize.Name(petKey, modifier, size)
 	tool.ToolTip = `${NumberFormat.Rate(PetModifier.Rate(petKey, modifier, income))}/s`
 	tool.CanBeDropped = false
-	tool.Grip = PetConfig.ToolGrip.Rotation + PetConfig.ToolGrip.Position * sizeScale
+	tool.Grip = HeldGrip.For(model, handle)
 	tool:SetAttribute(PET_ID_ATTRIBUTE, id)
 	tool:SetAttribute(WeatherConfig.ModifierAttribute, modifier)
 	tool:SetAttribute(PetSizeConfig.Attribute, size)

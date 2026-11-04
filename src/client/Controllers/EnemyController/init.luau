@@ -13,6 +13,7 @@ local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Typography = require(ReplicatedStorage.Utils.Typography)
 local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Arrows = require(script.Arrows)
 local Effects = require(script.Effects)
@@ -84,6 +85,30 @@ local function setVisible(enemy: Motion.Enemy, isVisible: boolean)
 	end
 end
 
+local function addLabel(model: Model, zone: string, height: number)
+	local adornee = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	local template = AssetRegistry.get(EnemyConfig.LabelTemplateKey)
+	if not adornee or not template:IsA("BillboardGui") then
+		template:Destroy()
+		return
+	end
+	local gui = template :: BillboardGui
+	Typography.Apply(gui)
+	gui.Adornee = adornee
+	gui.MaxDistance = EnemyConfig.LabelMaxDistance
+	gui.StudsOffsetWorldSpace = Vector3.new(0, height / 2 + EnemyConfig.LabelGapStuds, 0)
+	for _, descendant in gui:GetDescendants() do
+		if descendant:IsA("TextLabel") then
+			if descendant.Name == "Title" then
+				descendant.Text = string.format(EnemyConfig.GuardianText, zone)
+			else
+				descendant.Visible = false
+			end
+		end
+	end
+	gui.Parent = model
+end
+
 local function spawnEnemy(
 	zone: string,
 	petKey: string,
@@ -135,6 +160,7 @@ local function spawnEnemy(
 	}
 	model:PivotTo(CFrame.lookAt(home, home + Vector3.zAxis))
 	model.Parent = folder
+	addLabel(model, zone, size.Y)
 end
 
 local function click()
@@ -253,11 +279,10 @@ local function onFightStarted(zone: string, maxHealth: number, startHealth: numb
 	if arrowTrove then
 		arrowTrove:Clean()
 	end
-	local pet = PetConfig.Pets[EnemyRules.PetKey(zone)]
 	local now = os.clock()
 	fight = {
 		Zone = zone,
-		Name = if pet then pet.DisplayName else zone,
+		Name = string.format(EnemyConfig.GuardianText, zone),
 		Health = startHealth,
 		MaxHealth = maxHealth,
 		StartedAt = now,

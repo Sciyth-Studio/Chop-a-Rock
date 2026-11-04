@@ -101,7 +101,18 @@ function HatchPads.Clear(context: Types.Context, player: Player, index: number)
 	end
 end
 
-function HatchPads.Render(pad: Types.Pad, owner: Player, record: any, canAct: boolean, nextGeode: any)
+function HatchPads.CanSkip(data: any): boolean
+	return not Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
+end
+
+function HatchPads.Render(
+	pad: Types.Pad,
+	owner: Player,
+	record: any,
+	canAct: boolean,
+	nextGeode: any,
+	canSkip: boolean
+)
 	local part, prompt = pad.Part, pad.Prompt
 	part:SetAttribute("OwnerUserId", owner.UserId)
 	part:SetAttribute("GeodeKey", if record then record.GeodeKey else nil)
@@ -111,8 +122,9 @@ function HatchPads.Render(pad: Types.Pad, owner: Player, record: any, canAct: bo
 		local geode = GeodeConfig.Geodes[record.GeodeKey]
 		Effects.ShowOnPad(pad, if geode then geode.ModelKey else nil)
 		prompt.ObjectText = if geode then geode.DisplayName else ""
-		prompt.ActionText = GeodeConfig.OpenPromptText
-		prompt:SetAttribute("Active", canAct and HatchPads.IsReady(record))
+		local isReady = HatchPads.IsReady(record)
+		prompt.ActionText = if isReady then GeodeConfig.OpenPromptText else GeodeConfig.SkipPromptText
+		prompt:SetAttribute("Active", canAct and (isReady or canSkip))
 	else
 		Effects.ShowOnPad(pad, nil)
 		prompt.ObjectText = if nextGeode then nextGeode.DisplayName else ""

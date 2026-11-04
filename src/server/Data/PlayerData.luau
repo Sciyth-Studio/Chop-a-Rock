@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CannonHint = require(ReplicatedStorage.CannonHint)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
+local PetKeyMigration = require(script.Parent.PetKeyMigration)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Tutorial = require(ReplicatedStorage.Tutorial)
@@ -387,6 +388,7 @@ function PlayerData.PeakStrengthFor(strength: number, rebirths: number): number
 end
 
 function PlayerData.Migrate(data: any)
+	PetKeyMigration.Apply(data)
 	if data.AuraTier == nil and data.ArmTier ~= nil then
 		data.AuraTier = data.ArmTier
 	end

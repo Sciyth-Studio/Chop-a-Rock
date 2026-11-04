@@ -40,7 +40,7 @@ export type LuckyGeodeProduct = {
 }
 
 export type SkipHatchProduct = {
-	ProductId: number?,
+	Products: { [string]: number },
 	RobuxPrice: number,
 	PadCount: number,
 }
@@ -312,7 +312,18 @@ local MonetizationConfig: MonetizationSettings = {
 	FirstLuckyOfferKey = "FirstLuckyGeode",
 	RandomItemsRestrictedAttribute = "RandomItemsRestricted",
 	SkipHatch = {
-		ProductId = nil,
+		Products = {
+			Forest = 3728039606,
+			Desert = 3728039608,
+			Jungle = 3728039609,
+			Ocean = 3728039611,
+			Snow = 3728039614,
+			Swamp = 3728039618,
+			Savanna = 3728039621,
+			Bamboo = 3728039623,
+			Volcano = 3728039629,
+			Ruins = 3728039630,
+		},
 		RobuxPrice = 9,
 		PadCount = 8,
 	},
@@ -320,7 +331,7 @@ local MonetizationConfig: MonetizationSettings = {
 		ProductId = 3722325285,
 		RobuxPrice = 29,
 		Geodes = 20,
-		PetKey = "Champ",
+		PetKey = "Capybara",
 		BoostKey = "Strength",
 		BoostSeconds = 1800,
 		LuckyGeodes = 1,
@@ -384,8 +395,8 @@ local MonetizationConfig: MonetizationSettings = {
 	Exclusives = {
 		Items = {
 			{
-				Key = "Kingy",
-				PetKey = "Kingy",
+				Key = "KingRex",
+				PetKey = "KingRex",
 				ProductId = 3722325299,
 				RobuxPrice = 1499,
 				Stock = 500,
@@ -423,7 +434,7 @@ local MonetizationConfig: MonetizationSettings = {
 		{ Key = "Cash_Large", Kind = "CashPack", Target = "Large", ProductId = 3722325368 },
 		{ Key = "Cash_Huge", Kind = "CashPack", Target = "Huge", ProductId = 3722325369 },
 		{ Key = "Cash_Mega", Kind = "CashPack", Target = "Mega", ProductId = 3722325376 },
-		{ Key = "Exclusive_Kingy", Kind = "Exclusive", Target = "Kingy", ProductId = 3722325382 },
+		{ Key = "Exclusive_Kingy", Kind = "Exclusive", Target = "KingRex", ProductId = 3722325382 },
 	},
 	MaxGiftsReceived = 100,
 	ComingSoonText = "Coming soon!",
