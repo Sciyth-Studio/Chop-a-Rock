@@ -30,197 +30,197 @@ export type PetSettings = {
 
 local PetConfig: PetSettings = {
 	Pets = {
-		Bloky = {
-			DisplayName = "Bloky",
+		Bunny = {
+			DisplayName = "Bunny",
 			Rarity = "Common",
-			ModelKey = "Model_Pet_Bloky",
+			ModelKey = "Model_Pet_Bunny",
 			MoneyPerSecond = 2,
 		},
-		Sprout = {
-			DisplayName = "Sprout",
+		Squirrel = {
+			DisplayName = "Squirrel",
 			Rarity = "Uncommon",
-			ModelKey = "Model_Pet_Sprout",
+			ModelKey = "Model_Pet_Squirrel",
 			MoneyPerSecond = 4,
 		},
-		Shroomy = {
-			DisplayName = "Shroomy",
+		Fox = {
+			DisplayName = "Fox",
 			Rarity = "Rare",
-			ModelKey = "Model_Pet_Shroomy",
+			ModelKey = "Model_Pet_Fox",
 			MoneyPerSecond = 10,
 		},
-		Nesty = {
-			DisplayName = "Nesty",
+		Owl = {
+			DisplayName = "Owl",
 			Rarity = "Epic",
-			ModelKey = "Model_Pet_Nesty",
+			ModelKey = "Model_Pet_Owl",
 			MoneyPerSecond = 24,
 		},
-		Berry = {
-			DisplayName = "Berry",
+		Bear = {
+			DisplayName = "Bear",
 			Rarity = "Legendary",
-			ModelKey = "Model_Pet_Berry",
+			ModelKey = "Model_Pet_Bear",
 			MoneyPerSecond = 60,
 		},
-		Treebo = {
-			DisplayName = "Treebo",
+		Unicorn = {
+			DisplayName = "Unicorn",
 			Rarity = "Secret",
-			ModelKey = "Model_Pet_Treebo",
+			ModelKey = "Model_Pet_Unicorn",
 			MoneyPerSecond = 300,
 		},
-		Pointy = {
-			DisplayName = "Pointy",
+		Gecko = {
+			DisplayName = "Gecko",
 			Rarity = "Common",
-			ModelKey = "Model_Pet_Pointy",
+			ModelKey = "Model_Pet_Gecko",
 			MoneyPerSecond = 120,
 		},
-		Spike = {
-			DisplayName = "Spike",
+		Armadillo = {
+			DisplayName = "Armadillo",
 			Rarity = "Uncommon",
-			ModelKey = "Model_Pet_Spike",
+			ModelKey = "Model_Pet_Armadillo",
 			MoneyPerSecond = 240,
 		},
-		Howdy = {
-			DisplayName = "Howdy",
+		Scorpion = {
+			DisplayName = "Scorpion",
 			Rarity = "Rare",
-			ModelKey = "Model_Pet_Howdy",
+			ModelKey = "Model_Pet_Scorpion",
 			MoneyPerSecond = 600,
 		},
-		Flowy = {
-			DisplayName = "Flowy",
+		Vulture = {
+			DisplayName = "Vulture",
 			Rarity = "Epic",
-			ModelKey = "Model_Pet_Flowy",
+			ModelKey = "Model_Pet_Vulture",
 			MoneyPerSecond = 1440,
 		},
-		Ankhy = {
-			DisplayName = "Ankhy",
+		Camel = {
+			DisplayName = "Camel",
 			Rarity = "Legendary",
-			ModelKey = "Model_Pet_Ankhy",
+			ModelKey = "Model_Pet_Camel",
 			MoneyPerSecond = 3600,
 		},
-		Sunny = {
-			DisplayName = "Sunny",
+		Sphinx = {
+			DisplayName = "Sphinx",
 			Rarity = "Secret",
-			ModelKey = "Model_Pet_Sunny",
+			ModelKey = "Model_Pet_Sphinx",
 			MoneyPerSecond = 18000,
 		},
-		Roly = {
-			DisplayName = "Roly",
+		Monkey = {
+			DisplayName = "Monkey",
 			Rarity = "Common",
-			ModelKey = "Model_Pet_Roly",
+			ModelKey = "Model_Pet_Monkey",
 			MoneyPerSecond = 7680,
 		},
-		Leafy = {
-			DisplayName = "Leafy",
+		Toucan = {
+			DisplayName = "Toucan",
 			Rarity = "Uncommon",
-			ModelKey = "Model_Pet_Leafy",
+			ModelKey = "Model_Pet_Toucan",
 			MoneyPerSecond = 15360,
 		},
-		Viney = {
-			DisplayName = "Viney",
+		Sloth = {
+			DisplayName = "Sloth",
 			Rarity = "Rare",
-			ModelKey = "Model_Pet_Viney",
+			ModelKey = "Model_Pet_Sloth",
 			MoneyPerSecond = 38400,
 		},
-		Coco = {
-			DisplayName = "Coco",
+		Tiger = {
+			DisplayName = "Tiger",
 			Rarity = "Epic",
-			ModelKey = "Model_Pet_Coco",
+			ModelKey = "Model_Pet_Tiger",
 			MoneyPerSecond = 92160,
 		},
-		Tiki = {
-			DisplayName = "Tiki",
+		Gorilla = {
+			DisplayName = "Gorilla",
 			Rarity = "Legendary",
-			ModelKey = "Model_Pet_Tiki",
+			ModelKey = "Model_Pet_Gorilla",
 			MoneyPerSecond = 230400,
 		},
-		Bloomy = {
-			DisplayName = "Bloomy",
+		Panther = {
+			DisplayName = "Panther",
 			Rarity = "Secret",
-			ModelKey = "Model_Pet_Bloomy",
+			ModelKey = "Model_Pet_Panther",
 			MoneyPerSecond = 1152000,
 		},
-		Drip = {
-			DisplayName = "Drip",
+		Crab = {
+			DisplayName = "Crab",
 			Rarity = "Common",
-			ModelKey = "Model_Pet_Drip",
+			ModelKey = "Model_Pet_Crab",
 			MoneyPerSecond = 409600,
 		},
-		Bubbly = {
-			DisplayName = "Bubbly",
+		Clownfish = {
+			DisplayName = "Clownfish",
 			Rarity = "Uncommon",
-			ModelKey = "Model_Pet_Bubbly",
+			ModelKey = "Model_Pet_Clownfish",
 			MoneyPerSecond = 819200,
 		},
-		Shelly = {
-			DisplayName = "Shelly",
+		Turtle = {
+			DisplayName = "Turtle",
 			Rarity = "Rare",
-			ModelKey = "Model_Pet_Shelly",
+			ModelKey = "Model_Pet_Turtle",
 			MoneyPerSecond = 2048000,
 		},
-		Reefy = {
-			DisplayName = "Reefy",
+		Octopus = {
+			DisplayName = "Octopus",
 			Rarity = "Epic",
-			ModelKey = "Model_Pet_Reefy",
+			ModelKey = "Model_Pet_Octopus",
 			MoneyPerSecond = 4915200,
 		},
-		Glowy = {
-			DisplayName = "Glowy",
+		Shark = {
+			DisplayName = "Shark",
 			Rarity = "Legendary",
-			ModelKey = "Model_Pet_Glowy",
+			ModelKey = "Model_Pet_Shark",
 			MoneyPerSecond = 12288000,
 		},
-		Chompy = {
-			DisplayName = "Chompy",
+		Narwhal = {
+			DisplayName = "Narwhal",
 			Rarity = "Secret",
-			ModelKey = "Model_Pet_Chompy",
+			ModelKey = "Model_Pet_Narwhal",
 			MoneyPerSecond = 61440000,
 		},
-		Hexy = {
-			DisplayName = "Hexy",
+		Penguin = {
+			DisplayName = "Penguin",
 			Rarity = "Common",
-			ModelKey = "Model_Pet_Hexy",
+			ModelKey = "Model_Pet_Penguin",
 			MoneyPerSecond = 20971520,
 		},
-		Beanie = {
-			DisplayName = "Beanie",
+		Seal = {
+			DisplayName = "Seal",
 			Rarity = "Uncommon",
-			ModelKey = "Model_Pet_Beanie",
+			ModelKey = "Model_Pet_Seal",
 			MoneyPerSecond = 41943040,
 		},
-		Cozy = {
-			DisplayName = "Cozy",
+		Reindeer = {
+			DisplayName = "Reindeer",
 			Rarity = "Rare",
-			ModelKey = "Model_Pet_Cozy",
+			ModelKey = "Model_Pet_Reindeer",
 			MoneyPerSecond = 120000000,
 		},
-		Stacky = {
-			DisplayName = "Stacky",
+		Walrus = {
+			DisplayName = "Walrus",
 			Rarity = "Epic",
-			ModelKey = "Model_Pet_Stacky",
+			ModelKey = "Model_Pet_Walrus",
 			MoneyPerSecond = 251658240,
 		},
-		Climby = {
-			DisplayName = "Climby",
+		ArcticWolf = {
+			DisplayName = "Arctic Wolf",
 			Rarity = "Legendary",
-			ModelKey = "Model_Pet_Climby",
+			ModelKey = "Model_Pet_ArcticWolf",
 			MoneyPerSecond = 629145600,
 		},
-		Starry = {
-			DisplayName = "Starry",
+		Yeti = {
+			DisplayName = "Yeti",
 			Rarity = "Secret",
-			ModelKey = "Model_Pet_Starry",
+			ModelKey = "Model_Pet_Yeti",
 			MoneyPerSecond = 3145728000,
 		},
-		Champ = {
-			DisplayName = "Champ",
+		Capybara = {
+			DisplayName = "Capybara",
 			Rarity = "Legendary",
-			ModelKey = "Model_Pet_Champ",
+			ModelKey = "Model_Pet_Capybara",
 			MoneyPerSecond = 100,
 			Exclusive = true,
 		},
-		Kingy = {
-			DisplayName = "Kingy",
+		KingRex = {
+			DisplayName = "King Rex",
 			Rarity = "Secret",
-			ModelKey = "Model_Pet_Kingy",
+			ModelKey = "Model_Pet_KingRex",
 			MoneyPerSecond = 100,
 			Exclusive = true,
 			IncomeRule = "BestTimes",

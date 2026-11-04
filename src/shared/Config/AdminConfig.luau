@@ -742,7 +742,7 @@ local AdminConfig: AdminSettings = {
 			Cash = 2400,
 			Strength = 90,
 			AuraTier = 2,
-			Pets = { "Bloky", "Sprout" },
+			Pets = { "Bunny", "Squirrel" },
 		},
 		{
 			Id = "RebirthReady",
@@ -750,7 +750,7 @@ local AdminConfig: AdminSettings = {
 			Cash = 5000,
 			Strength = 100,
 			AuraTier = 3,
-			Pets = { "Bloky", "Sprout", "Shroomy" },
+			Pets = { "Bunny", "Squirrel", "Fox" },
 		},
 		{
 			Id = "Desert",
@@ -760,7 +760,7 @@ local AdminConfig: AdminSettings = {
 			Rebirths = 1,
 			AuraTier = 3,
 			Geodes = { Forest = 3 },
-			Pets = { "Bloky", "Bloky", "Sprout", "Shroomy", "Nesty" },
+			Pets = { "Bunny", "Bunny", "Squirrel", "Fox", "Owl" },
 		},
 		{
 			Id = "LateGame",
@@ -770,7 +770,7 @@ local AdminConfig: AdminSettings = {
 			Rebirths = 3,
 			AuraTier = 5,
 			Geodes = { Forest = 10 },
-			Pets = { "Bloky", "Sprout", "Shroomy", "Nesty", "Berry", "Treebo", "Berry", "Nesty" },
+			Pets = { "Bunny", "Squirrel", "Fox", "Owl", "Bear", "Unicorn", "Bear", "Owl" },
 			CompleteIndex = true,
 		},
 	},

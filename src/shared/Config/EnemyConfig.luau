@@ -142,13 +142,13 @@ export type EnemySettings = {
 
 local EnemyConfig: EnemySettings = {
 	PetKeys = {
-		Forest = "Bloky",
-		Desert = "Pointy",
-		Jungle = "Roly",
-		Ocean = "Drip",
-		Snow = "Hexy",
+		Forest = "Bunny",
+		Desert = "Gecko",
+		Jungle = "Monkey",
+		Ocean = "Crab",
+		Snow = "Penguin",
 	},
-	FallbackPetKey = "Bloky",
+	FallbackPetKey = "Bunny",
 	RingTag = "ZoneGeodeRing",
 	ZoneAttribute = "Zone",
 	GroundRayStuds = 300,

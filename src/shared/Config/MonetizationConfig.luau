@@ -331,7 +331,7 @@ local MonetizationConfig: MonetizationSettings = {
 		ProductId = 3722325285,
 		RobuxPrice = 29,
 		Geodes = 20,
-		PetKey = "Champ",
+		PetKey = "Capybara",
 		BoostKey = "Strength",
 		BoostSeconds = 1800,
 		LuckyGeodes = 1,
@@ -395,8 +395,8 @@ local MonetizationConfig: MonetizationSettings = {
 	Exclusives = {
 		Items = {
 			{
-				Key = "Kingy",
-				PetKey = "Kingy",
+				Key = "KingRex",
+				PetKey = "KingRex",
 				ProductId = 3722325299,
 				RobuxPrice = 1499,
 				Stock = 500,
@@ -434,7 +434,7 @@ local MonetizationConfig: MonetizationSettings = {
 		{ Key = "Cash_Large", Kind = "CashPack", Target = "Large", ProductId = 3722325368 },
 		{ Key = "Cash_Huge", Kind = "CashPack", Target = "Huge", ProductId = 3722325369 },
 		{ Key = "Cash_Mega", Kind = "CashPack", Target = "Mega", ProductId = 3722325376 },
-		{ Key = "Exclusive_Kingy", Kind = "Exclusive", Target = "Kingy", ProductId = 3722325382 },
+		{ Key = "Exclusive_Kingy", Kind = "Exclusive", Target = "KingRex", ProductId = 3722325382 },
 	},
 	MaxGiftsReceived = 100,
 	ComingSoonText = "Coming soon!",
