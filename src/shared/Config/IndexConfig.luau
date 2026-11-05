@@ -91,6 +91,36 @@ local IndexConfig: IndexSettings = {
 					GeodeKey = "Snow",
 					Entries = { "Penguin", "Seal", "Reindeer", "Walrus", "ArcticWolf", "Yeti" },
 				},
+				{
+					Key = "Swamp",
+					DisplayName = "Swamp",
+					GeodeKey = "Swamp",
+					Entries = { "Frog", "Duck", "Snail", "Beaver", "Alligator", "Hydra" },
+				},
+				{
+					Key = "Savanna",
+					DisplayName = "Savanna",
+					GeodeKey = "Savanna",
+					Entries = { "Zebra", "Giraffe", "Rhino", "Elephant", "Cheetah", "Lion" },
+				},
+				{
+					Key = "Bamboo",
+					DisplayName = "Bamboo",
+					GeodeKey = "Bamboo",
+					Entries = { "Beetle", "Koi", "Crane", "Panda", "RedPanda", "MonkeySensei" },
+				},
+				{
+					Key = "Volcano",
+					DisplayName = "Volcano",
+					GeodeKey = "Volcano",
+					Entries = { "Salamander", "ImpCat", "LavaTortoise", "Hellhound", "Dragon", "Phoenix" },
+				},
+				{
+					Key = "Ruins",
+					DisplayName = "Ruins",
+					GeodeKey = "Ruins",
+					Entries = { "Bat", "Raven", "WizardCat", "GuardDog", "Minotaur", "NineTailedFox" },
+				},
 			},
 		},
 		{

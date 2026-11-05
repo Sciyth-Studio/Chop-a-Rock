@@ -8,12 +8,29 @@ local GeodeOrder = {}
 local function sorted(isRobuxOnly: boolean): { string }
 	local keys: { string } = {}
 	for key, geode in GeodeConfig.Geodes do
-		if not geode.IsFalling and (geode.RobuxOnly == true) == isRobuxOnly then
+		if not geode.IsFalling and not geode.IsSecondLook and (geode.RobuxOnly == true) == isRobuxOnly then
 			table.insert(keys, key)
 		end
 	end
 	table.sort(keys, function(a: string, b: string): boolean
 		return GeodeConfig.Geodes[a].Order < GeodeConfig.Geodes[b].Order
+	end)
+	return keys
+end
+
+local function sortedWithSecondLooks(): { string }
+	local keys: { string } = {}
+	for key, geode in GeodeConfig.Geodes do
+		if not geode.IsFalling and not geode.RobuxOnly then
+			table.insert(keys, key)
+		end
+	end
+	table.sort(keys, function(a: string, b: string): boolean
+		local orderA, orderB = GeodeConfig.Geodes[a].Order, GeodeConfig.Geodes[b].Order
+		if orderA ~= orderB then
+			return orderA < orderB
+		end
+		return a < b
 	end)
 	return keys
 end
@@ -53,7 +70,7 @@ end
 
 function GeodeOrder.All(): { string }
 	local keys: { string } = {}
-	for _, group in { GeodeOrder.SortedLucky(), sortedFalling(), GeodeOrder.Sorted() } do
+	for _, group in { GeodeOrder.SortedLucky(), sortedFalling(), sortedWithSecondLooks() } do
 		for index = #group, 1, -1 do
 			table.insert(keys, group[index])
 		end

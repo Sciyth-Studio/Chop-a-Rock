@@ -52,11 +52,16 @@ local ZoneGeodeConfig: ZoneGeodeSettings = {
 	BagFullText = "Bag full! Sell Pets",
 	FolderName = "ZoneGeodes",
 	Zones = {
-		Forest = { Looks = { "Model_Geode_Basic", "Model_Geode_Basic" } },
-		Desert = { Looks = { "Model_Geode_Desert", "Model_Geode_Desert" } },
-		Jungle = { Looks = { "Model_Geode_Jungle", "Model_Geode_Jungle" } },
-		Ocean = { Looks = { "Model_Geode_Ocean", "Model_Geode_Ocean" } },
-		Snow = { Looks = { "Model_Geode_Snow", "Model_Geode_Snow" } },
+		Forest = { Looks = { "Forest", "ForestB" } },
+		Desert = { Looks = { "Desert", "DesertB" } },
+		Jungle = { Looks = { "Jungle", "JungleB" } },
+		Ocean = { Looks = { "Ocean", "OceanB" } },
+		Snow = { Looks = { "Snow", "SnowB" } },
+		Swamp = { Looks = { "Swamp", "SwampB" } },
+		Savanna = { Looks = { "Savanna", "SavannaB" } },
+		Bamboo = { Looks = { "Bamboo", "BambooB" } },
+		Volcano = { Looks = { "Volcano", "VolcanoB" } },
+		Ruins = { Looks = { "Ruins", "RuinsB" } },
 	},
 }
 

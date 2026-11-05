@@ -152,7 +152,7 @@ local RobuxShopConfig: RobuxShopSettings = {
 		{ Text = "Gold VIP base", Icon = IconConfig.Money },
 	},
 	Texts = {
-		LuckyTitle = "Lucky Geode!",
+		LuckyTitle = "Lucky Egg!",
 		LuckySubtitle = "Modifier guaranteed!",
 		LuckyRibbon = "New!",
 		ServerTitle = "Server %s",

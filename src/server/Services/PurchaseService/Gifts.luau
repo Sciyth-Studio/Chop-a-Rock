@@ -58,7 +58,7 @@ function Gifts.DisplayName(gift: MonetizationConfig.Gift): string
 	elseif gift.Kind == "Lucky" then
 		local product = MonetizationConfig.LuckyGeodeProducts[gift.Index or 2]
 		local count = if product then product.Count else 1
-		return if count == 1 then "a Lucky Geode" else `{count} Lucky Geodes`
+		return if count == 1 then "a Lucky Egg" else `{count} Lucky Eggs`
 	elseif gift.Kind == "CashPack" then
 		return `a {gift.Target} cash pack`
 	elseif gift.Kind == "Exclusive" then

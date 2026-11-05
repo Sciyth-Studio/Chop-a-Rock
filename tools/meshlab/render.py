@@ -45,6 +45,16 @@ nt = mat.node_tree
 bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
 attr = nt.nodes.new("ShaderNodeVertexColor")
 nt.links.new(attr.outputs[0], bsdf.inputs[0])
+PAINT = os.environ.get("MESHLAB_PAINT")  # a painted body texture, multiplied by the vertex colours
+if PAINT:
+    painted = nt.nodes.new("ShaderNodeTexImage")
+    painted.image = bpy.data.images.load(PAINT)
+    both = nt.nodes.new("ShaderNodeMixRGB")
+    both.blend_type = "MULTIPLY"
+    both.inputs[0].default_value = 1
+    nt.links.new(painted.outputs[0], both.inputs[1])
+    nt.links.new(attr.outputs[0], both.inputs[2])
+    nt.links.new(both.outputs[0], bsdf.inputs[0])
 bsdf.inputs["Roughness"].default_value = 0.68
 for name in ("Specular IOR Level", "Specular"):
     if name in bsdf.inputs:

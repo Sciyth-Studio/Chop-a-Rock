@@ -46,9 +46,9 @@ Tutorial.Funnel = {
 Tutorial.Titles = {
 	[Tutorial.Train] = "Break the boards!",
 	[Tutorial.Chop] = "Chop some rocks!",
-	[Tutorial.GetGeode] = "Grab a geode!",
-	[Tutorial.Place] = "Place your geode!",
-	[Tutorial.Open] = "Open your geode!",
+	[Tutorial.GetGeode] = "Grab an egg!",
+	[Tutorial.Place] = "Place your egg!",
+	[Tutorial.Open] = "Open your egg!",
 	[Tutorial.Final] = "You're ready! Go chop!",
 }
 

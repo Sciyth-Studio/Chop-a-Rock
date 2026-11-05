@@ -206,7 +206,7 @@ local MonetizationConfig: MonetizationSettings = {
 		{
 			Key = "Luck",
 			DisplayName = "2x Luck",
-			Blurb = "Twice the luck on every geode you crack",
+			Blurb = "Twice the luck on every egg you hatch",
 			GamepassId = 2052498180,
 			RobuxPrice = 299,
 		},

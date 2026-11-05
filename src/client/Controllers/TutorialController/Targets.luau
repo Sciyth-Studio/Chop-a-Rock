@@ -167,7 +167,7 @@ local function nearestZoneGeode(): Target?
 		Position = position,
 		Goal = standOff(position, from),
 		Adornee = nearest :: Instance,
-		Label = "Geode",
+		Label = "Egg",
 		ArriveStuds = ZoneGeodeConfig.PromptRangeStuds,
 	}
 end

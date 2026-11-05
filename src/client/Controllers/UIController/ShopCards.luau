@@ -163,7 +163,7 @@ function ShopCards.FillStarter(inner: Instance, strength: number, isRestricted: 
 	if not isRestricted then
 		table.insert(
 			entries,
-			{ Icon = IconConfig.LuckyGeode, Label = "Lucky Geode", Income = "", Outline = true }
+			{ Icon = IconConfig.LuckyGeode, Label = "Lucky Egg", Income = "", Outline = true }
 		)
 	end
 	table.insert(entries, {
@@ -238,7 +238,7 @@ function ShopCards.GiftInfo(gift: MonetizationConfig.Gift): GiftInfo?
 		local product = MonetizationConfig.LuckyGeodeProducts[gift.Index or 2]
 		if product then
 			return {
-				Name = if product.Count == 1 then "Lucky Geode" else `{product.Count} Lucky Geodes`,
+				Name = if product.Count == 1 then "Lucky Egg" else `{product.Count} Lucky Eggs`,
 				Icon = IconConfig.LuckyGeode,
 				HasOutline = true,
 				Price = product.RobuxPrice,

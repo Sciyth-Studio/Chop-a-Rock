@@ -14,6 +14,7 @@ local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 type Geode = {
 	Id: number,
 	Zone: string,
+	Key: string,
 	Position: Vector3,
 	IsFighting: boolean,
 }
@@ -102,13 +103,15 @@ local function place(player: Player, zone: string, position: Vector3)
 		return
 	end
 	nextId += 1
-	geodes[nextId] = { Id = nextId, Zone = zone, Position = position, IsFighting = false }
+	local look = random:NextInteger(1, #zoneConfig.Looks)
+	geodes[nextId] =
+		{ Id = nextId, Zone = zone, Key = zoneConfig.Looks[look], Position = position, IsFighting = false }
 	services.RockService:BlockSpot(player, blockOwner(nextId), zone, position, blockRadius(zone))
 	Packets.ZoneGeodeSpawned:FireClient(
 		player,
 		nextId,
 		zone,
-		random:NextInteger(1, #zoneConfig.Looks),
+		look,
 		position,
 		random:NextNumber(0, math.pi * 2)
 	)
@@ -151,7 +154,7 @@ local function grant(player: Player, geode: Geode)
 		services.NotificationService:Notify(player, "Error", ZoneGeodeConfig.BagFullText, IconConfig.Backpack)
 		return
 	end
-	if not services.GeodeService:GrantGeodes(player, geode.Zone, 1) then
+	if not services.GeodeService:GrantGeodes(player, geode.Key, 1) then
 		return
 	end
 	geodes[geode.Id] = nil

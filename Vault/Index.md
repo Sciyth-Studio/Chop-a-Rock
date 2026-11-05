@@ -68,6 +68,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Shop Stall Reference]] — striped-awning market stall sheet for the lobby shops; three meshes for recolouring
 - [[Stand Name Signs]] — shop / "Wood Training" name billboards (Arm Shop deleted 2026-10-18) above the stands; BillboardGuis don't show in screen_capture
 - [[Geode Reference]] — closed + split geode sheets; flat chipped faces, no bumps, crystals are a separate rarity-coloured part
+- [[Egg Lineups]] — 2026-11-05 ChatGPT lineups for the 20 zone eggs, what to take from each; modelled in meshlab with Lune
 - [[Geode Stand Reference]] — per-zone pedestal geodes are bought from; tapered stone plinth with corner crystals
 - [[Hatch Reveal Reference]] — the old full-screen Pet reveal (big name, odds %, NEW!, sunburst, money stat); the card was replaced 2026-11-03 by an in-world label, the geode's hover, white and rarity steps stay
 - [[Free Camera Hatch Reference]] — 2026-11-03 frames from the user's clip: the egg opens where it sits while you walk and turn the camera, then the Pet stands there with its name and $/s
@@ -188,6 +189,7 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Auto Open At The Pit]] — 2026-10-24: auto-open pass = hands-off cracking at your own pit (second prompt), owned geodes only, model quality mix, no auto-sell, 199 R$; `AutoOpenGeodePlan.md`, built 2026-10-28 (see [[Auto Open]])
 - [[World 1 Plan]] — 2026-10-29: zones 6-10 Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins; stands Meteor/Sun/Black Hole/Galaxy; always-awake co-op Golem boss opens world 2; never time-gate a milestone; `World1Plan.md`
 - [[Zone Geodes And Enemies]] — 2026-11-03, approved, not built: free geodes in zones guarded by a personal enemy (spam click, launched if you lose), 8 hatch pads at a remodelled base, 8 best Pets pay your account; shop, cracking, pity, Auto Open and Wild Geodes go; `ZoneGeodesPlan.md`
+- [[Eggs Replace Geodes]] — 2026-11-05: two egg models per zone replace the geodes, each dressed from a zone rock, second item key per zone so the look stays; players see "egg", code keeps `Geode`; all ten zones switched over and playtested by Claude 2026-11-05, zones 6-10 Pets and odds are drafts; `EggModelsPlan.md`
 - [[Geodes As Inventory Items]] — 2026-11-03: geodes are held items (hotbar first, Pets panel), placed and opened on hatch pads with the camera free and an in-world Pet label; Geode Fall is a plain pickup that keeps Rare or better; zone geodes spawn anywhere in the zone
 - [[Rock Props Reuse Decor]] — 2026-10-31: a rock prop that exists as zone decor (acacia, bamboo, cattails, termite mound...) uses the real meshlab decor mesh, white + `2022 Stud` so vertex colours show; MeshSlicer keeps those colours on live cuts
 

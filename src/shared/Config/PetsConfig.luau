@@ -26,7 +26,7 @@ local PetsConfig: PetsSettings = {
 		FieldOfView = 30,
 		CameraPadding = 0.85,
 	},
-	EmptyText = "No Pets yet! Crack a geode",
+	EmptyText = "No Pets yet! Hatch an egg",
 	NoMatchText = "No Pets found",
 }
 

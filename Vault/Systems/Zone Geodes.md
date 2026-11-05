@@ -19,14 +19,12 @@ Step 5 of `ZoneGeodesPlan.md`, the spawning half ([[Zone Geodes And Enemies]]). 
 - Spots avoid the inner 35% of the ring (the enemy's home), keep 30 studs x zone scale between a player's geodes (draft, was 10), 6 studs from the player, and clear of that player's rocks (`IsClearOfRocks`). Each geode also blocks its spot for that player's new rocks only (`RockService:BlockSpot`, `UnblockSpot`).
 - Taking one (`ZoneGeodeTake`) checks range, not busy chopping, the tutorial, Strength at least the zone's weakest rock ("Get stronger!") and bag room, then calls `EnemyService:RequestFight`. "Won" or "Fled" grants through `GeodeService:GrantGeodes(player, zone, 1)`, rechecking bag room.
 - Bag rule: `GeodeService:HasBagRoom`: Pets + `data.Geodes` + entries in `data.HatchPads` must stay under the Backpack size.
-- Looks: `ZoneGeodeConfig.Zones[zone].Looks` lists 2 model keys per zone, picked at random per spawn. Both are the zone's old geode model until the 20 look models exist. Purely visual.
+- Looks: `ZoneGeodeConfig.Zones[zone].Looks` lists 2 item keys per zone (`Forest`, `ForestB`), picked at random per spawn; the one that spawned is the one you get. Models are the eggs ([[Eggs Replace Geodes]]). Purely visual.
 - Admin: "Spawn Zone Geode" (Events tab, `zonegeode`) puts one in front of you, in the zone you're standing in. It can go over the 4; no replacement spawns until the zone drops below 4.
 
 ## Temporary or unfinished
 - `ZoneGeodeConfig.GrantWithoutEnemyService = true`: while `EnemyService` isn't registered, taking a geode is an instant win. Set it to false once enemies are merged (it does nothing then anyway, since the service exists).
-- **Zones 6-10 have rings but no geodes:** they have no `GeodeConfig` entry or models. To add one: `GeodeConfig` entry plus a `ZoneGeodeConfig.Zones` line.
 - **Tutorial:** geodes can't be taken while the tutorial runs (server check in `onTake`, prompt check in the controller). The new "Get Geode" tutorial step must lift both.
-- **Look isn't saved:** `GrantGeodes` takes only a key, so the look a player picked up doesn't reach the bag or `HatchPads[slot].Look`.
 
 Related: [[Rock Spawning]], [[Zone Line]], [[Admin Panel]], [[Geode Shop]]
 

@@ -43,11 +43,12 @@ end
 
 local function buildModel(zone: string, look: number): Model?
 	local zoneConfig = ZoneGeodeConfig.Zones[zone]
-	local key = if zoneConfig then zoneConfig.Looks[look] else nil
-	if not key then
+	local geodeKey = if zoneConfig then zoneConfig.Looks[look] else nil
+	local geode = if geodeKey then GeodeConfig.Geodes[geodeKey] else nil
+	if not geode then
 		return nil
 	end
-	local asset = AssetRegistry.get(key)
+	local asset = AssetRegistry.get(geode.ModelKey)
 	if not asset:IsA("Model") or not asset.PrimaryPart then
 		asset:Destroy()
 		return nil
