@@ -29,6 +29,8 @@ Status: **approved 2026-10-29**. The user and Claude planned it together in chat
 ## 3. Zones
 Every zone gets what Jungle, Ocean and Snow got: a floor and terrace walls, an entrance sign, a spawn area, 3 chop rocks with splits and previews, 6 Pets, a geode, an Index page, decor, floor decor, an admin warp and a cannon. Colours are drafts. Each zone's six Pets share one body colour ([[Coloured Pets After Forest]]).
 
+**2026-11-03:** Pets are now blocky animals in natural colours. `AnimalPetsPlan.md` replaces the Pet looks, names and body colours below; $/s and odds still stand.
+
 ### 6. Swamp
 Floor is murky dark green (~50, 70, 40). Decor is Stump, Mushroom and Bush reused, plus cattails, lily pads and dead bare trees. Pets are **moss green** (~120, 170, 30).
 

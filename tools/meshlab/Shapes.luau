@@ -90,6 +90,19 @@ local FACES = { -- normal, u, v (u x v = normal)
 function Shapes:bevelBox(cf, size, color, bevel)
 	local em, V3, V2, P = self.em, self.V3, self.V2, Shapes.PITCH
 	local cid = self:colorId(color)
+	if Shapes.stagger then
+		local step = Shapes.stagger.Count % 7
+		Shapes.stagger.Count += 1
+		local function narrowed(length)
+			if length < 0.35 then
+				return length
+			end
+			return length - math.min(step * 0.06, length * 0.25)
+		end
+		local grow = math.min(step * 0.03, math.max(size.Y, 0.2) * 0.5)
+		size = V3.new(narrowed(size.X), size.Y + grow, narrowed(size.Z))
+		cf = cf * self.CF.new(0, grow / 2, 0)
+	end
 	self:_occluder(cf, size)
 	local h = size / 2
 	local function comp(v, d)

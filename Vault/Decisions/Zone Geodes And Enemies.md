@@ -16,7 +16,7 @@ Approved by the user 2026-11-03. Full plan with every rule, draft number and bui
 - 2 geode looks per zone, based on the zone's rocks, purely visual.
 - Base remodel: hatch pads in front, a fenced pen on a platform at the back where Pets hop around. The central pit goes.
 - 8 hatch pads, none to buy. 8 best Pets earn, paid straight into your account.
-- Finished geodes wait until you open them. Skip wait is one dev product, 9 R$ per geode, no skip-all.
+- Finished geodes wait until you open them. Skip wait is one dev product per zone since 2026-11-03 ("Skip Wait - Zone #", user's call), 9 R$ per geode for now, no skip-all. The hatch pad's prompt offers it while a geode hatches, except during the tutorial.
 - Pets stay through rebirth. 4 geodes out per zone.
 - Removed: chop-quality luck, pity, Auto Open (nobody owned the pass). Kept: [[Geode Fall]].
 

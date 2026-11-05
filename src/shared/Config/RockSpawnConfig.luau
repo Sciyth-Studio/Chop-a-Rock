@@ -54,35 +54,35 @@ local RockSpawnConfig: RockSpawnSettings = {
 			Weights = { DesertFirst = 50, DesertSecond = 30, DesertThird = 20 },
 		},
 		Jungle = {
-			RockCount = 25,
+			RockCount = 20,
 			Weights = { JungleFirst = 50, JungleSecond = 30, JungleThird = 20 },
 		},
 		Ocean = {
-			RockCount = 25,
+			RockCount = 18,
 			Weights = { OceanFirst = 50, OceanSecond = 30, OceanThird = 20 },
 		},
 		Snow = {
-			RockCount = 25,
+			RockCount = 16,
 			Weights = { SnowFirst = 50, SnowSecond = 30, SnowThird = 20 },
 		},
 		Swamp = {
-			RockCount = 25,
+			RockCount = 16,
 			Weights = { SwampFirst = 50, SwampSecond = 30, SwampThird = 20 },
 		},
 		Savanna = {
-			RockCount = 25,
+			RockCount = 15,
 			Weights = { SavannaFirst = 50, SavannaSecond = 30, SavannaThird = 20 },
 		},
 		Bamboo = {
-			RockCount = 25,
+			RockCount = 14,
 			Weights = { BambooFirst = 50, BambooSecond = 30, BambooThird = 20 },
 		},
 		Volcano = {
-			RockCount = 25,
+			RockCount = 15,
 			Weights = { VolcanoFirst = 50, VolcanoSecond = 30, VolcanoThird = 20 },
 		},
 		Ruins = {
-			RockCount = 25,
+			RockCount = 12,
 			Weights = { RuinsFirst = 50, RuinsSecond = 30, RuinsThird = 20 },
 		},
 	},

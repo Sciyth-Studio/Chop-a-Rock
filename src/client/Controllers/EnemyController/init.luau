@@ -147,7 +147,7 @@ local function spawnEnemy(
 		Height = size.Y,
 		Radius = math.max(size.X, size.Z) / 2,
 		Position = home,
-		Facing = Vector3.zAxis,
+		Facing = EnemyConfig.HomeFacing,
 		State = "Home",
 		StateAt = os.clock(),
 		From = home,
@@ -158,7 +158,7 @@ local function spawnEnemy(
 		AreaMax = areaMax,
 		FleeTo = home,
 	}
-	model:PivotTo(CFrame.lookAt(home, home + Vector3.zAxis))
+	model:PivotTo(CFrame.lookAt(home, home + EnemyConfig.HomeFacing))
 	model.Parent = folder
 	addLabel(model, zone, size.Y)
 end

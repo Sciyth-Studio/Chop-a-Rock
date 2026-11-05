@@ -27,6 +27,7 @@ Built by Claude when the user asks. Everything else in the world is built by the
 - Clone the previous zone's `ZoneTemplate` (Floor plus `Walls`), drop `ZoneEntrance`, and move the clone +168 on Z per zone. Parent it to `Workspace.Zones.Zone<Name>` (folder) as `ZoneTemplate`.
 - The floor is 168 x 1 x 220 rotated -90°, so the zone runs along X (x -68 to 152), and it is 168 deep on Z. The walls are two terraces at x -98 and x 182, each three stacked layers: `ThirdLayerWall` (bottom, 16 tall), `SecondLayerWall` (15) and `FirstLayerWall` (the 4-stud cap). All of them are Glacier with the `2022 Stud` MaterialVariant and six faint black stud `Texture`s, which come along with the clone.
 - Colours: the cap is the same colour as the floor. The two lower layers are the zone's cliff colour, middle lighter than bottom. Keep the zone's palette in [[Zone Line]].
+- Each terrace also has a `RetainingWall` on its outer edge, in the cap colour. A zone at scale s has one 64s tall and 8s thick, rounded to whole studs ([[Zone Line]]).
 - Wrap the edit in `ChangeHistoryService:TryBeginRecording` / `FinishRecording` so the user can undo it. Check the result with `screen_capture` from above, then tell the user to save the place.
 
 ```lua
@@ -38,6 +39,7 @@ for _, wall in template.Walls:GetChildren() do
 	wall.FirstLayerWall.Color = top
 	wall.SecondLayerWall.Color = middle
 	wall.ThirdLayerWall.Color = bottom
+	wall.RetainingWall.Color = top
 end
 ```
 

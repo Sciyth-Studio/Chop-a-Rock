@@ -1,8 +1,10 @@
 ---
-description: Pet rocks (Pets) must read as rocks with eyes, not animals made of rock; themes come from props, plants and rock formations.
+description: Superseded 2026-11-03 by Animal Pets; describes the rock Pets still in the game. New Pets are blocky animals.
 type: preference
 ---
 # Pets stay rocks
+
+**Superseded 2026-11-03 by [[Animal Pets]]:** the user chose blocky animals. This note only describes the rock Pets until the swap ships. Don't apply it to new Pets.
 
 The user doesn't want Pets to drift into "animal but rock" territory (2026-10-04). A first pet lineup had an owl rock, a deer rock, a tortoise, a scorpion and cactus arms, and the user pushed back.
 

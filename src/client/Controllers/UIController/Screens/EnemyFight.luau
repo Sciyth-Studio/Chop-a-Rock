@@ -4,7 +4,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
@@ -81,19 +82,11 @@ function EnemyFight.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local result: TextLabel? = find(gui, "Result", "TextLabel")
 	local words: Frame? = find(gui, "Words", "Frame")
 	local wordTemplate: TextLabel? = find(gui, "WordTemplate", "TextLabel")
-	BlockButton.Paint(fill, {
-		Edge = EnemyConfig.YouEdge,
-		Center = EnemyConfig.YouCenter,
-		Studs = EnemyConfig.YouStuds,
-	})
-	BlockButton.Paint(enemyFill, {
-		Edge = EnemyConfig.HealthEdge,
-		Center = EnemyConfig.HealthCenter,
-		Studs = EnemyConfig.HealthStuds,
-	})
-	local healthBar: Frame? = find(gui, "HealthBar", "Frame")
-	if healthBar then
-		healthBar.BackgroundColor3 = EnemyConfig.BarEdgeColor
+	if fill then
+		fill.BackgroundColor3 = ChopStyleConfig.Qualities[ChopQuality.Good].Color
+	end
+	if enemyFill then
+		enemyFill.BackgroundColor3 = ChopStyleConfig.Qualities[ChopQuality.Bad].Color
 	end
 	setPair(gui, youLabel, EnemyConfig.YouText)
 	setPair(gui, banner, EnemyConfig.BannerText)

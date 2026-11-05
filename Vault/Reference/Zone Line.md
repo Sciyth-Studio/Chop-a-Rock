@@ -4,7 +4,35 @@ type: reference
 ---
 # Zone line
 
-## Scaled zones (2026-10-30)
+## Length-only zones (2026-11-04)
+The user found the x1.15 scaling ugly, so every zone now has the Forest's width and height and only length grows. This replaces the tables and sizes further down this note. Rocks, enemies and geodes still scale x1.15 per zone. Not playtested.
+
+Floor x -68 to 152 (220 wide), terraces 90 wide, terrace top 36, `RetainingWall` 64 tall and 8 thick in every zone.
+
+| Zone | Length | Z range | Rocks |
+|---|---|---|---|
+| Forest | 168 | -195 to -27 | 25 |
+| Desert | 207 | -27 to 180 | 25 |
+| Jungle | 256 | 180 to 436 | 20 |
+| Ocean | 315 | 436 to 751 | 18 |
+| Snow | 500 | 751 to 1251 | 16 |
+| Swamp | 540 | 1251 to 1791 | 16 |
+| Savanna | 591 | 1791 to 2382 | 15 |
+| Bamboo | 729 | 2382 to 3111 | 14 |
+| Volcano | 899 | 3111 to 4010 | 15 |
+| Ruins | 1108 | 4010 to 5118 | 12 |
+| Boss arena | unchanged | floor from 5118 | |
+
+- Lengths are about 168 x scale^1.5. Snow is longer than that because its rocks are unusually big. Rock counts come from a packing simulation of `RockSpawnConfig` rules with the real floor decor positions.
+- `ZoneGeodeRing` is 30 radius everywhere and centred in the zone; a scaled ring nearly filled the floor.
+- Terrace `Decor` is 10x the original prop size since 2026-11-04 (user: the small props looked too small), and far fewer: 121 in all, in one loose row per terrace (Forest 4, Desert 6, Jungle 3, Ocean 8, Snow 8, Swamp 13, Savanna 11, Bamboo 18, Volcano 15, Ruins 24). Trees are wider than the terrace, so they overhang the floor edge and poke through the `RetainingWall`. They are CanQuery off, so rock spots ignore them.
+- `FloorDecor` is 3x the original prop size and 5 props per zone, the ones nearest the walls. It's collidable and blocks rock spots, so adding or growing floor props means rechecking rock counts.
+- Ruins has no `RuneStone` decor since 2026-11-04 (user: it gets old fast; Pillar and StatueHead stay). The carved `Runes` on the `RuinsFirst` rock are separate and still there.
+- Ruins terraces: 6 Pillar, 6 StatueHead, 4 each of Archway, RuinedWall and FallenColumn ([[Meshlab]]). The new three lie lengthwise along the terrace, front facing the floor, within 10° of square. The rows are nearly full, so another prop means dropping one.
+- Boss arena moved +1901 on Z and kept its size, so it is much wider than the Ruins.
+- Backup of the old zones, teleport points and warps: `ServerStorage.ZonesBackup_BeforeLengthOnly`.
+
+## Scaled zones (2026-10-30, replaced above)
 Built from [[Rock Breaking Scale]] (`RockBreakingPlan.md` D1-D4). Each zone n is scaled 1.15^(n-1) about its near-edge centre at floor level (x 42, y 1), then butted against the previous zone. Floors, terraces and spawn areas were snapped back to whole studs, the floor kept 1 thick (y 0 to 1), and the terrace decor moved to the new terrace tops. Textures kept their 8-stud tiles. **The sizes and z ranges further down this note are from before the scaling.** The scale is only in the map so far; rocks, chop camera and snap don't read it yet.
 
 | Zone | Scale | Floor (Z deep x X wide) | Z range | X range | Terrace top |
@@ -26,6 +54,26 @@ Built from [[Rock Breaking Scale]] (`RockBreakingPlan.md` D1-D4). Each zone n is
 - Moved with their zones: `TeleportPoints.CannonJungle/Ocean/Snow` (z 180 / 402 / 658) and `AdminWarps.Jungle/Ocean/Snow`. Desert and Forest markers didn't move.
 - After scaling, 24 decor props poked up to 5 studs past a terrace or floor edge (scaled-up copies of props that sat right at an edge) and were nudged 0.5 inside.
 - Not playtested (user said not to test). Rock spot sampling scales with floor area (about 21x the forest's area summed over all zones), so check the server-start time in the `[RockService] ... spawn spots` lines, and the strip-full warnings.
+
+## Retaining walls (2026-11-04)
+The user added a `RetainingWall` to each Forest terrace (`ZoneTemplate.Walls.<side>.RetainingWall`), 64 tall and 8 thick, in the terrace cap colour, on the terrace's outer edge. Claude cloned it to zones 2-10 at the zone's scale, rounded to whole studs. Each wall runs the zone's full depth and sinks 0.038 into the cap. Colour comes from that zone's `FirstLayerWall`.
+
+| Zone | Height | Thickness |
+|---|---|---|
+| Forest | 64 | 8 |
+| Desert | 74 | 9 |
+| Jungle | 85 | 11 |
+| Ocean | 97 | 12 |
+| Snow | 112 | 14 |
+| Swamp | 129 | 16 |
+| Savanna | 148 | 19 |
+| Bamboo | 170 | 21 |
+| Volcano | 196 | 24 |
+| Ruins | 225 | 28 |
+
+- 21 terrace `Decor` props sat where the walls went and were moved straight inward, 0.5 clear of the wall. One Forest mushroom on the left terrace still pokes into its wall; it wasn't moved.
+- The boss arena has no retaining walls, because it wasn't asked for.
+- From the Desert on, both side models are named `RightWall`, so tell the sides apart by X, not by name.
 
 Zone order (user, 2026-10-07): forest → desert → jungle → ocean → snow. This replaced the earlier planning order (snow before jungle and ocean).
 

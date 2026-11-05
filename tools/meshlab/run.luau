@@ -21,6 +21,8 @@ local seed = tonumber(process.args[2])
 -- a seed (for models that vary, like trees) is passed as lib.seed and suffixes the output
 local name = seed and `{modelName}_s{seed}` or modelName
 
+Shapes.stagger = if string.sub(modelName, 1, 5) == "Decor" then { Count = 0 } else nil
+
 local em = Shim.new()
 local parts, order = {}, {}
 local function part(partName)

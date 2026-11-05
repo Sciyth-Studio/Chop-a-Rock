@@ -40,3 +40,5 @@ Related: [[Rebirth Gated By Strength]], [[Auras]], [[Zone Line]], [[Diamond Rock
 | Statue Boulder | 175,165,140 | stone fist 145,145,140 |
 
 **2026-11-01 Pet prompts:** lineup + six sheet prompts for each zone 6-10 are in `assets/Pets/<Zone>/Prompts.md` (Swamp, Savanna, Bamboo, Volcano, Ruins), Snow's format, body colours from the zone tables above. Not run yet.
+
+**2026-11-03 Pets:** zone 6-10 Pets are now blocky animals, see [[Animal Pets]] and `AnimalPetsPlan.md`. Those prompts and the Pet looks and body colours in `World1Plan.md` still describe rocks, so use `assets/Pets/Animals/<Zone>.md` instead. Income and odds stand.

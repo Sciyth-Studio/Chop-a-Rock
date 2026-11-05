@@ -9,7 +9,7 @@ The user asked (2026-10-06) for 6 bases in a horseshoe on `LobbyFloor`, placed f
 ## Layout (Studio)
 - `Workspace.BaseSpots` holds `BaseSpot1`–`BaseSpot6` (tag `BaseSpot`): 90 x 0.2 x 90 yellow half-transparent plates, no collide/touch/query. The plot's pivot goes at the plate's **bottom centre**, and the plate's **front face (LookVector) is the base entrance**. To move a base, move its plate. Spots are claimed in name order (`BasePlot1` first).
 - A true circular horseshoe doesn't fit: six 90-stud plots on the 340-stud floor overlap at every radius that stays on the floor. So it's a U. Relative to the floor centre (42, -364.86): sides at x = ±124 (z = 78 and -22) facing inward, back pair at x = ±50, z = -122 facing +Z. Gaps are 10 studs and the outer edges are 1 stud from the floor edge. The open end faces the forest (+Z).
-- Shops: see "Shrunk lobby" below (2026-10-18).
+- Shops: see "Shrunk lobby" below (2026-10-18). Since 2026-11-03 the Sell and Aura shops face each other in one row at z -277, closing the spots the Geode and Cannon shops left; their `TeleportPoints` moved with them.
 - Removed from Workspace: the hand-placed `BasePlot`, the lobby `TrainingStand` and the lobby `SpawnLocation`.
 
 ## Template

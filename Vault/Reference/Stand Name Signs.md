@@ -22,3 +22,4 @@ Gotchas:
 
 See [[UI Text Style]], [[Shop Stall Reference]].
 - 2026-10-18: the Arm Shop stall and its sign were deleted at the user's request; the Geode, Sell and Aura Shop signs remain.
+- 2026-11-04: `Workspace.ExclusiveStand.Pedestal.Billboard` is sized in pixels, so its height in studs changes with camera distance and a plain offset only clears the Pet at one distance. It now pins its bottom edge above King Rex's crown: `StudsOffsetWorldSpace` Y 20.5 (crown top is 18.25 above the part's centre at 3x) and `SizeOffset` (0, 0.5). A billboard's `AbsolutePosition` reads 0, 0 in Edit, so this can't be measured through the MCP.

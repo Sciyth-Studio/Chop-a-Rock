@@ -77,7 +77,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Amber Aura",
 			Price = 3000000,
 			TrainingGainMultiplier = 2.6,
-			WalkSpeedBonus = 10,
+			WalkSpeedBonus = 12,
 			Color = Color3.fromRGB(255, 190, 0),
 		},
 		{
@@ -85,7 +85,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Orange Aura",
 			Price = 250000000,
 			TrainingGainMultiplier = 2.7,
-			WalkSpeedBonus = 12,
+			WalkSpeedBonus = 18,
 			Color = Color3.fromRGB(255, 128, 0),
 		},
 		{
@@ -93,7 +93,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Red-Orange Aura",
 			Price = 20000000000,
 			TrainingGainMultiplier = 2.8,
-			WalkSpeedBonus = 14,
+			WalkSpeedBonus = 23,
 			Color = Color3.fromRGB(255, 64, 0),
 		},
 		{
@@ -101,7 +101,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Red Aura",
 			Price = 1500000000000,
 			TrainingGainMultiplier = 2.9,
-			WalkSpeedBonus = 16,
+			WalkSpeedBonus = 35,
 			Color = Color3.fromRGB(255, 0, 0),
 		},
 		{
@@ -109,7 +109,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Rose Aura",
 			Price = 100e12,
 			TrainingGainMultiplier = 3.0,
-			WalkSpeedBonus = 18,
+			WalkSpeedBonus = 40,
 			Color = Color3.fromRGB(255, 0, 128),
 		},
 		{
@@ -117,7 +117,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Magenta Aura",
 			Price = 8e15,
 			TrainingGainMultiplier = 3.1,
-			WalkSpeedBonus = 20,
+			WalkSpeedBonus = 46,
 			Color = Color3.fromRGB(255, 0, 255),
 		},
 		{
@@ -125,7 +125,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Purple Aura",
 			Price = 600e15,
 			TrainingGainMultiplier = 3.2,
-			WalkSpeedBonus = 22,
+			WalkSpeedBonus = 54,
 			Color = Color3.fromRGB(128, 0, 255),
 		},
 		{
@@ -133,7 +133,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Blue Aura",
 			Price = 45e18,
 			TrainingGainMultiplier = 3.3,
-			WalkSpeedBonus = 24,
+			WalkSpeedBonus = 63,
 			Color = Color3.fromRGB(0, 0, 255),
 		},
 		{
@@ -141,7 +141,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Sky Aura",
 			Price = 3.3e21,
 			TrainingGainMultiplier = 3.4,
-			WalkSpeedBonus = 26,
+			WalkSpeedBonus = 72,
 			Color = Color3.fromRGB(0, 128, 255),
 		},
 		{
@@ -149,7 +149,7 @@ local AuraConfig: AuraSettings = {
 			DisplayName = "Cyan Aura",
 			Price = 25e21,
 			TrainingGainMultiplier = 3.5,
-			WalkSpeedBonus = 28,
+			WalkSpeedBonus = 80,
 			Color = Color3.fromRGB(0, 255, 255),
 		},
 	},

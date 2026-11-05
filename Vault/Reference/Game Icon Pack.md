@@ -19,6 +19,8 @@ Robux shop picks (2026-10-25), in `assets/Icons/Shop/`: Crown 1st (VIP), Red Gif
 
 **Bloky Pet icon (2026-10-31)**, from `assets/Icons/PetIcon/Prompt.md` (attach the style sheet and `assets/Icons/Pet_Bloky.png`): grey Bloky with chamfered-square eyes and studs, in place of the pack's orange blob buddies. ChatGPT gave a clean transparent background this time. In `IconConfig` as `Pet` 109328024320429. Set in Studio on `Toolbar.Bar.PetsToggle` (Icon, IconShadow) and the `Pets` panel header (Icon, IconShadow, IconOutline1-8), replacing the basket (`Bag`); the Geode Stand header still uses the basket. It is shaded a little softer than the flat pack style but reads fine with the outline down to 40 px.
 
+**Pets button paw (2026-11-04):** with the animal Pets the grey rock icon no longer fits, so `Toolbar.Bar.PetsToggle` (Icon, IconShadow) now uses the pack's `Main/Paw/256px/Paw 1st 256px.png`, uploaded as Image `rbxassetid://111696014625309` (loaded in Edit). The Pets panel header (Icon, IconShadow, IconOutline1-8) got the paw too. `IconConfig.Pet` is unused in code and still holds the Bloky icon 109328024320429.
+
 **Shop effect textures (2026-10-25, from the user)** in `assets/Textures/UI/Shop/`, soft alpha kept: `ShineStreaks` 79969058523004 (diagonal shine streaks), `SparkleCross` 119639383812050 (four-point lens-flare star), `SparkleBurst` 90541591019914 (many-pointed starburst). They are not in `IconConfig`; the shop code picks them up.
 
 Related: [[Tile Style Reference]], [[Weather]], [[Asset Ownership]]

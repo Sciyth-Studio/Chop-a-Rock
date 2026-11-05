@@ -1,8 +1,10 @@
 ---
-description: 2026-10-14: only forest Pets have grey bodies; every later zone gives its six Pets one saturated zone body colour (desert = terracotta orange).
+description: Superseded 2026-11-03 by Animal Pets; the zone body colours of the rock Pets still in the game (forest grey, desert amber and so on).
 type: decision
 ---
 # Coloured Pets after the forest (2026-10-14)
+
+**Superseded 2026-11-03 by [[Animal Pets]]:** new Pets use natural animal colours, not a shared zone colour. This note only describes the rock Pets until the swap ships.
 
 The user doesn't want grey Pet bodies in any zone after the forest. The forest six ([[Bloky Reference]] to [[Treebo Reference]]) stay Plastic grey 120.
 

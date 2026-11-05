@@ -56,6 +56,7 @@ function Motion.Set(enemy: Enemy, state: State, now: number)
 		enemy.SlamAt = now + EnemyConfig.SlamEverySeconds
 	elseif state == "Rise" then
 		enemy.Position = enemy.Home
+		enemy.Facing = EnemyConfig.HomeFacing
 	end
 end
 
@@ -118,6 +119,7 @@ function Motion.Step(enemy: Enemy, dt: number, now: number, feet: Vector3?): boo
 		enemy.Facing = flat(enemy.Home - enemy.From, enemy.Facing)
 		pose(enemy, hop(alpha, EnemyConfig.ReturnHopStuds * zoneScale), now)
 		if alpha >= 1 then
+			enemy.Facing = EnemyConfig.HomeFacing
 			Motion.Set(enemy, "Home", now)
 		end
 	elseif enemy.State == "Flee" then
