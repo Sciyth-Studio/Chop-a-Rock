@@ -205,5 +205,253 @@
   "Pet/Kingy": {
     "fbx": "assets/Pets/Kingy/Kingy.fbx",
     "objects": {}
+  },
+  "Pet/Bunny": {
+    "fbx": "assets/Pets/Bunny/Bunny.fbx",
+    "objects": {}
+  },
+  "Pet/Squirrel": {
+    "fbx": "assets/Pets/Squirrel/Squirrel.fbx",
+    "objects": {}
+  },
+  "Pet/Fox": {
+    "fbx": "assets/Pets/Fox/Fox.fbx",
+    "objects": {}
+  },
+  "Pet/Owl": {
+    "fbx": "assets/Pets/Owl/Owl.fbx",
+    "objects": {}
+  },
+  "Pet/Bear": {
+    "fbx": "assets/Pets/Bear/Bear.fbx",
+    "objects": {}
+  },
+  "Pet/Unicorn": {
+    "fbx": "assets/Pets/Unicorn/Unicorn.fbx",
+    "objects": {}
+  },
+  "Pet/Gecko": {
+    "fbx": "assets/Pets/Gecko/Gecko.fbx",
+    "objects": {}
+  },
+  "Pet/Armadillo": {
+    "fbx": "assets/Pets/Armadillo/Armadillo.fbx",
+    "objects": {}
+  },
+  "Pet/Scorpion": {
+    "fbx": "assets/Pets/Scorpion/Scorpion.fbx",
+    "objects": {}
+  },
+  "Pet/Vulture": {
+    "fbx": "assets/Pets/Vulture/Vulture.fbx",
+    "objects": {}
+  },
+  "Pet/Camel": {
+    "fbx": "assets/Pets/Camel/Camel.fbx",
+    "objects": {}
+  },
+  "Pet/Sphinx": {
+    "fbx": "assets/Pets/Sphinx/Sphinx.fbx",
+    "objects": {}
+  },
+  "Pet/Monkey": {
+    "fbx": "assets/Pets/Monkey/Monkey.fbx",
+    "objects": {}
+  },
+  "Pet/Toucan": {
+    "fbx": "assets/Pets/Toucan/Toucan.fbx",
+    "objects": {}
+  },
+  "Pet/Sloth": {
+    "fbx": "assets/Pets/Sloth/Sloth.fbx",
+    "objects": {}
+  },
+  "Pet/Tiger": {
+    "fbx": "assets/Pets/Tiger/Tiger.fbx",
+    "objects": {}
+  },
+  "Pet/Gorilla": {
+    "fbx": "assets/Pets/Gorilla/Gorilla.fbx",
+    "objects": {}
+  },
+  "Pet/Panther": {
+    "fbx": "assets/Pets/Panther/Panther.fbx",
+    "objects": {}
+  },
+  "Pet/Crab": {
+    "fbx": "assets/Pets/Crab/Crab.fbx",
+    "objects": {}
+  },
+  "Pet/Clownfish": {
+    "fbx": "assets/Pets/Clownfish/Clownfish.fbx",
+    "objects": {}
+  },
+  "Pet/Turtle": {
+    "fbx": "assets/Pets/Turtle/Turtle.fbx",
+    "objects": {}
+  },
+  "Pet/Octopus": {
+    "fbx": "assets/Pets/Octopus/Octopus.fbx",
+    "objects": {}
+  },
+  "Pet/Shark": {
+    "fbx": "assets/Pets/Shark/Shark.fbx",
+    "objects": {}
+  },
+  "Pet/Narwhal": {
+    "fbx": "assets/Pets/Narwhal/Narwhal.fbx",
+    "objects": {}
+  },
+  "Pet/Penguin": {
+    "fbx": "assets/Pets/Penguin/Penguin.fbx",
+    "objects": {}
+  },
+  "Pet/Seal": {
+    "fbx": "assets/Pets/Seal/Seal.fbx",
+    "objects": {}
+  },
+  "Pet/Reindeer": {
+    "fbx": "assets/Pets/Reindeer/Reindeer.fbx",
+    "objects": {}
+  },
+  "Pet/Walrus": {
+    "fbx": "assets/Pets/Walrus/Walrus.fbx",
+    "objects": {}
+  },
+  "Pet/ArcticWolf": {
+    "fbx": "assets/Pets/ArcticWolf/ArcticWolf.fbx",
+    "objects": {}
+  },
+  "Pet/Yeti": {
+    "fbx": "assets/Pets/Yeti/Yeti.fbx",
+    "objects": {}
+  },
+  "Pet/Capybara": {
+    "fbx": "assets/Pets/Capybara/Capybara.fbx",
+    "objects": {}
+  },
+  "Pet/KingRex": {
+    "fbx": "assets/Pets/KingRex/KingRex.fbx",
+    "objects": {}
+  },
+  "Pet/Frog": {
+    "fbx": "assets/Pets/Frog/Frog.fbx",
+    "objects": {}
+  },
+  "Pet/Duck": {
+    "fbx": "assets/Pets/Duck/Duck.fbx",
+    "objects": {}
+  },
+  "Pet/Snail": {
+    "fbx": "assets/Pets/Snail/Snail.fbx",
+    "objects": {}
+  },
+  "Pet/Beaver": {
+    "fbx": "assets/Pets/Beaver/Beaver.fbx",
+    "objects": {}
+  },
+  "Pet/Alligator": {
+    "fbx": "assets/Pets/Alligator/Alligator.fbx",
+    "objects": {}
+  },
+  "Pet/Hydra": {
+    "fbx": "assets/Pets/Hydra/Hydra.fbx",
+    "objects": {}
+  },
+  "Pet/Zebra": {
+    "fbx": "assets/Pets/Zebra/Zebra.fbx",
+    "objects": {}
+  },
+  "Pet/Giraffe": {
+    "fbx": "assets/Pets/Giraffe/Giraffe.fbx",
+    "objects": {}
+  },
+  "Pet/Rhino": {
+    "fbx": "assets/Pets/Rhino/Rhino.fbx",
+    "objects": {}
+  },
+  "Pet/Elephant": {
+    "fbx": "assets/Pets/Elephant/Elephant.fbx",
+    "objects": {}
+  },
+  "Pet/Cheetah": {
+    "fbx": "assets/Pets/Cheetah/Cheetah.fbx",
+    "objects": {}
+  },
+  "Pet/Lion": {
+    "fbx": "assets/Pets/Lion/Lion.fbx",
+    "objects": {}
+  },
+  "Pet/Beetle": {
+    "fbx": "assets/Pets/Beetle/Beetle.fbx",
+    "objects": {}
+  },
+  "Pet/Koi": {
+    "fbx": "assets/Pets/Koi/Koi.fbx",
+    "objects": {}
+  },
+  "Pet/Crane": {
+    "fbx": "assets/Pets/Crane/Crane.fbx",
+    "objects": {}
+  },
+  "Pet/Panda": {
+    "fbx": "assets/Pets/Panda/Panda.fbx",
+    "objects": {}
+  },
+  "Pet/RedPanda": {
+    "fbx": "assets/Pets/RedPanda/RedPanda.fbx",
+    "objects": {}
+  },
+  "Pet/MonkeySensei": {
+    "fbx": "assets/Pets/MonkeySensei/MonkeySensei.fbx",
+    "objects": {}
+  },
+  "Pet/Salamander": {
+    "fbx": "assets/Pets/Salamander/Salamander.fbx",
+    "objects": {}
+  },
+  "Pet/ImpCat": {
+    "fbx": "assets/Pets/ImpCat/ImpCat.fbx",
+    "objects": {}
+  },
+  "Pet/LavaTortoise": {
+    "fbx": "assets/Pets/LavaTortoise/LavaTortoise.fbx",
+    "objects": {}
+  },
+  "Pet/Hellhound": {
+    "fbx": "assets/Pets/Hellhound/Hellhound.fbx",
+    "objects": {}
+  },
+  "Pet/Dragon": {
+    "fbx": "assets/Pets/Dragon/Dragon.fbx",
+    "objects": {}
+  },
+  "Pet/Phoenix": {
+    "fbx": "assets/Pets/Phoenix/Phoenix.fbx",
+    "objects": {}
+  },
+  "Pet/Bat": {
+    "fbx": "assets/Pets/Bat/Bat.fbx",
+    "objects": {}
+  },
+  "Pet/Raven": {
+    "fbx": "assets/Pets/Raven/Raven.fbx",
+    "objects": {}
+  },
+  "Pet/WizardCat": {
+    "fbx": "assets/Pets/WizardCat/WizardCat.fbx",
+    "objects": {}
+  },
+  "Pet/GuardDog": {
+    "fbx": "assets/Pets/GuardDog/GuardDog.fbx",
+    "objects": {}
+  },
+  "Pet/Minotaur": {
+    "fbx": "assets/Pets/Minotaur/Minotaur.fbx",
+    "objects": {}
+  },
+  "Pet/NineTailedFox": {
+    "fbx": "assets/Pets/NineTailedFox/NineTailedFox.fbx",
+    "objects": {}
   }
 }

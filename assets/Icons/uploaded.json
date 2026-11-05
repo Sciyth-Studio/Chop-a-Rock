@@ -186,5 +186,253 @@
   "Pet/Kingy": {
     "hash": "e00a9d7b91dec5de91e50a195faf7280efc500644d800e6b74c2161180bd1fc5",
     "id": "rbxassetid://117002415230870"
+  },
+  "Pet/Bunny": {
+    "hash": "5f91764068ff088e0884beaab360c505e0c991bf60b1861802426a5e24de917c",
+    "id": "rbxassetid://106535699691445"
+  },
+  "Pet/Squirrel": {
+    "hash": "2d332ffe8e4e44b5e456a72c067266f9f3206819b68a33b610a242631826cf1d",
+    "id": "rbxassetid://121335259779980"
+  },
+  "Pet/Fox": {
+    "hash": "439a3fe95959f5c68ad4ac01d0013332f04f7a962fcfe74eb82d73220130d203",
+    "id": "rbxassetid://74175431997390"
+  },
+  "Pet/Owl": {
+    "hash": "307bfaa1a8fb0240f1ad8e6e3566f51b86254cf564bc083ae53933b459ab3e72",
+    "id": "rbxassetid://82641445537940"
+  },
+  "Pet/Bear": {
+    "hash": "3c2beb45e8139c44dd3712e60a7f07379b02db510c5ab0f7ecaff70321b3b1ee",
+    "id": "rbxassetid://113041313146738"
+  },
+  "Pet/Unicorn": {
+    "hash": "4eff81963d23bb6b3ecbfacdc9338f06dfc09a7448d3ac619b458bdefe9c009a",
+    "id": "rbxassetid://74757774662998"
+  },
+  "Pet/Gecko": {
+    "hash": "f249e0e0653e19d272ab576f55d0f130f184185f63a2544d4998d8846bd60ea6",
+    "id": "rbxassetid://83107057429729"
+  },
+  "Pet/Armadillo": {
+    "hash": "1797f7a4b3ad403db3976f461f3ae4656cb0adb1638dcbbb2fe1d779c7215f75",
+    "id": "rbxassetid://125593711823880"
+  },
+  "Pet/Scorpion": {
+    "hash": "b379c90edac4d2b062b541cd779d28bf479fa0edf5428d0384d3179536918832",
+    "id": "rbxassetid://124335146259644"
+  },
+  "Pet/Vulture": {
+    "hash": "7d7433ea43af76ad88b2828f25832ed500d7b28061d6892538927a9a13224194",
+    "id": "rbxassetid://84089820765933"
+  },
+  "Pet/Camel": {
+    "hash": "cbba61aacbef13197caf6f71014b4d65dca389eaa28e8f74ebc427114933481f",
+    "id": "rbxassetid://75728081252076"
+  },
+  "Pet/Sphinx": {
+    "hash": "6a538eede24f696a3eacb163fe50a5b7c074057fd6421ec30b4976dc966e487f",
+    "id": "rbxassetid://113895157537746"
+  },
+  "Pet/Monkey": {
+    "hash": "068f9b009f19d90b34b08f4cff6788264b9e699e5c22894c15eff892c08252d7",
+    "id": "rbxassetid://77323136635324"
+  },
+  "Pet/Toucan": {
+    "hash": "658dd3291761d6d65ec0aa4719e8f4dfdb3309a32560c67cc84fda9082d6c958",
+    "id": "rbxassetid://122844881156043"
+  },
+  "Pet/Sloth": {
+    "hash": "27c9183a4a00907cd92027eded1dfef4ef8d641428b777df807f56e84e902382",
+    "id": "rbxassetid://95391640118478"
+  },
+  "Pet/Tiger": {
+    "hash": "66b42597cd10f9a9ceae721cd88a976fa3694c6313d13646132c6ae61deb863f",
+    "id": "rbxassetid://131193115674238"
+  },
+  "Pet/Gorilla": {
+    "hash": "6ced75d0cf3970b6cbe79d000db3dbc0bc58199bd96723ad25ea92724068cee8",
+    "id": "rbxassetid://114445861025355"
+  },
+  "Pet/Panther": {
+    "hash": "d71fc147f62b13461acd4efca5407d454864a69966f93d2abc8e9d050e718734",
+    "id": "rbxassetid://117609087718443"
+  },
+  "Pet/Crab": {
+    "hash": "0fd0eea41527745d0e818176d55384f7ce64196d1452df62cc8a84e23e517a2b",
+    "id": "rbxassetid://132287205180621"
+  },
+  "Pet/Clownfish": {
+    "hash": "57e8613dc6a0bec4689debe2f8c5fa25d69c37a8c591cf4aa374a1b2229c9355",
+    "id": "rbxassetid://128854489012121"
+  },
+  "Pet/Turtle": {
+    "hash": "efaf104ed7c11e3d2ac65bfad476889469ac5568acc529984a15055d0fa630b6",
+    "id": "rbxassetid://91640001591084"
+  },
+  "Pet/Octopus": {
+    "hash": "23e34fdd42b59974e85cdf97c5797e19841ae95ca41d938013347d4d5a86940f",
+    "id": "rbxassetid://123640787139204"
+  },
+  "Pet/Shark": {
+    "hash": "54cd9774a35be2dd3c40253f8995304196b36b1aed3f05827753e49a423e8cc4",
+    "id": "rbxassetid://75126214635515"
+  },
+  "Pet/Narwhal": {
+    "hash": "66f93032949e5cc9cc293ef949f722fbf6e4e19cde4a6adf5620c5a318175dea",
+    "id": "rbxassetid://82743932225172"
+  },
+  "Pet/Penguin": {
+    "hash": "765354a20c6e8dec39f6aed288762bb2bdd732fb834804323aa57f5dd5d8171c",
+    "id": "rbxassetid://139426244502687"
+  },
+  "Pet/Seal": {
+    "hash": "d48173095887ddb09f50657e8df9cf3359aae882ce8897baa9a3be5d357a6d45",
+    "id": "rbxassetid://138253240416143"
+  },
+  "Pet/Reindeer": {
+    "hash": "2afbf1e8e2dafefaab0a94e8d23b7f3b829e25aa9378b37365ac3cd405fdd521",
+    "id": "rbxassetid://98909692010038"
+  },
+  "Pet/Walrus": {
+    "hash": "7f24e56de384c684ba9498ce3771534736bde052c79c25a23212cd726a302702",
+    "id": "rbxassetid://95046501364419"
+  },
+  "Pet/ArcticWolf": {
+    "hash": "32ee8efd5398b3930b8bc828b3e3ac4124dc33515167864cec2cf8cd8138db1a",
+    "id": "rbxassetid://76092497488566"
+  },
+  "Pet/Yeti": {
+    "hash": "6a209a365ace9497a2ad1406e6e82bb2c7eac7caea0b815df367b90769a199e6",
+    "id": "rbxassetid://84804256288734"
+  },
+  "Pet/Capybara": {
+    "hash": "aec2a1db4bbd0de1bad25278c06655f06fa603dc941bf42c1afcfcbfd79dc6ce",
+    "id": "rbxassetid://111076927709688"
+  },
+  "Pet/KingRex": {
+    "hash": "bd24f4db83db08f8d150c176da5576d48fb0f6cd87492ca13adf63198960afb2",
+    "id": "rbxassetid://122080320572019"
+  },
+  "Pet/Frog": {
+    "hash": "3a4341f72402241a3a553d1579e4b601af6c9c096075ccf756639b77fcb3917e",
+    "id": "rbxassetid://140084606030741"
+  },
+  "Pet/Duck": {
+    "hash": "044f9fce5fa624deb4fba562d2c248d4654ff7f7805d3a5e84b6074054527e6d",
+    "id": "rbxassetid://102924800230978"
+  },
+  "Pet/Snail": {
+    "hash": "55b9d65ffd8514498921f9041c12cb33e1a9ddc27dc8f984d88f7a298fc257af",
+    "id": "rbxassetid://140164190452543"
+  },
+  "Pet/Beaver": {
+    "hash": "5eaf0829757c7a90922e23fd3e6390196ea83a7c5f48f0255a982918a32622cc",
+    "id": "rbxassetid://100949596399920"
+  },
+  "Pet/Alligator": {
+    "hash": "6b23f79dc12ee2f527955268948be68e5577d1338c00089b4ceac3d740c25b57",
+    "id": "rbxassetid://119434630544005"
+  },
+  "Pet/Hydra": {
+    "hash": "5cee3b615adb2875b49ecffea8c904264c836059030bc15db244f35db92df9cc",
+    "id": "rbxassetid://86258119059966"
+  },
+  "Pet/Zebra": {
+    "hash": "881747f17ef068acb34c5df5dd4b25725fc18505140def4a14c7d7490e3200a3",
+    "id": "rbxassetid://140085670139987"
+  },
+  "Pet/Giraffe": {
+    "hash": "d73076f0b20f336eb254fef98b0ed1b1c75099178f2e83b3bb11f314d79945b8",
+    "id": "rbxassetid://85122671208552"
+  },
+  "Pet/Rhino": {
+    "hash": "b3e3cc66ea67fd99b87b543cc3c0a67ee7931f488b0cb166dd5412375584b7a1",
+    "id": "rbxassetid://111881582061642"
+  },
+  "Pet/Elephant": {
+    "hash": "103cdcdc0a2857642b264b3bcafce3371352d7b9fc95a7431f2c2b8e6e5f9505",
+    "id": "rbxassetid://135732750409896"
+  },
+  "Pet/Cheetah": {
+    "hash": "34fd8a1945e2cb5c04cd72b69f963955191cd0f40fd35ad1ec20f5b1ac65f40b",
+    "id": "rbxassetid://136736912627263"
+  },
+  "Pet/Lion": {
+    "hash": "f74aad578de71c0153625a851e04e3ba459f49be3ddcb2384fcd9e216277230b",
+    "id": "rbxassetid://133865828358648"
+  },
+  "Pet/Beetle": {
+    "hash": "8da7fefc4210e8e1336703fcc3365c289bf408f7505e28201bb2a613d3a97b9d",
+    "id": "rbxassetid://74148070623424"
+  },
+  "Pet/Koi": {
+    "hash": "74d9fb5da5d3fd0f2569f829369ceabd29f933b85219af2d4f06e41b0e2cd542",
+    "id": "rbxassetid://105096077291008"
+  },
+  "Pet/Crane": {
+    "hash": "bcda8845f6ff236201aad006fe265f8211d95b14205d7867ea133976f9d53d5b",
+    "id": "rbxassetid://130313822823645"
+  },
+  "Pet/Panda": {
+    "hash": "ad7ad84da8e943f1051b5ed13d8f8d7066ad84fb62073833208b48652b1397cc",
+    "id": "rbxassetid://124769765198912"
+  },
+  "Pet/RedPanda": {
+    "hash": "252334086b5e43148c3044d1b6f7d72bc474633eca1706c7e29230ad89ca7401",
+    "id": "rbxassetid://102871937755003"
+  },
+  "Pet/MonkeySensei": {
+    "hash": "c0aae925809df0e8ed723f28a609b7d45dc7ea9e2098580030b8e984bca76ebb",
+    "id": "rbxassetid://103121092291186"
+  },
+  "Pet/Salamander": {
+    "hash": "b1aa3041e219a7c5817869458918a02c32d71d948ace2a20e8f6fa7b382aa7d6",
+    "id": "rbxassetid://109400053646079"
+  },
+  "Pet/ImpCat": {
+    "hash": "e01b982b212e31e14faf7c128f29ca617476b7f559f9af9c75af47dfa2c1f154",
+    "id": "rbxassetid://86565662830119"
+  },
+  "Pet/LavaTortoise": {
+    "hash": "ab306b8e1146ea9b82eb7b71bc6ffab8fd80325182c5697ce8c2878b09861d04",
+    "id": "rbxassetid://118406075310029"
+  },
+  "Pet/Hellhound": {
+    "hash": "83e9ca18bbdb0e4c893b8a67b5331d350d8dac9392d453abfa43792d8be97756",
+    "id": "rbxassetid://72291097288878"
+  },
+  "Pet/Dragon": {
+    "hash": "73d587e66daacdddbe78dd545ee2fa895021b13081cdcdbcdb19b364f925fd21",
+    "id": "rbxassetid://75795551066873"
+  },
+  "Pet/Phoenix": {
+    "hash": "456e166d50a490370600cacd107fb28e21fa132c8ce4b9d7fd0e58ed888bbc0d",
+    "id": "rbxassetid://120437202679283"
+  },
+  "Pet/Bat": {
+    "hash": "4e847e198fb794e1075156a461abe21112b338cdef93ed5a20d5bfe35cb97687",
+    "id": "rbxassetid://116098612727674"
+  },
+  "Pet/Raven": {
+    "hash": "1c2fb227a4860d385a2b0a3ed3a3bbe459ec8ccf60bbdd18d7f44a42d628594e",
+    "id": "rbxassetid://71037923541495"
+  },
+  "Pet/WizardCat": {
+    "hash": "e55147dbb27bd9a64dafacaa57aed39067512c82d5eca350ef5bc61ac0833963",
+    "id": "rbxassetid://125777616562758"
+  },
+  "Pet/GuardDog": {
+    "hash": "94cb154f6d4073857e19733952692261a52ecfe64bf9ebbdaee3aac076927ff3",
+    "id": "rbxassetid://94221723438220"
+  },
+  "Pet/Minotaur": {
+    "hash": "efe6f6e365bc92ca653f13d2ecd832551011631c458f35859cba71c444ecd3b6",
+    "id": "rbxassetid://83961913560603"
+  },
+  "Pet/NineTailedFox": {
+    "hash": "2b59060725118d261e8a76090aca1a3543b19d7301669d18f7a73fd415a3459e",
+    "id": "rbxassetid://140353669230126"
   }
 }

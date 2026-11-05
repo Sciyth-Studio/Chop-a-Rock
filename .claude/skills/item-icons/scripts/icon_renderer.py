@@ -28,7 +28,7 @@ STYLE = {
     "stud_edge_gap": 0.06,
     "phase_steps": 5,
     "specular": 0.25,
-    "stud_mode": {"outlet": "geometry", "inlet": "texture"},
+    "stud_mode": {"outlet": "geometry", "inlet": "texture", "flat": "flat"},
     "stud_bump": 0.35,
     "world_strength": 1.0,
     "sun_strength": 2.4,
@@ -37,6 +37,9 @@ STYLE = {
     "exposure": 0.35,
     "roughness": {"Plastic": 0.55, "SmoothPlastic": 0.35, "Neon": 0.5},
     "neon_strength": 2.5,
+    "pale_from": 0.3,
+    "pale_to": 0.9,
+    "pale_scale": 0.6,
 }
 
 RBX_TO_BLENDER = Matrix(((-1, 0, 0), (0, 0, 1), (0, 1, 0)))
@@ -119,6 +122,11 @@ def make_material(name, part):
     if part["material"] == "Neon":
         bsdf.inputs["Emission Color"].default_value = color
         bsdf.inputs["Emission Strength"].default_value = STYLE["neon_strength"]
+    if part.get("textureFile"):
+        tex = nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(os.path.join(ROOT, part["textureFile"]))
+        tex.interpolation = "Closest"
+        mat.node_tree.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     return mat
 
 
@@ -163,6 +171,65 @@ def add_stud_texture(obj, variant):
     links.new(tint.outputs["Result"], bsdf.inputs["Base Color"])
     links.new(tex.outputs["Color"], bump.inputs["Height"])
     links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+
+
+def add_flat_tile(obj, variant):
+    mat = obj.data.materials[0]
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    bsdf = nodes.get("Principled BSDF")
+    uv = nodes.new("ShaderNodeUVMap")
+    uv.uv_map = obj.data.uv_layers.active.name
+    mapping = nodes.new("ShaderNodeMapping")
+    mapping.inputs["Scale"].default_value = [world_per_uv(obj) / variant["studsPerTile"]] * 3
+    tex = nodes.new("ShaderNodeTexImage")
+    tex.image = bpy.data.images.load(os.path.join(SKILL, "textures", variant["texture"]))
+    tint = nodes.new("ShaderNodeMix")
+    tint.data_type = "RGBA"
+    tint.blend_type = "MULTIPLY"
+    tint.inputs["Factor"].default_value = 1.0
+    tint.inputs["A"].default_value = bsdf.inputs["Base Color"].default_value
+    links.new(uv.outputs["UV"], mapping.inputs["Vector"])
+    links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
+    links.new(tex.outputs["Color"], tint.inputs["B"])
+    links.new(tint.outputs["Result"], bsdf.inputs["Base Color"])
+
+
+def soften_pale(obj):
+    """Darken near-white colours so the lights don't clip them to flat white."""
+    mat = obj.data.materials[0]
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    bsdf = nodes.get("Principled BSDF")
+    base = bsdf.inputs["Base Color"]
+    if base.is_linked:
+        source = base.links[0].from_socket
+    else:
+        rgb = nodes.new("ShaderNodeRGB")
+        rgb.outputs[0].default_value = base.default_value
+        source = rgb.outputs[0]
+    split = nodes.new("ShaderNodeSeparateColor")
+    low_a = nodes.new("ShaderNodeMath")
+    low_a.operation = "MINIMUM"
+    low_b = nodes.new("ShaderNodeMath")
+    low_b.operation = "MINIMUM"
+    ramp = nodes.new("ShaderNodeMapRange")
+    ramp.interpolation_type = "SMOOTHSTEP"
+    ramp.inputs["From Min"].default_value = STYLE["pale_from"]
+    ramp.inputs["From Max"].default_value = STYLE["pale_to"]
+    ramp.inputs["To Min"].default_value = 1.0
+    ramp.inputs["To Max"].default_value = STYLE["pale_scale"]
+    tint = nodes.new("ShaderNodeMix")
+    tint.data_type = "RGBA"
+    tint.blend_type = "MULTIPLY"
+    tint.inputs["Factor"].default_value = 1.0
+    links.new(source, split.inputs[0])
+    links.new(source, tint.inputs["A"])
+    links.new(split.outputs[0], low_a.inputs[0])
+    links.new(split.outputs[1], low_a.inputs[1])
+    links.new(low_a.outputs[0], low_b.inputs[0])
+    links.new(split.outputs[2], low_b.inputs[1])
+    links.new(low_b.outputs[0], ramp.inputs["Value"])
+    links.new(ramp.outputs[0], tint.inputs["B"])
+    links.new(tint.outputs["Result"], base)
 
 
 def stud_template(tile):
@@ -423,8 +490,13 @@ def render_icon(key, spec, manifest, variants, out_dir):
     studs = []
     for name, obj in parts.items():
         variant = variants.get(spec["parts"][name]["variant"])
-        if variant and STYLE["stud_mode"].get(variant["kind"]) == "texture":
+        if variant and STYLE["stud_mode"].get(variant["kind"]) == "flat":
+            add_flat_tile(obj, variant)
+            soften_pale(obj)
+        elif variant and STYLE["stud_mode"].get(variant["kind"]) == "texture":
             add_stud_texture(obj, variant)
+        elif spec["parts"][name].get("textureFile"):
+            soften_pale(obj)
         elif variant:
             blockers = [bvh_of(o) for n, o in parts.items() if n != name]
             stud = place_studs(obj, variant["studsPerTile"], blockers)

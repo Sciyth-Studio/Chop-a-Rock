@@ -7,7 +7,7 @@ description: Use when a Pet or rock needs its card icon (the PNG shown in the In
 
 Every Pet and rock kind gets a 512×512 transparent PNG icon, rendered in Blender and uploaded once to the group. The Index cards and detail pane and the Geode Stand cards show it in an `Icon` ImageLabel. Until an item has an icon, they fall back to the old ViewportFrame (`Preview`), so a new Pet never breaks the UI. Background and measured facts: vault notes `Item Icon Rendering`, `Pet Icon Reference` and `Item Icons`.
 
-The look (approved 2026-10-23): a near-front, bright Cycles render, raised whole studs on `2022 Small Stud` parts (Pets), the drawn Inlet texture at 1 stud per tile on `2022 Inlet` parts (rocks), and a black outline of 2.2% that follows the silhouette. All of it is in `STYLE` at the top of `scripts/icon_renderer.py`. Don't change the look without the user's approval.
+The look (approved 2026-10-23): a near-front, bright Cycles render, raised whole studs on `2022 Small Stud` parts (rock Pets), the flat `Animal Stud` tile with pale colours softened (animal Pets, 2026-11-04), the drawn Inlet texture at 1 stud per tile on `2022 Inlet` parts (rocks), and a black outline of 2.2% that follows the silhouette. All of it is in `STYLE` at the top of `scripts/icon_renderer.py`. Don't change the look without the user's approval.
 
 ## Files
 | File | What it is |
