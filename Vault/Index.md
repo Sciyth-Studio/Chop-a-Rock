@@ -37,7 +37,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Studs On Models By Default]] — every model gets the stud overlay unless told otherwise
 - [[Flat Shading On Buildings]] — buildings are flat-coloured (no baked shading) since 2026-10-10; studs + part Color only
 - [[Simple Names No Material Clash]] — player-facing names are simple kid words, never a rock material
-- [[Pets Stay Rocks]] — pet rocks are rocks with eyes, never animals made of rock; theme via props and formations
+- [[Pets Stay Rocks]] — superseded 2026-11-03 by [[Animal Pets]]; only describes the rock Pets until the swap ships
 - [[Reuse Pet Eyes]] — copy Bloky's eye and pupil meshes for every Pet, never rebuild them
 - [[Keep Decor Simple]] — zone decor is few, primitive-shape props; reuse and recolour; Studio parts and particles over Blender models
 - [[Decor In ForestTree Style]] — decor is built like the JungleTree (crossed-box stud courses, alternating shades, chunky trunks, root fins); greens match their zone floor; settled 2026-10-28
@@ -61,7 +61,7 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Fight Flow Reference]] — 2026-11-03 clip of another game's fight the user wants ours designed like: charge banner, 3-2-1 camera cuts, side-on tug of war, red tint, result banner, landing dent and arrows
 - [[Boulder Reference]] — reference image for the boulder-style chop rocks; open before modelling rocks
 - [[Font Glyphs]] — which arrows/symbols render in the game font (▶ and the Robux icon do, ➜ doesn't)
-- [[Zone Line]] — scaled x1.15 per zone since 2026-10-30 (table at top; Ruins 774 wide, line ends z 3217, arena to 4695); zone order forest → desert → jungle → ocean → snow → swamp → savanna → bamboo → volcano → ruins + walled square boss arena (6-10 are blockouts; signs never say "Golem"); folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours, whole-stud grid and the lobby gap fix
+- [[Zone Line]] — since 2026-11-04 zones only scale in length (table at top; all 220 wide, Ruins 1108 long, line ends z 5118), with fewer rocks in later zones; `RetainingWall` on each terrace's outer edge; zone order forest → desert → jungle → ocean → snow → swamp → savanna → bamboo → volcano → ruins + walled square boss arena (6-10 are blockouts; signs never say "Golem"); folders, Z ranges (168 apart since 2026-10-16), floor/terrace colours, whole-stud grid and the lobby gap fix
 - [[Forest Zone Entrance]] — transparent wall + SurfaceGui sign at the forest gateway; copy for new zones
 - [[Asset Ownership]] — game moved to the Sciyth Studio group 2026-10-03; old assets user-owned but shared; recover a sourceless image via EditableImage pixels
 - [[Open Cloud Key]] — `ROBLOX_API_KEY` user env var; assets + dev products scopes; reaches group assets; never print it
@@ -83,6 +83,11 @@ What Claude has learned while working on the game: preferences, references, gotc
 - [[Diamond Rock Reference]] — 2026-10-13 sheet: the whole Diamond Rock is a cyan crystal cluster on a faceted base, crystals radiating all round
 - [[Mossy Stone Reference]] — 2026-10-14 remodel of the forest Mossy Boulder (Third): faceted rock with a separate thick moss cap and moss split halves
 - [[Bloky Reference]] — first Pet (pet rock): chamfered cube, chamfered-square eyes as separate meshes
+- [[Swamp To Ruins Animal Sheets]] — 2026-11-04 six-view sheets for the animal Pets in zones 6-10, what to take from them and where the builds are
+- [[Fox Reference]] — 2026-11-03 sheet and approved model for the Fox, the first animal Pet and the look to compare the others against; prompts attach Bloky's sheet, not this one
+- [[Forest Animal Sheets]] — 2026-11-03 six-view sheets for the five Forest animal Pets beside the Fox; batch-built in `ForestAnimals.blend`
+- [[Desert To Snow Animal Sheets]] — 2026-11-03 six-view sheets for the Desert, Jungle, Ocean and Snow animal Pets; batch-built in one `<Zone>Animals.blend` per zone
+- [[Capybara And King Rex Sheets]] — 2026-11-03 sheets for the exclusive animal Pets; King Rex has its own dinosaur shape; built in `ExclusiveAnimals.blend`
 - [[Sprout Reference]] — Uncommon forest Pet: Bloky's body and eyes plus a two-leaf seedling mesh on top
 - [[Shroomy Reference]] — Rare forest Pet: taller Bloky body, red-spotted mushrooms on top and the left side
 - [[Nesty Reference]] — Epic forest Pet: Bloky body, low-poly twig nest with three pebble eggs on top (~480 tris for nest + eggs)
@@ -125,11 +130,12 @@ _One note per game system as they're worked on._
 - [[Zone Geodes]] — 2026-11-03, not playtested: 4 free geodes per player per zone, anywhere in the zone clear of walls, decor and your rocks; 30 s respawn; going for one starts the enemy fight; `ZoneGeodeService`, `ZoneGeodeController`, `ZoneGeodeConfig`, admin Spawn Zone Geode
 - [[Admin Panel]] — tabbed top-bar "Admin" panel: presets (+ Studio auto-preset), warps (`Workspace.AdminWarps`), value commands, Reset Player Data (name + press twice), testing-speed commands, Ctrl+Shift+Space command bar, data snapshots; add a command = config entry + `AdminService/Commands` handler
 - [[Global Announcements]] — admin `Global Message` (Events tab, `announce`) → filtered, gold 8 s notification in every server via MessagingService; bypasses the Notifications setting; `AnnouncementService`, `AnnouncementConfig`
-- [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out a 2x2 grid of Aura / Cannon / Sell / Geode teleports; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
+- [[Teleport Bar]] — top-centre Base / Shops / Rocks buttons; Shops pops out Aura / Cannon on top with Sell centred below; `TeleportService` ends chops first, cooldown 3 s (draft), markers in `Workspace.TeleportPoints`
 - [[Index]] — Pets + Rocks pages, per-entry cash/strength claims, +10% money per completed zone, HUD badge; `IndexService` + `IndexRewards`
 - [[Geode Shop]] — odds screen removed 2026-11-03 (backup in `UIBackup`); was one lobby shop, a tab per zone geode, opens on the zone your Best Strength reaches; buying gated on Best Strength (kept through rebirth), cracking ungated (2026-10-28); new zone = config only (no stand); pity bars (Legendary + Secret guarantees per geode, built 2026-10-22); pit "Choose Geode" picker saves which geode cracks next (2026-10-28)
 - [[Auto Open]] — 2026-10-28 game pass: third pit prompt (R) starts hands-off cracking of owned geodes, rolled quality through `Cracking.Finish` (pity unchanged), stop pill, stops on range/out of geodes/bag full; `GeodeService/AutoOpen`, `AutoOpenConfig`, `Screens/AutoOpenButton`
 - [[Pedestals]] — Pets as Backpack tools, pedestals earning flat $/s onto green pads (cleared on rebirth), slots, Equip Best, Pets panel, idle motion (breathe, blink, drop-in); `PedestalService` + `PetService/Tools` + `Components/IdlePet`
+- [[Held Items]] — 2026-11-03, not playtested: held Pets and geodes sit above the head, both arms up; `HeldItemController`, `Utils/HeldGrip`, `HeldItemConfig`
 - [[Toolbar]] — 2026-10-29 custom hotbar (Roblox Backpack CoreGui off) of Pet stacks with keys 1-7, `PetsToggle` or ~ opening the Pets inventory panel (stacked cards, search, Placed badge, Equip Best, +1 Slot); `Screens/Toolbar`, `Screens/Pets`, `UIController/PetStacks`, `ToolbarConfig`
 - [[Pet Sizes]] — Tiny/Normal/Big/Giant/Huge/Colossal (15/55/20/7/2.5/0.5%, x0.75-x2 scale, 2026-10-29) rolled on every grant, luck pushes only sizes above Normal, looks only; `PetSizeConfig`, `PetSize`, `Pet.Size`
 - [[Sell Shop]] — green lobby stall selling Backpack Pets (100 s of income, draft); sort Value/Rarity/Newest, Select All; replaced Delete
@@ -143,7 +149,7 @@ _One note per game system as they're worked on._
 - [[Hot Streak]] - chained Good+ chops multiply chop money, add walk speed, head fire; `HotStreakService`, `WalkSpeedService`, `HotStreakConfig`
 - [[UI Feel]] — every button darkens + grows on hover with a tick, squashes on press, clicks; `UIController/ButtonFeel`, `UIFeelConfig`; UIScale pivot/list-layout gotchas; panel pop, `Shimmer` attention shine, `context.Feedback` success bounce / error shake, toggle and tab sounds
 - [[Cannon Shop]] — lobby shop (opposite Free Gift at x 156, z -207, facing into the lobby since 2026-11-03) with one cannon per zone from the desert (all nine, Desert to Ruins, since 2026-10-30), free and auto-unlocked at the zone's strength since 2026-11-03; Equip, then walking into the Forest pops a 5 s Fire Cannon button (since 2026-10-31; `Workspace.CannonTrigger`) and the `LobbyCannon` fires you on a 2 s arc to `TeleportPoints.Cannon<Zone>`; zone-coloured charge/blast/trail/landing/equip effects and sounds (`Assets/VFX/Cannon`, `Assets/Sounds/Cannon`); `CannonService`, `CannonController`, `CannonConfig`
-- [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop (15 tiers for world 1 = zones 1-10 since 2026-10-28, one per zone), training x (old arm numbers) + small speed; one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
+- [[Auras]] — since 2026-10-18 auras replace arms: cash tiers in order at the red Aura Shop (15 tiers for world 1 = zones 1-10 since 2026-10-28, one per zone), training x (old arm numbers) + speed (+2 to +80, raised 2026-11-04 for the longer zones, draft); one `VFX_Aura` template tinted per tier; `AuraService`, `AuraController`, `AuraConfig`, `Screens/Shop`
 - [[Event Clock]] — 2026-10-29: every 5 min (:00/:05 server time) one event rolls: Geode Fall 40, Diamond Rock 35, Weather 25, no repeats; `EventClockService`, `EventClockConfig`; Rush Rocks stay separate
 - [[Weather]] — events rolled by the Event Clock, 4 min each, 1 in 4 rocks spawn as storm rocks (pay boost; hitting them raises the once-a-minute catch roll), at most one Pet per player catches per roll, hatch modifiers, lighting looks, weather pill; `WeatherService`, `WeatherController`, `WeatherConfig`
 - [[Tutorial]] — 5-step first-time tutorial, no Skip (2026-10-27), then a staggered aura hint (`AuraHintService`); `TutorialService` owns the step in PlayerData and logs a 13-step onboarding funnel to 60 min played; `TutorialController` pins notification text, straight-line chevrons, teleport-button spotlights, SpotlightUI on buy buttons, chop-meter pointer, red pad locks; weather ignored while it runs
@@ -168,7 +174,8 @@ _Dated "chose X because Y" notes. Design decisions still go in the Master Game P
 - [[Big Numbers Over Small Ones]] — 2026-10-10: billions are fine; keep tier growth, add money sinks and scale costs with income
 - [[Zones After Desert]] — 2026-10-10: approved jungle, ocean, snow rocks (built as placeholders), Pets and geodes (not built); the number rules
 - [[VFX From Roqer]] — 2026-10-07 Roqer VFX pipeline; since 2026-10-15 the vfx skill is the MIT `roblox-vfx` skill, runtime at `ReplicatedStorage.VFX` (Emit/Build/Capture/Shapes)
-- [[Coloured Pets After Forest]] — 2026-10-14: only forest Pets are grey; each later zone's six share one saturated body colour (desert golden amber 215, 152, 35)
+- [[Coloured Pets After Forest]] — superseded 2026-11-03 by [[Animal Pets]]; zone body colours of the rock Pets still in the game
+- [[Animal Pets]] — 2026-11-03: Pets become blocky animals in natural colours on Bloky's body, no rig, real animal names; the Fox sets the style; Capybara (starter pack) and King Rex (3x best Pet) replace Champ and Kingy; draft lineup and build order in `AnimalPetsPlan.md`; not built
 - [[Rebirth Gated By Strength]] — 2026-10-13: no levels; since 2026-11-03 one rebirth per rock (gate x5, draft stand unlocks at rebirths 1, 4, 7, 10, 13, each sets strength per 1 s rep); rebirth gives cash only; Robux buys the stand cash, never skips the gate (2026-10-18)
 - [[Balance Pass Oct 18]] — 2026-10-18: stands set training pace (arms ≤ x2.5), offline 2 h at 0.125, spam hatching OK, Cosmic $2.4T, Index claims scale per zone (10% of gate) and the Index bonus covers pedestals; Rush+storm add, friends cap +30%, sell 60 s; Ocean geode x3, Forest geode $500 with a $150 tutorial geode; all in Luau (Cozy and the Snow geode since 2026-10-20)
 - [[Training Minigame Board Slice]] — 2026-10-20: first training minigame is a Fruit Ninja-style 2D swipe game, optional on top of idle reps; server-counted slices fill a power meter that multiplies strength per rep (draft up to x2); bombs empty it
