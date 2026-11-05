@@ -2,6 +2,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
+local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
@@ -63,6 +64,12 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local cashAfter: TextLabel? = find(gui, "CashAfter", "TextLabel")
 	local strengthBefore: TextLabel? = find(gui, "StrengthBefore", "TextLabel")
 	local strengthAfter: TextLabel? = find(gui, "StrengthAfter", "TextLabel")
+	local trainingBefore: TextLabel? = find(gui, "TrainingBefore", "TextLabel")
+	local trainingAfter: TextLabel? = find(gui, "TrainingAfter", "TextLabel")
+	local warning: GuiObject? = find(gui, "Warning", "GuiObject")
+	local cashGroup: GuiObject? = if warning then find(warning, "CashGroup", "GuiObject") else nil
+	local andText: GuiObject? = if warning then find(warning, "AndText", "GuiObject") else nil
+	local strengthGroup: GuiObject? = if warning then find(warning, "StrengthGroup", "GuiObject") else nil
 	local levelText: TextLabel? = find(gui, "LevelText", "TextLabel")
 	local levelBar: Frame? = find(gui, "LevelBar", "Frame")
 	local fill: Frame? = if levelBar then find(levelBar, "Fill", "Frame") else nil
@@ -70,11 +77,24 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local closeButton: TextButton? = find(gui, "CloseButton", "TextButton")
 	local comingSoon: TextLabel? = find(gui, "ComingSoon", "TextLabel")
 	local hiddenWhenMaxed: { GuiObject } = {}
-	for _, name in { "Comparison", "Warning", "LevelBar", "Buttons" } do
+	for _, name in { "Comparison", "LevelBar", "Buttons" } do
 		local object = find(gui, name, "GuiObject")
 		if object then
 			table.insert(hiddenWhenMaxed, object)
 		end
+	end
+
+	if warning then
+		warning.Visible = RebirthConfig.ResetCash or RebirthConfig.ResetStrength
+	end
+	if cashGroup then
+		cashGroup.Visible = RebirthConfig.ResetCash
+	end
+	if andText then
+		andText.Visible = RebirthConfig.ResetCash and RebirthConfig.ResetStrength
+	end
+	if strengthGroup then
+		strengthGroup.Visible = RebirthConfig.ResetStrength
 	end
 
 	local isReady = false
@@ -105,8 +125,10 @@ function Rebirth.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		setText(afterTitle, `Rebirth {rebirths + 1}`)
 		setText(cashBefore, `{NumberFormat.Multiplier(cashNow)} Cash`)
 		setText(cashAfter, `{NumberFormat.Multiplier(nextRebirth.CashMultiplier)} Cash`)
-		setText(strengthBefore, `{TrainingStands.ForRebirths(rebirths).DisplayName} Training`)
-		setText(strengthAfter, `{TrainingStands.ForRebirths(rebirths + 1).DisplayName} Training`)
+		setText(strengthBefore, `Max {NumberFormat.Compact(nextRebirth.StrengthRequired)}`)
+		setText(strengthAfter, `Max {NumberFormat.Compact(RebirthStats.Get(rebirths + 2).StrengthRequired)}`)
+		setText(trainingBefore, `{TrainingStands.ForRebirths(rebirths).DisplayName} Training`)
+		setText(trainingAfter, `{TrainingStands.ForRebirths(rebirths + 1).DisplayName} Training`)
 		local required = nextRebirth.StrengthRequired
 		setText(
 			levelText,
