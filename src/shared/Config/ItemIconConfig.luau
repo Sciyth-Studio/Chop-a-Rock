@@ -1,6 +1,28 @@
 --!strict
 
 local ItemIconConfig: { [string]: { [string]: string } } = {
+	Geode = table.freeze({
+		Bamboo = "rbxassetid://129096109967829",
+		BambooB = "rbxassetid://91601054699436",
+		Desert = "rbxassetid://123436587936593",
+		DesertB = "rbxassetid://110774960126107",
+		Forest = "rbxassetid://97372662197910",
+		ForestB = "rbxassetid://137949648161213",
+		Jungle = "rbxassetid://87332483983456",
+		JungleB = "rbxassetid://130997659932265",
+		Ocean = "rbxassetid://128309200114164",
+		OceanB = "rbxassetid://72743945243514",
+		Ruins = "rbxassetid://107436212621512",
+		RuinsB = "rbxassetid://80186197506235",
+		Savanna = "rbxassetid://74934172477966",
+		SavannaB = "rbxassetid://108236854682116",
+		Snow = "rbxassetid://105715345946325",
+		SnowB = "rbxassetid://71334185566889",
+		Swamp = "rbxassetid://130525347715309",
+		SwampB = "rbxassetid://92949338540598",
+		Volcano = "rbxassetid://122070247198666",
+		VolcanoB = "rbxassetid://136998657903577",
+	}),
 	Pet = table.freeze({
 		Alligator = "rbxassetid://119434630544005",
 		Ankhy = "rbxassetid://113091077665524",

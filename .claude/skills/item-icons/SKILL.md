@@ -12,14 +12,14 @@ The look (approved 2026-10-23): a near-front, bright Cycles render, raised whole
 ## Files
 | File | What it is |
 | --- | --- |
-| `manifest.json` (this skill) | Icon key (`Pet/<PetKey>`, `Rock/<RockKey>`) → FBX path, plus a part → FBX object map when the names differ (`"Rock": "BoulderRock"`) |
+| `manifest.json` (this skill) | Icon key (`Pet/<PetKey>`, `Rock/<RockKey>`, `Geode/<ItemKey>` for eggs) → FBX path, plus a part → FBX object map when the names differ (`"Rock": "BoulderRock"`) |
 | `assets/Icons/specs.json` | Per icon, the Studio model's parts: colour, material, variant, size, mesh size, position, orientation. Also the stud variants and their tile textures |
 | `scripts/icon_renderer.py` (this skill) | Renders `assets/Icons/<Kind>_<Key>.png` and `contact_sheet.png` |
 | `textures/` (this skill) | Stud tiles: `SmallStud.png` sampled from Studio, `Inlet.png` drawn to match it (stored as 0.5 = ×1 brightness) |
 | `scripts/upload_icons.py` (repo) | Uploads new or changed PNGs and writes `ItemIconConfig.luau` |
 | `assets/Icons/uploaded.json` | Icon key → `{hash, id}`. Unchanged PNGs aren't uploaded again |
 | `src/shared/Config/ItemIconConfig.luau` | Generated `{ Pet = {...}, Rock = {...} }` of `rbxassetid://` ids. Don't hand-edit it |
-| `src/shared/Utils/ItemIcons.luau` | `Get(kind, key)`, `Apply(holder, kind, key, buildFallback)`, `Tint(visual, color)` |
+| `src/shared/Utils/ItemIcons.luau` | `Get(kind, key)`, `Apply(holder, kind, key, buildFallback)`, `Tint(visual, color)`. A Lucky or Falling egg with no icon of its own gets its base egg's |
 
 ## Adding or refreshing icons
 1. **Manifest.** Add `"Pet/<PetKey>": { "fbx": "assets/Pets/<Name>/<Name>.fbx", "objects": {} }`. For a rock, use the `Rock/<RockKey>` key and the FBX of the mesh its `Model_RockPreview_<RockKey>` uses. Several rocks share one mesh at different scales (Basic = Boulder at 0.6x, turned 180°), so check the preview's MeshId and size, not the folder name. Fill `objects` when a Studio part name isn't the FBX object name.
@@ -35,6 +35,9 @@ The look (approved 2026-10-23): a near-front, bright Cycles render, raised whole
 
 ## The API key
 `upload_icons.py` uses the existing Open Cloud key in the `ROBLOX_API_KEY` user env var (assets read/write, reaches group 10962733; see the vault note `Open Cloud Key`). The user chose it over a separate icons key on 2026-10-23. Never print, echo or write the key anywhere. The script passes it to curl through a temporary header file.
+
+## Eggs
+The 20 egg looks are `Geode/<Zone>` (first look) and `Geode/<Zone>B` (second look), from `assets/Eggs/<Look>/<Look>.fbx`. Lucky and Falling eggs need no entry. The meshlab eggs are one white `Body` MeshPart coloured by the mesh's vertex colours, so their spec parts carry `"vertexColors": true`, which multiplies the FBX colour attribute in. The painted eggs (JungleTiki, VolcanoEmber, VolcanoCrater, RuinsRune) use `textureFile` (`assets/Eggs/<Look>/<Look>_body.png`, studs baked in) instead. Rendering only one kind also writes `contact_sheet_<Kind>.png` (4 columns, so each zone's two eggs share a row).
 
 ## Renderer notes
 - Roblox (x, y, z) = Blender (-x, z, y) for FBXs made with `rock_builder.export_fbx`. Parts are placed from Studio's size, position and orientation (Ry·Rx·Rz), so the FBX's export scale doesn't matter.

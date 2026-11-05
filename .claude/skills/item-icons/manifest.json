@@ -453,5 +453,85 @@
   "Pet/NineTailedFox": {
     "fbx": "assets/Pets/NineTailedFox/NineTailedFox.fbx",
     "objects": {}
+  },
+  "Geode/Forest": {
+    "fbx": "assets/Eggs/ForestMossy/ForestMossy.fbx",
+    "objects": {}
+  },
+  "Geode/ForestB": {
+    "fbx": "assets/Eggs/ForestMushroom/ForestMushroom.fbx",
+    "objects": {}
+  },
+  "Geode/Desert": {
+    "fbx": "assets/Eggs/DesertMesa/DesertMesa.fbx",
+    "objects": {}
+  },
+  "Geode/DesertB": {
+    "fbx": "assets/Eggs/DesertCactus/DesertCactus.fbx",
+    "objects": {}
+  },
+  "Geode/Jungle": {
+    "fbx": "assets/Eggs/JungleVine/JungleVine.fbx",
+    "objects": {}
+  },
+  "Geode/JungleB": {
+    "fbx": "assets/Eggs/JungleTiki/JungleTiki.fbx",
+    "objects": {}
+  },
+  "Geode/Ocean": {
+    "fbx": "assets/Eggs/OceanReef/OceanReef.fbx",
+    "objects": {}
+  },
+  "Geode/OceanB": {
+    "fbx": "assets/Eggs/OceanBarnacle/OceanBarnacle.fbx",
+    "objects": {}
+  },
+  "Geode/Snow": {
+    "fbx": "assets/Eggs/SnowCap/SnowCap.fbx",
+    "objects": {}
+  },
+  "Geode/SnowB": {
+    "fbx": "assets/Eggs/SnowIcicle/SnowIcicle.fbx",
+    "objects": {}
+  },
+  "Geode/Swamp": {
+    "fbx": "assets/Eggs/SwampMud/SwampMud.fbx",
+    "objects": {}
+  },
+  "Geode/SwampB": {
+    "fbx": "assets/Eggs/SwampLily/SwampLily.fbx",
+    "objects": {}
+  },
+  "Geode/Savanna": {
+    "fbx": "assets/Eggs/SavannaAcacia/SavannaAcacia.fbx",
+    "objects": {}
+  },
+  "Geode/SavannaB": {
+    "fbx": "assets/Eggs/SavannaAnthill/SavannaAnthill.fbx",
+    "objects": {}
+  },
+  "Geode/Bamboo": {
+    "fbx": "assets/Eggs/BambooStalk/BambooStalk.fbx",
+    "objects": {}
+  },
+  "Geode/BambooB": {
+    "fbx": "assets/Eggs/BambooPagoda/BambooPagoda.fbx",
+    "objects": {}
+  },
+  "Geode/Volcano": {
+    "fbx": "assets/Eggs/VolcanoEmber/VolcanoEmber.fbx",
+    "objects": {}
+  },
+  "Geode/VolcanoB": {
+    "fbx": "assets/Eggs/VolcanoCrater/VolcanoCrater.fbx",
+    "objects": {}
+  },
+  "Geode/Ruins": {
+    "fbx": "assets/Eggs/RuinsRune/RuinsRune.fbx",
+    "objects": {}
+  },
+  "Geode/RuinsB": {
+    "fbx": "assets/Eggs/RuinsColumn/RuinsColumn.fbx",
+    "objects": {}
   }
 }
