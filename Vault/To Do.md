@@ -9,6 +9,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 
 ## Next
 - [ ] After the chop bar branch merges: delete `StarterGui.ChopMeter` and `StarterGui.TutorialChopHint` in Studio; the code now uses `ChopBar` and `TutorialChopBarHint` ([[Chop Minigame]]).
+- [ ] Animal Pets (direction chosen 2026-11-03, not built): all 32 are modelled and exported: Forest to Snow plus the Capybara and King Rex ([[Forest Animal Sheets]], [[Fox Reference]], [[Desert To Snow Animal Sheets]], [[Capybara And King Rex Sheets]]). All 32 are loaded in `ReplicatedStorage.Assets.Models.Pets` with `AssetRegistry` entries (2026-11-03), alongside the rock Pets, which the game still uses. Icons for all 32 are uploaded too ([[Item Icons]]). The config swap and save migration are merged into local `master` (2026-11-04, `AnimalPetsSwapPlan.md`), not pushed. Next: rename the Kingy Robux products if approved and archive the old rock models. The 30 Pets for zones 6-10 are approved, uploaded and loaded in Studio with registry entries (2026-11-04, [[Swamp To Ruins Animal Sheets]]); they still need effects and config. All 62 animals got the `Animal Stud` surface on 2026-11-04, and all 62 icons were re-rendered and uploaded the same day ([[Item Icons]]). The Koi icon still has black marks on its whiskers. See [[Animal Pets]]
 - [ ] Zone geodes, enemies and the new base (approved 2026-11-03, not built): `ZoneGeodesPlan.md`, see [[Zone Geodes And Enemies]]. Next: commit the 2026-11-03 work on `master`, then the Balance Model pass
 - [ ] Tutorial + hints (2026-10-27, in playtest by the user): 5-step tutorial, aura, Boulder and rebirth hints, 4-word text, one line on screen, head start, idle highlight, completion banner, camera turns to walk targets, Starter Offer after the Boulder hint. See [[Tutorial]]
 - [ ] Finish world 1: Swamp, Savanna, Bamboo Forest, Volcano, Golem Ruins + the Golem boss (added 2026-10-28, planned and approved 2026-10-29 in `World1Plan.md`, see [[World 1 Plan]]). Floor, terrace, entrance sign and spawn area blockouts for all five done 2026-10-29 ([[Zone Line]]); no rocks, Pets, geodes, decor or config yet. Decor for zones 6-10 built, recoloured against the floors and scattered on terraces and floors 2026-10-29 ([[Decor Lineups]], [[Meshlab]], [[Zone Line]]); the boss arena has none. Rocks for zones 6-10 built, uploaded, templated and configured 2026-10-31 ([[World 1 Rocks]]): RockConfig, AssetRegistry, Index Rocks pages, RockSpawnConfig; not playtested, no Index icons yet
@@ -26,7 +27,8 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
   - Tester's suggestion: watch someone new play the first few minutes without helping
 
 ## Waiting on the user
-- Zone geodes, Robux side: confirm the skip-wait dev product (9 R$); take "Gift: Auto Open" (3722325313) off sale; drop "Auto Open" from the VIP pass description. See [[Zone Geodes And Enemies]]
+- Skip Wait prices per zone: all ten are 9 R$ as a draft
+- Zone geodes, Robux side: take "Gift: Auto Open" (3722325313) off sale; drop "Auto Open" from the VIP pass description. See [[Zone Geodes And Enemies]]
 
 ## Deferred until the user raises it
 - Ascended Chop (1 in 1,000)
