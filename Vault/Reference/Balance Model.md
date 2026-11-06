@@ -1,10 +1,10 @@
 ---
-description: The user's Excel balance model (Downloads/Chop_a_Rock_Balance_Model_v12.xlsx, New Loop tab since 2026-11-03): what each tab checks, that Claude maintains it in this chat since 2026-10-19, and how to edit it without breaking it.
+description: The user's Excel balance model (Downloads/Chop_a_Rock_Balance_Model_v13.xlsx, New Loop tab since 2026-11-03, Starter Egg and King Rex since v13): what each tab checks, that Claude maintains it in this chat since 2026-10-19, and how to edit it without breaking it.
 type: reference
 ---
 # Balance model
 
-The user's spreadsheet model of the economy. It was first built in claude.ai, and since 2026-10-19 the user keeps it with Claude Code ("I'll just stick with this chat"). Latest: `C:\Users\Admin\Downloads\Chop_a_Rock_Balance_Model_v12.xlsx` (2026-11-03: new tab **New Loop** models [[Zone Geodes And Enemies]] for all 10 zones, with per-zone hatch time and Pet income columns on its far right; the other tabs still describe the old shop loop and weren't changed). v11 (2026-10-29: new tab **Zones 6-10** balances the world 1 finish from `World1Plan.md` with the same formulas, one row per zone; row 6 is Snow as a check and matches the other tabs; every check passes for zones 6-10; the main tabs still cover zones 1-5. v10, 2026-10-28: aura tiers 6-15). To re-run it, `scratchpad` scripts aren't kept: edit the yellow levers on the tab directly. Decisions made with it: [[Balance Pass Oct 18]].
+The user's spreadsheet model of the economy. It was first built in claude.ai, and since 2026-10-19 the user keeps it with Claude Code ("I'll just stick with this chat"). Latest: `C:\Users\Admin\Downloads\Chop_a_Rock_Balance_Model_v13.xlsx` (2026-11-05: New Loop rows 51-55 and columns BN-BV add the [[Starter Egg]] and King Rex, see below). v12 (2026-11-03: new tab **New Loop** models [[Zone Geodes And Enemies]] for all 10 zones, with per-zone hatch time and Pet income columns on its far right; the other tabs still describe the old shop loop and weren't changed). v11 (2026-10-29: new tab **Zones 6-10** balances the world 1 finish from `World1Plan.md` with the same formulas, one row per zone; row 6 is Snow as a check and matches the other tabs; every check passes for zones 6-10; the main tabs still cover zones 1-5. v10, 2026-10-28: aura tiers 6-15). To re-run it, `scratchpad` scripts aren't kept: edit the yellow levers on the tab directly. Decisions made with it: [[Balance Pass Oct 18]].
 
 ## Tabs
 - **Checks**: pass/fail per zone against the targets on Inputs. This is the summary to read first. 50 checks since v8; v9 passes 49, and the one failure (Snow has too little to save for) is expected until zone 6. Training targets are for idle players; the Board Slice check (columns E-F) only fails when a minigame player is too slow (see [[Training Minigame Board Slice]]).
@@ -24,3 +24,9 @@ The user's spreadsheet model of the economy. It was first built in claude.ai, an
 - In PowerShell 7, `$ws.Cells(r, c).Value2 = ...` can throw a cast error. Use `$ws.Range("A$r")` and cast values with `[double]` or `[string]`. In single-quoted strings, escape `'` as `''`.
 - To add a row to a block other formulas read (aura tiers, Pets), insert it *inside* the block (above its last row) so Excel widens every range that reads it.
 - Test options in a scratch copy first, then apply the chosen ones to a new version number, and add a "Changes in vN" list at the bottom of Read Me.
+
+## Starter Egg and King Rex (v13, 2026-11-05)
+- **Starter Egg** holds one hatch pad for 15 min from about 2 min in (lever B52, an assumption). Hatching runs on 7.9 / 7.0 / 7.4 pads in the Forest, Desert and Jungle (column BP feeds AC). The Pets share barely moves (Desert 36.6% to 34.5%), and the checks stay at 33 / 51.
+- **Capybara** ($100/s flat) opens in the Jungle, where every Pet already beats it, so it adds nothing to income (column BR). It's a reward for staying, not an earner.
+- **King Rex** (1,499 R$, 3x your best Pet) is a buyers-only scenario that isn't in the checks. With it, the Pets share is 40-49% in zones 1-3 and 58-66% from the Ocean on, over the 50% target. A lower multiplier or a cap would bring it back under.
+- Volcano and Golem Ruins already fail "pets too strong" without King Rex (51.2%, 53.1%).
