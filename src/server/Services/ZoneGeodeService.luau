@@ -160,7 +160,7 @@ local function grant(player: Player, geode: Geode)
 	geodes[geode.Id] = nil
 	services.RockService:UnblockSpot(player, blockOwner(geode.Id))
 	Packets.ZoneGeodeRemoved:FireClient(player, geode.Id)
-	services.NotificationService:Notify(player, "Purchase", `+1 {GeodeConfig.Geodes[geode.Zone].DisplayName}`)
+	services.NotificationService:Notify(player, "Purchase", `+1 {GeodeConfig.Geodes[geode.Key].DisplayName}`)
 	scheduleSpawn(player, geode.Zone, ZoneGeodeConfig.RespawnSeconds)
 end
 

@@ -13,6 +13,7 @@ export type Geode = {
 	StrengthRequired: number,
 	ModelKey: string,
 	SecondModelKey: string?,
+	SecondDisplayName: string?,
 	SplitModelKey: string,
 	Pets: { GeodePet },
 	HatchSeconds: number,
@@ -77,7 +78,7 @@ end
 local GeodeConfig: GeodeSettings = {
 	Geodes = {
 		Forest = {
-			DisplayName = "Forest Egg",
+			DisplayName = "Mossy Egg",
 			HatchSeconds = 30,
 			TabName = "Forest",
 			Order = 1,
@@ -85,6 +86,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Forest"),
 			ModelKey = "Model_Egg_ForestMossy",
 			SecondModelKey = "Model_Egg_ForestMushroom",
+			SecondDisplayName = "Mushroom Egg",
 			SplitModelKey = "Model_GeodeSplit_Basic",
 			Pets = {
 				{ PetKey = "Bunny", Weight = 59.78 },
@@ -96,7 +98,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Desert = {
-			DisplayName = "Desert Egg",
+			DisplayName = "Mesa Egg",
 			HatchSeconds = 120,
 			TabName = "Desert",
 			Order = 2,
@@ -104,6 +106,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Desert"),
 			ModelKey = "Model_Egg_DesertMesa",
 			SecondModelKey = "Model_Egg_DesertCactus",
+			SecondDisplayName = "Cactus Egg",
 			SplitModelKey = "Model_GeodeSplit_Desert",
 			Pets = {
 				{ PetKey = "Gecko", Weight = 57.2 },
@@ -115,7 +118,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Jungle = {
-			DisplayName = "Jungle Egg",
+			DisplayName = "Vine Egg",
 			HatchSeconds = 240,
 			TabName = "Jungle",
 			Order = 3,
@@ -123,6 +126,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Jungle"),
 			ModelKey = "Model_Egg_JungleVine",
 			SecondModelKey = "Model_Egg_JungleTiki",
+			SecondDisplayName = "Tiki Egg",
 			SplitModelKey = "Model_GeodeSplit_Jungle",
 			Pets = {
 				{ PetKey = "Monkey", Weight = 54.6 },
@@ -134,7 +138,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Ocean = {
-			DisplayName = "Ocean Egg",
+			DisplayName = "Reef Egg",
 			HatchSeconds = 300,
 			TabName = "Ocean",
 			Order = 4,
@@ -142,6 +146,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Ocean"),
 			ModelKey = "Model_Egg_OceanReef",
 			SecondModelKey = "Model_Egg_OceanBarnacle",
+			SecondDisplayName = "Barnacle Egg",
 			SplitModelKey = "Model_GeodeSplit_Ocean",
 			Pets = {
 				{ PetKey = "Crab", Weight = 49.4 },
@@ -153,7 +158,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Snow = {
-			DisplayName = "Snow Egg",
+			DisplayName = "Snowcap Egg",
 			HatchSeconds = 480,
 			TabName = "Snow",
 			Order = 5,
@@ -161,6 +166,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Snow"),
 			ModelKey = "Model_Egg_SnowCap",
 			SecondModelKey = "Model_Egg_SnowIcicle",
+			SecondDisplayName = "Icicle Egg",
 			SplitModelKey = "Model_GeodeSplit_Snow",
 			Pets = {
 				{ PetKey = "Penguin", Weight = 44.2 },
@@ -172,7 +178,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Swamp = {
-			DisplayName = "Swamp Egg",
+			DisplayName = "Mud Egg",
 			HatchSeconds = 660,
 			TabName = "Swamp",
 			Order = 6,
@@ -180,6 +186,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Swamp"),
 			ModelKey = "Model_Egg_SwampMud",
 			SecondModelKey = "Model_Egg_SwampLily",
+			SecondDisplayName = "Lily Egg",
 			SplitModelKey = "Model_GeodeSplit_Basic",
 			Pets = {
 				{ PetKey = "Frog", Weight = 39 },
@@ -191,7 +198,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Savanna = {
-			DisplayName = "Savanna Egg",
+			DisplayName = "Acacia Egg",
 			HatchSeconds = 720,
 			TabName = "Savanna",
 			Order = 7,
@@ -199,6 +206,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Savanna"),
 			ModelKey = "Model_Egg_SavannaAcacia",
 			SecondModelKey = "Model_Egg_SavannaAnthill",
+			SecondDisplayName = "Anthill Egg",
 			SplitModelKey = "Model_GeodeSplit_Basic",
 			Pets = {
 				{ PetKey = "Zebra", Weight = 37 },
@@ -218,6 +226,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Bamboo"),
 			ModelKey = "Model_Egg_BambooStalk",
 			SecondModelKey = "Model_Egg_BambooPagoda",
+			SecondDisplayName = "Pagoda Egg",
 			SplitModelKey = "Model_GeodeSplit_Basic",
 			Pets = {
 				{ PetKey = "Beetle", Weight = 35 },
@@ -229,7 +238,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Volcano = {
-			DisplayName = "Volcano Egg",
+			DisplayName = "Ember Egg",
 			HatchSeconds = 1200,
 			TabName = "Volcano",
 			Order = 9,
@@ -237,6 +246,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Volcano"),
 			ModelKey = "Model_Egg_VolcanoEmber",
 			SecondModelKey = "Model_Egg_VolcanoCrater",
+			SecondDisplayName = "Crater Egg",
 			SplitModelKey = "Model_GeodeSplit_Basic",
 			Pets = {
 				{ PetKey = "Salamander", Weight = 33 },
@@ -248,7 +258,7 @@ local GeodeConfig: GeodeSettings = {
 			},
 		},
 		Ruins = {
-			DisplayName = "Ruins Egg",
+			DisplayName = "Rune Egg",
 			HatchSeconds = 1620,
 			TabName = "Ruins",
 			Order = 10,
@@ -256,6 +266,7 @@ local GeodeConfig: GeodeSettings = {
 			StrengthRequired = weakestRock("Ruins"),
 			ModelKey = "Model_Egg_RuinsRune",
 			SecondModelKey = "Model_Egg_RuinsColumn",
+			SecondDisplayName = "Pillar Egg",
 			SplitModelKey = "Model_GeodeSplit_Basic",
 			Pets = {
 				{ PetKey = "Bat", Weight = 31 },
@@ -332,7 +343,7 @@ for _, key in baseKeys do
 		MinRarity = GeodeConfig.FallingMinRarity,
 	}
 	GeodeConfig.Geodes[key .. GeodeConfig.SecondLookSuffix] = {
-		DisplayName = geode.DisplayName,
+		DisplayName = geode.SecondDisplayName or geode.DisplayName,
 		TabName = geode.TabName,
 		Order = geode.Order,
 		Price = geode.Price,

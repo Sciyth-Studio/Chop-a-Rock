@@ -99,7 +99,8 @@ local function spawn(id: number, zone: string, look: number, position: Vector3, 
 	geodeTrove:Add(model)
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = ZoneGeodeConfig.PromptText
-	prompt.ObjectText = GeodeConfig.Geodes[zone].DisplayName
+	local lookKey = ZoneGeodeConfig.Zones[zone].Looks[look]
+	prompt.ObjectText = GeodeConfig.Geodes[lookKey or zone].DisplayName
 	prompt.HoldDuration = ZoneGeodeConfig.PromptHoldSeconds
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.MaxActivationDistance = ZoneGeodeConfig.PromptRangeStuds + math.max(boxSize.X, boxSize.Z) / 2
