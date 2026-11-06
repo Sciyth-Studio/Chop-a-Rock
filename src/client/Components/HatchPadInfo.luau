@@ -82,7 +82,8 @@ return function(_controllers: { [string]: any })
 				return
 			end
 			place()
-			local left = readyAt - workspace:GetServerTimeNow()
+			local paused = pad:GetAttribute("PausedSeconds")
+			local left = if type(paused) == "number" then paused else readyAt - workspace:GetServerTimeNow()
 			local text = if left <= 0 then GeodeConfig.HatchReadyText else timeText(left)
 			if text ~= shown then
 				shown = text

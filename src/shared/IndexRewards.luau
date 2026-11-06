@@ -183,8 +183,8 @@ function IndexRewards.CashMultiplier(index: any): number
 	return 1 + count * IndexConfig.ZoneCashBonus
 end
 
-function IndexRewards.OneIn(geodeKey: string, petKey: string): number?
-	for _, entry in HatchOdds.Chances(geodeKey, 1) do
+function IndexRewards.OneIn(geodeKey: string, petKey: string, luck: number): number?
+	for _, entry in HatchOdds.Chances(geodeKey, luck) do
 		if entry.PetKey == petKey and entry.Chance > 0 then
 			return math.max(1, math.floor(1 / entry.Chance + 0.5))
 		end

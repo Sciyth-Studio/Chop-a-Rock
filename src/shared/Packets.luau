@@ -166,7 +166,6 @@ local Packets = {
 		:Response(Packet.Boolean8)
 		:RateLimit(2, 1),
 	GiftReceived = Packet("GiftReceived", Packet.String, Packet.String, Packet.NumberF64),
-	StarterOfferShown = Packet("StarterOfferShown"):RateLimit(1, 5),
 	ClaimOffline = Packet("ClaimOffline"):RateLimit(1, 2),
 	ClaimFreeGift = Packet("ClaimFreeGift"):Response(Packet.String):RateLimit(2, 1),
 	ThankGift = Packet("ThankGift", Packet.NumberF64):RateLimit(2, 5),

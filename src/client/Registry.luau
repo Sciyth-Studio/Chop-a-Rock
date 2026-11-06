@@ -18,6 +18,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.ChopAnimationController),
 	require(script.Parent.Controllers.HeldItemController),
 	require(script.Parent.Controllers.HatchController),
+	require(script.Parent.Controllers.StarterEggController),
 	require(script.Parent.Controllers.TrainingController),
 	require(script.Parent.Controllers.GuideController),
 	require(script.Parent.Controllers.NotificationController),

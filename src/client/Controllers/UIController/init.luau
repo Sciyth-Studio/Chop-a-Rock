@@ -27,7 +27,6 @@ local modules: { [string]: Types.ScreenModule } = {
 	SellShop = require(script.Screens.SellShop),
 	RobuxShop = require(script.Screens.RobuxShop),
 	GiftPicker = require(script.Screens.GiftPicker),
-	StarterOffer = require(script.Screens.StarterOffer),
 	WelcomeBack = require(script.Screens.WelcomeBack),
 	FreeGift = require(script.Screens.FreeGift),
 	OfferRail = require(script.Screens.OfferRail),

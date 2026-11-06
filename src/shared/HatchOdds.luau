@@ -68,6 +68,16 @@ function HatchOdds.Chances(geodeKey: string, luck: number, minRarity: string?): 
 	return chances
 end
 
+function HatchOdds.LuckyShare(geodeKey: string, luck: number): number
+	local share = 0
+	for _, entry in HatchOdds.Chances(geodeKey, luck) do
+		if isLucky(entry.PetKey) then
+			share += entry.Chance
+		end
+	end
+	return share
+end
+
 function HatchOdds.Roll(random: Random, geodeKey: string, luck: number, minRarity: string?): string?
 	local chances = HatchOdds.Chances(geodeKey, luck, minRarity)
 	local roll = random:NextNumber()

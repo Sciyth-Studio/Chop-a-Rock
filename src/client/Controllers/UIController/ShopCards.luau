@@ -9,9 +9,6 @@ local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RobuxShopConfig = require(ReplicatedStorage.Config.RobuxShopConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
-local CashPack = require(ReplicatedStorage.Utils.CashPack)
-local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
-local ShopPrices = require(script.Parent.ShopPrices)
 
 local ShopCards = {}
 
@@ -132,75 +129,6 @@ end
 function ShopCards.PetIcon(petKey: string): string?
 	local pets = (ItemIconConfig :: any).Pet
 	return if type(pets) == "table" then pets[petKey] else nil
-end
-
-function ShopCards.FillStarter(inner: Instance, strength: number, isRestricted: boolean)
-	local starter = MonetizationConfig.StarterPack
-	local items = inner:FindFirstChild("Items")
-	local itemTemplate = if items then items:FindFirstChild("ItemTemplate") else nil
-	local plusTemplate = if items then items:FindFirstChild("PlusTemplate") else nil
-	if not items or not itemTemplate or not plusTemplate then
-		return
-	end
-	for _, child in items:GetChildren() do
-		if child:GetAttribute("StarterItem") then
-			child:Destroy()
-		end
-	end
-	local geodes = starter.Geodes + if isRestricted then starter.RestrictedExtraGeodes else 0
-	local cash = CashPack.GeodeValue(geodes, strength)
-	local champ = PetConfig.Pets[starter.PetKey]
-	local champIcon = ShopCards.PetIcon(starter.PetKey)
-	local entries = {
-		{ Icon = IconConfig.Cash3, Label = `+${NumberFormat.Compact(cash)}`, Income = "", Outline = true },
-		{
-			Icon = IconConfig.Strength,
-			Label = `2x {starter.BoostSeconds // 60} min`,
-			Income = "",
-			Outline = true,
-		},
-	}
-	if not isRestricted then
-		table.insert(
-			entries,
-			{ Icon = IconConfig.LuckyGeode, Label = "Lucky Egg", Income = "", Outline = true }
-		)
-	end
-	table.insert(entries, {
-		Icon = champIcon or IconConfig.Crown,
-		Label = if champ then champ.DisplayName else starter.PetKey,
-		Income = if champ then `${NumberFormat.Rate(champ.MoneyPerSecond)}/s` else "",
-		Outline = champIcon == nil,
-	})
-	local order = 0
-	for index, entry in entries do
-		if index > 1 then
-			order += 1
-			local plus = plusTemplate:Clone()
-			plus:SetAttribute("StarterItem", true)
-			if plus:IsA("GuiObject") then
-				plus.Visible = true
-				plus.LayoutOrder = order
-			end
-			plus.Parent = items
-		end
-		order += 1
-		local item = itemTemplate:Clone()
-		item:SetAttribute("StarterItem", true)
-		if item:IsA("GuiObject") then
-			item.Visible = true
-			item.LayoutOrder = order
-		end
-		ShopCards.SetIcon(item, entry.Icon, entry.Outline)
-		ShopCards.SetText(item, "Label", entry.Label)
-		ShopCards.SetText(item, "Income", entry.Income)
-		item.Parent = items
-	end
-	local medium = CashPackConfig.Packs[2]
-	local worth = math.floor(medium.RobuxPrice / medium.Geodes * geodes)
-		+ MonetizationConfig.Boosts[1].Products[1].RobuxPrice * (starter.BoostSeconds // 900)
-		+ if isRestricted then 0 else MonetizationConfig.LuckyGeodeProducts[2].RobuxPrice
-	ShopCards.SetText(inner, "Worth", ShopPrices.Format(worth))
 end
 
 export type GiftInfo = {

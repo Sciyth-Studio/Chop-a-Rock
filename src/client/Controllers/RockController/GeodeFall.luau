@@ -1,7 +1,6 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
@@ -11,7 +10,7 @@ local Packets = require(ReplicatedStorage.Packets)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local Trove = require(ReplicatedStorage.Packages.Trove)
-local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
+local FallEffects = require(ReplicatedStorage.Utils.FallEffects)
 local Effects = require(script.Parent.Effects)
 
 type TroveInstance = typeof(Trove.new())
@@ -29,169 +28,13 @@ type Active = {
 
 local GeodeFall = {}
 
-local soundSeconds = 8
-
 local function numberAttribute(instance: Instance, name: string): number
 	local value = instance:GetAttribute(name)
 	return if type(value) == "number" then value else 0
 end
 
-local function tintSequence(sequence: ColorSequence, color: Color3): ColorSequence
-	local keypoints = {}
-	for _, keypoint in sequence.Keypoints do
-		local value = keypoint.Value
-		local spread = math.max(value.R, value.G, value.B) - math.min(value.R, value.G, value.B)
-		table.insert(
-			keypoints,
-			ColorSequenceKeypoint.new(
-				keypoint.Time,
-				if spread >= GeodeFallConfig.TintSaturation then color else value
-			)
-		)
-	end
-	return ColorSequence.new(keypoints)
-end
-
-local function tint(root: Instance, color: Color3)
-	for _, item in root:GetDescendants() do
-		if item:GetAttribute(GeodeFallConfig.TintAttribute) ~= true then
-			continue
-		end
-		if item:IsA("ParticleEmitter") then
-			item.Color = tintSequence(item.Color, color)
-		elseif item:IsA("Trail") then
-			item.Color = tintSequence(item.Color, color)
-		elseif item:IsA("Beam") then
-			item.Color = tintSequence(item.Color, color)
-		elseif item:IsA("Light") then
-			item.Color = color
-		end
-	end
-end
-
-local function playEffect(key: string, cframe: CFrame, color: Color3)
-	local asset = AssetRegistry.get(key)
-	if not asset:IsA("Model") then
-		asset:Destroy()
-		return
-	end
-	tint(asset, color)
-	VFXEmit.play(asset, cframe)
-	asset:Destroy()
-end
-
-local function addMeteor(trove: TroveInstance, part: BasePart): () -> ()
-	local asset = AssetRegistry.get(GeodeFallConfig.MeteorKey)
-	local root = if asset:IsA("Model") then asset.PrimaryPart or asset:FindFirstChild("Root") else nil
-	if not root then
-		asset:Destroy()
-		return function() end
-	end
-	local moved: { Instance } = {}
-	for _, child in root:GetChildren() do
-		child.Parent = part
-		trove:Add(child)
-		table.insert(moved, child)
-		for _, item in child:GetDescendants() do
-			if item:IsA("ParticleEmitter") then
-				item.Enabled = true
-			end
-		end
-	end
-	asset:Destroy()
-	return function()
-		for _, child in moved do
-			for _, item in child:GetDescendants() do
-				if item:IsA("ParticleEmitter") then
-					item.Enabled = false
-				end
-			end
-		end
-	end
-end
-
-local function soundAt(key: string, position: Vector3)
-	local sound = AssetRegistry.get(key)
-	if not sound:IsA("Sound") then
-		sound:Destroy()
-		return
-	end
-	local anchor = Instance.new("Attachment")
-	anchor.WorldPosition = position
-	anchor.Parent = workspace.Terrain
-	sound.Parent = anchor
-	sound:Play()
-	task.delay(soundSeconds, function()
-		anchor:Destroy()
-	end)
-end
-
-local function shakeCamera(position: Vector3)
-	local character = Players.LocalPlayer.Character
-	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
-	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
-	if not root or not root:IsA("BasePart") or not humanoid then
-		return
-	end
-	if (root.Position - position).Magnitude > GeodeFallConfig.ShakeDistance then
-		return
-	end
-	local started = os.clock()
-	local connection: RBXScriptConnection
-	connection = RunService.RenderStepped:Connect(function()
-		local progress = (os.clock() - started) / GeodeFallConfig.ShakeSeconds
-		if progress >= 1 or not humanoid.Parent then
-			connection:Disconnect()
-			humanoid.CameraOffset = Vector3.zero
-			return
-		end
-		local studs = GeodeFallConfig.ShakeStuds * (1 - progress)
-		humanoid.CameraOffset = Vector3.new(
-			(math.random() * 2 - 1) * studs,
-			(math.random() * 2 - 1) * studs,
-			(math.random() * 2 - 1) * studs
-		)
-	end)
-end
-
 local function groundOf(target: CFrame): CFrame
 	return CFrame.new(target.Position + Vector3.new(0, RockSpawnConfig.SinkStuds, 0))
-end
-
-local function addIdle(trove: TroveInstance, ground: CFrame, color: Color3)
-	local asset = AssetRegistry.get(GeodeFallConfig.IdleKey)
-	if not asset:IsA("Model") then
-		asset:Destroy()
-		return
-	end
-	tint(asset, color)
-	local top = asset:FindFirstChild(GeodeFallConfig.PillarTopName, true)
-	if top and top:IsA("Attachment") then
-		top.Position = Vector3.new(0, GeodeFallConfig.PillarHeightStuds, 0)
-	end
-	asset:PivotTo(ground)
-	asset.Parent = workspace
-	trove:Add(asset)
-end
-
-local function paint(label: TextLabel?, color: Color3)
-	if not label then
-		return
-	end
-	local light = color:Lerp(Color3.new(1, 1, 1), GeodeFallConfig.LabelLightLerp)
-	local dark = color:Lerp(Color3.new(0, 0, 0), GeodeFallConfig.LabelDarkLerp)
-	local gradient = label:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, color),
-			ColorSequenceKeypoint.new(0.5, light),
-			ColorSequenceKeypoint.new(1, color),
-		})
-	end
-	local stroke = label:FindFirstChildWhichIsA("UIStroke")
-	if stroke then
-		stroke.Color = dark
-	end
 end
 
 local function findLabel(root: Instance, name: string): TextLabel?
@@ -216,8 +59,8 @@ local function makeLabel(trove: TroveInstance, state: Active)
 	asset.Adornee = part
 	asset.MaxDistance = GeodeFallConfig.LabelMaxDistance
 	asset.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + GeodeFallConfig.LabelHeightAboveGeode, 0)
-	paint(nameLabel, state.Color)
-	paint(timeLabel, state.Color)
+	FallEffects.PaintLabel(nameLabel, state.Color)
+	FallEffects.PaintLabel(timeLabel, state.Color)
 	if nameLabel then
 		nameLabel.Text = GeodeFallConfig.DisplayName
 	end
@@ -272,7 +115,7 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 			return
 		end
 		state.IsUp = true
-		addIdle(state.LandTrove, ground, state.Color)
+		FallEffects.AddIdle(state.LandTrove, ground, state.Color)
 		makeLabel(state.LandTrove, state)
 		refreshPrompt(state)
 	end
@@ -350,7 +193,7 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 		end
 		local sky = target + Vector3.new(0, GeodeFallConfig.FallHeightStuds, 0)
 		model:PivotTo(sky)
-		playEffect(GeodeFallConfig.MarkerKey, ground, color)
+		FallEffects.Play(GeodeFallConfig.MarkerKey, ground, color)
 		local markerStart = os.clock()
 		local markerSeconds = math.max(untilLand, 0.1)
 		local fallSeconds = math.min(GeodeFallConfig.FallSeconds, untilLand)
@@ -361,8 +204,8 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 			local now = os.clock()
 			if not fallStart and now - markerStart >= markerSeconds - fallSeconds then
 				fallStart = now
-				stopTrail = addMeteor(geodeTrove, part)
-				soundAt(GeodeFallConfig.FallSoundKey, target.Position)
+				stopTrail = FallEffects.AddMeteor(geodeTrove, part)
+				FallEffects.SoundAt(GeodeFallConfig.FallSoundKey, target.Position)
 			end
 			local started = fallStart
 			if not started then
@@ -380,9 +223,9 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 				stopTrail()
 			end
 			model:PivotTo(target)
-			playEffect(GeodeFallConfig.ImpactKey, ground, color)
-			soundAt(GeodeFallConfig.LandSoundKey, target.Position)
-			shakeCamera(target.Position)
+			FallEffects.Play(GeodeFallConfig.ImpactKey, ground, color)
+			FallEffects.SoundAt(GeodeFallConfig.LandSoundKey, target.Position)
+			FallEffects.ShakeCamera(target.Position)
 			land(state, ground)
 		end)
 		if connection then

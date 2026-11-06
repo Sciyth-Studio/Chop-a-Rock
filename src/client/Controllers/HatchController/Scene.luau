@@ -11,6 +11,7 @@ local PetModifier = require(ReplicatedStorage.PetModifier)
 local PetSize = require(ReplicatedStorage.PetSize)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RarityRibbon = require(ReplicatedStorage.Utils.RarityRibbon)
+local StarterEggConfig = require(ReplicatedStorage.Config.StarterEggConfig)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local Types = require(script.Parent.Types)
 
@@ -33,16 +34,21 @@ end
 
 function Scene.Build(spot: Attachment, geodeKey: string): Types.Scene?
 	local geode = GeodeConfig.Geodes[geodeKey]
-	if not geode then
+	local isStarter = geodeKey == StarterEggConfig.Key
+	local modelKey = if geode then geode.ModelKey elseif isStarter then StarterEggConfig.ModelKey else nil
+	if not modelKey then
 		return nil
 	end
-	local asset = AssetRegistry.get(geode.ModelKey)
+	local asset = AssetRegistry.get(modelKey)
 	if not asset:IsA("Model") then
 		asset:Destroy()
-		warn(`[HatchController] Asset "{geode.ModelKey}" is not a Model`)
+		warn(`[HatchController] Asset "{modelKey}" is not a Model`)
 		return nil
 	end
 	local model = asset :: Model
+	if isStarter then
+		model:ScaleTo(StarterEggConfig.Scale)
+	end
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			descendant.Anchored = true

@@ -231,13 +231,14 @@ function PurchaseService.GetSkipHatchPad(_self: any, player: Player): number?
 	return skipHatchPads[player]
 end
 
-function PurchaseService.PromptSkipHatch(_self: any, player: Player, padIndex: number, zone: string)
+function PurchaseService.PromptSkipHatch(_self: any, player: Player, padIndex: number, zone: string): boolean
 	local productId = MonetizationConfig.SkipHatch.Products[zone]
 	if not productId then
-		return
+		return false
 	end
 	skipHatchPads[player] = padIndex
 	MarketplaceService:PromptProductPurchase(player, productId)
+	return true
 end
 
 function PurchaseService.Init(_self: any, services: { [string]: any })

@@ -41,6 +41,14 @@ export type StarterPack = {
 	SecondChanceUsed: boolean,
 }
 
+export type StarterEgg = {
+	HasEgg: boolean,
+	HasLanded: boolean,
+	SecondsLeft: number,
+	PadIndex: number,
+	IsOpened: boolean,
+}
+
 export type Offline = {
 	LastAmount: number,
 	LastAt: number,
@@ -81,6 +89,7 @@ export type Data = {
 	Boosts: { [string]: number },
 	Offers: { [string]: boolean },
 	StarterPack: StarterPack,
+	StarterEgg: StarterEgg,
 	Offline: Offline,
 	PendingPets: { [string]: number },
 	Exclusives: { [string]: boolean },
@@ -134,6 +143,7 @@ PlayerData.Template = {
 	Boosts = {},
 	Offers = {},
 	StarterPack = { Bought = false, OfferEndsAt = 0, SecondChanceUsed = false },
+	StarterEgg = { HasEgg = false, HasLanded = false, SecondsLeft = 0, PadIndex = 0, IsOpened = false },
 	Offline = { LastAmount = 0, LastAt = 0 },
 	PendingPets = {},
 	Exclusives = {},
@@ -334,6 +344,23 @@ function PlayerData.Validate(data: any): boolean
 			end
 		end
 		if starter.OfferEndsAt ~= nil and not natural(starter.OfferEndsAt) then
+			return false
+		end
+	end
+	if data.StarterEgg ~= nil then
+		local egg = data.StarterEgg
+		if type(egg) ~= "table" then
+			return false
+		end
+		for _, key in { "HasEgg", "HasLanded", "IsOpened" } do
+			if egg[key] ~= nil and type(egg[key]) ~= "boolean" then
+				return false
+			end
+		end
+		if egg.PadIndex ~= nil and not natural(egg.PadIndex) then
+			return false
+		end
+		if egg.SecondsLeft ~= nil and not natural(egg.SecondsLeft) then
 			return false
 		end
 	end

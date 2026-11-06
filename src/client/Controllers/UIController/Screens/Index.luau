@@ -1,10 +1,12 @@
 --!strict
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local IndexRewards = require(ReplicatedStorage.IndexRewards)
+local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
@@ -246,7 +248,10 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			setText(detailCount, `Broken {NumberFormat.CompactRock(count)}`)
 		else
 			local pet = PetConfig.Pets[key]
-			local oneIn = if zone and zone.GeodeKey then IndexRewards.OneIn(zone.GeodeKey, key) else nil
+			local luck = Players.LocalPlayer:GetAttribute(LuckConfig.LuckAttribute)
+			local oneIn = if zone and zone.GeodeKey
+				then IndexRewards.OneIn(zone.GeodeKey, key, if type(luck) == "number" then luck else 1)
+				else nil
 			setText(detailOdds, if oneIn then `1 in {NumberFormat.Commas(oneIn)}` else "")
 			setText(detailStat, if pet then `${NumberFormat.Commas(pet.MoneyPerSecond)}/s` else "")
 			setText(detailCount, `Hatched {NumberFormat.Commas(count)}`)
@@ -492,6 +497,11 @@ function Index.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			refresh()
 		end
 	end))
+	trove:Connect(Players.LocalPlayer:GetAttributeChangedSignal(LuckConfig.LuckAttribute), function()
+		if builtPage then
+			refresh()
+		end
+	end)
 
 	return {
 		Modal = true,

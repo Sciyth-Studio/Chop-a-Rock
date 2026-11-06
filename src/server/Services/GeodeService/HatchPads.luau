@@ -111,18 +111,20 @@ function HatchPads.Render(
 	record: any,
 	canAct: boolean,
 	nextGeode: any,
-	canSkip: boolean
+	canSkip: boolean,
+	pausedSeconds: number?
 )
 	local part, prompt = pad.Part, pad.Prompt
 	part:SetAttribute("OwnerUserId", owner.UserId)
 	part:SetAttribute("GeodeKey", if record then record.GeodeKey else nil)
 	part:SetAttribute("ReadyAt", if record then record.ReadyAt else nil)
+	part:SetAttribute("PausedSeconds", pausedSeconds)
 	prompt:SetAttribute("OwnerUserId", owner.UserId)
 	if record then
 		local geode = GeodeConfig.Geodes[record.GeodeKey]
 		Effects.ShowOnPad(pad, if geode then geode.ModelKey else nil)
 		prompt.ObjectText = if geode then geode.DisplayName else ""
-		local isReady = HatchPads.IsReady(record)
+		local isReady = pausedSeconds == nil and HatchPads.IsReady(record)
 		prompt.ActionText = if isReady then GeodeConfig.OpenPromptText else GeodeConfig.SkipPromptText
 		prompt:SetAttribute("Active", canAct and (isReady or canSkip))
 	else
@@ -138,6 +140,7 @@ function HatchPads.ClearDisplay(pad: Types.Pad)
 	pad.Part:SetAttribute("OwnerUserId", nil)
 	pad.Part:SetAttribute("GeodeKey", nil)
 	pad.Part:SetAttribute("ReadyAt", nil)
+	pad.Part:SetAttribute("PausedSeconds", nil)
 	pad.Prompt:SetAttribute("OwnerUserId", nil)
 	pad.Prompt:SetAttribute("Active", false)
 end

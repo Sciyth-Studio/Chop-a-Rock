@@ -1,11 +1,50 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PetMotionConfig = require(ReplicatedStorage.Config.PetMotionConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 
 local PetModifier = {}
+
+local function scaleEmitter(emitter: ParticleEmitter, factor: number)
+	local keypoints = {}
+	for _, keypoint in emitter.Size.Keypoints do
+		table.insert(
+			keypoints,
+			NumberSequenceKeypoint.new(keypoint.Time, keypoint.Value * factor, keypoint.Envelope * factor)
+		)
+	end
+	emitter.Size = NumberSequence.new(keypoints)
+	emitter.Speed = NumberRange.new(emitter.Speed.Min * factor, emitter.Speed.Max * factor)
+	emitter.Acceleration *= factor
+end
+
+function PetModifier.AddVFX(part: BasePart, modifier: string, trove: any)
+	local config = PetModifier.Get(modifier)
+	if not config then
+		return
+	end
+	local factor = part.Size.X / WeatherConfig.PetVFXReferenceStuds
+	local template = AssetRegistry.get(config.VFXKey)
+	for _, child in template:GetChildren() do
+		if child:IsA("ParticleEmitter") then
+			local emitter = child:Clone()
+			scaleEmitter(emitter, factor)
+			emitter.Name = WeatherConfig.PetVFXName
+			emitter.Parent = part
+			trove:Add(emitter)
+		elseif child:IsA("PointLight") then
+			local light = child:Clone()
+			light.Range *= factor
+			light.Name = WeatherConfig.PetVFXName
+			light.Parent = part
+			trove:Add(light)
+		end
+	end
+	template:Destroy()
+end
 
 function PetModifier.Get(modifier: string?): WeatherConfig.Modifier?
 	return if modifier then WeatherConfig.Modifiers[modifier] else nil

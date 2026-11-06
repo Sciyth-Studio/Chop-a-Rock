@@ -4,7 +4,9 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local CashPackConfig = require(ReplicatedStorage.Config.CashPackConfig)
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
+local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
@@ -114,12 +116,46 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		return tray, inner
 	end
 
-	local function details(inner: Frame, message: string)
+	local function details(inner: Frame, message: string, extra: (() -> string?)?)
 		local button = Cards.Find(inner, "DetailsButton")
 		Cards.SetButton(button, texts.Details, RobuxShopConfig.PillColors)
 		onClick(button, function()
 			notify(message)
+			local line = if extra then extra() else nil
+			if line then
+				notify(line)
+			end
 		end)
+	end
+
+	local luckyFloor = ""
+	for _, rarityKey in RarityConfig.Order do
+		local rarity = RarityConfig.Rarities[rarityKey]
+		if rarity and rarity.IsLucky then
+			luckyFloor = rarity.DisplayName
+			break
+		end
+	end
+
+	local function luckOdds(extraLuck: number): string?
+		local baseKey = GeodeOrder.ForStrength(readNumber({ "PeakStrength" }))
+		local geode = if baseKey then GeodeConfig.Geodes[baseKey] else nil
+		if not baseKey or not geode then
+			return nil
+		end
+		local current = player:GetAttribute(LuckConfig.LuckAttribute)
+		local luck = if type(current) == "number" then current else 1
+		return string.format(
+			texts.LuckOdds,
+			luckyFloor,
+			geode.TabName,
+			NumberFormat.Percent(HatchOdds.LuckyShare(baseKey, luck)),
+			NumberFormat.Percent(HatchOdds.LuckyShare(baseKey, luck + extraLuck))
+		)
+	end
+
+	local function passLuckOdds(): string?
+		return luckOdds(if purchases:OwnsPass("Luck") then 0 else LuckConfig.GamepassMultiplier - 1)
 	end
 
 	local function zoneLuckyKey(): string?
@@ -228,7 +264,16 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			Cards.SetVisible(inner, "Worth", false)
 			details(
 				inner,
-				boost.DisplayName .. ": " .. string.format(texts.ServerBlurb, string.lower(boost.Key))
+				boost.DisplayName .. ": " .. string.format(texts.ServerBlurb, string.lower(boost.Key)),
+				if boost.Key == "Luck"
+					then function(): string?
+						local endsAt = workspace:GetAttribute(
+							MonetizationConfig.ServerBoostEndsAttributePrefix .. boost.Key
+						)
+						local isActive = type(endsAt) == "number" and endsAt > workspace:GetServerTimeNow()
+						return luckOdds(if isActive then 0 else MonetizationConfig.ServerBoostBonus)
+					end
+					else nil
 			)
 			local buy = Cards.Find(inner, "BuyButton")
 			price(buy, "Product", boost.ProductId, boost.RobuxPrice)
@@ -247,37 +292,6 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			end)
 			add(tray)
 		end
-	end
-
-	local function buildStarter()
-		local starter = MonetizationConfig.StarterPack
-		local tray, inner = card("StarterCard", "Sky", true)
-		if not tray or not inner then
-			return
-		end
-		Cards.SetText(inner, "Title", texts.StarterTitle)
-		local buy = Cards.Find(inner, "BuyButton")
-		price(buy, "Product", starter.ProductId, starter.RobuxPrice)
-		onClick(buy, function()
-			purchases:PromptStarterPack()
-		end)
-		local function refresh()
-			local offerEndsAt = readNumber({ "StarterPack", "OfferEndsAt" })
-			local isBought = dataController:Get({ "StarterPack", "Bought" }) == true
-			tray.Visible = not isBought and workspace:GetServerTimeNow() < offerEndsAt
-			local isRestricted = player:GetAttribute(MonetizationConfig.RandomItemsRestrictedAttribute)
-				== true
-			Cards.FillStarter(inner, readNumber({ "PeakStrength" }), isRestricted)
-		end
-		table.insert(refreshers, refresh)
-		table.insert(timers, function(now: number)
-			local left = readNumber({ "StarterPack", "OfferEndsAt" }) - now
-			Cards.SetText(inner, "Timer", Cards.Clock(left))
-			if left <= 0 and tray.Visible then
-				tray.Visible = false
-			end
-		end)
-		add(tray)
 	end
 
 	local function buildBoosts()
@@ -364,7 +378,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		Cards.SetVisible(inner, "Big", false)
 		Cards.SetVisible(inner, "Blurb", false)
 		Cards.SetVisible(inner, "AltButton", false)
-		Cards.SetVisible(inner, "DetailsButton", false)
+		details(inner, `{pass.DisplayName}: {pass.Blurb}`, passLuckOdds)
 		local perks = inner:FindFirstChild("Perks")
 		local perkTemplate = if perks then perks:FindFirstChild("PerkTemplate") else nil
 		if perks and perks:IsA("GuiObject") and perkTemplate then
@@ -459,7 +473,11 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			Cards.SetText(inner, "Blurb", pass.Blurb)
 			Cards.SetText(inner, "Ribbon", RobuxShopConfig.PassRibbons[pass.Key] or "")
 			Cards.SetIcon(inner, RobuxShopConfig.PassIcons[pass.Key] or IconConfig.Shop, true)
-			details(inner, `{pass.DisplayName}: {pass.Blurb}`)
+			details(
+				inner,
+				`{pass.DisplayName}: {pass.Blurb}`,
+				if pass.Key == "Luck" then passLuckOdds else nil
+			)
 			local buy = Cards.Find(inner, "BuyButton")
 			onClick(buy, function()
 				purchases:PromptPass(pass.Key)
@@ -525,7 +543,6 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	buildLucky()
 	buildServerBoosts()
-	buildStarter()
 	buildBoosts()
 	buildVip()
 	buildExclusives()
@@ -552,7 +569,7 @@ function RobuxShop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	for _, path in { { "PeakStrength" }, { "StarterPack" }, { "Offers" }, { "Exclusives" } } do
+	for _, path in { { "PeakStrength" }, { "Offers" }, { "Exclusives" } } do
 		trove:Add(dataController:Observe(path, refreshAll))
 	end
 	trove:Connect(player.AttributeChanged, function(name: string)

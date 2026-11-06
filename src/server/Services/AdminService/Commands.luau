@@ -255,15 +255,16 @@ local Commands: { [string]: Types.Handler } = {
 		end
 		notify(context, player, "choose a server boost")
 	end,
-	GrantStarterPack = function(context: Types.Context, player: Player, _argument: string)
-		if context.Services.OfferService:GrantStarterPack(player) then
-			notify(context, player, "starter pack granted")
+	GiveStarterEgg = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.StarterEggService:Give(player) then
+			notify(context, player, "starter egg given, it drops when you're at your base")
 		end
 	end,
-	ResetStarterPack = function(context: Types.Context, player: Player, _argument: string)
-		if context.Services.OfferService:ResetStarterPack(player) then
-			context.Services.OfferService:OpenStarterWindow(player)
-			notify(context, player, "starter pack reset, offer open for 24 h")
+	StarterEggReady = function(context: Types.Context, player: Player, _argument: string)
+		if context.Services.StarterEggService:SetSecondsLeft(player, 10) then
+			notify(context, player, "starter egg: 10 s left")
+		else
+			notify(context, player, "no starter egg")
 		end
 	end,
 	GrantExclusive = function(context: Types.Context, player: Player, argument: string)

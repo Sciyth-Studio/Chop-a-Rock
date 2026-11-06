@@ -43,20 +43,7 @@ local function playCatch(root: Instance, modifier: WeatherConfig.Modifier)
 	})
 end
 
-local function scaleEmitter(emitter: ParticleEmitter, factor: number)
-	local keypoints = {}
-	for _, keypoint in emitter.Size.Keypoints do
-		table.insert(
-			keypoints,
-			NumberSequenceKeypoint.new(keypoint.Time, keypoint.Value * factor, keypoint.Envelope * factor)
-		)
-	end
-	emitter.Size = NumberSequence.new(keypoints)
-	emitter.Speed = NumberRange.new(emitter.Speed.Min * factor, emitter.Speed.Max * factor)
-	emitter.Acceleration *= factor
-end
-
-local function dress(root: Instance, trove: any, modifier: WeatherConfig.Modifier, key: string)
+local function dress(root: Instance, trove: any, key: string)
 	local colors: { [BasePart]: Color3 } = {}
 	for _, descendant in root:GetDescendants() do
 		if descendant:IsA("BasePart") then
@@ -70,27 +57,9 @@ local function dress(root: Instance, trove: any, modifier: WeatherConfig.Modifie
 		end
 	end)
 	local part = mainPart(root)
-	if not part then
-		return
+	if part then
+		PetModifier.AddVFX(part, key, trove)
 	end
-	local factor = part.Size.X / WeatherConfig.PetVFXReferenceStuds
-	local template = AssetRegistry.get(modifier.VFXKey)
-	for _, child in template:GetChildren() do
-		if child:IsA("ParticleEmitter") then
-			local emitter = child:Clone()
-			scaleEmitter(emitter, factor)
-			emitter.Name = WeatherConfig.PetVFXName
-			emitter.Parent = part
-			trove:Add(emitter)
-		elseif child:IsA("PointLight") then
-			local light = child:Clone()
-			light.Range *= factor
-			light.Name = WeatherConfig.PetVFXName
-			light.Parent = part
-			trove:Add(light)
-		end
-	end
-	template:Destroy()
 end
 
 return function(_controllers: { [string]: any })
@@ -106,7 +75,7 @@ return function(_controllers: { [string]: any })
 			local key = if type(value) == "string" then value else nil
 			local modifier = PetModifier.Get(key)
 			if modifier and key then
-				dress(root, self.LookTrove, modifier, key)
+				dress(root, self.LookTrove, key)
 			end
 		end
 		local function caught()

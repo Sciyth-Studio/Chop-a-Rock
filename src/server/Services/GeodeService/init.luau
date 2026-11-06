@@ -1,15 +1,19 @@
 --!strict
 
+local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
+local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
+local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Effects = require(script.Effects)
 local HatchPads = require(script.HatchPads)
+local Luck = require(script.Luck)
 local Opening = require(script.Opening)
 local Tools = require(script.Tools)
 local Types = require(script.Types)
@@ -24,14 +28,42 @@ local placeAllPrompts: { [Model]: ProximityPrompt } = {}
 local padLocks: { [BasePart]: number } = {}
 local revealUntil: { [Player]: number } = {}
 local luckyZones: { [Player]: string } = {}
+local skipPauses: { [Player]: { [number]: number } } = {}
+local skipPrompts: { [Player]: number } = {}
+local skipProductIds: { [number]: boolean } = {}
+for _, productId in MonetizationConfig.SkipHatch.Products do
+	skipProductIds[productId] = true
+end
 
 local function isPadLocked(pad: Types.Pad): boolean
 	return os.clock() < (padLocks[pad.Part] or 0)
 end
 
+local function pausedSeconds(player: Player, index: number, record: any): number?
+	local pauses = skipPauses[player]
+	local startedAt = if pauses then pauses[index] else nil
+	if not startedAt then
+		return nil
+	end
+	return math.max(0, record.ReadyAt - startedAt)
+end
+
+local function isReady(player: Player, index: number, record: any): boolean
+	return pausedSeconds(player, index, record) == nil and HatchPads.IsReady(record)
+end
+
+local function publishLuck(player: Player)
+	player:SetAttribute(LuckConfig.LuckAttribute, Luck.Total(context, player))
+end
+
 local function padsOf(player: Player): { Types.Pad }?
 	local plot = context.Services.BaseService:GetPlot(player)
 	return if plot then plots[plot] else nil
+end
+
+local function isReserved(player: Player, index: number): boolean
+	local starterEgg = context.Services.StarterEggService
+	return starterEgg ~= nil and starterEgg:PadIndexOf(player) == index
 end
 
 local function refresh(player: Player)
@@ -47,10 +79,22 @@ local function refresh(player: Player)
 	local empty = 0
 	for index, pad in pads do
 		local record = data.HatchPads[tostring(index)]
+		if not record and isReserved(player, index) then
+			HatchPads.Render(pad, player, nil, false, nil, false, nil)
+			continue
+		end
 		if not record then
 			empty += 1
 		end
-		HatchPads.Render(pad, player, record, not isPadLocked(pad), geode, HatchPads.CanSkip(data))
+		HatchPads.Render(
+			pad,
+			player,
+			record,
+			not isPadLocked(pad),
+			geode,
+			HatchPads.CanSkip(data),
+			if record then pausedSeconds(player, index, record) else nil
+		)
 	end
 	local placeAll = placeAllPrompts[plot]
 	if placeAll then
@@ -86,11 +130,13 @@ local function onPad(plot: Model, index: number, player: Player)
 		return
 	end
 	local record = data.HatchPads[tostring(index)]
-	if not record then
+	if not record and isReserved(player, index) then
+		return
+	elseif not record then
 		HatchPads.Place(context, player, index, GeodeOrder.Pick(data.Geodes, Tools.Held(player)))
 		services.DataService:RequestSave(player)
 		refresh(player)
-	elseif HatchPads.IsReady(record) then
+	elseif isReady(player, index, record) then
 		if not services.PetService:CanAdd(player, 1) then
 			services.NotificationService:Notify(player, "Error", "Bag full! Sell Pets", IconConfig.Backpack)
 			return
@@ -101,12 +147,38 @@ local function onPad(plot: Model, index: number, player: Player)
 			services.DataService:RequestSave(player)
 			lockPad(player, pad, seconds)
 		end
-	elseif HatchPads.CanSkip(data) then
+	elseif HatchPads.CanSkip(data) and pausedSeconds(player, index, record) == nil then
 		local geode = GeodeConfig.Geodes[record.GeodeKey]
-		if geode then
-			services.PurchaseService:PromptSkipHatch(player, index, geode.TabName)
+		if geode and services.PurchaseService:PromptSkipHatch(player, index, geode.TabName) then
+			local pauses = skipPauses[player]
+			if not pauses then
+				pauses = {}
+				skipPauses[player] = pauses
+			end
+			pauses[index] = os.time()
+			skipPrompts[player] = index
+			refresh(player)
 		end
 	end
+end
+
+local function resumeSkipPause(player: Player, index: number)
+	local pauses = skipPauses[player]
+	local startedAt = if pauses then pauses[index] else nil
+	if not pauses or not startedAt then
+		return
+	end
+	pauses[index] = nil
+	local data = context.Services.DataService:GetData(player)
+	local record = if data then data.HatchPads[tostring(index)] else nil
+	if record then
+		context.Services.DataService:Set(
+			player,
+			{ "HatchPads", tostring(index), "ReadyAt" },
+			record.ReadyAt + math.max(0, os.time() - startedAt)
+		)
+	end
+	refresh(player)
 end
 
 local function onPlaceAll(plot: Model, player: Player)
@@ -116,7 +188,7 @@ local function onPlaceAll(plot: Model, player: Player)
 		return
 	end
 	for index, pad in plots[plot] do
-		if not data.HatchPads[tostring(index)] and not isPadLocked(pad) then
+		if not data.HatchPads[tostring(index)] and not isPadLocked(pad) and not isReserved(player, index) then
 			local geodeKey = GeodeOrder.Pick(data.Geodes)
 			if not geodeKey then
 				break
@@ -162,6 +234,30 @@ function GeodeService.GrantGeodes(_self: any, player: Player, geodeKey: string, 
 	return true
 end
 
+function GeodeService.Refresh(_self: any, player: Player)
+	refresh(player)
+end
+
+function GeodeService.FreePadIndex(_self: any, player: Player): number?
+	local data = context.Services.DataService:GetData(player)
+	local pads = padsOf(player)
+	if not data or not pads then
+		return nil
+	end
+	for index, pad in pads do
+		if not data.HatchPads[tostring(index)] and not isPadLocked(pad) then
+			return index
+		end
+	end
+	return nil
+end
+
+function GeodeService.GetPadSpot(_self: any, player: Player, index: number): Attachment?
+	local pads = padsOf(player)
+	local pad = if pads then pads[index] else nil
+	return if pad then pad.Spot else nil
+end
+
 function GeodeService.HasBagRoom(_self: any, player: Player): boolean
 	local data = context.Services.DataService:GetData(player)
 	if not data then
@@ -178,8 +274,12 @@ function GeodeService.SkipHatch(_self: any, player: Player, padIndex: number, zo
 	local data = context.Services.DataService:GetData(player)
 	local record = if data then data.HatchPads[tostring(padIndex)] else nil
 	local geode = if record then GeodeConfig.Geodes[record.GeodeKey] else nil
-	if not record or not geode or geode.TabName ~= zone or HatchPads.IsReady(record) then
+	if not record or not geode or geode.TabName ~= zone or isReady(player, padIndex, record) then
 		return false
+	end
+	local pauses = skipPauses[player]
+	if pauses then
+		pauses[padIndex] = nil
 	end
 	context.Services.DataService:Set(player, { "HatchPads", tostring(padIndex), "ReadyAt" }, os.time())
 	refresh(player)
@@ -243,8 +343,36 @@ function GeodeService.Start(_self: any)
 		end
 	end
 	services.DataService.PlayerLoaded:Connect(function(player: Player)
+		publishLuck(player)
 		refresh(player)
 	end)
+	services.DataService.PlayerReleasing:Connect(function(player: Player, data: any)
+		local pauses = skipPauses[player]
+		skipPauses[player] = nil
+		if not pauses then
+			return
+		end
+		for index, startedAt in pauses do
+			local record = data.HatchPads[tostring(index)]
+			if record then
+				record.ReadyAt += math.max(0, os.time() - startedAt)
+			end
+		end
+	end)
+	trove:Connect(
+		MarketplaceService.PromptProductPurchaseFinished,
+		function(userId: number, productId: number, isPurchased: boolean)
+			local player = Players:GetPlayerByUserId(userId)
+			if not player or not skipProductIds[productId] then
+				return
+			end
+			local index = skipPrompts[player]
+			skipPrompts[player] = nil
+			if index and not isPurchased then
+				resumeSkipPause(player, index)
+			end
+		end
+	)
 
 	local elapsed = 0
 	trove:Add(RunService.Heartbeat:Connect(function(dt: number)
@@ -252,6 +380,9 @@ function GeodeService.Start(_self: any)
 		if elapsed >= GeodeConfig.HatchRefreshSeconds then
 			elapsed = 0
 			for _, player in Players:GetPlayers() do
+				if services.DataService:GetData(player) then
+					publishLuck(player)
+				end
 				if padsOf(player) then
 					refresh(player)
 				end
@@ -267,6 +398,7 @@ function GeodeService.Start(_self: any)
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		revealUntil[player] = nil
 		luckyZones[player] = nil
+		skipPrompts[player] = nil
 		context.ForcedRarities[player] = nil
 	end))
 end
@@ -281,6 +413,7 @@ function GeodeService.Destroy(_self: any)
 	table.clear(placeAllPrompts)
 	table.clear(padLocks)
 	table.clear(revealUntil)
+	table.clear(skipPrompts)
 	Effects.Reset()
 	trove:Clean()
 end

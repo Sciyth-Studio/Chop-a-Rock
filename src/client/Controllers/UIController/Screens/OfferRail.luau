@@ -1,6 +1,5 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
@@ -64,47 +63,7 @@ function OfferRail.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		}
 	end
 
-	local function readNumber(path: { string }): number
-		local value = dataController:Get(path)
-		return if type(value) == "number" then value else 0
-	end
-
-	local starter = MonetizationConfig.StarterPack
-
-	local offers: { Offer } = {
-		{
-			Key = "Starter",
-			Title = RobuxShopConfig.Texts.StarterTitle,
-			Icon = IconConfig.Gift,
-			Palette = "Sky",
-			ProductId = starter.ProductId,
-			Price = starter.RobuxPrice,
-			EndsAt = function(): number
-				if dataController:Get({ "StarterPack", "Bought" }) == true then
-					return 0
-				end
-				return readNumber({ "StarterPack", "OfferEndsAt" })
-			end,
-			Buy = function()
-				purchases:PromptStarterPack()
-			end,
-		},
-	}
-
-	local function starterIcons(): { { Icon: string, HasOutline: boolean } }
-		local icons = {
-			{ Icon = IconConfig.Cash3, HasOutline = true },
-			{ Icon = IconConfig.Strength, HasOutline = true },
-		}
-		if Players.LocalPlayer:GetAttribute(MonetizationConfig.RandomItemsRestrictedAttribute) ~= true then
-			table.insert(icons, { Icon = IconConfig.LuckyGeode, HasOutline = true })
-		end
-		local champIcon = ShopCards.PetIcon(starter.PetKey)
-		if champIcon then
-			table.insert(icons, { Icon = champIcon, HasOutline = false })
-		end
-		return icons
-	end
+	local offers: { Offer } = {}
 
 	local prompts: { Prompt } = {}
 	local slot = offerTemplate:Clone()
@@ -124,14 +83,11 @@ function OfferRail.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		if not offer then
 			return
 		end
+		ShopCards.SetIcon(slot, offer.Icon, true)
 		local stack = slot:FindFirstChild("Stack")
-		local icons = if stack and offer.Key == "Starter" then starterIcons() else {}
-		ShopCards.SetIcon(slot, if #icons > 0 then "" else offer.Icon, #icons == 0)
 		if stack then
-			for index, frame in stack:GetChildren() do
-				local slotIndex = tonumber(string.match(frame.Name, "^Slot(%d+)$"))
-				local entry = if slotIndex then icons[slotIndex] else nil
-				ShopCards.SetIcon(frame, if entry then entry.Icon else "", entry ~= nil and entry.HasOutline)
+			for _, frame in stack:GetChildren() do
+				ShopCards.SetIcon(frame, "", false)
 			end
 		end
 		ShopCards.SetText(slot, "Title", offer.Title)
@@ -149,15 +105,31 @@ function OfferRail.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
+	local railBoosts: { { Boost: MonetizationConfig.Boost, Parts: { GuiObject } } } = {}
 	local boosts = container:FindFirstChild("Boosts")
 	if boosts then
+		local railHeight = math.huge
 		for _, boost in MonetizationConfig.Boosts do
 			local name = boost.Key .. "Button"
+			local parts: { GuiObject } = {}
+			for _, child in boosts:GetChildren() do
+				if child:IsA("GuiObject") and string.sub(child.Name, 1, #name) == name then
+					table.insert(parts, child)
+				end
+			end
+			if not boost.IsOnRail then
+				for _, part in parts do
+					part.Visible = false
+					railHeight = math.min(railHeight, part.Position.Y.Offset)
+				end
+				continue
+			end
+			table.insert(railBoosts, { Boost = boost, Parts = parts })
 			local button = ShopCards.Find(boosts, name)
 			local product = boost.Products[1]
-			for _, child in boosts:GetChildren() do
-				if child:IsA("ImageLabel") and string.sub(child.Name, 1, #name) == name then
-					child.Image = RobuxShopConfig.BoostIcons[boost.Key] or IconConfig.Clock
+			for _, part in parts do
+				if part:IsA("ImageLabel") then
+					part.Image = RobuxShopConfig.BoostIcons[boost.Key] or IconConfig.Clock
 				end
 			end
 			if button then
@@ -180,6 +152,37 @@ function OfferRail.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				ShopCards.SetText(boosts, name .. "Only", `Only {ShopPrices.Format(price)}`)
 			end)
 		end
+		if boosts:IsA("GuiObject") and railHeight < math.huge then
+			boosts.Size = UDim2.new(boosts.Size.X, UDim.new(0, railHeight))
+		end
+	end
+
+	local trainingController = context.Controllers.TrainingController
+	local function refreshRailBoosts()
+		local isTraining = trainingController ~= nil and trainingController:IsTraining()
+		local isAnyShown = false
+		for _, entry in railBoosts do
+			local isShown = not entry.Boost.OnlyWhileTraining or isTraining
+			isAnyShown = isAnyShown or isShown
+			for _, part in entry.Parts do
+				part.Visible = isShown
+			end
+		end
+		if boosts and boosts:IsA("GuiObject") then
+			boosts.Visible = isAnyShown
+		end
+	end
+	refreshRailBoosts()
+
+	for _, pass in MonetizationConfig.Passes do
+		ShopPrices.Watch("Pass", pass.GamepassId, pass.RobuxPrice, function() end)
+	end
+	local function passPrice(pass: MonetizationConfig.Pass): number
+		local price = pass.RobuxPrice
+		ShopPrices.Watch("Pass", pass.GamepassId, pass.RobuxPrice, function(latest: number)
+			price = latest
+		end)
+		return price
 	end
 
 	local function rotate(now: number)
@@ -281,23 +284,52 @@ function OfferRail.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		for _, boost in MonetizationConfig.Boosts do
 			if boost.Key == key then
 				endedShown[key] = true
+				local texts = RobuxShopConfig.Texts
 				local short, long = boost.Products[1], boost.Products[2]
-				addPrompt(
-					`{boost.DisplayName} ran out!`,
-					"Keep it going?",
-					RobuxShopConfig.BoostIcons[key] or IconConfig.Clock,
-					if key == "Cash" then "Green" else "Orange",
-					priceText(`{RobuxShopConfig.Texts.ShortButton}  `, short.RobuxPrice),
-					function()
-						purchases:PromptBoost(key, 1)
-					end,
-					priceText(`{RobuxShopConfig.Texts.LongButton}  `, long.RobuxPrice),
-					function()
-						purchases:PromptBoost(key, 2)
-					end,
-					PROMPT_SECONDS,
-					nil
-				)
+				local pass: MonetizationConfig.Pass? = nil
+				for _, candidate in MonetizationConfig.Passes do
+					if candidate.Key == key then
+						pass = candidate
+					end
+				end
+				local title = string.format(texts.RanOutTitle, boost.DisplayName)
+				local icon = RobuxShopConfig.BoostIcons[key] or IconConfig.Clock
+				local palette = if key == "Cash" then "Green" else "Orange"
+				if pass and not purchases:OwnsPass(key) then
+					addPrompt(
+						title,
+						texts.GetForever,
+						icon,
+						palette,
+						priceText(`{texts.ForeverButton}  `, passPrice(pass)),
+						function()
+							purchases:PromptPass(key)
+						end,
+						priceText(`{texts.ShortButton}  `, short.RobuxPrice),
+						function()
+							purchases:PromptBoost(key, 1)
+						end,
+						PROMPT_SECONDS,
+						nil
+					)
+				else
+					addPrompt(
+						title,
+						texts.KeepGoing,
+						icon,
+						palette,
+						priceText(`{texts.ShortButton}  `, short.RobuxPrice),
+						function()
+							purchases:PromptBoost(key, 1)
+						end,
+						priceText(`{texts.LongButton}  `, long.RobuxPrice),
+						function()
+							purchases:PromptBoost(key, 2)
+						end,
+						PROMPT_SECONDS,
+						nil
+					)
+				end
 			end
 		end
 	end))
@@ -373,6 +405,7 @@ function OfferRail.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			return
 		end
 		lastSecond = clock
+		refreshRailBoosts()
 		local now = workspace:GetServerTimeNow()
 		if clock - lastRotate >= ROTATE_SECONDS or (current and current.EndsAt() <= now) then
 			lastRotate = clock

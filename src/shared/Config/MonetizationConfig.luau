@@ -22,6 +22,7 @@ export type Boost = {
 	DisplayName: string,
 	Products: { BoostProduct },
 	OnlyWhileTraining: boolean?,
+	IsOnRail: boolean?,
 }
 
 export type ServerBoost = {
@@ -54,8 +55,6 @@ export type StarterPack = {
 	BoostSeconds: number,
 	LuckyGeodes: number,
 	RestrictedExtraGeodes: number,
-	OfferSeconds: number,
-	DueAttribute: string,
 }
 
 export type OfflineClaim = {
@@ -167,6 +166,7 @@ export type MonetizationSettings = {
 	Gifts: { Gift },
 	MaxGiftsReceived: number,
 	ComingSoonText: string,
+	BoostFullText: string,
 	BoughtSound: string,
 	RobuxGlyph: string,
 }
@@ -260,6 +260,7 @@ local MonetizationConfig: MonetizationSettings = {
 			Key = "Strength",
 			DisplayName = "2x Strength",
 			OnlyWhileTraining = true,
+			IsOnRail = true,
 			Products = {
 				{ ProductId = 3722325242, RobuxPrice = 19, Seconds = 900 },
 				{ ProductId = 3722325247, RobuxPrice = 59, Seconds = 3600 },
@@ -336,8 +337,6 @@ local MonetizationConfig: MonetizationSettings = {
 		BoostSeconds = 1800,
 		LuckyGeodes = 1,
 		RestrictedExtraGeodes = 3,
-		OfferSeconds = 86400,
-		DueAttribute = "StarterOfferDue",
 	},
 	OfflineClaim = {
 		ProductId = 3722325288,
@@ -438,6 +437,7 @@ local MonetizationConfig: MonetizationSettings = {
 	},
 	MaxGiftsReceived = 100,
 	ComingSoonText = "Coming soon!",
+	BoostFullText = "Boost time is full! It stacks up to %d hours.",
 	BoughtSound = "SFX_Money_Gain",
 	RobuxGlyph = utf8.char(0xE002),
 }

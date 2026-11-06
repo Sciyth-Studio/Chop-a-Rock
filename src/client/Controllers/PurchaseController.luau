@@ -60,11 +60,39 @@ function PurchaseController.PromptPass(_self: any, key: string): boolean
 	return true
 end
 
+local function isOverCap(left: number, seconds: number, cap: number): boolean
+	if left + seconds <= cap then
+		return false
+	end
+	notify(string.format(MonetizationConfig.BoostFullText, cap // 3600))
+	return true
+end
+
+function PurchaseController.GetBoostSecondsLeft(_self: any, key: string): number
+	local player = Players.LocalPlayer
+	local paused = player:GetAttribute(MonetizationConfig.BoostPausedAttributePrefix .. key)
+	if type(paused) == "number" then
+		return paused
+	end
+	local endsAt = player:GetAttribute(MonetizationConfig.BoostEndsAttributePrefix .. key)
+	if type(endsAt) ~= "number" then
+		return 0
+	end
+	return math.max(endsAt - workspace:GetServerTimeNow(), 0)
+end
+
 function PurchaseController.PromptBoost(_self: any, key: string, index: number): boolean
 	for _, boost in MonetizationConfig.Boosts do
 		if boost.Key == key then
 			local product = boost.Products[index]
-			return product ~= nil and promptProduct(product.ProductId)
+			if not product then
+				return false
+			end
+			local left = PurchaseController:GetBoostSecondsLeft(key)
+			if isOverCap(left, product.Seconds, MonetizationConfig.BoostCapSeconds) then
+				return false
+			end
+			return promptProduct(product.ProductId)
 		end
 	end
 	return false
@@ -73,6 +101,13 @@ end
 function PurchaseController.PromptServerBoost(_self: any, key: string): boolean
 	for _, boost in MonetizationConfig.ServerBoosts do
 		if boost.Key == key then
+			local endsAt = workspace:GetAttribute(MonetizationConfig.ServerBoostEndsAttributePrefix .. key)
+			local left = if type(endsAt) == "number"
+				then math.max(endsAt - workspace:GetServerTimeNow(), 0)
+				else 0
+			if isOverCap(left, boost.Seconds, MonetizationConfig.ServerBoostCapSeconds) then
+				return false
+			end
 			return promptProduct(boost.ProductId)
 		end
 	end
@@ -85,10 +120,6 @@ function PurchaseController.PromptLucky(_self: any, index: number): boolean
 		return false
 	end
 	return promptProduct(product.ProductId)
-end
-
-function PurchaseController.PromptStarterPack(_self: any): boolean
-	return promptProduct(MonetizationConfig.StarterPack.ProductId)
 end
 
 function PurchaseController.PromptOfflineClaim(_self: any): boolean

@@ -4,7 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local CashPack = require(ReplicatedStorage.Utils.CashPack)
-local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 
@@ -15,15 +14,6 @@ local trove = Trove.new()
 
 local starter = MonetizationConfig.StarterPack
 local offline = MonetizationConfig.OfflineClaim
-
-local function openStarterWindow(player: Player)
-	local data = services.DataService:GetData(player)
-	if not data or data.StarterPack.Bought then
-		return
-	end
-	services.DataService:Set(player, { "StarterPack", "OfferEndsAt" }, os.time() + starter.OfferSeconds)
-	player:SetAttribute(starter.DueAttribute, true)
-end
 
 local function recordOffline(player: Player, amount: number, seconds: number)
 	local data = services.DataService:GetData(player)
@@ -77,54 +67,12 @@ function OfferService.GrantOfflineClaim(_self: any, player: Player): boolean
 	return true
 end
 
-function OfferService.IsStarterOfferOpen(_self: any, player: Player): boolean
-	local data = services.DataService:GetData(player)
-	return data ~= nil and not data.StarterPack.Bought and os.time() < data.StarterPack.OfferEndsAt
-end
-
-function OfferService.ResetStarterPack(_self: any, player: Player): boolean
-	local data = services.DataService:GetData(player)
-	if not data then
-		return false
-	end
-	services.DataService:Set(
-		player,
-		{ "StarterPack" },
-		{ Bought = false, OfferEndsAt = 0, SecondChanceUsed = false }
-	)
-	return true
-end
-
-function OfferService.OpenStarterWindow(_self: any, player: Player)
-	openStarterWindow(player)
-end
-
 function OfferService.Init(_self: any, registry: { [string]: any })
 	services = registry
 end
 
 function OfferService.Start(_self: any)
-	trove:Add(services.RockHintService.Finished:Connect(function(player: Player)
-		local data = services.DataService:GetData(player)
-		if data and data.StarterPack.OfferEndsAt == 0 then
-			openStarterWindow(player)
-		end
-	end))
-	trove:Add(services.RebirthService.Reborn:Connect(function(player: Player)
-		local data = services.DataService:GetData(player)
-		if not data or data.StarterPack.Bought or data.StarterPack.SecondChanceUsed then
-			return
-		end
-		if data.StarterPack.OfferEndsAt == 0 or os.time() < data.StarterPack.OfferEndsAt then
-			return
-		end
-		services.DataService:Set(player, { "StarterPack", "SecondChanceUsed" }, true)
-		openStarterWindow(player)
-	end))
 	trove:Add(services.PedestalService.OfflineEarned:Connect(recordOffline))
-	trove:Add(Packets.StarterOfferShown.OnServerEvent:Connect(function(player: Player)
-		player:SetAttribute(starter.DueAttribute, nil)
-	end))
 end
 
 function OfferService.Destroy(_self: any)
