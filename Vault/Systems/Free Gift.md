@@ -32,3 +32,5 @@ The user asked (2026-10-28) for a "Free Gift! Limited time!" screen like the ref
 - Playtested 2026-10-28 (injected into Studio): pad opens the panel, reward read "Free $1,500 Cash" (Forest geode x3), Claim paid +$1,500 and turned grey "Claimed!", a second click and a direct packet paid nothing, and with a non-member group id the hint showed "Join the community first!" and nothing was paid. The favorite and join prompts are Roblox CoreGui and were not seen in captures; the favorite click logged no errors.
 
 Related: [[Shop Pads]], [[Cash Packs]], [[Menu Panel Style]]
+
+- 2026-11-05: the pad glow is toned down: `ShopPad` Transparency 0.65 (was 0.35) and a `GlowOpacity` 0.5 attribute that the `ShopPad` component multiplies into the wall beams' opacity (any pad can use it).

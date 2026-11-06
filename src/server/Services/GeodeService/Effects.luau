@@ -2,6 +2,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local Types = require(script.Parent.Types)
 
 local Effects = {}
@@ -32,7 +33,7 @@ local function prepare(modelKey: string, spot: Attachment): Model?
 		return nil
 	end
 	local model = asset :: Model
-	model.Name = "PadGeode"
+	model.Name = GeodeConfig.PadGeodeName
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then

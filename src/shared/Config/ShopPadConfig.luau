@@ -6,6 +6,7 @@ local ShopPadConfig = {
 	ExitPaddingStuds = 1,
 	PromptHeightStuds = 3,
 	PromptRangeStuds = 12,
+	GlowOpacityAttribute = "GlowOpacity",
 }
 
 return table.freeze(ShopPadConfig)

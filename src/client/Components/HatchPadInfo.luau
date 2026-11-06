@@ -55,6 +55,23 @@ return function(_controllers: { [string]: any })
 			end
 		end
 		local shown = ""
+		local measured: Model? = nil
+		local function place()
+			local found = pad:FindFirstChild(GeodeConfig.PadGeodeName)
+			local model = if found and found:IsA("Model") then found else nil
+			if model == measured then
+				return
+			end
+			measured = model
+			if not model then
+				gui.StudsOffsetWorldSpace = Vector3.new(0, GeodeConfig.HatchLabelHeightStuds, 0)
+				return
+			end
+			local box, size = model:GetBoundingBox()
+			local top = box.Position.Y + size.Y / 2 - pad.Position.Y
+			gui.StudsOffsetWorldSpace =
+				Vector3.new(0, top + GeodeConfig.HatchLabelGapStuds + gui.Size.Y.Scale / 2, 0)
+		end
 		self.Trove:Connect(RunService.Heartbeat, function()
 			local geodeKey = pad:GetAttribute("GeodeKey")
 			local readyAt = pad:GetAttribute("ReadyAt")
@@ -64,6 +81,7 @@ return function(_controllers: { [string]: any })
 				shown = ""
 				return
 			end
+			place()
 			local left = readyAt - workspace:GetServerTimeNow()
 			local text = if left <= 0 then GeodeConfig.HatchReadyText else timeText(left)
 			if text ~= shown then

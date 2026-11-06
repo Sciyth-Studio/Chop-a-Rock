@@ -35,3 +35,5 @@ Step 6 of `ZoneGeodesPlan.md`, decision in [[Zone Geodes And Enemies]]. Built 20
 - `RateLimit.new(count, window)` starts full, so its burst is `count`. The click limit uses 5 per 1/3 s: 15 a second with a burst of 5.
 
 Related: [[Rock Spawning]], [[Zone Geodes And Enemies]], [[Admin Panel]], [[Movement Lock]]
+
+- 2026-11-05: fight side shot zoomed in at the user's ask: `SideShotSpan` 1.1 → 0.75, `SideShotMinStuds` 24 → 16.

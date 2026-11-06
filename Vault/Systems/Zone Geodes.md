@@ -32,3 +32,5 @@ Related: [[Rock Spawning]], [[Zone Line]], [[Admin Panel]], [[Geode Shop]]
 In Edit, sampling every third grid point of Forest, Desert and Snow with the same box: 93-95% of points are clear (218/234, 210/221, 222/234), and every blocked point hit decor (Bush, Pine, Cactus, SnowPine and similar). Not played: the enemy's charge from far across a zone is untested, and it covers any distance in 1.2 s (`ChargeSeconds`), so it may need a longer run in the larger zones.
 
 Related: [[Geodes As Inventory Items]]
+
+- 2026-11-05: the hatch pad timer label sits `HatchLabelGapStuds` above the egg's measured top (the `PadGeode` model's bounding box) instead of a fixed 7 studs, which clipped into bigger eggs.

@@ -13,7 +13,6 @@ export type PetSizeSettings = {
 	DefaultKey: string,
 	MaxBigShare: number,
 	Attribute: string,
-	InfoLiftStudsPerScale: number,
 }
 
 local PetSizeConfig: PetSizeSettings = {
@@ -29,7 +28,6 @@ local PetSizeConfig: PetSizeSettings = {
 	DefaultKey = "Normal",
 	MaxBigShare = 0.75,
 	Attribute = "Size",
-	InfoLiftStudsPerScale = 4.5,
 }
 
 return table.freeze(PetSizeConfig)

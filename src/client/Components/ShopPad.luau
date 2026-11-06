@@ -27,6 +27,21 @@ local function buildWall(self: ShopPad, part: BasePart)
 	end
 	local heightStuds = wall:GetAttribute("HeightStuds")
 	local top = Vector3.new(0, if type(heightStuds) == "number" then heightStuds else 4, 0)
+	local opacity = part:GetAttribute(ShopPadConfig.GlowOpacityAttribute)
+	if type(opacity) == "number" then
+		local keypoints = {}
+		for _, keypoint in wall.Transparency.Keypoints do
+			table.insert(
+				keypoints,
+				NumberSequenceKeypoint.new(
+					keypoint.Time,
+					1 - (1 - keypoint.Value) * opacity,
+					keypoint.Envelope
+				)
+			)
+		end
+		wall.Transparency = NumberSequence.new(keypoints)
+	end
 	local halfX = part.Size.X / 2
 	local halfZ = part.Size.Z / 2
 	local sides = {

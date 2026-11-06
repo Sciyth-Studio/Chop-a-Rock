@@ -13,11 +13,11 @@ Decided by the user 2026-10-28. Every number is a draft in `PetSizeConfig`.
 - Exclusive Pets (Champ, Kingy) are always Normal, like modifiers.
 
 ## Where things live
-- Shared: `Config/PetSizeConfig` (order, weights, scales, the `TextStyle` per tier, the `Size` attribute name, `InfoLiftStudsPerScale`), `PetSize` (Get, IsShown, Scale, Chances, Roll, Name = "Huge Zappy Bloky").
+- Shared: `Config/PetSizeConfig` (order, weights, scales, the `TextStyle` per tier, the `Size` attribute name), `PetSize` (Get, IsShown, Scale, Chances, Roll, Name = "Huge Zappy Bloky").
 - Data: `Pet.Size` (nil = Normal). `PetService.add` rolls it; `PetService:SetSize` is the admin path (fires `ModifierChanged` so pedestals rebuild).
 - Scaling: `PedestalService/Display` scales `PlacedPet` by `PetScale x size` and rebuilds it when the size changes; `PetService/Tools` scales the held tool by `ToolScale x size` and moves the grip with it.
 - `GeodeHatched` carries the size (after the modifier string).
-- UI: `HatchReveal.Content.Body.SizeLabel` (Trait copy at y 548, under the preview) and `SellShop` `CardTemplate.SizeLabel` (Modifier copy at y 36, top of the preview) show the tier name in its text style (all plain Chrome, never coloured; user 2026-10-29); hidden for Normal. Tool names, the pedestal prompt, the pedestal title and Pets panel rows use the prefixed name. The pedestal info billboard moves `InfoLiftStudsPerScale` x (scale - 1) studs, so it rises over big Pets and drops a little for Tiny.
+- UI: `HatchReveal.Content.Body.SizeLabel` (Trait copy at y 548, under the preview) and `SellShop` `CardTemplate.SizeLabel` (Modifier copy at y 36, top of the preview) show the tier name in its text style (all plain Chrome, never coloured; user 2026-10-29); hidden for Normal. Tool names, the pedestal prompt, the pedestal title and Pets panel rows use the prefixed name. Since 2026-11-05 the pedestal info billboard sits `PedestalConfig.InfoGapStuds` above the Pet's measured top (bounding box), so it fits every animal and size.
 - Admin: Pets tab "Held Pet: Set Size" (alias `size`).
 
 Related: [[Pedestals]], [[Weather]], [[Geode Shop]], [[Sell Shop]]

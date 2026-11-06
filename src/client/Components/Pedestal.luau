@@ -68,8 +68,10 @@ return function(_controllers: { [string]: any })
 			local sizeValue = model:GetAttribute(PetSizeConfig.Attribute)
 			local size = if type(sizeValue) == "string" then sizeValue else nil
 			local modifierConfig = PetModifier.Get(modifier)
-			local lift = (PetSize.Scale(size) - 1) * PetSizeConfig.InfoLiftStudsPerScale
-			gui.StudsOffsetWorldSpace = Vector3.new(0, PedestalConfig.InfoHeightStuds + lift, 0)
+			local box, extents = model:GetBoundingBox()
+			local top = box.Position.Y + extents.Y / 2 - adornee.Position.Y
+			gui.StudsOffsetWorldSpace =
+				Vector3.new(0, top + PedestalConfig.InfoGapStuds + gui.Size.Y.Scale / 2, 0)
 			if title then
 				title.Text = pet.DisplayName
 			end
