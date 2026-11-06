@@ -1,5 +1,6 @@
 --!strict
 
+local GeodeConfig = require(script.Parent.Parent.Config.GeodeConfig)
 local ItemIconConfig = require(script.Parent.Parent.Config.ItemIconConfig)
 
 local ItemIcons = {}
@@ -8,7 +9,15 @@ export type Visual = ImageLabel | ViewportFrame
 
 function ItemIcons.Get(kind: string, key: string): string?
 	local icons = ItemIconConfig[kind]
-	return if icons then icons[key] else nil
+	if not icons then
+		return nil
+	end
+	local icon = icons[key]
+	if icon or kind ~= "Geode" then
+		return icon
+	end
+	local geode = GeodeConfig.Geodes[key]
+	return if geode and geode.BaseKey and not geode.IsSecondLook then icons[geode.BaseKey] else nil
 end
 
 function ItemIcons.Tint(visual: Visual?, color: Color3)

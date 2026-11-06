@@ -19258,6 +19258,836 @@
           ]
         }
       }
+    },
+    "Geode/Forest": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_ForestMossy",
+      "boundsSize": [
+        4.6641,
+        5.656,
+        4.9508
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6642,
+            5.656,
+            4.9508
+          ],
+          "meshSize": [
+            4.6642,
+            5.656,
+            4.9508
+          ],
+          "position": [
+            -0.0114,
+            2.828,
+            -0.0272
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/ForestB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_ForestMushroom",
+      "boundsSize": [
+        4.7028,
+        5.516,
+        5.3703
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.7028,
+            5.516,
+            5.3704
+          ],
+          "meshSize": [
+            4.7028,
+            5.516,
+            5.3704
+          ],
+          "position": [
+            -0.0332,
+            2.758,
+            -0.2848
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/Desert": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_DesertMesa",
+      "boundsSize": [
+        4.7632,
+        6.3937,
+        4.7629
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.7632,
+            6.3937,
+            4.7632
+          ],
+          "meshSize": [
+            4.7632,
+            6.3937,
+            4.7632
+          ],
+          "position": [
+            0,
+            3.1969,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/DesertB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_DesertCactus",
+      "boundsSize": [
+        4.6364,
+        6.75,
+        4.6364
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            6.75,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            6.75,
+            4.6364
+          ],
+          "position": [
+            0,
+            3.375,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/Jungle": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_JungleVine",
+      "boundsSize": [
+        5.2208,
+        5.516,
+        5.5011
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            5.2209,
+            5.516,
+            5.5012
+          ],
+          "meshSize": [
+            5.2209,
+            5.516,
+            5.5012
+          ],
+          "position": [
+            0.0643,
+            2.758,
+            0.0521
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/JungleB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_JungleTiki",
+      "boundsSize": [
+        4.6364,
+        5.8798,
+        4.6364
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "",
+          "size": [
+            4.6364,
+            5.8798,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            5.8798,
+            4.6364
+          ],
+          "position": [
+            0,
+            2.9399,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "textureFile": "assets/Eggs/JungleTiki/JungleTiki_body.png"
+        }
+      }
+    },
+    "Geode/Ocean": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_OceanReef",
+      "boundsSize": [
+        4.6364,
+        6.9047,
+        5.0011
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            6.9047,
+            5.0012
+          ],
+          "meshSize": [
+            4.6364,
+            6.9047,
+            5.0012
+          ],
+          "position": [
+            0,
+            3.4524,
+            -0.1824
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/OceanB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_OceanBarnacle",
+      "boundsSize": [
+        5.5185,
+        5.516,
+        5.1118
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            5.5185,
+            5.516,
+            5.1119
+          ],
+          "meshSize": [
+            5.5185,
+            5.516,
+            5.1119
+          ],
+          "position": [
+            -0.0308,
+            2.758,
+            -0.0165
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/Snow": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_SnowCap",
+      "boundsSize": [
+        4.6364,
+        5.6459,
+        4.9319
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            5.646,
+            4.932
+          ],
+          "meshSize": [
+            4.6364,
+            5.646,
+            4.932
+          ],
+          "position": [
+            0,
+            2.823,
+            -0.025
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/SnowB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_SnowIcicle",
+      "boundsSize": [
+        5.6255,
+        5.516,
+        5.5921
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            5.6259,
+            5.516,
+            5.5924
+          ],
+          "meshSize": [
+            5.6259,
+            5.516,
+            5.5924
+          ],
+          "position": [
+            0,
+            2.758,
+            -0.0344
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/Swamp": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_SwampMud",
+      "boundsSize": [
+        4.6364,
+        5.6766,
+        4.911
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            5.6766,
+            4.911
+          ],
+          "meshSize": [
+            4.6364,
+            5.6766,
+            4.911
+          ],
+          "position": [
+            0,
+            2.8177,
+            -0.0405
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/SwampB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_SwampLily",
+      "boundsSize": [
+        4.6364,
+        6.4796,
+        4.6364
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            6.4796,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            6.4796,
+            4.6364
+          ],
+          "position": [
+            0,
+            3.2398,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/Savanna": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_SavannaAcacia",
+      "boundsSize": [
+        4.6364,
+        6.82,
+        4.6364
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            6.82,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            6.82,
+            4.6364
+          ],
+          "position": [
+            0,
+            3.41,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/SavannaB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_SavannaAnthill",
+      "boundsSize": [
+        4.6364,
+        6.85,
+        4.6364
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            6.85,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            6.85,
+            4.6364
+          ],
+          "position": [
+            0,
+            3.425,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/Bamboo": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_BambooStalk",
+      "boundsSize": [
+        4.7767,
+        6.85,
+        4.7767
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.7767,
+            6.85,
+            4.7767
+          ],
+          "meshSize": [
+            4.7767,
+            6.85,
+            4.7767
+          ],
+          "position": [
+            0,
+            3.425,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/BambooB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_BambooPagoda",
+      "boundsSize": [
+        5.8997,
+        6.8499,
+        5.9
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            5.9,
+            6.85,
+            5.9
+          ],
+          "meshSize": [
+            5.9,
+            6.85,
+            5.9
+          ],
+          "position": [
+            0,
+            3.425,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
+    },
+    "Geode/Volcano": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_VolcanoEmber",
+      "boundsSize": [
+        4.6364,
+        5.516,
+        4.6364
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "",
+          "size": [
+            4.6364,
+            5.516,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            5.516,
+            4.6364
+          ],
+          "position": [
+            0,
+            2.758,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "textureFile": "assets/Eggs/VolcanoEmber/VolcanoEmber_body.png"
+        }
+      }
+    },
+    "Geode/VolcanoB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_VolcanoCrater",
+      "boundsSize": [
+        4.6364,
+        5.16,
+        4.6364
+      ],
+      "parts": {
+        "Glow": {
+          "color": [
+            255,
+            90,
+            0
+          ],
+          "material": "Neon",
+          "variant": "",
+          "size": [
+            2.28,
+            0.06,
+            2.28
+          ],
+          "meshSize": [
+            2.28,
+            0.06,
+            2.28
+          ],
+          "position": [
+            0,
+            5.13,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        },
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "",
+          "size": [
+            4.6364,
+            5.12,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            5.12,
+            4.6364
+          ],
+          "position": [
+            0,
+            2.56,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "textureFile": "assets/Eggs/VolcanoCrater/VolcanoCrater_body.png"
+        }
+      }
+    },
+    "Geode/Ruins": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_RuinsRune",
+      "boundsSize": [
+        4.6364,
+        5.516,
+        4.6364
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "",
+          "size": [
+            4.6364,
+            5.516,
+            4.6364
+          ],
+          "meshSize": [
+            4.6364,
+            5.516,
+            4.6364
+          ],
+          "position": [
+            0,
+            2.758,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "textureFile": "assets/Eggs/RuinsRune/RuinsRune_body.png"
+        }
+      }
+    },
+    "Geode/RuinsB": {
+      "model": "ReplicatedStorage.Assets.Models.Eggs.Model_Egg_RuinsColumn",
+      "boundsSize": [
+        4.6364,
+        5.516,
+        4.6367
+      ],
+      "parts": {
+        "Body": {
+          "color": [
+            255,
+            255,
+            255
+          ],
+          "material": "Plastic",
+          "variant": "Animal Stud",
+          "size": [
+            4.6364,
+            5.516,
+            4.6369
+          ],
+          "meshSize": [
+            4.6364,
+            5.516,
+            4.6369
+          ],
+          "position": [
+            0,
+            2.758,
+            -0.0002
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ],
+          "vertexColors": true
+        }
+      }
     }
   },
   "preview": {

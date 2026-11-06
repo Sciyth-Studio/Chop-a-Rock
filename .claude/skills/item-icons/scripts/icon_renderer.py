@@ -110,6 +110,34 @@ def place_part(obj, part):
     me.update()
 
 
+def base_source(nodes, bsdf):
+    base = bsdf.inputs["Base Color"]
+    if base.is_linked:
+        return base.links[0].from_socket
+    rgb = nodes.new("ShaderNodeRGB")
+    rgb.outputs[0].default_value = base.default_value
+    return rgb.outputs[0]
+
+
+def add_vertex_colors(obj):
+    me = obj.data
+    mat = me.materials[0]
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    bsdf = nodes.get("Principled BSDF")
+    source = base_source(nodes, bsdf)
+    attribute = nodes.new("ShaderNodeVertexColor")
+    attribute.layer_name = me.color_attributes[0].name
+    tint = nodes.new("ShaderNodeMix")
+    tint.data_type = "RGBA"
+    tint.blend_type = "MULTIPLY"
+    tint.inputs["Factor"].default_value = 1.0
+    links.new(source, tint.inputs["A"])
+    links.new(attribute.outputs["Color"], tint.inputs["B"])
+    links.new(tint.outputs["Result"], bsdf.inputs["Base Color"])
+    if bsdf.inputs["Emission Strength"].default_value > 0:
+        links.new(tint.outputs["Result"], bsdf.inputs["Emission Color"])
+
+
 def make_material(name, part):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
@@ -161,7 +189,7 @@ def add_stud_texture(obj, variant):
     tint.data_type = "RGBA"
     tint.blend_type = "MULTIPLY"
     tint.inputs["Factor"].default_value = 1.0
-    tint.inputs["A"].default_value = bsdf.inputs["Base Color"].default_value
+    links.new(base_source(nodes, bsdf), tint.inputs["A"])
     bump = nodes.new("ShaderNodeBump")
     bump.inputs["Strength"].default_value = STYLE["stud_bump"]
     links.new(uv.outputs["UV"], mapping.inputs["Vector"])
@@ -187,7 +215,7 @@ def add_flat_tile(obj, variant):
     tint.data_type = "RGBA"
     tint.blend_type = "MULTIPLY"
     tint.inputs["Factor"].default_value = 1.0
-    tint.inputs["A"].default_value = bsdf.inputs["Base Color"].default_value
+    links.new(base_source(nodes, bsdf), tint.inputs["A"])
     links.new(uv.outputs["UV"], mapping.inputs["Vector"])
     links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
     links.new(tex.outputs["Color"], tint.inputs["B"])
@@ -200,12 +228,7 @@ def soften_pale(obj):
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
     bsdf = nodes.get("Principled BSDF")
     base = bsdf.inputs["Base Color"]
-    if base.is_linked:
-        source = base.links[0].from_socket
-    else:
-        rgb = nodes.new("ShaderNodeRGB")
-        rgb.outputs[0].default_value = base.default_value
-        source = rgb.outputs[0]
+    source = base_source(nodes, bsdf)
     split = nodes.new("ShaderNodeSeparateColor")
     low_a = nodes.new("ShaderNodeMath")
     low_a.operation = "MINIMUM"
@@ -487,6 +510,8 @@ def render_icon(key, spec, manifest, variants, out_dir):
     for name, obj in parts.items():
         obj.data.materials.clear()
         obj.data.materials.append(make_material(name, spec["parts"][name]))
+        if spec["parts"][name].get("vertexColors") and obj.data.color_attributes:
+            add_vertex_colors(obj)
     studs = []
     for name, obj in parts.items():
         variant = variants.get(spec["parts"][name]["variant"])
@@ -515,9 +540,9 @@ def render_icon(key, spec, manifest, variants, out_dir):
     return final
 
 
-def contact_sheet(manifest, out_dir):
-    cell, columns, gap = 256, 3, 16
-    keys = [k for k in manifest if os.path.exists(os.path.join(out_dir, k.replace("/", "_") + ".png"))]
+def contact_sheet(keys, out_dir, name="contact_sheet", columns=3):
+    cell, gap = 256, 16
+    keys = [k for k in keys if os.path.exists(os.path.join(out_dir, k.replace("/", "_") + ".png"))]
     rows = math.ceil(len(keys) / columns)
     w, h = gap + columns * (cell + gap), gap + rows * (cell + gap)
     sheet = np.zeros((h, w, 4), dtype=np.float32)
@@ -531,7 +556,7 @@ def contact_sheet(manifest, out_dir):
         y = h - (gap + (i // columns) * (cell + gap)) - cell
         region = sheet[y : y + cell, x : x + cell, :3]
         sheet[y : y + cell, x : x + cell, :3] = rgb + region * (1 - a)
-    path = os.path.join(out_dir, "contact_sheet.png")
+    path = os.path.join(out_dir, f"{name}.png")
     save_png(sheet, path)
     return path
 
@@ -544,7 +569,12 @@ def main(argv):
     out_dir = os.path.join(ROOT, "assets", "Icons")
     for key in keys:
         print("ICON", render_icon(key, specs["icons"][key], manifest, specs["variants"], out_dir))
-    print("SHEET", contact_sheet(manifest, out_dir))
+    print("SHEET", contact_sheet(list(manifest), out_dir))
+    kinds = {key.split("/")[0] for key in keys}
+    if len(kinds) == 1:
+        kind = kinds.pop()
+        same = [key for key in manifest if key.startswith(kind + "/")]
+        print("SHEET", contact_sheet(same, out_dir, f"contact_sheet_{kind}", 4))
 
 
 if __name__ == "__main__":

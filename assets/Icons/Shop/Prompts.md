@@ -132,6 +132,30 @@ Style to copy from the attached sheet:
 Output: one icon centred on a transparent background, square 1024 x 1024, filling about 85% of the frame. Only the object, nothing else.
 ```
 
+### 4. LuckyEgg.png: Lucky Egg (2026-11-05, replaces LuckyGeode.png)
+
+Geodes became eggs, so the Lucky card, the starter pack tile, the gift picker and the offer rail need an egg. Attach the sheet only. Claude uploads it over `IconConfig.LuckyGeode` (the key keeps its old name).
+
+```
+Make one new game icon in exactly the same style as the icons in the attached sheet: a lucky golden egg.
+
+The egg:
+- One chunky egg standing upright, slightly wider at the bottom, seen in three-quarter view from slightly above.
+- The shell is bright gold, with the side away from the light a darker gold, and one or two crisp white highlight slivers on the upper left of the shell.
+- A big green four-leaf clover sits flat on the front of the shell like a badge, each leaf one flat green with a darker green edge on the lower side.
+- A few small raised round bumps dot the shell, like toy building studs, in the same gold. Keep them few and simple.
+- Two or three small white four-point sparkles float just beside the top of the egg. Keep them simple and inside the frame.
+- It must not be cracked or open, and it must look clearly different from a plain coin or a trophy: the egg shape and the clover are the point.
+
+Style to copy from the attached sheet:
+- Chunky, toy-like 3D shapes in a three-quarter view from slightly above, drawn as flat vector art.
+- Every surface is one flat colour. Side faces are a darker shade of the same colour. One or two crisp, hard-edged white highlight slivers sit on the top edges. No gradients, no texture, no noise.
+- No outline, no drop shadow, no glow halo, no text, no background shapes.
+- Bright, saturated colours, the same strength as the sheet.
+- It must still read clearly when shrunk to 64 x 64 pixels: big simple shapes, few small details.
+Output: one icon centred on a transparent background, square 1024 x 1024, filling about 85% of the frame. Only the object, nothing else.
+```
+
 ## Probably not needed
 
 ### Server badge
