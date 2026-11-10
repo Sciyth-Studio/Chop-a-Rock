@@ -52,9 +52,6 @@ function AuraHint.Decide(data: any): number
 	if Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 		return stage
 	end
-	if (data.Rebirths or 0) > 0 then
-		return AuraHint.Done
-	end
 	if (data.AuraTier or 1) >= settings.Tier then
 		if stage == AuraHint.Locked then
 			return AuraHint.Done

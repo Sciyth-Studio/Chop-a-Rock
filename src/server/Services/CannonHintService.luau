@@ -3,7 +3,6 @@
 local AnalyticsService = game:GetService("AnalyticsService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local CannonHint = require(ReplicatedStorage.CannonHint)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -47,21 +46,12 @@ local function check(player: Player)
 	setStage(player, data, CannonHint.Decide(data))
 end
 
-local function onLanded(player: Player, key: string)
+local function onLanded(player: Player, _key: string)
 	local data = services.DataService:GetData(player)
 	if not data or CannonHint.StageOf(data) == CannonHint.Done then
 		return
 	end
-	local wasShown = CannonHint.IsActive(CannonHint.StageOf(data))
 	setStage(player, data, CannonHint.Done)
-	if not wasShown then
-		return
-	end
-	for _, cannon in CannonConfig.Cannons do
-		if cannon.Key == key then
-			services.NotificationService:Notify(player, "Info", `Welcome to the {cannon.ZoneName}!`)
-		end
-	end
 end
 
 local function onSkip(player: Player)

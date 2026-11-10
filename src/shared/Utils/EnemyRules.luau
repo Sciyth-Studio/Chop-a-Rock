@@ -27,8 +27,8 @@ function EnemyRules.WeakestRock(zone: string): number
 	return weakest
 end
 
-function EnemyRules.MaxHealth(zone: string): number
-	return EnemyRules.WeakestRock(zone) * EnemyConfig.HealthClicksAtGate
+function EnemyRules.SweepSpeed(round: number): number
+	return math.min(1 + round * EnemyConfig.SweepSpeedUpPerRound, EnemyConfig.SweepMaxSpeed)
 end
 
 function EnemyRules.IntroSeconds(): number

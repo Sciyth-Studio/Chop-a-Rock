@@ -262,7 +262,6 @@ local function onTake(player: Player, id: number)
 	geode.IsDone = true
 	removeGeode(fall, geode, GeodeFallConfig.SinkSeconds)
 	Packets.GeodeFallTaken:FireAllClients(id)
-	notify(player, "Purchase", `+1 {GeodeConfig.Geodes[geodeKey].DisplayName}`)
 	print(`[GeodeFallService] {player.Name} took a {geodeKey}`)
 	finishOne(fall)
 end

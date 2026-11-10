@@ -44,6 +44,13 @@ for _, item in MonetizationConfig.Exclusives.Items do
 	end
 end
 
+local retryProductId = MonetizationConfig.RetryFight.ProductId
+if retryProductId then
+	Products[retryProductId] = function(player: Player, services: { [string]: any }): boolean
+		return services.ZoneGeodeService:GrantRetry(player)
+	end
+end
+
 local offlineProductId = MonetizationConfig.OfflineClaim.ProductId
 if offlineProductId then
 	Products[offlineProductId] = function(player: Player, services: { [string]: any }): boolean

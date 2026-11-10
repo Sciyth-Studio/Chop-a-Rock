@@ -485,13 +485,19 @@ function Effects.BreakBurst(part: BasePart, quality: number)
 	playBreakEffect(part.Position, part.Size, quality, part.Color)
 end
 
-function Effects.Break(part: BasePart, quality: number, piecesSeconds: number, prepared: LiveSplit.Prepared?)
+function Effects.Break(
+	part: BasePart,
+	quality: number,
+	piecesSeconds: number,
+	prepared: LiveSplit.Prepared?,
+	isWhole: boolean?
+)
 	if quality ~= ChopQuality.Master then
 		playSound(qualitySoundKey(quality), part)
 	end
 	playSound("SFX_Rock_Break", part)
 	playBreakEffect(part.Position, part.Size, quality, part.Color)
-	if quality == ChopQuality.Master or quality == ChopQuality.Perfect then
+	if not isWhole and (quality == ChopQuality.Master or quality == ChopQuality.Perfect) then
 		splitRock(part, piecesSeconds, prepared)
 		return
 	end

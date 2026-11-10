@@ -46,6 +46,11 @@ export type SkipHatchProduct = {
 	PadCount: number,
 }
 
+export type RetryFightProduct = {
+	ProductId: number?,
+	RobuxPrice: number,
+}
+
 export type StarterPack = {
 	ProductId: number?,
 	RobuxPrice: number,
@@ -159,6 +164,7 @@ export type MonetizationSettings = {
 	FirstLuckyOfferKey: string,
 	RandomItemsRestrictedAttribute: string,
 	SkipHatch: SkipHatchProduct,
+	RetryFight: RetryFightProduct,
 	StarterPack: StarterPack,
 	OfflineClaim: OfflineClaim,
 	BoostPill: BoostPillSettings,
@@ -312,6 +318,10 @@ local MonetizationConfig: MonetizationSettings = {
 	},
 	FirstLuckyOfferKey = "FirstLuckyGeode",
 	RandomItemsRestrictedAttribute = "RandomItemsRestricted",
+	RetryFight = {
+		ProductId = 3729033078,
+		RobuxPrice = 9,
+	},
 	SkipHatch = {
 		Products = {
 			Forest = 3728039606,

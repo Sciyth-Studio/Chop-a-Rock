@@ -11,7 +11,6 @@ local PlayerListConfig = {
 	Stats = table.freeze({
 		table.freeze({ Name = "Strength", Field = "Strength" }),
 		table.freeze({ Name = "Money", Field = "Cash" }),
-		table.freeze({ Name = "Rebirths", Field = "Rebirths" }),
 	}) :: { Stat },
 }
 

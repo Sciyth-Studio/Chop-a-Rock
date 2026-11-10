@@ -14,6 +14,7 @@ local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 local Effects = require(script.Parent.Effects)
+local EggLuckEffect = require(ReplicatedStorage.Utils.EggLuck)
 local Luck = require(script.Parent.Luck)
 local Types = require(script.Parent.Types)
 
@@ -60,14 +61,15 @@ function Opening.Open(
 	player: Player,
 	geodeKey: string,
 	pad: Types.Pad,
-	random: Random
+	random: Random,
+	eggLuck: number?
 ): number?
 	local services = context.Services
 	local data = services.DataService:GetData(player)
 	if not data or not GeodeConfig.Geodes[geodeKey] then
 		return nil
 	end
-	local luck = Luck.Total(context, player)
+	local luck = Luck.Total(context, player) * EggLuckEffect.Effect(eggLuck)
 	local isFirst = isFirstPet(data, geodeKey)
 	local forced = forcedPet(context, player, geodeKey) or if isFirst then TutorialConfig.FirstPetKey else nil
 	local petKey = forced or HatchOdds.Roll(random, geodeKey, luck)

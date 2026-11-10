@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AdminConfig = require(ReplicatedStorage.Config.AdminConfig)
 local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local PlayerData = require(script.Parent.Parent.Parent.Data.PlayerData)
 local Types = require(script.Parent.Types)
 
@@ -16,12 +17,13 @@ local fields = {
 	"Cannons",
 	"EquippedCannon",
 	"TrainingTier",
-	"Rebirths",
+	"TrainingLadder",
 	"Geodes",
 	"HatchPads",
 	"Pets",
 	"NextPetId",
 	"PedestalSlots",
+	"BaseLevel",
 	"Index",
 	"Tutorial",
 	"Hints",
@@ -116,7 +118,14 @@ function Snapshots.Load(context: Types.Context, player: Player, name: string): s
 		overrides[field] = snapshot.Data[field]
 	end
 	if overrides.PeakStrength == nil then
-		overrides.PeakStrength = PlayerData.PeakStrengthFor(overrides.Strength or 0, overrides.Rebirths or 0)
+		overrides.PeakStrength = overrides.Strength or 0
+	end
+	if overrides.TrainingLadder == nil then
+		if type(overrides.TrainingTier) == "number" then
+			overrides.TrainingTier = TrainingConfig.OldTierMap[overrides.TrainingTier]
+				or TrainingConfig.OldTierMap[#TrainingConfig.OldTierMap]
+		end
+		overrides.TrainingLadder = TrainingConfig.LadderVersion
 	end
 	if not context.Services.DataService:ResetData(player, overrides) then
 		return "data not loaded"

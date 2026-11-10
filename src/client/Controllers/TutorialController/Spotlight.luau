@@ -96,7 +96,10 @@ end
 
 function Spotlight.TargetFor(step: number, data: any, chopController: any): GuiObject?
 	local button: GuiObject? = nil
-	if chopController:IsMinigameActive() and Tutorial.ForcesPerfect(step, data) then
+	if
+		chopController:IsMinigameActive()
+		and (Tutorial.ForcesPerfect(step, data) or Tutorial.IsCoachedFight(step))
+	then
 		button = goodZone(chopController)
 	end
 	return if button and isShown(button) then button else nil

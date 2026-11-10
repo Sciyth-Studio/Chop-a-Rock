@@ -6,7 +6,6 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local AuraHint = require(ReplicatedStorage.AuraHint)
 local CannonHint = require(ReplicatedStorage.CannonHint)
-local RebirthHint = require(ReplicatedStorage.RebirthHint)
 local RockHint = require(ReplicatedStorage.RockHint)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
@@ -22,7 +21,6 @@ local Layout = require(script.Layout)
 local Locks = require(script.Locks)
 local Spotlight = require(script.Spotlight)
 local Targets = require(script.Targets)
-local RebirthHintView = require(script.RebirthHint)
 local RockHintView = require(script.RockHint)
 local Teleports = require(script.Teleports)
 
@@ -171,7 +169,16 @@ local function titleFor(step: number): string?
 		local goal = TutorialConfig.FirstChopRocks
 		return `{title} {math.min(Tutorial.RocksBroken(dataController:Get()), goal)}/{goal}`
 	end
+	if step == Tutorial.Open and Tutorial.HasPet(dataController:Get()) then
+		return Tutorial.PlacePetTitle
+	end
 	return title
+end
+
+local function isHoldingPet(): boolean
+	local character = Players.LocalPlayer.Character
+	local tool = if character then character:FindFirstChildOfClass("Tool") else nil
+	return tool ~= nil and tool:GetAttribute("PetId") ~= nil
 end
 
 local function detailFor(step: number, target: Targets.Target?): string?
@@ -184,9 +191,23 @@ local function detailFor(step: number, target: Targets.Target?): string?
 		end
 		return if near then `{promptKey(adornee, "Train", false)} to train` else nil
 	elseif step == Tutorial.GetGeode then
-		return if near then `{promptKey(adornee, "Take", false)} to take!` else nil
+		if chopController:IsMinigameActive() then
+			return `{releaseKey()} in glow!`
+		end
+		local isEgg = adornee ~= nil and adornee:IsA("Model")
+		if not near then
+			return nil
+		end
+		return if isEgg
+			then `{promptKey(adornee, "Grab", false)} to grab!`
+			else `{promptKey(adornee, "Chop", true)} to chop!`
 	elseif step == Tutorial.Place then
-		return if near then `{promptKey(adornee, "Place", true)} to place!` else nil
+		return nil
+	elseif step == Tutorial.Open and Tutorial.HasPet(controllers.DataController:Get()) then
+		if not isHoldingPet() then
+			return `{clickVerb()} your Pet!`
+		end
+		return if near then `{clickVerb()} to place!` else nil
 	elseif step == Tutorial.Open then
 		local isReady = adornee ~= nil
 			and adornee:GetAttribute("ReadyAt") ~= nil
@@ -194,7 +215,7 @@ local function detailFor(step: number, target: Targets.Target?): string?
 		if not isReady then
 			return "Hatching..."
 		end
-		return if near then `{promptKey(adornee, "Open", true)} to hatch!` else nil
+		return if near then `{promptKey(adornee, "Open", false)} to hatch!` else nil
 	elseif Tutorial.IsChopping(step) then
 		if chopController:IsMinigameActive() then
 			return `{releaseKey()} in glow!`
@@ -259,6 +280,28 @@ local function hideScreens()
 	end
 end
 
+local function setTrainScreensHidden(isHidden: boolean)
+	local playerGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	if not playerGui then
+		return
+	end
+	for _, name in TutorialConfig.TrainStepHiddenScreens do
+		local entry = hidden[name]
+		if isHidden and not entry then
+			local gui = playerGui:FindFirstChild(name)
+			if gui and gui:IsA("ScreenGui") then
+				hidden[name] = { Gui = gui, Parent = playerGui }
+				gui.Parent = nil
+			end
+		elseif not isHidden and entry then
+			hidden[name] = nil
+			pcall(function()
+				entry.Gui.Parent = entry.Parent
+			end)
+		end
+	end
+end
+
 local function isBusy(): boolean
 	return controllers.HatchController:IsPlaying()
 		or isOpen("Letterbox")
@@ -310,13 +353,17 @@ local function update(dt: number)
 	local target = Targets.For(step, data)
 	local isDoing = chopController:IsMinigameActive() or controllers.TrainingController:IsTraining()
 	local isIdle = checkIdle(current.Guide, step ~= Tutorial.Final and not isDoing)
+	setTrainScreensHidden(
+		step == Tutorial.Train and not Teleports.IsWorthUsing(Teleports.DestinationFor(step), target)
+	)
 	local teleport = if isDoing then nil else Teleports.For(step, target, clickVerb(), isIdle)
 	local button = if teleport then teleport.Button else Spotlight.TargetFor(step, data, chopController)
 	local detail = if teleport then teleport.Text else detailFor(step, target)
 	if isIdle then
 		detail = idleDetail(detail, button ~= nil, target ~= nil)
 	end
-	local isChopHint = Tutorial.IsChopping(step) and chopController:IsMinigameActive()
+	local isChopHint = (Tutorial.IsChopping(step) or Tutorial.IsCoachedFight(step))
+		and chopController:IsMinigameActive()
 	local isPanelOpen = isOpen("Shop") or isOpen("SellShop")
 	local isQuiet = isChopHint or isPanelOpen
 	setText(if isQuiet then nil else titleFor(step), if isQuiet then nil else detail)
@@ -333,19 +380,12 @@ local function update(dt: number)
 			and not Teleports.IsWorthUsing(Teleports.DestinationFor(step), target)
 	)
 	if target and from and not isDoing then
-		if isNear(target) or teleport then
+		if isNear(target) then
 			Guide.HidePath(current.Guide)
 		else
-			Guide.DrawPath(current.Guide, { from, target.Goal }, dt, target.StopStuds)
+			Guide.DrawPath(current.Guide, target.Goal, target.StopStuds)
 		end
-		Guide.DrawMarker(
-			current.Guide,
-			target.Position,
-			target.Adornee,
-			target.Label,
-			dt,
-			target.MarkerHeight
-		)
+		Guide.DrawMarker(current.Guide, target.Adornee, dt)
 	else
 		Guide.HidePath(current.Guide)
 		Guide.HideMarker(current.Guide)
@@ -358,7 +398,7 @@ local function update(dt: number)
 	Layout.Update(current.Layout, not (isOpen("Shop") or isOpen("SellShop")))
 
 	if current.ChopHint then
-		local isChopStep = Tutorial.IsChopping(step)
+		local isChopStep = Tutorial.IsChopping(step) or Tutorial.IsCoachedFight(step)
 		local isChopping = isChopStep and chopController:IsMinigameActive()
 		if not isChopping then
 			chopSince = nil
@@ -432,13 +472,6 @@ local hintHelpers: CannonHintView.Helpers = {
 
 local hintKinds: { HintKind } = {
 	{ Shared = RockHint, View = RockHintView.View, ScreenName = "", IdleStages = {}, CloseStages = {} },
-	{
-		Shared = RebirthHint,
-		View = RebirthHintView.View,
-		ScreenName = TutorialConfig.RebirthHint.ScreenName,
-		IdleStages = { RebirthHint.Ready },
-		CloseStages = {},
-	},
 	{
 		Shared = AuraHint,
 		View = AuraHintView.View,
@@ -529,19 +562,12 @@ local function updateHint(dt: number)
 			and not Teleports.IsWorthUsing(view.Teleport, target)
 	)
 	if target and from and not isDoing then
-		if isNear(target) or teleport then
+		if isNear(target) then
 			Guide.HidePath(current.Guide)
 		else
-			Guide.DrawPath(current.Guide, { from, target.Goal }, dt, target.StopStuds)
+			Guide.DrawPath(current.Guide, target.Goal, target.StopStuds)
 		end
-		Guide.DrawMarker(
-			current.Guide,
-			target.Position,
-			target.Adornee,
-			target.Label,
-			dt,
-			target.MarkerHeight
-		)
+		Guide.DrawMarker(current.Guide, target.Adornee, dt)
 	else
 		Guide.HidePath(current.Guide)
 		Guide.HideMarker(current.Guide)
@@ -590,7 +616,7 @@ local function stopHint()
 end
 
 local function celebrate()
-	controllers.RebirthEffectController:PlayBurst()
+	controllers.CelebrationEffectController:PlayBurst()
 	controllers.UIController:Open(TutorialConfig.CompleteScreen)
 end
 

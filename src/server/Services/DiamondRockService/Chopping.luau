@@ -17,10 +17,10 @@ function Chopping.Damage(strength: number, quality: number, multiplier: number):
 	return strength * multiplier
 end
 
-function Chopping.Apply(diamond: Types.Diamond, damage: number): (number, number)
+function Chopping.Apply(diamond: Types.Diamond, session: Types.Session, damage: number): (number, number)
 	local applied = math.min(damage, diamond.Health)
 	diamond.Health -= applied
-	local payout = math.max(0, math.floor(diamond.Value * applied / diamond.MaxHealth + 0.5))
+	local payout = math.max(0, math.floor(session.Value * applied / session.ShareHealth + 0.5))
 	return applied, payout
 end
 

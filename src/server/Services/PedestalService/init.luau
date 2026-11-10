@@ -8,7 +8,6 @@ local EconomyConfig = require(ReplicatedStorage.Config.EconomyConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
-local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Display = require(script.Display)
@@ -25,10 +24,36 @@ local trove = Trove.new()
 local context: Types.Context = { Services = {} }
 local sessions: { [Player]: Types.Session } = {}
 
+local refresh: (player: Player) -> ()
+
+local function isNearPen(player: Player): boolean
+	local plot = context.Services.BaseService:GetPlot(player)
+	local pen = if plot then Display.Pen(plot) else nil
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not pen or not root or not root:IsA("BasePart") then
+		return false
+	end
+	local offset = pen.CFrame:PointToObjectSpace(root.Position)
+	local reach = PedestalConfig.PenClickRangeStuds
+	return math.abs(offset.X) <= pen.Size.X / 2 + reach and math.abs(offset.Z) <= pen.Size.Z / 2 + reach
+end
+
+local function onPetActivated(player: Player, petId: string)
+	local services = context.Services
+	if services.PetService:GetHeldPetId(player) ~= petId or not isNearPen(player) then
+		return
+	end
+	if Placement.Place(context, player, petId) then
+		services.PetService:PutAway(player)
+		services.DataService:RequestSave(player)
+		refresh(player)
+	end
+end
+
 local function totalRate(player: Player, data: any): number
 	local services = context.Services
 	local multiplier = services.IndexService:GetCashMultiplier(player)
-		* RebirthStats.Get(data.Rebirths).CashMultiplier
 	local total = 0
 	for _, petId in PedestalSlots.Placed(data.Pets) do
 		total += services.PetService:GetRate(data.Pets[petId]) * multiplier
@@ -36,7 +61,7 @@ local function totalRate(player: Player, data: any): number
 	return total
 end
 
-local function refresh(player: Player)
+refresh = function(player: Player)
 	local services = context.Services
 	local data = services.DataService:GetData(player)
 	local session = sessions[player]
@@ -54,7 +79,12 @@ local function refresh(player: Player)
 		local pet = data.Pets[petId]
 		views[slot] = { PetKey = pet.Key, Modifier = pet.Modifier, Size = pet.Size, Income = pet.Income }
 	end
-	Display.RenderPen(plot, player, views)
+	Display.RenderPen(plot, player, views, function(slot: number)
+		if services.BaseService:GetPlot(player) == plot and Placement.PickUp(context, player, slot) then
+			services.DataService:RequestSave(player)
+			refresh(player)
+		end
+	end)
 end
 
 local function logIncome(player: Player, data: any)
@@ -78,10 +108,14 @@ local function payOffline(player: Player, seconds: number): number
 	return total
 end
 
-local function equipBest(player: Player)
-	if Placement.EquipBest(context, player) then
-		context.Services.DataService:RequestSave(player)
-		refresh(player)
+local function handNewPet(player: Player)
+	local services = context.Services
+	if services.TrainingService:IsTraining(player) or services.RockService:HasSession(player) then
+		return
+	end
+	local newest = services.PetService:NewestPetId(player)
+	if newest then
+		services.PetService:Equip(player, newest)
 	end
 end
 
@@ -92,7 +126,6 @@ local function start(player: Player, isFirstLoad: boolean)
 	end
 	Placement.Sanitize(context, player)
 	sessions[player] = Earnings.New()
-	equipBest(player)
 	if isFirstLoad then
 		payOffline(player, Earnings.OfflineSeconds(data.LastSeenAt, os.time()))
 	end
@@ -118,6 +151,14 @@ function PedestalService.SetSlots(_self: any, player: Player, count: number): bo
 end
 
 function PedestalService.Refresh(_self: any, player: Player)
+	refresh(player)
+end
+
+function PedestalService.ResetPen(_self: any, player: Player)
+	local plot = context.Services.BaseService:GetPlot(player)
+	if plot then
+		Display.ClearPen(plot)
+	end
 	refresh(player)
 end
 
@@ -177,17 +218,11 @@ function PedestalService.Start(_self: any)
 		Display.ClearPen(plot)
 	end))
 	trove:Add(services.PetService.HeldChanged:Connect(refresh))
+	trove:Add(services.PetService.ToolActivated:Connect(onPetActivated))
 	trove:Add(services.PetService.ModifierChanged:Connect(refresh))
 	trove:Add(services.IndexService.CashMultiplierChanged:Connect(refresh))
-	trove:Add(services.RebirthService.Reborn:Connect(function(player: Player)
-		refresh(player)
-	end))
 	trove:Add(services.PetService.Granted:Connect(function(player: Player, equipDelay: number)
-		if equipDelay > 0 then
-			task.delay(equipDelay, equipBest, player)
-		else
-			equipBest(player)
-		end
+		task.delay(equipDelay, handNewPet, player)
 	end))
 
 	Packets.UnequipPet.OnServerInvoke = function(player: Player, slot: number): boolean

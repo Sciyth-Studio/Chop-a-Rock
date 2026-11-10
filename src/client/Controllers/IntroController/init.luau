@@ -62,29 +62,51 @@ local function shouldPlay(): boolean
 	return state.Step == Tutorial.Train and taps == 0 and furthest <= Tutorial.Train
 end
 
-local function standPosition(): Vector3?
+local function findStand(): Instance?
 	local plots = workspace:FindFirstChild("BasePlots")
 	if not plots then
 		return nil
 	end
 	for _, plot in plots:GetChildren() do
-		if plot:GetAttribute("OwnerUserId") ~= Players.LocalPlayer.UserId then
-			continue
-		end
-		local stand = plot:FindFirstChild("TrainingStand", true)
-		if not stand then
-			return nil
-		end
-		for _, tagged in CollectionService:GetTagged("TrainingBoard") do
-			if tagged:IsA("BasePart") and tagged:IsDescendantOf(stand) then
-				return tagged.Position
-			end
-		end
-		if stand:IsA("Model") then
-			return stand:GetPivot().Position
+		if plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId then
+			return plot:FindFirstChild("TrainingStand", true)
 		end
 	end
 	return nil
+end
+
+local function findBoard(): BasePart?
+	local stand = findStand()
+	if not stand then
+		return nil
+	end
+	for _, tagged in CollectionService:GetTagged("TrainingBoard") do
+		if tagged:IsA("BasePart") and tagged:IsDescendantOf(stand) then
+			return tagged
+		end
+	end
+	return nil
+end
+
+local function standPosition(): Vector3?
+	local board = findBoard()
+	if board then
+		return board.Position
+	end
+	local stand = findStand()
+	if stand and stand:IsA("Model") then
+		return stand:GetPivot().Position
+	end
+	return nil
+end
+
+local function zoomOut()
+	local player = Players.LocalPlayer
+	local minZoom = player.CameraMinZoomDistance
+	player.CameraMinZoomDistance = math.max(minZoom, IntroConfig.ArriveZoomStuds)
+	task.delay(IntroConfig.ArriveZoomHoldSeconds, function()
+		player.CameraMinZoomDistance = minZoom
+	end)
 end
 
 local function waitForStand(): Vector3?
@@ -173,6 +195,7 @@ local function play(character: Model, humanoid: Humanoid, realRoot: BasePart)
 			camera.CFrame = arrivalCamera(realRoot, stand)
 		end
 		camera.CameraType = Enum.CameraType.Custom
+		zoomOut()
 		isPlaying = false
 		closeCover()
 	end

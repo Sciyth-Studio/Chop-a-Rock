@@ -28,7 +28,7 @@ local Types = require(script.Types)
 local RockService = {
 	Name = "RockService",
 	Chopped = Signal.new() :: Signal.Signal<Player>,
-	RockBroken = Signal.new() :: Signal.Signal<Player, string, Vector3, number>,
+	RockBroken = Signal.new() :: Signal.Signal<Player, Types.Broken>,
 	Sampled = Signal.new() :: Signal.Signal<>,
 }
 
@@ -215,6 +215,20 @@ local function groundOf(rock: Types.Rock): Vector3
 	return rock.CFrame.Position - Vector3.new(0, rock.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0)
 end
 
+local function brokenOf(rock: Types.Rock, session: Types.Session, quality: number): Types.Broken
+	return {
+		Zone = rock.Zone,
+		RockKey = rock.Key,
+		Ground = groundOf(rock),
+		Origin = rock.CFrame.Position,
+		Size = math.max(rock.Size.X, rock.Size.Z),
+		Quality = quality,
+		Skill = Session.Skill(session),
+		HadMaster = session.HadMaster,
+		IsGolden = rock.Modifier == GoldenRockConfig.Modifier,
+	}
+end
+
 local function showOthers(player: Player, rock: Types.Rock, quality: number, isBroken: boolean)
 	local position = rock.CFrame.Position
 	for _, other in Players:GetPlayers() do
@@ -367,6 +381,7 @@ local function onRelease(player: Player, claimed: number)
 		end
 		damage, payout = Session.Apply(session, chopStrength, quality)
 	end
+	Session.RecordSkill(session, quality)
 	if not isTutorial then
 		services.StatsService:RecordChop(player, quality)
 	end
@@ -383,7 +398,6 @@ local function onRelease(player: Player, claimed: number)
 		payout = math.floor(payout * rockBonus + 0.5)
 		payout = services.HotStreakService:ApplyCashMultiplier(payout, streakMultiplier)
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
-		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
 		payout = services.PassService:ApplyCashMultiplier(player, payout)
 		local flow = if rock.Modifier == GoldenRockConfig.Modifier
@@ -410,7 +424,7 @@ local function onRelease(player: Player, claimed: number)
 		retire(player, rock, MasterChopConfig.ImpactDelaySeconds + RockSpawnConfig.RespawnSeconds)
 		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
 		showOthers(player, rock, quality, true)
-		RockService.RockBroken:Fire(player, rock.Zone, groundOf(rock), quality)
+		RockService.RockBroken:Fire(player, brokenOf(rock, session, quality))
 		for _, other in Players:GetPlayers() do
 			services.NotificationService:Notify(
 				other,
@@ -426,7 +440,7 @@ local function onRelease(player: Player, claimed: number)
 		retire(player, rock, RockSpawnConfig.RespawnSeconds)
 		Packets.RockChopped:FireClient(player, rock.Id, quality, true)
 		showOthers(player, rock, quality, true)
-		RockService.RockBroken:Fire(player, rock.Zone, groundOf(rock), quality)
+		RockService.RockBroken:Fire(player, brokenOf(rock, session, quality))
 		return
 	end
 

@@ -9,6 +9,7 @@ local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local RobuxShopConfig = require(ReplicatedStorage.Config.RobuxShopConfig)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
+local OutlinedIcon = require(ReplicatedStorage.Utils.OutlinedIcon)
 
 local ShopCards = {}
 
@@ -87,12 +88,18 @@ function ShopCards.SetVisible(parent: Instance, name: string, isVisible: boolean
 end
 
 function ShopCards.SetIcon(parent: Instance, image: string, hasOutline: boolean)
+	local icon = parent:FindFirstChild("Icon")
+	local shown = if hasOutline
+			and icon
+			and icon:IsA("ImageLabel")
+		then OutlinedIcon.For(icon, image)
+		else image
 	for _, child in parent:GetChildren() do
 		if child:IsA("ImageLabel") then
 			if child.Name == "Icon" then
-				child.Image = image
-			elseif string.match(child.Name, "^IconOutline%d") or child.Name == "IconShadow" then
-				child.Image = image
+				child.Image = shown
+			elseif child.Name == "IconShadow" then
+				child.Image = shown
 				child.Visible = hasOutline
 			end
 		end

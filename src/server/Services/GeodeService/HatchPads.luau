@@ -2,9 +2,12 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BaseLevels = require(ReplicatedStorage.Utils.BaseLevels)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
+local EggLuck = require(script.Parent.EggLuck)
+local LuckSize = require(ReplicatedStorage.Utils.EggLuck)
 local Effects = require(script.Parent.Effects)
 local Types = require(script.Parent.Types)
 
@@ -76,7 +79,7 @@ local function hatchSeconds(data: any, geodeKey: string): number
 	if Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 		return TutorialConfig.FirstHatchSeconds
 	end
-	return GeodeConfig.Geodes[geodeKey].HatchSeconds
+	return math.ceil(GeodeConfig.Geodes[geodeKey].HatchSeconds * BaseLevels.HatchMultiplier(data.BaseLevel))
 end
 
 function HatchPads.Place(context: Types.Context, player: Player, index: number, geodeKey: string?): boolean
@@ -87,9 +90,11 @@ function HatchPads.Place(context: Types.Context, player: Player, index: number, 
 		return false
 	end
 	dataService:Set(player, { "Geodes", geodeKey }, owned - 1)
+	local luck = EggLuck.Take(context, player, geodeKey, owned - 1)
 	dataService:Set(player, { "HatchPads", tostring(index) }, {
 		GeodeKey = geodeKey,
 		ReadyAt = os.time() + hatchSeconds(data, geodeKey),
+		Luck = if luck > EggLuck.Base then luck else nil,
 	})
 	return true
 end
@@ -118,11 +123,12 @@ function HatchPads.Render(
 	part:SetAttribute("OwnerUserId", owner.UserId)
 	part:SetAttribute("GeodeKey", if record then record.GeodeKey else nil)
 	part:SetAttribute("ReadyAt", if record then record.ReadyAt else nil)
+	part:SetAttribute("EggLuck", if record then record.Luck else nil)
 	part:SetAttribute("PausedSeconds", pausedSeconds)
 	prompt:SetAttribute("OwnerUserId", owner.UserId)
 	if record then
 		local geode = GeodeConfig.Geodes[record.GeodeKey]
-		Effects.ShowOnPad(pad, if geode then geode.ModelKey else nil)
+		Effects.ShowOnPad(pad, if geode then geode.ModelKey else nil, LuckSize.Scale(record.Luck))
 		prompt.ObjectText = if geode then geode.DisplayName else ""
 		local isReady = pausedSeconds == nil and HatchPads.IsReady(record)
 		prompt.ActionText = if isReady then GeodeConfig.OpenPromptText else GeodeConfig.SkipPromptText
@@ -140,6 +146,7 @@ function HatchPads.ClearDisplay(pad: Types.Pad)
 	pad.Part:SetAttribute("OwnerUserId", nil)
 	pad.Part:SetAttribute("GeodeKey", nil)
 	pad.Part:SetAttribute("ReadyAt", nil)
+	pad.Part:SetAttribute("EggLuck", nil)
 	pad.Part:SetAttribute("PausedSeconds", nil)
 	pad.Prompt:SetAttribute("OwnerUserId", nil)
 	pad.Prompt:SetAttribute("Active", false)

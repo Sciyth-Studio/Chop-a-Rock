@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
+local OutlinedIcon = require(ReplicatedStorage.Utils.OutlinedIcon)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -81,7 +82,7 @@ function BoostPills.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 			end
 			for _, child in frame:GetChildren() do
 				if child:IsA("ImageLabel") and string.sub(child.Name, 1, 4) == "Icon" then
-					child.Image = entry.Icon
+					child.Image = OutlinedIcon.For(child, entry.Icon)
 				end
 			end
 			table.insert(pills, { Entry = entry, Frame = frame, Labels = labels, Text = "" })

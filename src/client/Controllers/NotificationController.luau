@@ -14,6 +14,7 @@ local NotificationController = {
 	Notified = Signal.new(),
 	Pinned = Signal.new(),
 	Unpinned = Signal.new(),
+	ZoneEntered = Signal.new(),
 	_trove = nil :: TroveInstance?,
 	_controllers = {} :: { [string]: any },
 	_pins = {} :: { [string]: { Kind: string, Message: string, Order: number } },
@@ -40,20 +41,24 @@ function NotificationController.GetPins(
 	return self._pins
 end
 
+function NotificationController.IsMuted(self: any): boolean
+	if self._controllers.DataController:Get({ "Settings", "Notifications" }) == false then
+		return true
+	end
+	local tutorial = self._controllers.TutorialController
+	if tutorial and tutorial:IsActive() then
+		return true
+	end
+	local ui = self._controllers.UIController
+	return ui ~= nil and ui:IsOpen(TutorialConfig.CompleteScreen)
+end
+
 function NotificationController.Notify(self: any, kind: string, message: string, icon: string?)
 	if NotificationConfig.UnmutedKinds[kind] then
 		self.Notified:Fire(kind, message, icon)
 		return
 	end
-	if self._controllers.DataController:Get({ "Settings", "Notifications" }) == false then
-		return
-	end
-	local tutorial = self._controllers.TutorialController
-	if tutorial and tutorial:IsActive() then
-		return
-	end
-	local ui = self._controllers.UIController
-	if ui and ui:IsOpen(TutorialConfig.CompleteScreen) then
+	if self:IsMuted() then
 		return
 	end
 	if not NotificationConfig.Kinds[kind] then
@@ -71,6 +76,11 @@ function NotificationController.Start(self: any)
 	local trove = self._trove :: TroveInstance
 	trove:Add(Packets.Notify.OnClientEvent:Connect(function(kind: string, message: string, icon: string)
 		self:Notify(kind, message, if icon ~= "" then icon else nil)
+	end))
+	trove:Add(Packets.ZoneEntered.OnClientEvent:Connect(function(zone: string)
+		if not self:IsMuted() then
+			self.ZoneEntered:Fire(zone)
+		end
 	end))
 end
 

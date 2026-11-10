@@ -17,7 +17,15 @@ local PET_ID_ATTRIBUTE = "PetId"
 
 local Tools = {}
 
-local function build(id: string, petKey: string, modifier: string?, income: number?, size: string?): Tool?
+local function build(
+	player: Player,
+	id: string,
+	petKey: string,
+	modifier: string?,
+	income: number?,
+	size: string?,
+	onActivated: (Player, string) -> ()
+): Tool?
 	local pet = PetConfig.Pets[petKey]
 	local asset = AssetRegistry.get(pet.ModelKey)
 	if not asset:IsA("Model") or not asset.PrimaryPart then
@@ -52,6 +60,9 @@ local function build(id: string, petKey: string, modifier: string?, income: numb
 	tool.CanBeDropped = false
 	tool.Grip = HeldGrip.For(model, handle)
 	tool:SetAttribute(PET_ID_ATTRIBUTE, id)
+	tool.Activated:Connect(function()
+		onActivated(player, id)
+	end)
 	tool:SetAttribute(WeatherConfig.ModifierAttribute, modifier)
 	tool:SetAttribute(PetSizeConfig.Attribute, size)
 	if modifier then
@@ -93,7 +104,7 @@ function Tools.Held(player: Player): string?
 	return if tool then Tools.PetIdOf(tool) else nil
 end
 
-function Tools.Sync(player: Player, pets: { [string]: any })
+function Tools.Sync(player: Player, pets: { [string]: any }, onActivated: (Player, string) -> ())
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then
 		return
@@ -126,11 +137,28 @@ function Tools.Sync(player: Player, pets: { [string]: any })
 		return (tonumber(a) or 0) < (tonumber(b) or 0)
 	end)
 	for _, id in missing do
-		local tool = build(id, pets[id].Key, pets[id].Modifier, pets[id].Income, pets[id].Size)
+		local tool =
+			build(player, id, pets[id].Key, pets[id].Modifier, pets[id].Income, pets[id].Size, onActivated)
 		if tool then
 			tool.Parent = backpack
 		end
 	end
+end
+
+function Tools.Equip(player: Player, petId: string): boolean
+	local character = player.Character
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not humanoid or not backpack then
+		return false
+	end
+	for _, child in backpack:GetChildren() do
+		if child:IsA("Tool") and Tools.PetIdOf(child) == petId then
+			humanoid:EquipTool(child)
+			return true
+		end
+	end
+	return false
 end
 
 function Tools.PutAway(player: Player)

@@ -48,7 +48,7 @@ local AnalyticsConfig: AnalyticsSettings = {
 		Geode = table.freeze({ Type = shop, Sku = "Geode" }),
 		PedestalSlot = table.freeze({ Type = shop, Sku = "PedestalSlot" }),
 		TrainingUpgrade = table.freeze({ Type = shop, Sku = "TrainingUpgrade" }),
-		Rebirth = table.freeze({ Type = gameplay, Sku = "Rebirth" }),
+		BaseUpgrade = table.freeze({ Type = shop, Sku = "BaseUpgrade" }),
 	},
 	RobuxShopFunnel = {
 		Name = "RobuxShop",

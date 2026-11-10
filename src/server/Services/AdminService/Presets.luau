@@ -6,9 +6,7 @@ local IndexConfig = require(ReplicatedStorage.Config.IndexConfig)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
-local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
 local Tutorial = require(ReplicatedStorage.Tutorial)
-local PlayerData = require(script.Parent.Parent.Parent.Data.PlayerData)
 local Types = require(script.Parent.Types)
 
 local Presets = {}
@@ -73,13 +71,11 @@ function Presets.Apply(context: Types.Context, player: Player, preset: AdminConf
 	}
 	overrides.Cash = preset.Cash
 	overrides.Strength = strength
-	overrides.PeakStrength = PlayerData.PeakStrengthFor(strength or 0, preset.Rebirths or 0)
-	overrides.Rebirths = preset.Rebirths
+	overrides.PeakStrength = strength or 0
 	overrides.AuraTier = preset.AuraTier
-	overrides.TrainingTier = TrainingStands.IndexForRebirths(preset.Rebirths or 0)
+	overrides.TrainingTier = preset.TrainingTier or 1
 	local isFresh = (preset.Cash or 0) <= 0
 		and (strength or 0) <= 0
-		and (preset.Rebirths or 0) <= 0
 		and (preset.AuraTier or 1) <= 1
 		and next(pets) == nil
 	overrides.Tutorial = if isFresh

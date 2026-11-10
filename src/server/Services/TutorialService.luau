@@ -4,6 +4,7 @@ local AnalyticsService = game:GetService("AnalyticsService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AuraHint = require(ReplicatedStorage.AuraHint)
+local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
@@ -85,7 +86,10 @@ local function decide(player: Player, data: any, step: number): number
 		return step
 	end
 	if hasPet then
-		return if services.GeodeService:IsRevealing(player) then step else Tutorial.Final
+		if services.GeodeService:IsRevealing(player) then
+			return step
+		end
+		return if next(PedestalSlots.Placed(data.Pets)) ~= nil then Tutorial.Final else Tutorial.Open
 	end
 	if padCount(data) > 0 then
 		return Tutorial.Open
@@ -123,8 +127,8 @@ local function milestone(data: any): number
 		return Tutorial.Played60Min
 	elseif playtime >= TutorialConfig.Played30MinSeconds then
 		return Tutorial.Played30Min
-	elseif (data.Rebirths or 0) > 0 then
-		return Tutorial.FirstRebirth
+	elseif (data.TrainingTier or 1) >= TutorialConfig.SecondStandTier then
+		return Tutorial.SecondStand
 	elseif petKinds(data) >= TutorialConfig.SecondPetCount then
 		return Tutorial.SecondPet
 	elseif (data.AuraTier or 1) >= TutorialConfig.AuraHint.Tier then

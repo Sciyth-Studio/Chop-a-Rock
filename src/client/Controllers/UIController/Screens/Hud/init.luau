@@ -11,6 +11,7 @@ local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local NumberTicker = require(ReplicatedStorage.Utils.NumberTicker)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local StrengthPop = require(script.StrengthPop)
 local Types = require(script.Parent.Parent.Types)
 
 local DELTA_TEMPLATE = "MoneyDelta"
@@ -234,6 +235,34 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
+	local function bindStrengthPop()
+		local label = findLabel("Strength")
+		if not label then
+			return
+		end
+		local money = gui:FindFirstChild("Money", true)
+		local template = if money then money:FindFirstChild(DELTA_TEMPLATE) else nil
+		local pop = StrengthPop.new(
+			gui,
+			label,
+			if template and template:IsA("TextLabel") then template else nil,
+			function(): number
+				return if screenScale and screenScale.Scale > 0 then screenScale.Scale else 1
+			end,
+			textWidth
+		)
+		local last: number? = nil
+		trove:Add(dataController:Observe({ "Strength" }, function(value: any)
+			local current = readNumber(value)
+			if last and value ~= nil and current > last then
+				StrengthPop.Play(pop, current - last)
+			end
+			if value ~= nil then
+				last = current
+			end
+		end))
+	end
+
 	bindMoney()
 	bindData("Strength", { "Strength" }, function(value: number): string
 		return `{NumberFormat.Compact(value)}`
@@ -242,6 +271,7 @@ function Hud.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		return `+{NumberFormat.Compact(value)}% [Friends]`
 	end)
 	bindInvite()
+	bindStrengthPop()
 	trackBackdrop("Strength", 0)
 	trackBackdrop("Money", 0)
 	trackBackdrop("FriendBoost", HudConfig.InviteExtraPaddingPixels)

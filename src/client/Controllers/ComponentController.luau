@@ -9,12 +9,12 @@ local factories: { (controllers: { [string]: any }) -> any } = {
 	require(script.Parent.Parent.Components.HatchPadInfo),
 	require(script.Parent.Parent.Components.ChopDummy),
 	require(script.Parent.Parent.Components.TrainingUpgradeSign),
+	require(script.Parent.Parent.Components.BaseUpgradeSign),
 	require(script.Parent.Parent.Components.IdlePet),
 	require(script.Parent.Parent.Components.ModifiedPet),
 	require(script.Parent.Parent.Components.Leaderboard),
 	require(script.Parent.Parent.Components.ExclusiveStand),
 	require(script.Parent.Parent.Components.SliceTest),
-	require(script.Parent.Parent.Components.BaseOwnerSign),
 }
 local registry: { [string]: any } = {}
 local components: { any } = {}

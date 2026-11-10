@@ -2,7 +2,11 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local NotificationConfig = require(ReplicatedStorage.Config.NotificationConfig)
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
+local RockConfig = require(ReplicatedStorage.Config.RockConfig)
+local ZoneBannerConfig = require(ReplicatedStorage.Config.ZoneBannerConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -268,6 +272,85 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end)
 	end
 
+	local zoneTemplate = gui:FindFirstChild(ZoneBannerConfig.TemplateName)
+	if zoneTemplate and zoneTemplate:IsA("CanvasGroup") then
+		zoneTemplate.Visible = false
+	else
+		warn(`[Notifications] Missing CanvasGroup "{ZoneBannerConfig.TemplateName}"; zone banners disabled`)
+		zoneTemplate = nil
+	end
+	local zoneBanner: CanvasGroup? = nil
+	local zoneToken = 0
+
+	local function hideZone(banner: CanvasGroup)
+		TweenService:Create(
+			banner,
+			TweenInfo.new(ZoneBannerConfig.FadeOutSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ GroupTransparency = 1 }
+		):Play()
+		task.delay(ZoneBannerConfig.FadeOutSeconds, function()
+			banner:Destroy()
+		end)
+	end
+
+	local function showZone(zone: string)
+		local settings = ZoneBannerConfig.Zones[zone]
+		if not zoneTemplate or not settings then
+			return
+		end
+		if zoneBanner then
+			zoneBanner:Destroy()
+			zoneBanner = nil
+		end
+		local banner = (zoneTemplate :: CanvasGroup):Clone()
+		local title = banner:FindFirstChild(ZoneBannerConfig.TitleName, true)
+		if title and title:IsA("TextLabel") then
+			title.Text = `{settings.Title} {settings.Emoji}`
+			Typography.ApplyTextStyle(title, settings.TextStyle)
+		end
+		local row = banner:FindFirstChild(ZoneBannerConfig.RecommendedName, true)
+		local label = row and row:FindFirstChild(ZoneBannerConfig.LabelName)
+		if label and label:IsA("TextLabel") then
+			label.Text = ZoneBannerConfig.RecommendedText
+		end
+		local icon = row and row:FindFirstChild(ZoneBannerConfig.IconName)
+		if icon and icon:IsA("ImageLabel") then
+			icon.Image = IconConfig.Strength
+		end
+		local value = row and row:FindFirstChild(ZoneBannerConfig.ValueName)
+		local rocks: { [string]: RockConfig.Rock } = RockConfig.Rocks
+		local rock = rocks[settings.RecommendedRock]
+		if value and value:IsA("TextLabel") then
+			value.Text = if rock
+				then `{NumberFormat.CompactRock(rock.StrengthRequired)}{ZoneBannerConfig.ValueSuffix}`
+				else ""
+			Typography.ApplyTextStyle(value, ZoneBannerConfig.ValueStyle)
+		end
+		if row and row:IsA("GuiObject") then
+			row.Visible = rock ~= nil
+		end
+		banner.Name = `Zone{zone}`
+		banner.LayoutOrder = ZoneBannerConfig.LayoutOrder
+		banner.GroupTransparency = 1
+		banner.Visible = true
+		banner.Parent = container
+		zoneBanner = banner
+		zoneToken += 1
+		local token = zoneToken
+		TweenService:Create(
+			banner,
+			TweenInfo.new(ZoneBannerConfig.FadeInSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ GroupTransparency = 0 }
+		):Play()
+		task.delay(ZoneBannerConfig.FadeInSeconds + ZoneBannerConfig.HoldSeconds, function()
+			if zoneToken == token and zoneBanner == banner then
+				zoneBanner = nil
+				hideZone(banner)
+			end
+		end)
+	end
+
+	trove:Connect(controller.ZoneEntered, showZone)
 	trove:Connect(controller.Notified, show)
 	trove:Connect(controller.Pinned, pin)
 	trove:Connect(controller.Unpinned, unpin)
@@ -294,6 +377,10 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				entry.Frame:Destroy()
 			end
 			table.clear(pinned)
+			if zoneBanner then
+				zoneBanner:Destroy()
+				zoneBanner = nil
+			end
 		end,
 	}
 end

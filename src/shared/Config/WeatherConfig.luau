@@ -31,7 +31,6 @@ export type Modifier = {
 
 export type WeatherSettings = {
 	DurationSeconds: number,
-	WarningSeconds: number,
 	CatchIntervalSeconds: number,
 	CatchChance: number,
 	StormHitCatchChance: number,
@@ -45,6 +44,7 @@ export type WeatherSettings = {
 	StartedAtAttribute: string,
 	EndsAtAttribute: string,
 	NextAtAttribute: string,
+	NextKeyAttribute: string,
 	ModifierAttribute: string,
 	PetTag: string,
 	CaughtAtAttribute: string,
@@ -53,7 +53,6 @@ export type WeatherSettings = {
 	RockVFXName: string,
 	RockWeatherAttribute: string,
 	NoticeKindPrefix: string,
-	WarningText: string,
 	StartText: string,
 	EndText: string,
 	CatchText: string,
@@ -70,14 +69,6 @@ export type WeatherSettings = {
 	ThunderDelaySeconds: number,
 	LightningRadiusStuds: number,
 	SoundFadeSeconds: number,
-	PillScreen: string,
-	PillActiveText: string,
-	PillNextText: string,
-	PillIdleIcon: string,
-	PillIdleTop: Color3,
-	PillIdleBottom: Color3,
-	PillIdleDark: Color3,
-	PillDarkAlpha: number,
 	LabelDarkAlpha: number,
 	RockLabelName: string,
 	RockLabelHeightStuds: number,
@@ -86,7 +77,6 @@ export type WeatherSettings = {
 
 local WeatherConfig: WeatherSettings = {
 	DurationSeconds = 240,
-	WarningSeconds = 60,
 	CatchIntervalSeconds = 60,
 	CatchChance = 0.025,
 	StormHitCatchChance = 0.01,
@@ -102,7 +92,7 @@ local WeatherConfig: WeatherSettings = {
 			Modifier = "Dusty",
 			RockMultiplier = 1.5,
 			Color = Color3.fromRGB(255, 170, 40),
-			Icon = "rbxassetid://105214173343789",
+			Icon = "rbxassetid://110651249211406",
 			Look = {
 				Atmosphere = {
 					Density = 0.3,
@@ -125,7 +115,7 @@ local WeatherConfig: WeatherSettings = {
 			Modifier = "Windy",
 			RockMultiplier = 2,
 			Color = Color3.fromRGB(0, 220, 200),
-			Icon = "rbxassetid://126455242045272",
+			Icon = "rbxassetid://122388756309754",
 			Look = {
 				Lighting = { Brightness = 1.8, OutdoorAmbient = Color3.fromRGB(110, 125, 155) },
 				Atmosphere = {
@@ -149,7 +139,7 @@ local WeatherConfig: WeatherSettings = {
 			Modifier = "Toasty",
 			RockMultiplier = 2.5,
 			Color = Color3.fromRGB(255, 80, 0),
-			Icon = "rbxassetid://110091075121825",
+			Icon = "rbxassetid://82203127494851",
 			Look = {
 				Lighting = { Brightness = 5, OutdoorAmbient = Color3.fromRGB(255, 200, 170) },
 				Atmosphere = {
@@ -173,7 +163,7 @@ local WeatherConfig: WeatherSettings = {
 			Modifier = "Zappy",
 			RockMultiplier = 3,
 			Color = Color3.fromRGB(255, 230, 0),
-			Icon = "rbxassetid://102937676577668",
+			Icon = "rbxassetid://133227097714860",
 			Look = {
 				Lighting = { Brightness = 2.5, OutdoorAmbient = Color3.fromRGB(120, 140, 230) },
 				Atmosphere = {
@@ -197,7 +187,7 @@ local WeatherConfig: WeatherSettings = {
 			Modifier = "Eclipsed",
 			RockMultiplier = 5,
 			Color = Color3.fromRGB(190, 0, 255),
-			Icon = "rbxassetid://131654904126447",
+			Icon = "rbxassetid://77596124514618",
 			Look = {
 				Lighting = {
 					Brightness = 1.3,
@@ -280,6 +270,7 @@ local WeatherConfig: WeatherSettings = {
 	StartedAtAttribute = "WeatherStartedAt",
 	EndsAtAttribute = "WeatherEndsAt",
 	NextAtAttribute = "NextWeatherAt",
+	NextKeyAttribute = "NextWeather",
 	ModifierAttribute = "Modifier",
 	PetTag = "ModifiedPet",
 	CaughtAtAttribute = "ModifierCaughtAt",
@@ -288,7 +279,6 @@ local WeatherConfig: WeatherSettings = {
 	RockVFXName = "WeatherVFX",
 	RockWeatherAttribute = "Weather",
 	NoticeKindPrefix = "Weather_",
-	WarningText = "%s in 1 minute!",
 	StartText = "%s is here! %s x%s",
 	EndText = "%s is over",
 	CatchText = "%s caught %s! $%s/s → $%s/s",
@@ -305,14 +295,6 @@ local WeatherConfig: WeatherSettings = {
 	ThunderDelaySeconds = 0.6,
 	LightningRadiusStuds = 250,
 	SoundFadeSeconds = 3,
-	PillScreen = "WeatherPill",
-	PillActiveText = "%s %d:%02d",
-	PillNextText = "Next weather %d:%02d",
-	PillIdleIcon = "rbxassetid://78570614070972",
-	PillIdleTop = Color3.fromRGB(245, 245, 245),
-	PillIdleBottom = Color3.fromRGB(170, 170, 170),
-	PillIdleDark = Color3.fromRGB(60, 60, 60),
-	PillDarkAlpha = 0.65,
 	LabelDarkAlpha = 0.7,
 	RockLabelName = "WeatherLabel",
 	RockLabelHeightStuds = 2,

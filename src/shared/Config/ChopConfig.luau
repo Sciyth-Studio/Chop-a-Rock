@@ -1,6 +1,7 @@
 --!strict
 
 export type ChopSettings = {
+	HidesBillboards: boolean,
 	CycleSeconds: number,
 	TouchCycleSeconds: number,
 	ReferenceRockSize: number,
@@ -44,6 +45,7 @@ export type ChopSettings = {
 	PlayerSnapOffsetFromRock: Vector3,
 	PlayerSnapLeftShiftStuds: number,
 	RelativeOffsetAttribute: string,
+	ScaleAttribute: string,
 	ShakeDurationSeconds: number,
 	BadShakeIntensity: number,
 	MidShakeIntensity: number,
@@ -68,6 +70,7 @@ export type ChopSettings = {
 }
 
 local ChopConfig: ChopSettings = {
+	HidesBillboards = true,
 	CycleSeconds = 1.5,
 	TouchCycleSeconds = 2.0,
 	ReferenceRockSize = 10,
@@ -111,6 +114,7 @@ local ChopConfig: ChopSettings = {
 	PlayerSnapOffsetFromRock = Vector3.new(0, 0, -8),
 	PlayerSnapLeftShiftStuds = 1,
 	RelativeOffsetAttribute = "ChopRelative",
+	ScaleAttribute = "ChopScale",
 	ShakeDurationSeconds = 0.15,
 	BadShakeIntensity = 0.15,
 	MidShakeIntensity = 0.35,

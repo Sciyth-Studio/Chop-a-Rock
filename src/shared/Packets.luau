@@ -65,22 +65,41 @@ local Packets = {
 		Packet.NumberF64,
 		Packet.NumberF32
 	),
-	EnemyClick = Packet("EnemyClick"):RateLimit(30, 1),
-	EnemyFightHit = Packet("EnemyFightHit", Packet.NumberF64),
+	EnemyChopStart = Packet(
+		"EnemyChopStart",
+		Packet.String,
+		Packet.NumberF64,
+		Packet.NumberF64,
+		Packet.NumberF64,
+		Packet.NumberF64,
+		Packet.NumberF32
+	),
 	EnemyFightEnded = Packet("EnemyFightEnded", Packet.String, Packet.String),
 	EnemyFled = Packet("EnemyFled", Packet.String),
 	EnemyFightShown = Packet("EnemyFightShown", Packet.Vector3F32, Packet.String),
-	ZoneGeodeReady = Packet("ZoneGeodeReady"):RateLimit(2, 1),
 	ZoneGeodeSpawned = Packet(
 		"ZoneGeodeSpawned",
 		Packet.NumberU32,
 		Packet.String,
 		Packet.NumberU8,
 		Packet.Vector3F32,
-		Packet.NumberF32
+		Packet.NumberF32,
+		Packet.Vector3F32,
+		Packet.NumberU16,
+		Packet.Boolean8
 	),
 	ZoneGeodeTake = Packet("ZoneGeodeTake", Packet.NumberU32):RateLimit(5, 1),
-	ZoneGeodeRemoved = Packet("ZoneGeodeRemoved", Packet.NumberU32),
+	ZoneGeodeRemoved = Packet("ZoneGeodeRemoved", Packet.NumberU32, Packet.Boolean8),
+	EggRetryOffer = Packet(
+		"EggRetryOffer",
+		Packet.NumberU32,
+		Packet.NumberU16,
+		Packet.Boolean8,
+		Packet.NumberF32
+	),
+	EggRetryChoose = Packet("EggRetryChoose", Packet.NumberU32, Packet.String):RateLimit(5, 1),
+	EggRetryClosed = Packet("EggRetryClosed", Packet.NumberU32),
+	EggDropHeld = Packet("EggDropHeld"):RateLimit(3, 1),
 	ChopEnded = Packet("ChopEnded"),
 	RockSpawnSpots = Packet("RockSpawnSpots", { Packet.Vector3F32 }, { Packet.String }),
 	ChopRoundStart = Packet("ChopRoundStart", Packet.NumberF64):RateLimit(5, 1),
@@ -100,6 +119,7 @@ local Packets = {
 	TrainingChop = Packet("TrainingChop"):RateLimit(5, 1),
 	TrainingStopRequest = Packet("TrainingStopRequest"):RateLimit(5, 1),
 	UpgradeTraining = Packet("UpgradeTraining"):Response(Packet.String):RateLimit(3, 1),
+	UpgradeBase = Packet("UpgradeBase"):Response(Packet.String):RateLimit(3, 1),
 	TrainingMinigameOpen = Packet("TrainingMinigameOpen"):Response(Packet.Boolean8):RateLimit(3, 1),
 	TrainingMinigameClose = Packet("TrainingMinigameClose"):RateLimit(3, 1),
 	TrainingMinigameWave = Packet(
@@ -127,7 +147,6 @@ local Packets = {
 		Packet.NumberF32,
 		Packet.NumberF32
 	),
-	Rebirth = Packet("Rebirth"):Response(Packet.Boolean8):RateLimit(2, 1),
 	GeodeHatched = Packet(
 		"GeodeHatched",
 		Packet.Instance,
@@ -154,6 +173,7 @@ local Packets = {
 	SetSetting = Packet("SetSetting", Packet.String, Packet.Boolean8):RateLimit(5, 1),
 	SetVolume = Packet("SetVolume", Packet.String, Packet.NumberU8):RateLimit(20, 1),
 	Notify = Packet("Notify", Packet.String, Packet.String, Packet.String),
+	ZoneEntered = Packet("ZoneEntered", Packet.String),
 	AdminRun = Packet("AdminRun", Packet.String, Packet.String):RateLimit(5, 1),
 	Teleport = Packet("Teleport", Packet.String):RateLimit(6, 1),
 	CannonHintSkip = Packet("CannonHintSkip"):RateLimit(2, 1),

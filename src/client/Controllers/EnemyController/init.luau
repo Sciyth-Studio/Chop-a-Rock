@@ -1,12 +1,13 @@
 --!strict
 
-local ContextActionService = game:GetService("ContextActionService")
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
 local Packets = require(ReplicatedStorage.Packets)
@@ -16,10 +17,13 @@ local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Arrows = require(script.Arrows)
+local Audio = require(script.Audio)
 local Effects = require(script.Effects)
+local Hitstop = require(script.Hitstop)
 local Launch = require(script.Launch)
 local Motion = require(script.Motion)
 local Sequence = require(script.Sequence)
+local Wander = require(script.Wander)
 
 type TroveInstance = typeof(Trove.new())
 
@@ -33,12 +37,18 @@ export type FightView = {
 	Anchor: Vector3?,
 }
 
-local HIT_ACTION = "EnemyFightHit"
-
 local enemies: { [string]: Motion.Enemy } = {}
 local folder: Folder? = nil
 local dataController: any = nil
 local uiController: any = nil
+local chopController: any = nil
+local musicController: any = nil
+local musicTrove: TroveInstance? = nil
+local fightMusic: Sound? = nil
+local musicSpedUp = false
+local musicMuffled = false
+local lastTick = math.huge
+local baseFov: number? = nil
 local fight: FightView? = nil
 local inputTrove: TroveInstance? = nil
 local launchTrove: TroveInstance? = nil
@@ -48,15 +58,89 @@ local arrowTrove: TroveInstance? = nil
 local strike: (() -> ())? = nil
 local holdUntil: number? = nil
 local holdEnemy: Motion.Enemy? = nil
+local danger: ColorCorrectionEffect? = nil
+local dangerTotal = 0
+
+local function stopDanger()
+	if danger then
+		danger:Destroy()
+		danger = nil
+	end
+	local camera = workspace.CurrentCamera
+	if baseFov and camera then
+		camera.FieldOfView = baseFov
+	end
+	baseFov = nil
+end
+
+local function startDanger(secondsLeft: number)
+	stopDanger()
+	if secondsLeft <= 0 then
+		return
+	end
+	dangerTotal = secondsLeft
+	musicSpedUp = false
+	musicMuffled = false
+	lastTick = math.huge
+	local effect = Instance.new("ColorCorrectionEffect")
+	effect.Name = "EnemyFightDanger"
+	effect.Parent = Lighting
+	danger = effect
+end
+
+local function finalTick(secondsLeft: number)
+	local count = math.ceil(secondsLeft)
+	if count > EnemyConfig.FinalSeconds or count >= lastTick or secondsLeft <= 0 then
+		return
+	end
+	lastTick = count
+	Audio.Play(EnemyConfig.TickSoundKey)
+	local music = fightMusic
+	if music and not musicMuffled then
+		musicMuffled = true
+		Audio.Muffle(music)
+	end
+	local camera = workspace.CurrentCamera
+	if not camera then
+		return
+	end
+	baseFov = baseFov or camera.FieldOfView
+	local base = baseFov :: number
+	camera.FieldOfView = base - EnemyConfig.FinalFovKick
+	TweenService:Create(
+		camera,
+		TweenInfo.new(EnemyConfig.FinalFovSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ FieldOfView = base }
+	):Play()
+end
+
+local function stepDanger()
+	local effect = danger
+	if not effect then
+		return
+	end
+	local left = chopController:GetSecondsLeft()
+	if not left then
+		stopDanger()
+		return
+	end
+	local share = 1 - math.clamp(left / math.max(dangerTotal, 1e-3), 0, 1)
+	local music = fightMusic
+	if music and not musicSpedUp and share >= EnemyConfig.MusicSpeedUpShare then
+		musicSpedUp = true
+		Audio.SpeedUp(music)
+	end
+	finalTick(left)
+	effect.TintColor = Color3.new(1, 1, 1):Lerp(EnemyConfig.DangerTint, share)
+	effect.Saturation = -EnemyConfig.DangerDesaturate * share
+end
 local dangerNow = 0
-local lastClick = 0
 
 local EnemyController = {
 	Name = "EnemyController",
 	FightChanged = nil :: any,
 	HealthChanged = nil :: any,
 	ResultShown = nil :: any,
-	Clicked = nil :: any,
 	_trove = nil :: TroveInstance?,
 }
 
@@ -96,6 +180,13 @@ local function addLabel(model: Model, zone: string, height: number)
 	Typography.Apply(gui)
 	gui.Adornee = adornee
 	gui.MaxDistance = EnemyConfig.LabelMaxDistance
+	local labelScale = EnemyConfig.LabelScale
+	gui.Size = UDim2.new(
+		gui.Size.X.Scale * labelScale,
+		gui.Size.X.Offset * labelScale,
+		gui.Size.Y.Scale * labelScale,
+		gui.Size.Y.Offset * labelScale
+	)
 	gui.StudsOffsetWorldSpace = Vector3.new(0, height / 2 + EnemyConfig.LabelGapStuds, 0)
 	for _, descendant in gui:GetDescendants() do
 		if descendant:IsA("TextLabel") then
@@ -157,32 +248,44 @@ local function spawnEnemy(
 		AreaMin = areaMin,
 		AreaMax = areaMax,
 		FleeTo = home,
+		WanderTo = home,
+		WanderAt = os.clock() + math.random() * EnemyConfig.WanderPauseMaxSeconds,
+		FrozenUntil = 0,
 	}
+	local outline = Instance.new("Highlight")
+	outline.Name = EnemyConfig.OutlineName
+	outline.FillTransparency = 1
+	outline.OutlineColor = EnemyConfig.OutlineColor
+	outline.OutlineTransparency = 0
+	outline.DepthMode = Enum.HighlightDepthMode.Occluded
+	outline.Parent = model
 	model:PivotTo(CFrame.lookAt(home, home + EnemyConfig.HomeFacing))
 	model.Parent = folder
 	addLabel(model, zone, size.Y)
 end
 
-local function click()
+local function onChopResult(quality: number)
 	local current = fight
-	if not current then
+	local enemy = if current then enemies[current.Zone] else nil
+	if not enemy then
+		return
+	end
+	if quality < ChopQuality.Good then
+		Audio.Play(EnemyConfig.MissSoundKey)
 		return
 	end
 	local now = os.clock()
-	if now < current.FightsAt or now - lastClick < 1 / EnemyConfig.ClientClicksPerSecond then
-		return
-	end
-	lastClick = now
-	Packets.EnemyClick:Fire()
-	local enemy = enemies[current.Zone]
-	if enemy then
+	local freeze = EnemyConfig.HitstopSeconds[quality]
+	if freeze then
+		Motion.Hitstop(enemy, now, freeze)
+		local character = characterParts()
+		if character then
+			Hitstop.Character(character, freeze)
+		end
+	else
 		Motion.Stagger(enemy, now)
-		Effects.Hit(enemy.Position + Vector3.new(0, enemy.Height / 2, 0))
 	end
-	if strike then
-		strike()
-	end
-	EnemyController.Clicked:Fire()
+	Effects.Hit(enemy.Position + Vector3.new(0, enemy.Height / 2, 0))
 end
 
 local function bindInput()
@@ -192,23 +295,7 @@ local function bindInput()
 	ProximityPromptService.Enabled = false
 	trove:Add(function()
 		ProximityPromptService.Enabled = promptsWereEnabled
-		ContextActionService:UnbindAction(HIT_ACTION)
 	end)
-	ContextActionService:BindAction(HIT_ACTION, function(_actionName, inputState)
-		if inputState == Enum.UserInputState.Begin then
-			click()
-			return Enum.ContextActionResult.Sink
-		end
-		return Enum.ContextActionResult.Pass
-	end, true, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2, Enum.KeyCode.ButtonX)
-	ContextActionService:SetTitle(HIT_ACTION, EnemyConfig.TouchButtonTitle)
-	trove:Add(UserInputService.InputBegan:Connect(function(input: InputObject, isProcessed: boolean)
-		local isPress = input.UserInputType == Enum.UserInputType.MouseButton1
-			or input.UserInputType == Enum.UserInputType.Touch
-		if isPress and not isProcessed then
-			click()
-		end
-	end))
 end
 
 local function unbindInput()
@@ -300,19 +387,44 @@ local function onFightStarted(zone: string, maxHealth: number, startHealth: numb
 		Motion.Set(enemy, "Charge", now)
 	end
 	hideScreens()
+	if musicTrove then
+		musicTrove:Clean()
+		fightMusic = Audio.StartMusic(musicTrove, musicController)
+	end
+	Audio.Play(EnemyConfig.RoarSoundKey)
 	startStage(enemy, now)
 	uiController:Open(EnemyConfig.ScreenName)
 	EnemyController.FightChanged:Fire(fight)
 end
 
-local function onFightHit(health: number)
+local function onChopStart(
+	zone: string,
+	ratio: number,
+	center: number,
+	health: number,
+	maxHealth: number,
+	secondsLeft: number
+)
 	local current = fight
-	if current then
-		current.Health = health
-		local share = 1 - math.clamp(health / math.max(current.MaxHealth, 1e-9), 0, 1)
-		dangerNow = math.clamp(1 - share / EnemyConfig.StartShare, 0, 1)
-		EnemyController.HealthChanged:Fire(health, current.MaxHealth)
+	local enemy = enemies[zone]
+	if not current or current.Zone ~= zone or not enemy then
+		Packets.ChopLeave:Fire()
+		return
 	end
+	strike = nil
+	dangerNow = 0
+	if stageTrove then
+		stageTrove:Clean()
+	end
+	local target = enemy.Model.PrimaryPart or enemy.Model:FindFirstChildWhichIsA("BasePart", true)
+	if not target then
+		Packets.ChopLeave:Fire()
+		return
+	end
+	current.Health = health
+	EnemyController.HealthChanged:Fire(health, maxHealth)
+	chopController:BeginExternal(target, ratio, center, health, maxHealth, secondsLeft, EnemyRules.SweepSpeed)
+	startDanger(secondsLeft)
 end
 
 local function launchPlayer(zone: string, enemy: Motion.Enemy?, target: Vector3?)
@@ -336,6 +448,16 @@ local function launchPlayer(zone: string, enemy: Motion.Enemy?, target: Vector3?
 end
 
 local function onFightEnded(zone: string, result: string)
+	stopDanger()
+	fightMusic = nil
+	if musicTrove then
+		musicTrove:Clean()
+	end
+	if result == "Won" then
+		Audio.Play(EnemyConfig.WinSoundKey)
+	elseif result == "Lost" then
+		Audio.Play(EnemyConfig.LoseSoundKey)
+	end
 	local target = fight and fight.Anchor
 	fight = nil
 	unbindInput()
@@ -382,6 +504,7 @@ local function onFled(zone: string)
 end
 
 local function step(dt: number)
+	stepDanger()
 	local now = os.clock()
 	if holdUntil and now >= holdUntil then
 		endStage()
@@ -393,9 +516,17 @@ local function step(dt: number)
 		local distance = if feet then (feet - enemy.Position).Magnitude else math.huge
 		local zoneScale = ZoneScale.Of(zone)
 		local outgrown = EnemyRules.Flees(strengthNumber, zone)
-		if enemy.State == "Home" and not outgrown then
-			if (enemy.Position - enemy.Home).Magnitude > 1 then
+		local isActive = distance <= EnemyConfig.ActiveStuds * zoneScale
+		if (enemy.State == "Home" or enemy.State == "Wander") and not outgrown then
+			if (enemy.Position - enemy.Home).Magnitude > EnemyConfig.WanderLeashStuds * zoneScale then
 				Motion.Set(enemy, "Return", now)
+			elseif enemy.State == "Home" and isActive and now >= enemy.WanderAt and folder then
+				local target = Wander.Pick(enemy, folder, zoneScale)
+				if target then
+					Motion.Wander(enemy, target, now)
+				else
+					Motion.Set(enemy, "Home", now)
+				end
 			end
 		elseif enemy.State == "Home" and feet and distance <= EnemyConfig.FleeNearStuds * zoneScale then
 			local run = (Motion.FurthestPoint(enemy, feet) - enemy.Position).Magnitude
@@ -412,7 +543,8 @@ local function step(dt: number)
 		end
 		local isGone = enemy.State == "Gone"
 		setVisible(enemy, not isGone)
-		if isGone or (enemy.State == "Home" and distance > EnemyConfig.ActiveStuds * zoneScale) then
+		local isIdle = enemy.State == "Home" or enemy.State == "Wander"
+		if isGone or (isIdle and not isActive) then
 			continue
 		end
 		if Motion.Step(enemy, dt, now, feet) then
@@ -430,13 +562,15 @@ function EnemyController.Init(self: any, controllers: { [string]: any })
 	self.FightChanged = Signal.new()
 	self.HealthChanged = Signal.new()
 	self.ResultShown = Signal.new()
-	self.Clicked = Signal.new()
 	launchTrove = Trove.new()
 	stageTrove = Trove.new()
 	screensTrove = Trove.new()
 	arrowTrove = Trove.new()
+	musicTrove = Trove.new()
+	musicController = controllers.MusicController
 	dataController = controllers.DataController
 	uiController = controllers.UIController
+	chopController = controllers.ChopController
 end
 
 function EnemyController.Start(self: any)
@@ -448,7 +582,8 @@ function EnemyController.Start(self: any)
 	trove:Add(created)
 	trove:Add(Packets.EnemySpawned.OnClientEvent:Connect(spawnEnemy))
 	trove:Add(Packets.EnemyFightStarted.OnClientEvent:Connect(onFightStarted))
-	trove:Add(Packets.EnemyFightHit.OnClientEvent:Connect(onFightHit))
+	trove:Add(Packets.EnemyChopStart.OnClientEvent:Connect(onChopStart))
+	trove:Add(chopController.ResultShown:Connect(onChopResult))
 	trove:Add(Packets.EnemyFightEnded.OnClientEvent:Connect(onFightEnded))
 	trove:Add(Packets.EnemyFled.OnClientEvent:Connect(onFled))
 	trove:Add(Packets.EnemyFightShown.OnClientEvent:Connect(Effects.Shown))
@@ -457,13 +592,14 @@ function EnemyController.Start(self: any)
 end
 
 function EnemyController.Destroy(self: any)
+	stopDanger()
 	unbindInput()
-	for _, owned: any in { launchTrove, stageTrove, screensTrove, arrowTrove } do
+	for _, owned: any in { launchTrove, stageTrove, screensTrove, arrowTrove, musicTrove } do
 		if owned then
 			owned:Destroy()
 		end
 	end
-	launchTrove, stageTrove, screensTrove, arrowTrove = nil, nil, nil, nil
+	launchTrove, stageTrove, screensTrove, arrowTrove, musicTrove = nil, nil, nil, nil, nil
 	holdUntil = nil
 	holdEnemy = nil
 	strike = nil
@@ -481,7 +617,7 @@ function EnemyController.Destroy(self: any)
 		self.FightChanged:Destroy()
 		self.FightChanged = nil
 	end
-	for _, name in { "HealthChanged", "ResultShown", "Clicked" } do
+	for _, name in { "HealthChanged", "ResultShown" } do
 		if self[name] then
 			self[name]:Destroy()
 			self[name] = nil

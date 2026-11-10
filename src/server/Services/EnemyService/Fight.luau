@@ -1,30 +1,37 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
 local Types = require(script.Parent.Types)
 
 local Fight = {}
 
-local roundingShare = 1e-9
-
 function Fight.New(
 	zone: string,
 	anchor: Vector3,
 	now: number,
+	strength: number,
+	isGentle: boolean,
 	onResult: (result: Types.Result) -> ()
 ): Types.Fight
-	local maxHealth = EnemyRules.MaxHealth(zone)
+	local maxHealth = if isGentle then EnemyConfig.TutorialFightHits else EnemyConfig.FightHits
 	local startsAt = now + EnemyRules.IntroSeconds()
 	return {
 		Zone = zone,
 		Anchor = anchor,
 		LeaveStuds = EnemyRules.LeaveStuds(zone),
 		MaxHealth = maxHealth,
-		Health = maxHealth * EnemyConfig.StartShare,
+		Health = maxHealth,
 		StartsAt = startsAt,
-		PushedAt = startsAt,
+		Deadline = if isGentle then math.huge else startsAt + EnemyConfig.FightSeconds,
+		StrengthRatio = strength / math.max(EnemyRules.WeakestRock(zone), 1),
+		Center = 0.5,
+		RoundStart = nil,
+		Round = 0,
+		IsGentle = isGentle,
+		IsOver = false,
 		ShownAt = 0,
 		OnResult = onResult,
 	}
@@ -34,24 +41,24 @@ function Fight.HasStarted(fight: Types.Fight, now: number): boolean
 	return now >= fight.StartsAt
 end
 
-function Fight.Push(fight: Types.Fight, now: number): boolean
-	if not Fight.HasStarted(fight, now) then
-		return false
-	end
-	local elapsed = now - fight.PushedAt
-	fight.PushedAt = now
-	fight.Health =
-		math.min(fight.Health + fight.MaxHealth * EnemyConfig.PushSharePerSecond * elapsed, fight.MaxHealth)
-	return fight.Health >= fight.MaxHealth
+function Fight.IsOutOfTime(fight: Types.Fight, now: number): boolean
+	return now >= fight.Deadline
 end
 
-function Fight.Hit(fight: Types.Fight, strength: number): boolean
-	fight.Health = math.max(fight.Health - math.max(strength, 0), 0)
-	if fight.Health <= fight.MaxHealth * roundingShare then
-		fight.Health = 0
-		return true
+function Fight.Quality(fight: Types.Fight, quality: number): number
+	if fight.IsGentle then
+		return math.max(quality, ChopQuality.Good)
 	end
-	return false
+	return quality
+end
+
+function Fight.Hit(fight: Types.Fight, quality: number): (number, boolean)
+	local damage = EnemyConfig.HitsByQuality[quality] or 0
+	if quality == ChopQuality.Master then
+		damage = fight.Health
+	end
+	fight.Health = math.max(fight.Health - damage, 0)
+	return damage, fight.Health <= 0
 end
 
 function Fight.HasLeft(fight: Types.Fight, position: Vector3?): boolean

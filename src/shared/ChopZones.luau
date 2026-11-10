@@ -64,9 +64,9 @@ function ChopZones.RandomCenter(random: Random): number
 	return random:NextNumber(ChopConfig.ZoneCenterMin, ChopConfig.ZoneCenterMax)
 end
 
-function ChopZones.Position(elapsed: number, isTouch: boolean?): number
+function ChopZones.Position(elapsed: number, isTouch: boolean?, speed: number?): number
 	local cycleSeconds = if isTouch then ChopConfig.TouchCycleSeconds else ChopConfig.CycleSeconds
-	local phase = (elapsed / cycleSeconds) % 1
+	local phase = (elapsed * (speed or 1) / cycleSeconds) % 1
 	return 1 - math.abs(2 * phase - 1)
 end
 

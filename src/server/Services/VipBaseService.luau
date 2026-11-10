@@ -56,6 +56,10 @@ local function refresh(player: Player)
 	end
 end
 
+function VipBaseService.Refresh(_self: any, player: Player)
+	refresh(player)
+end
+
 function VipBaseService.Init(_self: any, registry: { [string]: any })
 	services = registry
 end

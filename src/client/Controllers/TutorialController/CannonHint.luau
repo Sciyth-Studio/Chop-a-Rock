@@ -26,8 +26,6 @@ export type View = {
 
 local CannonHint = {}
 
-local settings = TutorialConfig.CannonHint
-
 function CannonHint.View(data: any, helpers: Helpers): View
 	if not SharedHint.Cannon() then
 		return { IsDoing = true }
@@ -44,7 +42,7 @@ function CannonHint.View(data: any, helpers: Helpers): View
 	return {
 		Title = "Fire the cannon!",
 		Detail = "Walk into the Forest",
-		Target = Targets.CannonEntry(settings.FireTargetLabel),
+		Target = Targets.CannonEntry(),
 		Teleport = TutorialConfig.ZoneTeleport,
 		IsDoing = false,
 	}

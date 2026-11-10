@@ -62,7 +62,7 @@ function RockHint.Decide(data: any): number
 	if Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 		return stage
 	end
-	if (data.Rebirths or 0) > 0 or hasBroken(data) then
+	if hasBroken(data) then
 		return RockHint.Done
 	end
 	if (data.Strength or 0) >= rock.StrengthRequired then

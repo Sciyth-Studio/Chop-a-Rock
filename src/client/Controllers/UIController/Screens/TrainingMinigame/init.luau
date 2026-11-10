@@ -88,6 +88,7 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 	local isPlaying = false
 	local isRequesting = false
 	local isGamepad = false
+	local isModalOpen = false
 	local isTouch = false
 	local hasSliced = false
 	local flashClock = -math.huge
@@ -130,7 +131,7 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 
 	local function refreshVisibility()
 		if playRoot then
-			playRoot.Visible = isOpen and canPlay and not isPlaying and not isGamepad
+			playRoot.Visible = isOpen and canPlay and not isPlaying and not isGamepad and not isModalOpen
 		end
 		for _, element in { panel, playfield, flash } do
 			if element then
@@ -492,6 +493,11 @@ function TrainingMinigame.new(context: Types.Context, gui: ScreenGui): Types.Scr
 		isTouch = preferred == Enum.PreferredInput.Touch
 		refreshVisibility()
 		return nil
+	end))
+
+	trove:Add(context.Controllers.UIController.ModalChanged:Connect(function(isOpenNow: boolean)
+		isModalOpen = isOpenNow
+		refreshVisibility()
 	end))
 
 	setScore(0)

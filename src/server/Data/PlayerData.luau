@@ -4,8 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CannonHint = require(ReplicatedStorage.CannonHint)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetKeyMigration = require(script.Parent.PetKeyMigration)
-local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
-local TrainingStands = require(ReplicatedStorage.Utils.TrainingStands)
+local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
 
@@ -20,11 +19,13 @@ export type Pet = {
 	Size: string?,
 	Slot: number?,
 	Income: number?,
+	RevealAt: number?,
 }
 
 export type HatchPad = {
 	GeodeKey: string,
 	ReadyAt: number,
+	Luck: number?,
 }
 
 export type Weekly = {
@@ -63,16 +64,20 @@ export type Data = {
 	Cannons: { [string]: boolean },
 	EquippedCannon: string,
 	TrainingTier: number,
+	TrainingLadder: number,
 	TrainingMinigameBest: number,
-	Rebirths: number,
 	PerfectChops: number,
 	Playtime: number,
 	Weekly: Weekly,
 	Geodes: { [string]: number },
 	HatchPads: { [string]: HatchPad },
+	EggLuck: { [string]: { number } },
+	FreeRetryAt: number,
+	RetryCredits: number,
 	Pets: { [string]: Pet },
 	NextPetId: number,
 	PedestalSlots: number,
+	BaseLevel: number,
 	Index: {
 		Pets: { [string]: number },
 		Rocks: { [string]: number },
@@ -110,16 +115,20 @@ PlayerData.Template = {
 	Cannons = {},
 	EquippedCannon = "",
 	TrainingTier = 1,
+	TrainingLadder = TrainingConfig.LadderVersion,
 	TrainingMinigameBest = 0,
-	Rebirths = 0,
 	PerfectChops = 0,
 	Playtime = 0,
 	Weekly = { Week = 0, Strength = 0, PerfectChops = 0, Playtime = 0, MoneyPerSecond = 0 },
 	Geodes = {},
 	HatchPads = {},
+	EggLuck = {},
+	FreeRetryAt = 0,
+	RetryCredits = 0,
 	Pets = {},
 	NextPetId = 1,
 	PedestalSlots = PedestalConfig.StartingSlots,
+	BaseLevel = 1,
 	Index = {
 		Pets = {},
 		Rocks = {},
@@ -200,6 +209,7 @@ local function validPet(pet: any): boolean
 		and (pet.Size == nil or type(pet.Size) == "string")
 		and (pet.Slot == nil or (natural(pet.Slot) and pet.Slot >= 1))
 		and (pet.Income == nil or (finite(pet.Income) and pet.Income >= 0))
+		and (pet.RevealAt == nil or finite(pet.RevealAt))
 end
 
 function PlayerData.Validate(data: any): boolean
@@ -211,10 +221,10 @@ function PlayerData.Validate(data: any): boolean
 			"Cash",
 			"Strength",
 			"PeakStrength",
-			"Rebirths",
 			"PerfectChops",
 			"Playtime",
 			"TrainingMinigameBest",
+			"TrainingLadder",
 			"LastSeenAt",
 		}
 	do
@@ -223,6 +233,9 @@ function PlayerData.Validate(data: any): boolean
 		end
 	end
 	if data.TrainingTier ~= nil and (not natural(data.TrainingTier) or data.TrainingTier < 1) then
+		return false
+	end
+	if data.BaseLevel ~= nil and (not natural(data.BaseLevel) or data.BaseLevel < 1) then
 		return false
 	end
 	for _, key in { "ArmTier", "AuraTier" } do
@@ -265,10 +278,32 @@ function PlayerData.Validate(data: any): boolean
 				or type(record) ~= "table"
 				or type(record.GeodeKey) ~= "string"
 				or not natural(record.ReadyAt)
+				or (record.Luck ~= nil and not natural(record.Luck))
 			then
 				return false
 			end
 		end
+	end
+	if data.EggLuck ~= nil then
+		if type(data.EggLuck) ~= "table" then
+			return false
+		end
+		for key, list in data.EggLuck do
+			if type(key) ~= "string" or type(list) ~= "table" then
+				return false
+			end
+			for _, value in list do
+				if not natural(value) then
+					return false
+				end
+			end
+		end
+	end
+	if data.RetryCredits ~= nil and not natural(data.RetryCredits) then
+		return false
+	end
+	if data.FreeRetryAt ~= nil and not natural(data.FreeRetryAt) then
+		return false
 	end
 	if data.Pets ~= nil then
 		if type(data.Pets) ~= "table" then
@@ -405,13 +440,7 @@ local function hasProgress(data: any): boolean
 	return (type(data.Cash) == "number" and data.Cash > 0)
 		or (type(data.Strength) == "number" and data.Strength > 0)
 		or (type(data.AuraTier) == "number" and data.AuraTier > 1)
-		or (type(data.Rebirths) == "number" and data.Rebirths > 0)
 		or (type(data.Pets) == "table" and next(data.Pets) ~= nil)
-end
-
-function PlayerData.PeakStrengthFor(strength: number, rebirths: number): number
-	local reached = if rebirths > 0 then RebirthStats.Get(rebirths).StrengthRequired else 0
-	return math.max(strength, reached)
 end
 
 function PlayerData.Migrate(data: any)
@@ -429,11 +458,15 @@ function PlayerData.Migrate(data: any)
 		data.Hints = { [cannonHint.Key] = CannonHint.Done, [cannonHint.FurthestKey] = CannonHint.Done }
 	end
 	if data.PeakStrength == nil and natural(data.Strength) then
-		data.PeakStrength =
-			PlayerData.PeakStrengthFor(data.Strength, if natural(data.Rebirths) then data.Rebirths else 0)
+		data.PeakStrength = data.Strength
 	end
-	if data.TrainingTier == nil and natural(data.Rebirths) then
-		data.TrainingTier = TrainingStands.IndexForRebirths(data.Rebirths)
+	data.Rebirths = nil
+	if data.TrainingLadder == nil then
+		if natural(data.TrainingTier) then
+			data.TrainingTier = TrainingConfig.OldTierMap[data.TrainingTier]
+				or TrainingConfig.OldTierMap[#TrainingConfig.OldTierMap]
+		end
+		data.TrainingLadder = TrainingConfig.LadderVersion
 	end
 	if natural(data.PedestalSlots) and data.PedestalSlots < PedestalConfig.StartingSlots then
 		data.PedestalSlots = PedestalConfig.StartingSlots

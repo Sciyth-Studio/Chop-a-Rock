@@ -100,6 +100,37 @@ local function baseCFrame(part: BasePart): CFrame
 	return CFrame.new(part.Position - Vector3.new(0, part.Size.Y / 2, 0))
 end
 
+local function topOffset(part: BasePart): number
+	local top = part.Position.Y + part.Size.Y / 2
+	for _, descendant in part:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			top = math.max(top, descendant.Position.Y + descendant.Size.Y / 2)
+		end
+	end
+	return top - part.Position.Y
+end
+
+local function animateParts(trove: TroveInstance, part: BasePart)
+	local spin = part:FindFirstChild(DiamondRockConfig.ShardSpinName, true)
+	local core = part:FindFirstChild(DiamondRockConfig.CoreName)
+	local spinWeld: Weld? = if spin and spin:IsA("Weld") then spin else nil
+	local corePart: BasePart? = if core and core:IsA("BasePart") then core else nil
+	local baseC0 = if spinWeld then spinWeld.C0 else CFrame.identity
+	local coreColor = if corePart then corePart.Color else Color3.new(1, 1, 1)
+	local started = os.clock()
+	trove:Connect(RunService.RenderStepped, function()
+		local elapsed = os.clock() - started
+		if spinWeld then
+			spinWeld.C0 = CFrame.Angles(0, elapsed * DiamondRockConfig.ShardSpinRadPerSec, 0) * baseC0
+		end
+		if corePart then
+			local wave = (math.sin(elapsed / DiamondRockConfig.CorePulseSeconds * math.pi * 2) + 1) / 2
+			corePart.Color =
+				coreColor:Lerp(DiamondRockConfig.CoreDimColor, wave * DiamondRockConfig.CorePulseDepth)
+		end
+	end)
+end
+
 local function numberAttribute(instance: Instance, name: string): number
 	local value = instance:GetAttribute(name)
 	return if type(value) == "number" then value else 0
@@ -191,7 +222,7 @@ local function makeLabel(trove: TroveInstance, part: BasePart, isEnded: () -> bo
 	Typography.Apply(asset)
 	asset.Adornee = part
 	asset.MaxDistance = DiamondRockConfig.LabelMaxDistance
-	asset.StudsOffsetWorldSpace = Vector3.new(0, part.Size.Y / 2 + DiamondRockConfig.LabelHeightAboveRock, 0)
+	asset.StudsOffsetWorldSpace = Vector3.new(0, topOffset(part) + DiamondRockConfig.LabelHeightAboveRock, 0)
 	setText(nameLabel, nameShadow, DiamondRockConfig.DisplayName)
 	if nameLabel then
 		paint(nameLabel, DiamondRockConfig.TextMain, DiamondRockConfig.TextLight, DiamondRockConfig.TextDark)
@@ -345,6 +376,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			end
 		end)
 
+		animateParts(diamondTrove, part)
 		local beacon = makeBeacon(diamondTrove, target)
 		addGlow(diamondTrove, part, beacon, target)
 		startLoop(diamondTrove, state.Loops, DiamondRockConfig.BeaconSoundKey, beacon)
@@ -399,7 +431,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			if isBroken then
 				playOnce(DiamondRockConfig.ShatterSoundKey)
 				playModel(DiamondRockConfig.BurstKey, baseCFrame(part))
-				Effects.Break(part, quality, DiamondRockConfig.BreakCleanupSeconds)
+				Effects.Break(part, quality, DiamondRockConfig.BreakCleanupSeconds, nil, true)
 				return
 			end
 			LocalSound.Play(DiamondRockConfig.HitSoundKey)

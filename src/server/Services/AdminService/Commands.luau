@@ -15,12 +15,12 @@ local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local PetSizeConfig = require(ReplicatedStorage.Config.PetSizeConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
-local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local WalkSpeedConfig = require(ReplicatedStorage.Config.WalkSpeedConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
 local HatchOdds = require(ReplicatedStorage.HatchOdds)
 local PedestalSlots = require(ReplicatedStorage.PedestalSlots)
+local BaseLevels = require(ReplicatedStorage.Utils.BaseLevels)
 local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
 local GeodeOrder = require(ReplicatedStorage.Utils.GeodeOrder)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
@@ -149,7 +149,6 @@ local tutorialServices: { [string]: string } = {
 	Main = "TutorialService",
 	Aura = "AuraHintService",
 	Rock = "RockHintService",
-	Rebirth = "RebirthHintService",
 	Cannon = "CannonHintService",
 }
 
@@ -189,13 +188,6 @@ local Commands: { [string]: Types.Handler } = {
 		local strength = number(context, player, argument, 0, AdminConfig.Limits.Strength)
 		if strength and context.Services.StatsService:SetStrength(player, strength) then
 			notify(context, player, `strength {NumberFormat.Compact(strength)}`)
-		end
-	end,
-	SetRebirths = function(context: Types.Context, player: Player, argument: string)
-		local rebirths = number(context, player, argument, 0, RebirthConfig.MaxAdminRebirths)
-		if rebirths and context.Services.DataService:Set(player, { "Rebirths" }, rebirths) then
-			context.Services.DataService:RequestSave(player)
-			notify(context, player, `rebirths {rebirths}`)
 		end
 	end,
 	SetAuraTier = function(context: Types.Context, player: Player, argument: string)
@@ -300,6 +292,12 @@ local Commands: { [string]: Types.Handler } = {
 		local tier = number(context, player, argument, 1, #TrainingConfig.Stands)
 		if tier and context.Services.TrainingService:SetTier(player, tier) then
 			notify(context, player, `{TrainingConfig.Stands[tier].DisplayName} Training`)
+		end
+	end,
+	SetBaseLevel = function(context: Types.Context, player: Player, argument: string)
+		local level = number(context, player, argument, 1, BaseLevels.Max())
+		if level and context.Services.BaseUpgradeService:SetLevel(player, level) then
+			notify(context, player, `base level {level}`)
 		end
 	end,
 	SetPedestalSlots = function(context: Types.Context, player: Player, argument: string)

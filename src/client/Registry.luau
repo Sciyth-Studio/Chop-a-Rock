@@ -29,7 +29,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.MusicController),
 	require(script.Parent.Controllers.SettingsController),
 	require(script.Parent.Controllers.CashPopController),
-	require(script.Parent.Controllers.RebirthEffectController),
+	require(script.Parent.Controllers.CelebrationEffectController),
 	require(script.Parent.Controllers.WalkSpeedController),
 	require(script.Parent.Controllers.HotStreakController),
 	require(script.Parent.Controllers.AuraController),
@@ -37,6 +37,7 @@ local controllers: { Lifecycle.System } = {
 	require(script.Parent.Controllers.WeatherController),
 	require(script.Parent.Controllers.IntroController),
 	require(script.Parent.Controllers.TutorialController),
+	require(script.Parent.Controllers.UpgradeAlertController),
 }
 
 return controllers

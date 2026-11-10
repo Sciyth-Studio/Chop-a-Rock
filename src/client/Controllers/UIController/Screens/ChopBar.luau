@@ -7,6 +7,8 @@ local TweenService = game:GetService("TweenService")
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
+local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -114,6 +116,43 @@ function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	if healthBar and not healthFill then
 		warn(`[ChopBar] Missing Frame "HealthFill" in {healthBar:GetFullName()}`)
 	end
+	local healthTextInstance = if healthBar then healthBar:FindFirstChild("HealthText", true) else nil
+	local healthText: TextLabel? = if healthTextInstance and healthTextInstance:IsA("TextLabel")
+		then healthTextInstance
+		else nil
+	if healthBar and not healthText then
+		warn(`[ChopBar] Missing TextLabel "HealthText" in {healthBar:GetFullName()}; no HP number`)
+	end
+	local healthTextShadowInstance = if healthBar
+		then healthBar:FindFirstChild("HealthTextShadow", true)
+		else nil
+	local healthTextShadow: TextLabel? = if healthTextShadowInstance
+			and healthTextShadowInstance:IsA("TextLabel")
+		then healthTextShadowInstance
+		else nil
+	local timerInstance = gui:FindFirstChild("TimerText", true)
+	local timerText: TextLabel? = if timerInstance and timerInstance:IsA("TextLabel")
+		then timerInstance
+		else nil
+	local timerShadowInstance = gui:FindFirstChild("TimerTextShadow", true)
+	local timerShadow: TextLabel? = if timerShadowInstance and timerShadowInstance:IsA("TextLabel")
+		then timerShadowInstance
+		else nil
+	local timerColor = if timerText then timerText.TextColor3 else Color3.new(1, 1, 1)
+	local function setTimer(seconds: number?)
+		if timerText then
+			local isFinal = seconds ~= nil and seconds <= EnemyConfig.FinalSeconds
+			timerText.TextColor3 = if isFinal then EnemyConfig.TimerWarnColor else timerColor
+		end
+		for _, label in { timerText, timerShadow } :: { TextLabel? } do
+			if label then
+				label.Visible = seconds ~= nil
+				if seconds then
+					label.Text = string.format("%.1fs", seconds)
+				end
+			end
+		end
+	end
 	local leaveInstance = gui:FindFirstChild("LeaveButton", true)
 	local leaveButton: GuiButton? = if leaveInstance and leaveInstance:IsA("GuiButton")
 		then leaveInstance
@@ -143,6 +182,15 @@ function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local function setHealth(health: number, maxHealth: number, animate: boolean)
+		local text = `{NumberFormat.Compact(math.max(math.ceil(health), 0))} / {NumberFormat.Compact(
+			math.ceil(maxHealth)
+		)}`
+		if healthText then
+			healthText.Text = text
+		end
+		if healthTextShadow then
+			healthTextShadow.Text = text
+		end
 		if not healthFill then
 			return
 		end
@@ -230,6 +278,7 @@ function ChopBar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				setHealth(chopController:GetHealth(), chopController:GetMaxHealth(), false)
 				openTrove:Add(RunService.RenderStepped:Connect(function()
 					setLevel(chopController:GetCursorPosition())
+					setTimer(chopController:GetSecondsLeft())
 				end))
 			end
 		end,

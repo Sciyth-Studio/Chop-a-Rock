@@ -58,7 +58,7 @@ function AuraHint.View(data: any, helpers: CannonHint.Helpers): CannonHint.View
 			IsDoing = true,
 		}
 	end
-	local target = Targets.ShopPad(settings.ScreenName, settings.TargetLabel)
+	local target = Targets.ShopPad(settings.ScreenName)
 	return {
 		Title = title,
 		Detail = if helpers.IsNear(target) then "Step on red pad" else nil,

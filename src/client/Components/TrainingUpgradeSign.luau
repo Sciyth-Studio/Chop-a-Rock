@@ -87,9 +87,6 @@ return function(controllers: { [string]: any })
 		local cashIcon = if cashButton
 			then cashButton:FindFirstChild(TrainingSignConfig.CashIconName, true)
 			else nil
-		local rebirthIcon = if cashButton
-			then cashButton:FindFirstChild(TrainingSignConfig.RebirthIconName, true)
-			else nil
 
 		local parts: { BasePart } = {}
 		for _, descendant in sign:GetDescendants() do
@@ -145,41 +142,22 @@ return function(controllers: { [string]: any })
 			if cashButton then
 				cashButton.Visible = true
 			end
-			local isLocked = readNumber("Rebirths", 0) < nextStand.Rebirths
 			local canAfford = readNumber("Cash", 0) >= nextStand.Price
-			if isLocked then
-				setText(cashLabel, string.format(TrainingSignConfig.LockedFormat, nextStand.Rebirths))
-				paint(cashButton, TrainingSignConfig.Palette.Unavailable)
-			else
-				setText(cashLabel, `${NumberFormat.Compact(nextStand.Price, 1e3)}`)
-				paint(
-					cashButton,
-					if canAfford
-						then TrainingSignConfig.Palette.Affordable
-						else TrainingSignConfig.Palette.Unavailable
-				)
-			end
+			setText(cashLabel, `${NumberFormat.Compact(nextStand.Price, 1e3)}`)
+			paint(
+				cashButton,
+				if canAfford
+					then TrainingSignConfig.Palette.Affordable
+					else TrainingSignConfig.Palette.Unavailable
+			)
 			if cashIcon and cashIcon:IsA("GuiObject") then
-				cashIcon.Visible = not isLocked
-			end
-			if rebirthIcon and rebirthIcon:IsA("GuiObject") then
-				rebirthIcon.Visible = isLocked
+				cashIcon.Visible = true
 			end
 		end
 
-		local function lockedMessage(): string?
+		local function maxMessage(): string?
 			local nextStand = TrainingStands.Next(dataController:Get({ "TrainingTier" }))
-			if not nextStand then
-				return TrainingSignConfig.Messages.Max
-			end
-			if readNumber("Rebirths", 0) < nextStand.Rebirths then
-				return string.format(
-					TrainingSignConfig.Messages.Locked,
-					nextStand.Rebirths,
-					nextStand.DisplayName
-				)
-			end
-			return nil
+			return if nextStand then nil else TrainingSignConfig.Messages.Max
 		end
 
 		if cashButton then
@@ -187,7 +165,7 @@ return function(controllers: { [string]: any })
 				if isBusy or not isOwner() then
 					return
 				end
-				local blocked = lockedMessage()
+				local blocked = maxMessage()
 				if blocked then
 					notify(TrainingSignConfig.ErrorKind, blocked)
 					return
@@ -208,10 +186,7 @@ return function(controllers: { [string]: any })
 						string.format(TrainingSignConfig.UpgradedFormat, nextStand.DisplayName)
 					)
 				elseif type(result) == "string" and TrainingSignConfig.Messages[result] then
-					notify(
-						TrainingSignConfig.ErrorKind,
-						lockedMessage() or TrainingSignConfig.Messages[result]
-					)
+					notify(TrainingSignConfig.ErrorKind, maxMessage() or TrainingSignConfig.Messages[result])
 				else
 					notify(TrainingSignConfig.ErrorKind, TrainingSignConfig.Messages.Failed)
 				end
@@ -219,7 +194,7 @@ return function(controllers: { [string]: any })
 		end
 
 		trove:Connect(plot:GetAttributeChangedSignal(TrainingSignConfig.OwnerAttribute), refresh)
-		for _, key in { "TrainingTier", "Rebirths", "Cash" } do
+		for _, key in { "TrainingTier", "Cash" } do
 			trove:Add(dataController:Observe({ key }, refresh))
 		end
 		refresh()

@@ -23,7 +23,6 @@ local services: { [string]: any } = {}
 local override: Window? = nil
 local pending: Window? = nil
 local active: Window? = nil
-local warnedFor = 0
 local lastCatchAt = 0
 local stormHits: { [Player]: number } = {}
 
@@ -82,7 +81,9 @@ local function publish()
 	workspace:SetAttribute(WeatherConfig.WeatherAttribute, if active and event then active.Key else "")
 	workspace:SetAttribute(WeatherConfig.StartedAtAttribute, if active then active.StartsAt else 0)
 	workspace:SetAttribute(WeatherConfig.EndsAtAttribute, if active then active.EndsAt else 0)
-	workspace:SetAttribute(WeatherConfig.NextAtAttribute, (nextStart()))
+	local nextAt, nextKey = nextStart()
+	workspace:SetAttribute(WeatherConfig.NextAtAttribute, nextAt)
+	workspace:SetAttribute(WeatherConfig.NextKeyAttribute, nextKey)
 end
 
 local function rollCatches(event: WeatherConfig.Event)
@@ -143,19 +144,6 @@ local function tick()
 		table.clear(stormHits)
 		services.RockService:StartStorm(active.Key, WeatherConfig.StartStormRocksPerZone)
 		print(`[WeatherService] {active.Key} started, ends in {math.floor(active.EndsAt - time)}s`)
-	end
-	local startsAt, key = nextStart()
-	if
-		not active
-		and startsAt - time <= WeatherConfig.WarningSeconds
-		and startsAt - time > 0
-		and warnedFor ~= startsAt
-	then
-		warnedFor = startsAt
-		local event = WeatherClock.Event(key)
-		if event then
-			notifyAll(event, string.format(WeatherConfig.WarningText, event.DisplayName))
-		end
 	end
 	if active and time - lastCatchAt >= WeatherConfig.CatchIntervalSeconds then
 		lastCatchAt = time

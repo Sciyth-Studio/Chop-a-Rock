@@ -3,11 +3,15 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
+local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
+local ChopZones = require(ReplicatedStorage.ChopZones)
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
 local Packets = require(ReplicatedStorage.Packets)
-local RateLimit = require(ReplicatedStorage.Utils.RateLimit)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local Fight = require(script.Fight)
 local Homes = require(script.Homes)
 local Types = require(script.Types)
@@ -15,13 +19,12 @@ local Types = require(script.Types)
 local EnemyService = { Name = "EnemyService" }
 
 local trove = Trove.new()
+local random = Random.new()
 local services: { [string]: any } = {}
 local homes: { [string]: Homes.Home } = {}
 local fights: { [Player]: Types.Fight } = {}
 local readied: { [Player]: true } = {}
 local sinceCheck = 0
-local clickLimiter =
-	RateLimit.new(EnemyConfig.ClickBurst, EnemyConfig.ClickBurst / EnemyConfig.ClicksPerSecond)
 
 local function rootPosition(player: Player): Vector3?
 	local character = player.Character
@@ -49,43 +52,105 @@ local function showOthers(player: Player, kind: string)
 	end
 end
 
-local function finish(player: Player, fight: Types.Fight, result: Types.Result)
-	if fights[player] ~= fight then
+local function finish(player: Player, fight: Types.Fight, result: Types.Result, delaySeconds: number?)
+	if fights[player] ~= fight or fight.IsOver then
 		return
 	end
-	fights[player] = nil
-	clickLimiter:Remove(player)
+	fight.IsOver = true
+	fight.RoundStart = nil
 	print(
-		`[EnemyService] {player.Name} fight in {fight.Zone}: {result}, health {fight.Health}/{fight.MaxHealth}`
+		`[EnemyService] {player.Name} fight in {fight.Zone}: {result}, hits left {fight.Health}/{fight.MaxHealth}`
 	)
-	if player.Parent then
-		Packets.EnemyFightEnded:FireClient(player, fight.Zone, result)
-		if result == "Won" or result == "Lost" then
-			showOthers(player, result)
+	local function close()
+		if fights[player] ~= fight then
+			return
 		end
-		if result == "Lost" then
-			services.GeodeFallService:AllowMove(player)
+		fights[player] = nil
+		if player.Parent then
+			if result ~= "Won" then
+				Packets.ChopEnded:FireClient(player)
+			end
+			Packets.EnemyFightEnded:FireClient(player, fight.Zone, result)
+			if result == "Won" or result == "Lost" then
+				showOthers(player, result)
+			end
+			if result == "Lost" then
+				services.GeodeFallService:AllowMove(player)
+			end
 		end
+		task.defer(fight.OnResult, result)
 	end
-	task.defer(fight.OnResult, result)
+	if delaySeconds and delaySeconds > 0 then
+		task.delay(delaySeconds, close)
+	else
+		close()
+	end
 end
 
-local function onClick(player: Player)
+local function startRound(player: Player, fight: Types.Fight)
+	fight.Center = ChopZones.RandomCenter(random)
+	fight.RoundStart = os.clock()
+end
+
+local function beginRounds(player: Player, fight: Types.Fight)
+	if fights[player] ~= fight or fight.IsOver then
+		return
+	end
+	startRound(player, fight)
+	Packets.EnemyChopStart:FireClient(
+		player,
+		fight.Zone,
+		fight.StrengthRatio,
+		fight.Center,
+		fight.Health,
+		fight.MaxHealth,
+		if fight.Deadline == math.huge then 0 else fight.Deadline - os.clock()
+	)
+end
+
+local function scheduleNextRound(player: Player, fight: Types.Fight)
+	fight.Round += 1
+	local round = fight.Round
+	task.delay(ChopConfig.RoundPauseSeconds, function()
+		if fights[player] ~= fight or fight.IsOver or fight.Round ~= round then
+			return
+		end
+		startRound(player, fight)
+		Packets.ChopRoundStart:FireClient(player, fight.Center)
+	end)
+end
+
+local function onRelease(player: Player, claimed: number)
 	local fight = fights[player]
-	local now = os.clock()
-	if not fight or not Fight.HasStarted(fight, now) or not clickLimiter:Allow(player) then
+	local started = if fight then fight.RoundStart else nil
+	if not fight or not started or fight.IsOver then
 		return
 	end
-	if Fight.Push(fight, now) then
-		finish(player, fight, "Lost")
+	if os.clock() - started < ChopConfig.RoundInputDelaySeconds then
 		return
 	end
-	local isDead = Fight.Hit(fight, services.StatsService:GetStrength(player))
-	Packets.EnemyFightHit:FireClient(player, fight.Health)
-	if isDead then
-		finish(player, fight, "Won")
-	elseif Fight.TakeShown(fight, now) then
+	fight.RoundStart = nil
+	local isTouch = ChopZones.IsTouch(player)
+	local position =
+		ChopZones.Position(ChopTiming.Elapsed(started, claimed), isTouch, EnemyRules.SweepSpeed(fight.Round))
+	local quality =
+		Fight.Quality(fight, ChopZones.Classify(position, fight.Center, fight.StrengthRatio, isTouch))
+	local damage, isDead = Fight.Hit(fight, quality)
+	Packets.ChopResult:FireClient(player, quality, 0, damage, fight.Health, 1)
+	if damage > 0 and Fight.TakeShown(fight, os.clock()) then
 		showOthers(player, "Hit")
+	end
+	if isDead then
+		finish(player, fight, "Won", EnemyConfig.WinResultDelaySeconds)
+	else
+		scheduleNextRound(player, fight)
+	end
+end
+
+local function onLeave(player: Player)
+	local fight = fights[player]
+	if fight and Fight.HasStarted(fight, os.clock()) then
+		finish(player, fight, "Lost")
 	end
 end
 
@@ -115,13 +180,13 @@ local function checkFights(dt: number)
 	sinceCheck = 0
 	local now = os.clock()
 	for player, fight in fights do
-		if Fight.HasLeft(fight, rootPosition(player)) then
+		if fight.IsOver then
+			continue
+		end
+		if not Fight.HasStarted(fight, now) and Fight.HasLeft(fight, rootPosition(player)) then
 			finish(player, fight, "Left")
-		elseif Fight.Push(fight, now) then
-			Packets.EnemyFightHit:FireClient(player, fight.Health)
+		elseif Fight.IsOutOfTime(fight, now) then
 			finish(player, fight, "Lost")
-		else
-			Packets.EnemyFightHit:FireClient(player, fight.Health)
 		end
 	end
 end
@@ -133,7 +198,8 @@ end
 function EnemyService.Start(_self: any)
 	homes = Homes.Find()
 	trove:Add(Packets.EnemyReady.OnServerEvent:Connect(onReady))
-	trove:Add(Packets.EnemyClick.OnServerEvent:Connect(onClick))
+	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(onRelease))
+	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(onLeave))
 	trove:Add(RunService.Heartbeat:Connect(checkFights))
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		readied[player] = nil
@@ -165,9 +231,11 @@ function EnemyService.RequestFight(
 		end)
 		return true
 	end
+	local data = services.DataService:GetData(player)
+	local isGentle = data ~= nil and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
 	services.TeleportService:EndActivities(player)
 	services.PetService:PutAway(player)
-	local fight = Fight.New(zone, position, os.clock(), onResult)
+	local fight = Fight.New(zone, position, os.clock(), strength, isGentle, onResult)
 	fights[player] = fight
 	Packets.EnemyFightStarted:FireClient(
 		player,
@@ -176,6 +244,7 @@ function EnemyService.RequestFight(
 		fight.Health,
 		EnemyRules.IntroSeconds()
 	)
+	task.delay(EnemyRules.IntroSeconds(), beginRounds, player, fight)
 	return true
 end
 

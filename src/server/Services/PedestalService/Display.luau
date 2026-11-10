@@ -106,7 +106,34 @@ local function penFolder(plot: Model): Folder
 	return created
 end
 
-function Display.RenderPen(plot: Model, owner: Player, views: { [number]: PenPetView })
+local function addPickUp(model: Model, slot: number, onPickUp: (slot: number) -> ())
+	local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not part then
+		return
+	end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "PickUpPrompt"
+	prompt.ActionText = PedestalConfig.PenPickUpText
+	prompt.HoldDuration = 0
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	prompt.MaxActivationDistance = PedestalConfig.PenPetPromptRangeStuds
+	prompt.RequiresLineOfSight = false
+	prompt:SetAttribute("Active", true)
+	CollectionService:AddTag(prompt, "OwnedPrompt")
+	prompt.Parent = part
+	prompt.Triggered:Connect(function(player: Player)
+		if model:GetAttribute("OwnerUserId") == player.UserId then
+			onPickUp(slot)
+		end
+	end)
+end
+
+function Display.RenderPen(
+	plot: Model,
+	owner: Player,
+	views: { [number]: PenPetView },
+	onPickUp: (slot: number) -> ()
+)
 	local pen = Display.Pen(plot)
 	if not pen then
 		return
@@ -142,12 +169,17 @@ function Display.RenderPen(plot: Model, owner: Player, views: { [number]: PenPet
 				model:SetAttribute(PedestalConfig.HopHalfSizeAttribute, Vector3.new(halfX, 0, halfZ))
 				CollectionService:AddTag(model, PedestalConfig.PenPetTag)
 				setModifier(model, view.Modifier, false)
+				addPickUp(model, slot, onPickUp)
 				model.Parent = folder
 				current = model
 			end
 		end
 		if view and current then
 			current:SetAttribute("OwnerUserId", owner.UserId)
+			local pickUp = current:FindFirstChild("PickUpPrompt", true)
+			if pickUp then
+				pickUp:SetAttribute("OwnerUserId", owner.UserId)
+			end
 			current:SetAttribute("Income", view.Income)
 			setModifier(current, view.Modifier, true)
 		end

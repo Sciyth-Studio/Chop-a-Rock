@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local BaseLevels = require(ReplicatedStorage.Utils.BaseLevels)
 local BlockButton = require(ReplicatedStorage.Utils.BlockButton)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
@@ -238,7 +239,7 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		else
 			paintRarity(RarityConfig.Order[1], ToolbarConfig.GeodeAnyRarityText)
 		end
-		setText(detailRate, PetStacks.HatchText(geodeKey))
+		setText(detailRate, PetStacks.HatchText(geodeKey, stack.HatchMultiplier))
 		paintHold(stack)
 	end
 
@@ -306,15 +307,31 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		placeDetail()
 	end
 
+	local isOpen = false
+
 	local function refresh()
 		local pets = dataController:Get({ "Pets" })
+		local revealIn = PetStacks.NextReveal(pets)
+		if revealIn then
+			task.delay(revealIn + 0.05, function()
+				if isOpen then
+					refresh()
+				end
+			end)
+		end
 		local slotCount = dataController:Get({ "PedestalSlots" })
 		if type(pets) ~= "table" or type(slotCount) ~= "number" then
 			return
 		end
 		local stacks = PetStacks.Build(pets)
 		local geodes = dataController:Get({ "Geodes" })
-		local geodeStacks: { Stack } = if type(geodes) == "table" then PetStacks.BuildGeodes(geodes) else {}
+		local geodeStacks: { Stack } = if type(geodes) == "table"
+			then PetStacks.BuildGeodes(
+				geodes,
+				dataController:Get({ "EggLuck" }),
+				BaseLevels.HatchMultiplier(dataController:Get({ "BaseLevel" }))
+			)
+			else {}
 		local geodeTotal = 0
 		for _, stack in geodeStacks do
 			geodeTotal += stack.Count
@@ -446,7 +463,6 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		trove:Connect(grid:GetPropertyChangedSignal("CanvasPosition"), hideDetail)
 	end
 
-	local isOpen = false
 	local function refreshIfOpen()
 		if isOpen then
 			refresh()
@@ -460,7 +476,7 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			refreshSlotButton()
 		end
 	end))
-	for _, path in { { "Pets" }, { "Geodes" }, { "PedestalSlots" } } do
+	for _, path in { { "Pets" }, { "Geodes" }, { "PedestalSlots" }, { "BaseLevel" } } do
 		trove:Add(dataController:Observe(path, refreshIfOpen))
 	end
 

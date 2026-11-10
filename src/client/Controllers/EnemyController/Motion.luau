@@ -3,7 +3,17 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 
-export type State = "Home" | "Charge" | "Fight" | "Hold" | "Return" | "Flee" | "Defeat" | "Gone" | "Rise"
+export type State =
+	"Home"
+	| "Wander"
+	| "Charge"
+	| "Fight"
+	| "Hold"
+	| "Return"
+	| "Flee"
+	| "Defeat"
+	| "Gone"
+	| "Rise"
 
 export type Enemy = {
 	Zone: string,
@@ -23,6 +33,9 @@ export type Enemy = {
 	AreaMin: Vector3,
 	AreaMax: Vector3,
 	FleeTo: Vector3,
+	WanderTo: Vector3,
+	WanderAt: number,
+	FrozenUntil: number,
 }
 
 local Motion = {}
@@ -57,11 +70,19 @@ function Motion.Set(enemy: Enemy, state: State, now: number)
 	elseif state == "Rise" then
 		enemy.Position = enemy.Home
 		enemy.Facing = EnemyConfig.HomeFacing
+	elseif state == "Home" then
+		local pause = EnemyConfig.WanderPauseMaxSeconds - EnemyConfig.WanderPauseMinSeconds
+		enemy.WanderAt = now + EnemyConfig.WanderPauseMinSeconds + math.random() * pause
 	end
 end
 
 function Motion.Stagger(enemy: Enemy, now: number)
 	enemy.StaggerAt = now
+end
+
+function Motion.Hitstop(enemy: Enemy, now: number, seconds: number)
+	enemy.StaggerAt = now + seconds
+	enemy.FrozenUntil = now + seconds
 end
 
 function Motion.Knock(enemy: Enemy, from: Vector3, now: number)
@@ -80,6 +101,11 @@ function Motion.FurthestPoint(enemy: Enemy, from: Vector3): Vector3
 	return Vector3.new(farSide(from.X, low.X, high.X), enemy.Home.Y, farSide(from.Z, low.Z, high.Z))
 end
 
+function Motion.Wander(enemy: Enemy, to: Vector3, now: number)
+	enemy.WanderTo = to
+	Motion.Set(enemy, "Wander", now)
+end
+
 function Motion.Flee(enemy: Enemy, from: Vector3, now: number)
 	enemy.FleeTo = Motion.FurthestPoint(enemy, from)
 	Motion.Set(enemy, "Flee", now)
@@ -88,9 +114,26 @@ end
 function Motion.Step(enemy: Enemy, dt: number, now: number, feet: Vector3?): boolean
 	local elapsed = now - enemy.StateAt
 	local zoneScale = enemy.Scale / EnemyConfig.ModelScale
+	if now < enemy.FrozenUntil then
+		pose(enemy, 0, now)
+		return false
+	end
 	if enemy.State == "Home" then
 		local wave = (math.sin(now * 2 * math.pi / EnemyConfig.IdleBobSeconds) + 1) / 2
 		pose(enemy, wave * EnemyConfig.IdleBobStuds * zoneScale, now)
+	elseif enemy.State == "Wander" then
+		local offset = enemy.WanderTo - enemy.Position
+		local step = EnemyConfig.WanderSpeedStuds * zoneScale * dt
+		enemy.Facing = flat(offset, enemy.Facing)
+		if offset.Magnitude > step then
+			enemy.Position += offset.Unit * step
+			local wave = math.abs(math.sin(elapsed * math.pi * EnemyConfig.WanderHopsPerSecond))
+			pose(enemy, wave * EnemyConfig.WanderHopStuds * zoneScale, now)
+		else
+			enemy.Position = enemy.WanderTo
+			pose(enemy, 0, now)
+			Motion.Set(enemy, "Home", now)
+		end
 	elseif enemy.State == "Charge" and feet then
 		local alpha = math.min(elapsed / EnemyConfig.ChargeSeconds, 1)
 		enemy.Position = enemy.From:Lerp(standPoint(enemy, feet), alpha)

@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
+local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
@@ -14,10 +15,8 @@ export type Target = {
 	Position: Vector3,
 	Goal: Vector3,
 	Adornee: Instance,
-	Label: string?,
 	ArriveStuds: number,
 	StopStuds: number?,
-	MarkerHeight: number?,
 }
 
 local Targets = {}
@@ -74,7 +73,6 @@ local function trainingStand(): Target?
 		Position = anchor.Position,
 		Goal = goal,
 		Adornee = stand,
-		Label = "Stand",
 		ArriveStuds = TrainingConfig.SnapDistanceStuds + 4,
 	}
 end
@@ -104,12 +102,11 @@ local function nearestRock(key: string): Target?
 		Position = best.Position,
 		Goal = standOff(best.Position, from),
 		Adornee = best :: Instance,
-		Label = nil,
 		ArriveStuds = best.Size.X / 2 + 8,
 	}
 end
 
-local function shopPad(screen: string, label: string): Target?
+local function shopPad(screen: string): Target?
 	for _, pad in CollectionService:GetTagged("ShopPad") do
 		if pad:IsA("BasePart") and pad:GetAttribute("Screen") == screen then
 			local adornee = pad.Parent and pad.Parent:IsA("Model") and pad.Parent or pad
@@ -117,7 +114,6 @@ local function shopPad(screen: string, label: string): Target?
 				Position = pad.Position,
 				Goal = pad.Position,
 				Adornee = adornee,
-				Label = label,
 				ArriveStuds = math.max(pad.Size.X, pad.Size.Z) / 2,
 				StopStuds = TutorialConfig.PadStopStuds,
 			}
@@ -126,7 +122,7 @@ local function shopPad(screen: string, label: string): Target?
 	return nil
 end
 
-local function cannonEntry(label: string): Target?
+local function cannonEntry(): Target?
 	local folder = workspace:FindFirstChild(CannonConfig.Trigger.FolderName)
 	local entry = if folder then folder:FindFirstChild(CannonConfig.Trigger.EntryName) else nil
 	if not entry or not entry:IsA("BasePart") then
@@ -138,7 +134,6 @@ local function cannonEntry(label: string): Target?
 		Position = goal,
 		Goal = goal,
 		Adornee = entry :: Instance,
-		Label = label,
 		ArriveStuds = entry.Size.Z / 2,
 	}
 end
@@ -167,7 +162,6 @@ local function nearestZoneGeode(): Target?
 		Position = position,
 		Goal = standOff(position, from),
 		Adornee = nearest :: Instance,
-		Label = "Egg",
 		ArriveStuds = ZoneGeodeConfig.PromptRangeStuds,
 	}
 end
@@ -179,11 +173,9 @@ local function hatchPad(data: any): Target?
 	end
 	local pads = if type(data) == "table" then data.HatchPads else nil
 	local index = 1
-	local hasGeode = false
 	if type(pads) == "table" then
 		for key in pads do
 			index = tonumber(key) or index
-			hasGeode = true
 			break
 		end
 	end
@@ -195,19 +187,34 @@ local function hatchPad(data: any): Target?
 		Position = pad.Position,
 		Goal = standOff(pad.Position, rootPosition()),
 		Adornee = pad :: Instance,
-		Label = if hasGeode then nil else "Pad",
 		ArriveStuds = 10,
-		MarkerHeight = if hasGeode then TutorialConfig.HatchMarkerHeight else nil,
+	}
+end
+
+local function pen(): Target?
+	local plot = Targets.OwnPlot()
+	local part = if plot then plot:FindFirstChild(PedestalConfig.PenPartName, true) else nil
+	if not part or not part:IsA("BasePart") then
+		return nil
+	end
+	return {
+		Position = part.Position,
+		Goal = standOff(part.Position, rootPosition()),
+		Adornee = part :: Instance,
+		ArriveStuds = math.min(part.Size.X, part.Size.Z) / 2 + 4,
 	}
 end
 
 function Targets.For(step: number, data: any): Target?
+	if step == Tutorial.Open and Tutorial.HasPet(data) then
+		return pen()
+	end
 	if Tutorial.IsTraining(step) then
 		return trainingStand()
 	elseif Tutorial.IsChopping(step) then
 		return nearestRock(TutorialConfig.FirstChopRockKey)
 	elseif step == Tutorial.GetGeode then
-		return nearestZoneGeode()
+		return nearestZoneGeode() or nearestRock(TutorialConfig.FirstChopRockKey)
 	elseif step == Tutorial.Place or step == Tutorial.Open then
 		return hatchPad(data)
 	end

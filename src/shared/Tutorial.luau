@@ -20,7 +20,7 @@ local Tutorial = {
 	AuraBought = 8,
 	AuraTrained = 9,
 	SecondPet = 10,
-	FirstRebirth = 11,
+	SecondStand = 11,
 	Played30Min = 12,
 	Played60Min = 13,
 }
@@ -38,19 +38,21 @@ Tutorial.Funnel = {
 	"AuraBought",
 	"AuraTrained",
 	"SecondPet",
-	TutorialConfig.FirstRebirthFunnelName,
+	"SecondStand",
 	"Played30Min",
 	"Played60Min",
 }
 
 Tutorial.Titles = {
 	[Tutorial.Train] = "Break the boards!",
-	[Tutorial.Chop] = "Chop some rocks!",
-	[Tutorial.GetGeode] = "Grab an egg!",
-	[Tutorial.Place] = "Place your egg!",
+	[Tutorial.Chop] = "Chop a rock!",
+	[Tutorial.GetGeode] = "Grab your egg!",
+	[Tutorial.Place] = "Take your egg home!",
 	[Tutorial.Open] = "Open your egg!",
 	[Tutorial.Final] = "You're ready! Go chop!",
 }
+
+Tutorial.PlacePetTitle = "Place your Pet!"
 
 function Tutorial.NewState(): State
 	return { Step = Tutorial.Train, Taps = 0, Furthest = 0 }
@@ -75,8 +77,12 @@ function Tutorial.IsChopping(step: number): boolean
 	return step == Tutorial.Chop
 end
 
+function Tutorial.IsCoachedFight(step: number): boolean
+	return step == Tutorial.GetGeode
+end
+
 function Tutorial.CanChop(step: number): boolean
-	return not Tutorial.IsActive(step) or Tutorial.IsChopping(step)
+	return not Tutorial.IsActive(step) or Tutorial.IsChopping(step) or step == Tutorial.GetGeode
 end
 
 function Tutorial.IsPadOpen(step: number, _screen: string): boolean
@@ -92,6 +98,10 @@ function Tutorial.RocksBroken(data: any): number
 	local rocks = if type(index) == "table" then index.Rocks else nil
 	local count = if type(rocks) == "table" then rocks[TutorialConfig.FirstChopRockKey] else nil
 	return if type(count) == "number" then count else 0
+end
+
+function Tutorial.HasPet(data: any): boolean
+	return type(data) == "table" and type(data.Pets) == "table" and next(data.Pets) ~= nil
 end
 
 function Tutorial.CanBuyAura(step: number): boolean

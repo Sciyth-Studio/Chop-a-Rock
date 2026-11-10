@@ -1,11 +1,10 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
-local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local Types = require(script.Parent.Types)
@@ -38,32 +37,34 @@ function Spawning.ZoneStats(zone: string): Types.ZoneStats?
 	return { FirstRequirement = first, TopStrength = topStrength, TopPayout = topPayout }
 end
 
-function Spawning.PickZone(random: Random, rockService: any): string?
-	local counts: { [string]: number } = {}
-	local total = 0
-	for _, player in Players:GetPlayers() do
-		local character = player.Character
-		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
-		if not root or not root:IsA("BasePart") then
+function Spawning.BestZone(peakStrength: number): string?
+	local best: string? = nil
+	local bestOrder = math.huge
+	local reached: string? = nil
+	local reachedOrder = -math.huge
+	for zone, geode in GeodeConfig.Geodes do
+		if not RockSpawnConfig.Zones[zone] then
 			continue
 		end
-		local zone = rockService:GetZoneAt(root.Position)
-		if zone and RockSpawnConfig.Zones[zone] then
-			counts[zone] = (counts[zone] or 0) + 1
-			total += 1
+		if geode.Order < bestOrder then
+			best = zone
+			bestOrder = geode.Order
+		end
+		if peakStrength >= geode.StrengthRequired and geode.Order > reachedOrder then
+			reached = zone
+			reachedOrder = geode.Order
 		end
 	end
-	if total == 0 then
-		return nil
+	return reached or best
+end
+
+function Spawning.Spot(): Vector3?
+	local arena = workspace:FindFirstChild(DiamondRockConfig.ArenaName)
+	local spot = if arena then arena:FindFirstChild(DiamondRockConfig.SpotName, true) else nil
+	if spot and spot:IsA("BasePart") then
+		return spot.Position - Vector3.new(0, spot.Size.Y / 2, 0)
 	end
-	local roll = random:NextNumber() * total
-	for zone, count in counts do
-		roll -= count
-		if roll <= 0 then
-			return zone
-		end
-	end
-	return next(counts)
+	return nil
 end
 
 function Spawning.Template(): BasePart
@@ -79,10 +80,6 @@ function Spawning.Template(): BasePart
 	return part
 end
 
-function Spawning.StandDistance(size: Vector3): number
-	return ChopConfig.PlayerSnapOffsetFromRock.Magnitude * math.max(1, size.Z / ChopConfig.ReferenceRockSize)
-end
-
 function Spawning.Build(part: BasePart, position: Vector3): Model
 	local model = Instance.new("Model")
 	model.Name = DiamondRockConfig.ModelName
@@ -90,9 +87,16 @@ function Spawning.Build(part: BasePart, position: Vector3): Model
 	part.Name = "Rock"
 	part.Anchored = true
 	part.CanCollide = true
-	part.CFrame = part.CFrame.Rotation
+	local target = part.CFrame.Rotation
 		+ position
 		+ Vector3.new(0, part.Size.Y / 2 - RockSpawnConfig.SinkStuds, 0)
+	local delta = target * part.CFrame:Inverse()
+	for _, descendant in part:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.CFrame = delta * descendant.CFrame
+		end
+	end
+	part.CFrame = target
 	part.Parent = model
 	model.PrimaryPart = part
 	return model
@@ -107,10 +111,9 @@ end
 
 function Spawning.Publish(diamond: Types.Diamond)
 	local part = diamond.Part
-	part:SetAttribute(DiamondRockConfig.ZoneAttribute, diamond.Zone)
+	part:SetAttribute(DiamondRockConfig.ZoneAttribute, DiamondRockConfig.ZoneName)
 	part:SetAttribute(DiamondRockConfig.HealthAttribute, diamond.Health)
 	part:SetAttribute(DiamondRockConfig.MaxHealthAttribute, diamond.MaxHealth)
-	part:SetAttribute(DiamondRockConfig.StrengthAttribute, diamond.StrengthRequired)
 	part:SetAttribute(DiamondRockConfig.SlotsAttribute, DiamondRockConfig.Slots)
 	Spawning.PublishEndsAt(diamond)
 	CollectionService:AddTag(diamond.Model, DiamondRockConfig.Tag)

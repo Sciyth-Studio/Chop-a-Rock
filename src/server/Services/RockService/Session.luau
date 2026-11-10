@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
+local EggDropConfig = require(ReplicatedStorage.Config.EggDropConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Types = require(script.Parent.Types)
 
@@ -28,6 +29,9 @@ function Session.New(
 		Center = center,
 		StartTime = startTime,
 		Round = 0,
+		SkillSum = 0,
+		SkillCount = 0,
+		HadMaster = false,
 	}
 end
 
@@ -88,6 +92,18 @@ function Session.IsMaster(random: Random, quality: number, strengthRatio: number
 	local progress = ChopZones.StrengthProgress(strengthRatio)
 	local scale = 1 + (MasterChopConfig.ChanceScaleAtPerfectOnly - 1) * progress
 	return random:NextNumber() < chance * scale
+end
+
+function Session.RecordSkill(session: Types.Session, quality: number)
+	session.SkillSum += EggDropConfig.SkillByQuality[quality] or 0
+	session.SkillCount += 1
+	if quality == ChopQuality.Master then
+		session.HadMaster = true
+	end
+end
+
+function Session.Skill(session: Types.Session): number
+	return if session.SkillCount > 0 then math.clamp(session.SkillSum / session.SkillCount, 0, 1) else 0
 end
 
 function Session.IsBroken(session: Types.Session): boolean

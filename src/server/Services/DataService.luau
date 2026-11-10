@@ -172,7 +172,7 @@ function DataService.AdjustCash(
 		return false
 	end
 	local nextBalance = data.Cash + amount
-	if nextBalance < 0 or nextBalance > 9007199254740991 then
+	if nextBalance < 0 then
 		return false
 	end
 	if not DataService:Set(player, { "Cash" }, nextBalance) then
@@ -194,11 +194,11 @@ local function resetValues(overrides: { [string]: any }?): { [string]: any }
 		Cannons = {},
 		EquippedCannon = template.EquippedCannon,
 		TrainingTier = template.TrainingTier,
-		Rebirths = template.Rebirths,
 		Geodes = {},
 		Pets = {},
 		NextPetId = template.NextPetId,
 		PedestalSlots = template.PedestalSlots,
+		BaseLevel = template.BaseLevel,
 		HatchPads = {},
 		Index = { Pets = {}, Rocks = {}, Claimed = { Pets = {}, Rocks = {}, Zones = {} } },
 		Tutorial = Tutorial.NewState(),

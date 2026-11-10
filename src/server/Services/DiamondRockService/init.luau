@@ -14,6 +14,7 @@ local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Chopping = require(script.Chopping)
 local Spawning = require(script.Spawning)
@@ -73,7 +74,6 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 	if not isBroken then
 		Packets.DiamondEnded:FireAllClients()
 	end
-	services.RockService:ReleaseArea(DiamondRockConfig.Tag)
 	local cleanup = if isBroken then DiamondRockConfig.BreakCleanupSeconds else DiamondRockConfig.SinkSeconds
 	task.delay(cleanup, function()
 		diamond.Model:Destroy()
@@ -81,7 +81,7 @@ local function finish(diamond: Types.Diamond, isBroken: boolean, breaker: Player
 			current = nil
 		end
 	end)
-	print(`[DiamondRockService] Diamond Rock in {diamond.Zone} {if isBroken then "broken" else "timed out"}`)
+	print(`[DiamondRockService] Diamond Rock {if isBroken then "broken" else "timed out"}`)
 end
 
 local expire: (diamond: Types.Diamond) -> ()
@@ -98,45 +98,54 @@ function expire(diamond: Types.Diamond)
 	finish(diamond, false, nil)
 end
 
-local function spawnDiamond(zone: string?): (boolean, string)
+local function inTutorial(player: Player): boolean
+	local data = services.DataService:GetData(player)
+	return data == nil or Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
+end
+
+local function shareOf(player: Player): (number, number, number)
+	local data = services.DataService:GetData(player)
+	local zone = if data then Spawning.BestZone(data.PeakStrength) else nil
+	local stats = if zone then Spawning.ZoneStats(zone) else nil
+	if not stats then
+		return 0, 0, 0
+	end
+	local health = stats.TopStrength
+		* ChopConfig.GoodDamageMultiplier
+		* DiamondRockConfig.HealthChops
+		* DiamondRockConfig.HealthShare
+	return health, stats.TopPayout * DiamondRockConfig.ValueMultiplier, stats.FirstRequirement
+end
+
+local function spawnDiamond(): (boolean, string)
 	if current then
 		return false, "a Diamond Rock is already out"
 	end
-	local pickedZone = zone or Spawning.PickZone(random, services.RockService)
-	if not pickedZone then
-		return false, "no players in a zone"
+	local position = Spawning.Spot()
+	if not position then
+		warn(
+			`[DiamondRockService] No {DiamondRockConfig.SpotName} in Workspace.{DiamondRockConfig.ArenaName}`
+		)
+		return false, "no arena spot"
 	end
-	local stats = Spawning.ZoneStats(pickedZone)
-	if not stats then
-		return false, `{pickedZone} has no rocks`
+	local maxHealth = 0
+	for _, player in Players:GetPlayers() do
+		if not inTutorial(player) then
+			maxHealth += (shareOf(player))
+		end
+	end
+	if maxHealth <= 0 then
+		return false, "no players out of the tutorial"
 	end
 	local part = Spawning.Template()
-	ZoneScale.Apply(part, ZoneScale.Of(pickedZone))
-	local standDistance = Spawning.StandDistance(part.Size)
-	local position = services.RockService:FindRingSpot(
-		pickedZone,
-		part.CFrame.Rotation,
-		part.Size,
-		standDistance,
-		DiamondRockConfig.Slots,
-		DiamondRockConfig.SpotTries
-	)
-	if not position then
-		part:Destroy()
-		warn(`[DiamondRockService] No spot for a Diamond Rock in {pickedZone}`)
-		return false, `no room in {pickedZone}`
-	end
-	local maxHealth = stats.TopStrength * ChopConfig.GoodDamageMultiplier * DiamondRockConfig.HealthChops
+	ZoneScale.Apply(part, DiamondRockConfig.ArenaScale)
 	local model = Spawning.Build(part, position)
 	local now = os.clock()
 	local diamond: Types.Diamond = {
 		Model = model,
 		Part = part,
-		Zone = pickedZone,
 		Health = maxHealth,
 		MaxHealth = maxHealth,
-		Value = stats.TopPayout * DiamondRockConfig.ValueMultiplier,
-		StrengthRequired = stats.FirstRequirement,
 		UpAt = now + DiamondRockConfig.RiseSeconds,
 		EndsAt = now + DiamondRockConfig.RiseSeconds + DiamondRockConfig.CountdownSeconds,
 		Slots = {},
@@ -144,23 +153,17 @@ local function spawnDiamond(zone: string?): (boolean, string)
 		IsEnding = false,
 	}
 	current = diamond
-	services.RockService:ReserveArea(
-		DiamondRockConfig.Tag,
-		pickedZone,
-		position,
-		standDistance + DiamondRockConfig.ReservePaddingStuds
-	)
 	Spawning.Publish(diamond)
 	task.delay(diamond.EndsAt - now, expire, diamond)
 	for _, player in Players:GetPlayers() do
 		services.NotificationService:Notify(
 			player,
 			DiamondRockConfig.AnnouncementKind,
-			string.format(DiamondRockConfig.AnnouncementText, pickedZone)
+			DiamondRockConfig.AnnouncementText
 		)
 	end
-	print(`[DiamondRockService] Diamond Rock in {pickedZone}: health={maxHealth}, value={diamond.Value}`)
-	return true, `Diamond Rock in the {pickedZone}`
+	print(`[DiamondRockService] Diamond Rock in the arena: health={maxHealth}`)
+	return true, "Diamond Rock in the arena"
 end
 
 local function scheduleNextRound(player: Player, session: Types.Session, isMaster: boolean)
@@ -201,6 +204,10 @@ local function onChopRequest(player: Player)
 	if not position or (position - center).Magnitude > reach then
 		return
 	end
+	local shareHealth, value, firstRequirement = shareOf(player)
+	if shareHealth <= 0 then
+		return
+	end
 	local slot = Chopping.FreeSlot(diamond, center, position)
 	if not slot then
 		services.NotificationService:Notify(player, "Info", DiamondRockConfig.FullText)
@@ -210,8 +217,9 @@ local function onChopRequest(player: Player)
 	local session: Types.Session = {
 		Diamond = diamond,
 		Slot = slot,
-		CanBreak = strength >= diamond.StrengthRequired,
-		StrengthRatio = strength / math.max(diamond.StrengthRequired, 1),
+		StrengthRatio = strength / math.max(firstRequirement, 1),
+		Value = value,
+		ShareHealth = shareHealth,
 		Center = ChopZones.RandomCenter(random),
 		StartTime = os.clock(),
 		Round = 0,
@@ -223,7 +231,7 @@ local function onChopRequest(player: Player)
 	Packets.ChopMinigameStart:FireClient(
 		player,
 		diamond.Part,
-		session.CanBreak,
+		true,
 		session.StrengthRatio,
 		session.Center,
 		diamond.Health,
@@ -244,13 +252,6 @@ local function onRelease(player: Player, claimed: number)
 		return
 	end
 
-	if not session.CanBreak then
-		endSession(player)
-		Packets.ChopResult:FireClient(player, ChopQuality.Crack, 0, 0, diamond.Health, 1)
-		Packets.DiamondChopped:FireAllClients(ChopQuality.Crack, false)
-		return
-	end
-
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
 	local isTouch = ChopZones.IsTouch(player)
 	local quality = ChopZones.Classify(
@@ -266,11 +267,10 @@ local function onRelease(player: Player, claimed: number)
 	services.StatsService:RecordChop(player, quality)
 	local strength = services.StatsService:GetStrength(player)
 	local damage = Chopping.Damage(strength, quality, rockService:DamageMultiplier(quality))
-	local applied, payout = Chopping.Apply(diamond, damage)
+	local applied, payout = Chopping.Apply(diamond, session, damage)
 	services.HotStreakService:KeepAlive(player)
 	if payout > 0 then
 		payout = services.FriendBoostService:ApplyBoost(player, payout)
-		payout = services.RebirthService:ApplyCashMultiplier(player, payout)
 		payout = services.IndexService:ApplyCashMultiplier(player, payout)
 		payout = services.PassService:ApplyCashMultiplier(player, payout)
 		services.DataService:AdjustCash(player, payout, AnalyticsConfig.Sources.DiamondRock)
@@ -322,10 +322,8 @@ function DiamondRockService.IsActive(_self: any): boolean
 	return current ~= nil
 end
 
-function DiamondRockService.Spawn(_self: any, player: Player?): (boolean, string)
-	local position = if player then rootPosition(player) else nil
-	local zone = if position then services.RockService:GetZoneAt(position) else nil
-	return spawnDiamond(zone)
+function DiamondRockService.Spawn(_self: any, _player: Player?): (boolean, string)
+	return spawnDiamond()
 end
 
 function DiamondRockService.SetTimeLeft(_self: any, seconds: number): boolean

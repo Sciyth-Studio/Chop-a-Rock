@@ -47,9 +47,10 @@ local function prepare(modelKey: string, spot: Attachment): Model?
 	return model
 end
 
-function Effects.ShowOnPad(pad: Types.Pad, modelKey: string?)
+function Effects.ShowOnPad(pad: Types.Pad, modelKey: string?, scale: number?)
+	local id = if modelKey then `{modelKey}@{scale or 1}` else nil
 	local current = shown[pad.Part]
-	if current and current.ModelKey == modelKey and current.Model.Parent then
+	if current and current.ModelKey == id and current.Model.Parent then
 		return
 	end
 	if current then
@@ -57,8 +58,12 @@ function Effects.ShowOnPad(pad: Types.Pad, modelKey: string?)
 		shown[pad.Part] = nil
 	end
 	local model = if modelKey then prepare(modelKey, pad.Spot) else nil
-	if model and modelKey then
-		shown[pad.Part] = { ModelKey = modelKey, Model = model }
+	if model and id then
+		if scale and scale ~= 1 then
+			model:ScaleTo(model:GetScale() * scale)
+			model:PivotTo(pad.Spot.WorldCFrame)
+		end
+		shown[pad.Part] = { ModelKey = id, Model = model }
 	end
 end
 

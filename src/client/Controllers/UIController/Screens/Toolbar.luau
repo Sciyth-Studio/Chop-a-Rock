@@ -3,8 +3,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
+local BaseLevels = require(ReplicatedStorage.Utils.BaseLevels)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local PetStacks = require(script.Parent.Parent.PetStacks)
@@ -30,17 +32,104 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	local bar: Frame? = find(gui, "Bar", "Frame")
 	local template: Frame? = find(gui, "SlotTemplate", "Frame")
-	local toggle: GuiObject? = find(gui, "PetsToggle", "GuiObject")
-	local toggleButton: GuiButton? = if toggle then find(toggle, "Button", "GuiButton") else nil
 
 	local slots: { Frame } = {}
 	local shown: { [number]: PetStacks.Stack } = {}
 
+	local popupRoot: Frame? = find(gui, "PopupRoot", "Frame")
+	local knownPets: { [string]: boolean }? = nil
+	local popupQueue: { PetStacks.Stack } = {}
+	local isPopping = false
+
+	local function playPopups()
+		if isPopping or not popupRoot or not template then
+			return
+		end
+		local stack = table.remove(popupQueue, 1)
+		if not stack then
+			return
+		end
+		isPopping = true
+		local card = template:Clone()
+		card.Name = "NewPetPopup"
+		card.Visible = true
+		card.AnchorPoint = Vector2.new(0.5, 1)
+		card.Position = UDim2.fromScale(0.5, 1)
+		card.Size = UDim2.fromOffset(ToolbarConfig.PopupSizePixels, ToolbarConfig.PopupSizePixels)
+		local button = card:FindFirstChild("Button")
+		if button then
+			button:Destroy()
+		end
+		local pop = Instance.new("UIScale")
+		pop.Scale = 0
+		pop.Parent = card
+		card.Parent = popupRoot
+		PetStacks.Paint(card, stack)
+		local count = card:FindFirstChild("Count")
+		if count and count:IsA("GuiObject") then
+			count.Visible = false
+		end
+		local appear = TweenService:Create(
+			pop,
+			TweenInfo.new(ToolbarConfig.PopupInSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+			{ Scale = 1 }
+		)
+		appear:Play()
+		task.delay(ToolbarConfig.PopupInSeconds + ToolbarConfig.PopupHoldSeconds, function()
+			local leave = TweenService:Create(
+				pop,
+				TweenInfo.new(ToolbarConfig.PopupOutSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+				{ Scale = 0 }
+			)
+			leave.Completed:Once(function()
+				card:Destroy()
+				isPopping = false
+				playPopups()
+			end)
+			leave:Play()
+		end)
+	end
+
+	local function notePets(pets: any)
+		if type(pets) ~= "table" then
+			return
+		end
+		local now = workspace:GetServerTimeNow()
+		local isFirst = knownPets == nil
+		local known: { [string]: boolean } = knownPets or {}
+		knownPets = known
+		for id, record in pets do
+			if known[id] or type(record) ~= "table" then
+				continue
+			end
+			if type(record.RevealAt) == "number" and record.RevealAt > now then
+				continue
+			end
+			known[id] = true
+			if not isFirst then
+				local built = PetStacks.Build({ [id] = record })
+				if built[1] then
+					table.insert(popupQueue, built[1])
+				end
+			end
+		end
+		playPopups()
+	end
+
 	local function refresh()
 		local pets = dataController:Get({ "Pets" })
+		notePets(pets)
+		local revealIn = PetStacks.NextReveal(pets)
+		if revealIn then
+			task.delay(revealIn + 0.05, refresh)
+		end
 		local geodes = dataController:Get({ "Geodes" })
 		local stacks: { PetStacks.Stack } = if type(geodes) == "table"
-			then PetStacks.BuildGeodes(geodes)
+			then PetStacks.BuildGeodes(
+				geodes,
+				dataController:Get({ "EggLuck" }),
+				BaseLevels.HatchMultiplier(dataController:Get({ "BaseLevel" }))
+			)
 			else {}
 		if type(pets) == "table" then
 			for _, stack in PetStacks.Build(pets) do
@@ -55,6 +144,7 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			if stack then
 				shown[index] = stack
 			end
+			slot.Visible = stack ~= nil
 			PetStacks.Paint(slot, stack)
 			PetStacks.PaintStroke(slot, stack ~= nil and PetStacks.IsHeld(player, stack))
 		end
@@ -94,10 +184,6 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
-	if toggleButton then
-		trove:Connect(toggleButton.Activated, togglePanel)
-	end
-
 	trove:Connect(UserInputService.InputBegan, function(input: InputObject, isProcessed: boolean)
 		if isProcessed or not gui.Enabled then
 			return
@@ -134,6 +220,8 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	trove:Add(dataController:Observe({ "Pets" }, refresh))
 	trove:Add(dataController:Observe({ "Geodes" }, refresh))
+	trove:Add(dataController:Observe({ "EggLuck" }, refresh))
+	trove:Add(dataController:Observe({ "BaseLevel" }, refresh))
 
 	return {
 		Modal = false,

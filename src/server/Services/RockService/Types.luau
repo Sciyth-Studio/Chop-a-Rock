@@ -45,6 +45,21 @@ export type Session = {
 	Center: number,
 	StartTime: number?,
 	Round: number,
+	SkillSum: number,
+	SkillCount: number,
+	HadMaster: boolean,
+}
+
+export type Broken = {
+	Zone: string,
+	RockKey: string,
+	Ground: Vector3,
+	Origin: Vector3,
+	Size: number,
+	Quality: number,
+	Skill: number,
+	HadMaster: boolean,
+	IsGolden: boolean,
 }
 
 return {}

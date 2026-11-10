@@ -17,6 +17,7 @@ local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local MovementLock = require(ReplicatedStorage.Utils.MovementLock)
 local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
+local HideBillboards = require(ReplicatedStorage.Utils.HideBillboards)
 local Packets = require(ReplicatedStorage.Packets)
 local GoldenRockConfig = require(ReplicatedStorage.Config.GoldenRockConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -61,6 +62,9 @@ local zoneCenter = 0.5
 local strengthRatio = 1
 local currentHealth = 0
 local currentMaxHealth = 0
+local deadlineClock: number? = nil
+local sweepSpeed: ((round: number) -> number)? = nil
+local sweepRound = 0
 local minigameActive = false
 local activeTrove: TroveInstance? = nil
 local frozenPosition: number? = nil
@@ -314,6 +318,9 @@ local function endMinigame()
 		return
 	end
 	minigameActive = false
+	deadlineClock = nil
+	sweepSpeed = nil
+	sweepRound = 0
 	releaseToken += 1
 	activeChanged:Fire(false)
 	unbindRelease()
@@ -339,9 +346,14 @@ local function endMinigame()
 	end
 end
 
+local function currentSpeed(): number
+	local speedFor = sweepSpeed
+	return if speedFor then speedFor(sweepRound) else 1
+end
+
 local function release()
 	local elapsed = os.clock() - minigameStartTime
-	frozenPosition = ChopZones.Position(elapsed, ChopZones.IsTouch(Players.LocalPlayer))
+	frozenPosition = ChopZones.Position(elapsed, ChopZones.IsTouch(Players.LocalPlayer), currentSpeed())
 	Packets.ChopRelease:Fire(elapsed)
 	unbindRelease()
 	cameraReturnToken += 1
@@ -427,7 +439,10 @@ local function beginMinigame(
 	local character = Players.LocalPlayer.Character
 
 	local rootPart = if character then character:FindFirstChild("HumanoidRootPart") :: BasePart? else nil
-	local rockScale = math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
+	local scaleOverride = rock:GetAttribute(ChopConfig.ScaleAttribute)
+	local rockScale = if type(scaleOverride) == "number"
+		then scaleOverride
+		else math.max(1, rock.Size.Z / ChopConfig.ReferenceRockSize)
 	local isRelative = rock:GetAttribute(ChopConfig.RelativeOffsetAttribute) == true
 	local slotCount = rock:GetAttribute(DiamondRockConfig.SlotsAttribute)
 	local slot = Players.LocalPlayer:GetAttribute(DiamondRockConfig.PlayerSlotAttribute)
@@ -462,6 +477,9 @@ local function beginMinigame(
 		windUpCamera = if character and rootTarget
 			then windUpShot(rock, rootTarget, character, impactShot)
 			else impactShot
+		if slotRotation then
+			chopCamera = windUpCamera
+		end
 		moveCamera(windUpCamera, ChopConfig.CameraTransitionSeconds)
 		trove:Connect(RunService.RenderStepped, stepCamera)
 	end
@@ -490,6 +508,9 @@ local function beginMinigame(
 	uiController:Open(METER_SCREEN)
 	uiController:Close(TELEPORT_BAR_SCREEN)
 	uiController:Close(ToolbarConfig.Screen)
+	if ChopConfig.HidesBillboards then
+		trove:Add(HideBillboards.Hide())
+	end
 	trove:Add(function()
 		uiController:Close(METER_SCREEN)
 		uiController:Open(TELEPORT_BAR_SCREEN)
@@ -514,6 +535,33 @@ local ChopController = {
 	RoundStarted = nil :: any,
 	ActiveChanged = nil :: any,
 }
+
+function ChopController.BeginExternal(
+	_self: any,
+	target: BasePart,
+	ratio: number,
+	center: number,
+	health: number,
+	maxHealth: number,
+	secondsLeft: number,
+	speedFor: ((round: number) -> number)?
+)
+	if minigameActive then
+		return
+	end
+	beginMinigame(target, true, ratio, center, health, maxHealth, ChopApproach.Rotation(target))
+	deadlineClock = if secondsLeft > 0 then os.clock() + secondsLeft else nil
+	sweepSpeed = speedFor
+	sweepRound = 0
+end
+
+function ChopController.GetSecondsLeft(_self: any): number?
+	local deadline = deadlineClock
+	if not minigameActive or not deadline then
+		return nil
+	end
+	return math.max(deadline - os.clock(), 0)
+end
 
 function ChopController.GetZoneCenter(_self: any): number
 	return zoneCenter
@@ -560,7 +608,11 @@ function ChopController.GetCursorPosition(_self: any): number
 		return 0
 	end
 	return frozenPosition
-		or ChopZones.Position(os.clock() - minigameStartTime, ChopZones.IsTouch(Players.LocalPlayer))
+		or ChopZones.Position(
+			os.clock() - minigameStartTime,
+			ChopZones.IsTouch(Players.LocalPlayer),
+			currentSpeed()
+		)
 end
 
 function ChopController.Init(self: any, controllers: { [string]: any })
@@ -631,6 +683,9 @@ function ChopController.Start(self: any)
 		end
 		zoneCenter = center
 		frozenPosition = nil
+		if sweepSpeed then
+			sweepRound += 1
+		end
 		if masterStartClock then
 			masterStartClock = nil
 			uiController:Close(LETTERBOX_SCREEN)

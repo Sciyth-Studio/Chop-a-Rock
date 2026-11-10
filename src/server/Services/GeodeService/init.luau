@@ -11,6 +11,7 @@ local LuckConfig = require(ReplicatedStorage.Config.LuckConfig)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local EggLuck = require(script.EggLuck)
 local Effects = require(script.Effects)
 local HatchPads = require(script.HatchPads)
 local Luck = require(script.Luck)
@@ -73,7 +74,9 @@ local function refresh(player: Player)
 	if not data or not plot or not pads then
 		return
 	end
-	Tools.Sync(player, data.Geodes)
+	Tools.Sync(player, data.Geodes, function(key: string): number
+		return EggLuck.Best(data, key)
+	end)
 	local nextGeode = GeodeOrder.Pick(data.Geodes, Tools.Held(player))
 	local geode = if nextGeode then GeodeConfig.Geodes[nextGeode] else nil
 	local empty = 0
@@ -141,7 +144,7 @@ local function onPad(plot: Model, index: number, player: Player)
 			services.NotificationService:Notify(player, "Error", "Bag full! Sell Pets", IconConfig.Backpack)
 			return
 		end
-		local seconds = Opening.Open(context, player, record.GeodeKey, pad, random)
+		local seconds = Opening.Open(context, player, record.GeodeKey, pad, random, record.Luck)
 		if seconds then
 			HatchPads.Clear(context, player, index)
 			services.DataService:RequestSave(player)
@@ -200,6 +203,54 @@ local function onPlaceAll(plot: Model, player: Player)
 	refresh(player)
 end
 
+local plotBounds: { [Model]: { CFrame: CFrame, Size: Vector3 } } = {}
+
+local function isOnPlot(player: Player, plot: Model): boolean
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not root or not root:IsA("BasePart") then
+		return false
+	end
+	local bounds = plotBounds[plot]
+	if not bounds then
+		local cframe, size = plot:GetBoundingBox()
+		bounds = { CFrame = cframe, Size = size }
+		plotBounds[plot] = bounds
+	end
+	local offset = bounds.CFrame:PointToObjectSpace(root.Position)
+	return math.abs(offset.X) <= bounds.Size.X / 2 and math.abs(offset.Z) <= bounds.Size.Z / 2
+end
+
+local function autoPlace(player: Player)
+	local services = context.Services
+	local data = services.DataService:GetData(player)
+	local plot = services.BaseService:GetPlot(player)
+	local pads = if plot then plots[plot] else nil
+	if not data or not plot or not pads or HatchPads.OwnedCount(data) <= 0 then
+		return
+	end
+	if services.RockService:HasSession(player) or not isOnPlot(player, plot) then
+		return
+	end
+	local placed = false
+	for index, pad in pads do
+		if data.HatchPads[tostring(index)] or isPadLocked(pad) or isReserved(player, index) then
+			continue
+		end
+		local geodeKey = GeodeOrder.Pick(data.Geodes, Tools.Held(player))
+		if not geodeKey then
+			break
+		end
+		if HatchPads.Place(context, player, index, geodeKey) then
+			placed = true
+		end
+	end
+	if placed then
+		services.DataService:RequestSave(player)
+		refresh(player)
+	end
+end
+
 local function setupPlot(plot: Model)
 	if plots[plot] then
 		return
@@ -223,15 +274,46 @@ local function setupPlot(plot: Model)
 	end
 end
 
-function GeodeService.GrantGeodes(_self: any, player: Player, geodeKey: string, amount: number): boolean
+function GeodeService.GrantGeodes(
+	_self: any,
+	player: Player,
+	geodeKey: string,
+	amount: number,
+	luck: number?
+): boolean
 	local data = context.Services.DataService:GetData(player)
 	if not data or not GeodeConfig.Geodes[geodeKey] then
 		return false
 	end
 	context.Services.DataService:Set(player, { "Geodes", geodeKey }, (data.Geodes[geodeKey] or 0) + amount)
+	if luck and luck > EggLuck.Base then
+		EggLuck.Add(context, player, geodeKey, luck, amount)
+	end
 	context.Services.DataService:RequestSave(player)
 	refresh(player)
 	return true
+end
+
+function GeodeService.GetHeldKey(_self: any, player: Player): string?
+	return Tools.Held(player)
+end
+
+function GeodeService.TakeOne(_self: any, player: Player, geodeKey: string): number?
+	local data = context.Services.DataService:GetData(player)
+	local count = if data then data.Geodes[geodeKey] or 0 else 0
+	if not data or count < 1 then
+		return nil
+	end
+	context.Services.DataService:Set(player, { "Geodes", geodeKey }, count - 1)
+	local luck = EggLuck.Take(context, player, geodeKey, count - 1)
+	context.Services.DataService:RequestSave(player)
+	refresh(player)
+	return luck
+end
+
+function GeodeService.Equip(_self: any, player: Player, geodeKey: string): boolean
+	refresh(player)
+	return Tools.Equip(player, geodeKey)
 end
 
 function GeodeService.Refresh(_self: any, player: Player)
@@ -384,6 +466,7 @@ function GeodeService.Start(_self: any)
 					publishLuck(player)
 				end
 				if padsOf(player) then
+					autoPlace(player)
 					refresh(player)
 				end
 			end

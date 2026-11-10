@@ -27,17 +27,40 @@ export type Stack = {
 	Slots: { number },
 	GeodeKey: string?,
 	Count: number,
+	BestLuck: number?,
+	HatchMultiplier: number?,
 }
 
 local PET_ID_ATTRIBUTE = "PetId"
 
 local PetStacks = {}
 
+local function bestLuck(eggLuck: any?, key: string, count: number): number?
+	local list = if type(eggLuck) == "table" then eggLuck[key] else nil
+	if type(list) ~= "table" then
+		return nil
+	end
+	local best: number? = nil
+	for index, value in list do
+		if index > count then
+			break
+		end
+		if type(value) == "number" and (best == nil or value > best) then
+			best = value
+		end
+	end
+	return best
+end
+
 function PetStacks.Build(pets: { [string]: any }): { Stack }
 	local byId: { [string]: Stack } = {}
 	local stacks: { Stack } = {}
+	local now = workspace:GetServerTimeNow()
 	for petId, record in pets do
 		if type(record) ~= "table" or not PetConfig.Pets[record.Key] then
+			continue
+		end
+		if type(record.RevealAt) == "number" and record.RevealAt > now then
 			continue
 		end
 		local rate = PetModifier.Rate(record.Key, record.Modifier, record.Income)
@@ -86,7 +109,26 @@ function PetStacks.Build(pets: { [string]: any }): { Stack }
 	return stacks
 end
 
-function PetStacks.BuildGeodes(geodes: { [string]: number }): { Stack }
+function PetStacks.NextReveal(pets: any): number?
+	if type(pets) ~= "table" then
+		return nil
+	end
+	local now = workspace:GetServerTimeNow()
+	local soonest: number? = nil
+	for _, record in pets do
+		local at = if type(record) == "table" then record.RevealAt else nil
+		if type(at) == "number" and at > now and (soonest == nil or at < soonest) then
+			soonest = at
+		end
+	end
+	return if soonest then soonest - now else nil
+end
+
+function PetStacks.BuildGeodes(
+	geodes: { [string]: number },
+	eggLuck: any?,
+	hatchMultiplier: number?
+): { Stack }
 	local stacks: { Stack } = {}
 	for _, key in GeodeOrder.All() do
 		local count = geodes[key] or 0
@@ -105,13 +147,15 @@ function PetStacks.BuildGeodes(geodes: { [string]: number }): { Stack }
 			Slots = {},
 			GeodeKey = key,
 			Count = count,
+			BestLuck = bestLuck(eggLuck, key, count),
+			HatchMultiplier = hatchMultiplier,
 		})
 	end
 	return stacks
 end
 
-function PetStacks.HatchText(geodeKey: string): string
-	local seconds = GeodeConfig.Geodes[geodeKey].HatchSeconds
+function PetStacks.HatchText(geodeKey: string, multiplier: number?): string
+	local seconds = math.ceil(GeodeConfig.Geodes[geodeKey].HatchSeconds * (multiplier or 1))
 	if seconds <= 0 then
 		return ToolbarConfig.HatchNowText
 	end
@@ -271,8 +315,9 @@ function PetStacks.Paint(frame: GuiObject, stack: Stack?)
 	end
 	if rateLabel then
 		rateLabel.Visible = true
-		rateLabel.Text = if stack.GeodeKey
-			then PetStacks.HatchText(stack.GeodeKey)
+		rateLabel.Text = if stack.GeodeKey and (stack.BestLuck or 0) > 100
+			then string.format("x%.2f", (stack.BestLuck :: number) / 100)
+			elseif stack.GeodeKey then PetStacks.HatchText(stack.GeodeKey, stack.HatchMultiplier)
 			else `${NumberFormat.Rate(stack.Rate)}/s`
 	end
 end

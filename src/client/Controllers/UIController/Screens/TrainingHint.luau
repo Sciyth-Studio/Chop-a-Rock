@@ -7,18 +7,31 @@ local Types = require(script.Parent.Parent.Types)
 
 local TrainingHint = {}
 
-function TrainingHint.new(_context: Types.Context, gui: ScreenGui): Types.Screen
+function TrainingHint.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local trove = Trove.new()
 	ViewportScale.Bind(gui, trove)
+	local isOpen = false
+	local isModalOpen = false
+
+	local function refresh()
+		gui.Enabled = isOpen and not isModalOpen
+	end
+
+	trove:Add(context.Controllers.UIController.ModalChanged:Connect(function(isOpenNow: boolean)
+		isModalOpen = isOpenNow
+		refresh()
+	end))
 
 	return {
 		Modal = false,
 		StartsOpen = false,
 		Open = function(_self: Types.Screen)
-			gui.Enabled = true
+			isOpen = true
+			refresh()
 		end,
 		Close = function(_self: Types.Screen)
-			gui.Enabled = false
+			isOpen = false
+			refresh()
 		end,
 		Destroy = function(_self: Types.Screen)
 			trove:Destroy()

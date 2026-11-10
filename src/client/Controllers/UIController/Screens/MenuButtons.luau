@@ -4,7 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local IndexRewards = require(ReplicatedStorage.IndexRewards)
 local MenuButtonConfig = require(ReplicatedStorage.Config.MenuButtonConfig)
-local RebirthStats = require(ReplicatedStorage.Utils.RebirthStats)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Types = require(script.Parent.Parent.Types)
@@ -36,22 +35,11 @@ function MenuButtons.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local badgeSettings = MenuButtonConfig.Badge
 	local dataController = context.Controllers.DataController
 
-	local function readNumber(key: string): number
-		local value = dataController:Get({ key })
-		return if type(value) == "number" then value else 0
-	end
-
 	local badgeRules: { [string]: { Paths: { { string } }, IsShown: () -> boolean } } = {
 		Index = {
 			Paths = { { "Index" } },
 			IsShown = function()
 				return #IndexRewards.Claimable(dataController:Get({ "Index" })) > 0
-			end,
-		},
-		Rebirth = {
-			Paths = { { "Rebirths" }, { "Strength" } },
-			IsShown = function()
-				return readNumber("Strength") >= RebirthStats.Get(readNumber("Rebirths") + 1).StrengthRequired
 			end,
 		},
 	}

@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIFeelConfig = require(ReplicatedStorage.Config.UIFeelConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Typography = require(ReplicatedStorage.Utils.Typography)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local WaitFor = require(ReplicatedStorage.Packages.WaitFor)
 local ButtonFeel = require(script.ButtonFeel)
@@ -21,6 +22,8 @@ local modules: { [string]: Types.ScreenModule } = {
 	CannonShop = require(script.Screens.CannonShop),
 	CannonFire = require(script.Screens.CannonFire),
 	EnemyFight = require(script.Screens.EnemyFight),
+	EggRetry = require(script.Screens.EggRetry),
+	EggDrop = require(script.Screens.EggDrop),
 	Index = require(script.Screens.Index),
 	Pets = require(script.Screens.Pets),
 	Toolbar = require(script.Screens.Toolbar),
@@ -31,7 +34,6 @@ local modules: { [string]: Types.ScreenModule } = {
 	FreeGift = require(script.Screens.FreeGift),
 	OfferRail = require(script.Screens.OfferRail),
 	PurchaseBanner = require(script.Screens.PurchaseBanner),
-	Rebirth = require(script.Screens.Rebirth),
 	Notifications = require(script.Screens.Notifications),
 	Letterbox = require(script.Screens.Letterbox),
 	Settings = require(script.Screens.Settings),
@@ -39,7 +41,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	AdminCommandBar = require(script.Screens.AdminCommandBar),
 	HotStreakFx = require(script.Screens.HotStreakFx),
 	HotStreakBar = require(script.Screens.HotStreakBar),
-	WeatherPill = require(script.Screens.WeatherPill),
+	EventTimers = require(script.Screens.EventTimers),
 	BoostPills = require(script.Screens.BoostPills),
 	TeleportBar = require(script.Screens.TeleportBar),
 	TutorialHud = require(script.Screens.TutorialHud),
@@ -47,7 +49,7 @@ local modules: { [string]: Types.ScreenModule } = {
 	LoadingCover = require(script.Screens.LoadingCover),
 }
 
-local UIController = { Name = "UIController" }
+local UIController = { Name = "UIController", ModalChanged = Signal.new() :: Signal.Signal<boolean> }
 local registry: { [string]: any } = {}
 local screens: { [string]: Types.Screen } = {}
 local guis: { [string]: ScreenGui } = {}
@@ -89,6 +91,9 @@ function UIController.Open(_self: any, name: string, argument: any?)
 	if openSound then
 		LocalSound.Play(openSound)
 	end
+	if screen.Modal then
+		UIController.ModalChanged:Fire(true)
+	end
 end
 
 function UIController.Close(_self: any, name: string)
@@ -97,6 +102,9 @@ function UIController.Close(_self: any, name: string)
 		return
 	end
 	opened[name] = nil
+	if screen.Modal then
+		UIController.ModalChanged:Fire(UIController:IsModalOpen())
+	end
 	local popScale = findPopScale(name)
 	if not popScale then
 		screen:Close()

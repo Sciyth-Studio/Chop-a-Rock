@@ -41,6 +41,10 @@ export type GeodeSettings = {
 	OpenPromptText: string,
 	SkipPromptText: string,
 	HatchReadyText: string,
+	ReadyGlowColor: Color3,
+	ReadyGlowTransparency: number,
+	ReadyRockDegrees: number,
+	ReadyRockSeconds: number,
 	HatchLabelHeightStuds: number,
 	HatchLabelGapStuds: number,
 	PadGeodeName: string,
@@ -54,11 +58,26 @@ export type GeodeSettings = {
 	FallingMinRarity: string,
 	SecondLookSuffix: string,
 	ToolKeyAttribute: string,
+	ToolLuckAttribute: string,
 	ToolScale: number,
 }
 
 local RockConfig = require(script.Parent.RockConfig)
 local RockSpawnConfig = require(script.Parent.RockSpawnConfig)
+local EggDropConfig = require(script.Parent.EggDropConfig)
+local PetConfig = require(script.Parent.PetConfig)
+
+local function rarePets(pets: { GeodePet }): { GeodePet }
+	local result: { GeodePet } = {}
+	for _, entry in pets do
+		local pet = PetConfig.Pets[entry.PetKey]
+		local multiplier = if pet
+			then EggDropConfig.RareWeightMultipliers[pet.Rarity] or EggDropConfig.RareWeightDefault
+			else 1
+		table.insert(result, { PetKey = entry.PetKey, Weight = entry.Weight * multiplier })
+	end
+	return result
+end
 
 local function weakestRock(zone: string): number
 	local weakest = math.huge
@@ -281,7 +300,7 @@ local GeodeConfig: GeodeSettings = {
 		},
 	},
 	HatchPromptRangeStuds = 8,
-	HatchPromptHoldSeconds = 0.3,
+	HatchPromptHoldSeconds = 0,
 	HatchPadCount = 8,
 	HatchPadPrefix = "BasePlot_Pad",
 	HatchPadTag = "HatchPad",
@@ -290,9 +309,13 @@ local GeodeConfig: GeodeSettings = {
 	HatchRefreshSeconds = 1,
 	PlacePromptText = "Place",
 	PlaceAllPromptText = "Place All",
-	OpenPromptText = "Open",
-	SkipPromptText = "Skip Wait",
+	OpenPromptText = "Hatch",
+	SkipPromptText = "Skip Timer",
 	HatchReadyText = "Ready!",
+	ReadyGlowColor = Color3.fromRGB(0, 255, 60),
+	ReadyGlowTransparency = 0.6,
+	ReadyRockDegrees = 10,
+	ReadyRockSeconds = 0.9,
 	HatchLabelHeightStuds = 7,
 	HatchLabelGapStuds = 1,
 	PadGeodeName = "PadGeode",
@@ -306,7 +329,8 @@ local GeodeConfig: GeodeSettings = {
 	FallingMinRarity = "Rare",
 	SecondLookSuffix = "B",
 	ToolKeyAttribute = "GeodeKey",
-	ToolScale = 0.5,
+	ToolLuckAttribute = "EggLuck",
+	ToolScale = 1,
 }
 
 local baseKeys: { string } = {}
@@ -355,7 +379,7 @@ for _, key in baseKeys do
 		StrengthRequired = geode.StrengthRequired,
 		ModelKey = geode.SecondModelKey or geode.ModelKey,
 		SplitModelKey = geode.SplitModelKey,
-		Pets = geode.Pets,
+		Pets = rarePets(geode.Pets),
 		IsSecondLook = true,
 		BaseKey = key,
 	}

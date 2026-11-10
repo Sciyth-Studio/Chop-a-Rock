@@ -1,6 +1,6 @@
 --!strict
 
-local suffixes = { "K", "M", "B", "T", "Qa", "Qi", "Sx" }
+local suffixes = { "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De" }
 local compactThreshold = 1e6
 local rockCompactThreshold = 1e3
 

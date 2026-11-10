@@ -4,17 +4,16 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
-local RebirthConfig = require(ReplicatedStorage.Config.RebirthConfig)
+local CelebrationConfig = require(ReplicatedStorage.Config.CelebrationConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 
 type TroveInstance = typeof(Trove.new())
 
-local RebirthEffectController = {
-	Name = "RebirthEffectController",
+local CelebrationEffectController = {
+	Name = "CelebrationEffectController",
 	_trove = nil :: TroveInstance?,
-	_controllers = {} :: { [string]: any },
 	_template = nil :: Model?,
 }
 
@@ -65,51 +64,35 @@ local function stopAll()
 	table.clear(active)
 end
 
-function RebirthEffectController.PlayBurst(self: any)
+function CelebrationEffectController.PlayBurst(self: any)
 	local template = self._template
 	if template then
 		play(template)
 	end
-	LocalSound.Play(RebirthConfig.RebirthSoundKey, RebirthConfig.RebirthSoundStartSeconds)
+	LocalSound.Play(CelebrationConfig.SoundKey, CelebrationConfig.SoundStartSeconds)
 end
 
-function RebirthEffectController.Init(self: any, controllers: { [string]: any })
-	self._controllers = controllers
+function CelebrationEffectController.Init(self: any, _controllers: { [string]: any })
 	self._trove = Trove.new()
 end
 
-function RebirthEffectController.Start(self: any)
+function CelebrationEffectController.Start(self: any)
 	local trove = self._trove :: TroveInstance
-	local asset = AssetRegistry.get(RebirthConfig.RebirthEffectKey)
+	local asset = AssetRegistry.get(CelebrationConfig.EffectKey)
 	if not asset:IsA("Model") then
 		asset:Destroy()
 		return
 	end
-	local template = asset
-	self._template = template
-	trove:Add(template)
+	self._template = asset
+	trove:Add(asset)
 	trove:Add(stopAll)
-
-	local dataController = self._controllers.DataController
-	local lastRebirths: number? = nil
-	trove:Add(dataController:Observe({ "Rebirths" }, function()
-		local rebirths = dataController:Get({ "Rebirths" })
-		if type(rebirths) ~= "number" then
-			return
-		end
-		if lastRebirths and rebirths == lastRebirths + 1 then
-			play(template)
-			LocalSound.Play(RebirthConfig.RebirthSoundKey, RebirthConfig.RebirthSoundStartSeconds)
-		end
-		lastRebirths = rebirths
-	end))
 end
 
-function RebirthEffectController.Destroy(self: any)
+function CelebrationEffectController.Destroy(self: any)
 	if self._trove then
 		self._trove:Destroy()
 		self._trove = nil
 	end
 end
 
-return RebirthEffectController
+return CelebrationEffectController

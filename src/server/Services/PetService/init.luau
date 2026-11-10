@@ -31,6 +31,7 @@ local PetService = {
 	Name = "PetService",
 	HeldChanged = Signal.new() :: Signal.Signal<Player>,
 	Granted = Signal.new() :: Signal.Signal<Player, number>,
+	ToolActivated = Signal.new() :: Signal.Signal<Player, string>,
 	ModifierChanged = Signal.new() :: Signal.Signal<Player, string>,
 }
 
@@ -142,6 +143,10 @@ function PetService.GetHeldPetId(_self: any, player: Player): string?
 	return Tools.Held(player)
 end
 
+function PetService.Equip(_self: any, player: Player, petId: string): boolean
+	return Tools.Equip(player, petId)
+end
+
 function PetService.PutAway(_self: any, player: Player)
 	Tools.PutAway(player)
 end
@@ -149,11 +154,20 @@ end
 function PetService.SyncTools(_self: any, player: Player)
 	local data = services.DataService:GetData(player)
 	if data and player.Parent == Players then
-		Tools.Sync(player, data.Pets)
+		Tools.Sync(player, data.Pets, function(owner: Player, petId: string)
+			PetService.ToolActivated:Fire(owner, petId)
+		end)
 	end
 end
 
-local function add(player: Player, petKey: string, modifier: string?, luck: number?, size: string?): Grant?
+local function add(
+	player: Player,
+	petKey: string,
+	modifier: string?,
+	luck: number?,
+	size: string?,
+	revealDelay: number?
+): Grant?
 	local pet = PetConfig.Pets[petKey]
 	local data = services.DataService:GetData(player)
 	local replica = services.DataService:GetReplica(player)
@@ -169,6 +183,9 @@ local function add(player: Player, petKey: string, modifier: string?, luck: numb
 		TraitValue = traitValue,
 		Modifier = if PetModifier.Get(modifier) and not isExclusive(petKey) then modifier else nil,
 		Size = if isExclusive(petKey) then nil else size or PetSize.Roll(random, luck or 1),
+		RevealAt = if revealDelay and revealDelay > 0
+			then workspace:GetServerTimeNow() + revealDelay
+			else nil,
 	}
 	replica:Set({ "NextPetId" }, data.NextPetId + 1)
 	replica:Set({ "Pets", id }, record)
@@ -276,7 +293,7 @@ function PetService.Grant(
 	luck: number?,
 	size: string?
 ): Grant?
-	local grant = add(player, petKey, modifier, luck, size)
+	local grant = add(player, petKey, modifier, luck, size, equipDelay)
 	if grant then
 		granted(player, equipDelay)
 	end

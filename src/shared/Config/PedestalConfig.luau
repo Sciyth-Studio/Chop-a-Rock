@@ -15,6 +15,9 @@ export type PedestalSettings = {
 	LabelMaxDistance: number,
 	PenPartName: string,
 	PenFolderName: string,
+	PenPickUpText: string,
+	PenClickRangeStuds: number,
+	PenPetPromptRangeStuds: number,
 	PenPetTag: string,
 	PenMarginStuds: number,
 	HopCenterAttribute: string,
@@ -23,7 +26,7 @@ export type PedestalSettings = {
 
 local PedestalConfig: PedestalSettings = {
 	StartingSlots = 8,
-	UnlockOrder = { 1, 5, 2, 6, 3, 7, 4, 8 },
+	UnlockOrder = { 1, 5, 2, 6, 3, 7, 4, 8, 9, 10, 11, 12, 13, 14, 15 },
 	SlotPrices = {},
 	OfflineRateMultiplier = 0.04,
 	PetScale = 2,
@@ -36,6 +39,9 @@ local PedestalConfig: PedestalSettings = {
 	LabelMaxDistance = 80,
 	PenPartName = "BasePlot_Pen",
 	PenFolderName = "PenPets",
+	PenPickUpText = "Pick Up",
+	PenClickRangeStuds = 15,
+	PenPetPromptRangeStuds = 8,
 	PenPetTag = "PenPet",
 	PenMarginStuds = 6,
 	HopCenterAttribute = "HopCenter",

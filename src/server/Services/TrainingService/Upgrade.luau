@@ -16,9 +16,6 @@ function Upgrade.Buy(services: { [string]: any }, player: Player): string
 	if not nextStand then
 		return "Max"
 	end
-	if data.Rebirths < nextStand.Rebirths then
-		return "Locked"
-	end
 	if data.Cash < nextStand.Price then
 		return "Cash"
 	end
