@@ -15,7 +15,7 @@ Built 2026-10-27 for [[Launch Checklist]] §2. The onboarding funnel lives in [[
 ## Economy events
 Transaction types are Roblox's enum names: Gameplay, Shop, IAP, TimedReward.
 - Sources: Chop, StormRock, RushRock (`RockService` picks by the rock's Modifier/Weather), DiamondRock, Pad, Offline, SellPets, IndexClaim, CashPack, GiftCashPack, StarterPack, OfflineClaim (the Robux 2x claim).
-- Sinks: Aura, Geode, Cannon, PedestalSlot, TrainingUpgrade, Rebirth (the cash wiped on rebirth, so balances add up).
+- Sinks: Aura, Geode, Cannon, PedestalSlot, TrainingUpgrade. (Rebirth, the cash wiped on rebirth, was removed with rebirth 2026-11-09.)
 - Offline earnings are banked onto pads at join, so `PedestalService` keeps `session.Offline[slot]` and the first collects from that slot log as Offline, the rest as Pad. Offline left on a pad when the player leaves counts as Pad next session.
 - Geode Fall pays no cash (it grants a Pet), so it has no event. Geode buys write `Cash` with `Set`, so `GeodeService/Purchasing` logs directly.
 - Not logged on purpose: admin SetCash/GrantCash, presets, `ResetData`.

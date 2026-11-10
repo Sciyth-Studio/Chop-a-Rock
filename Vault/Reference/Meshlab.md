@@ -87,3 +87,6 @@ Swapping a restyle onto placed copies: record each copy's scale as old height / 
 Its AO bake darkens vertex colours by up to 25%. Leave it off for buildings ([[Flat Shading On Buildings]]).
 
 Related: [[Keep Decor Simple]], [[Studs On Models By Default]], [[Tintable Mesh Textures]]
+
+## Base plot
+`tools/meshlab/models/BasePlot.luau` (2026-11-09) is the base plot as code, ported box for box from the Blender `plot_builder.py`, with 8 pen/floor lengths for [[Base Upgrades]]. It's flat, with no bake, and every piece is its own part. Seed 0 exports white meshes, every level suffixed `_L1`-`_L8`; seeds 1-8 preview one level. Asset `87595413069764`, see [[Bases]]. LoadAsset kept the OBJ origin, so the parts landed at plot-local positions with no offset. `render.py` has no top-down view, so a copy with a `high` direction (0.55, 0.9, 1.6) was used for previews. It needs `textures/` next to it.

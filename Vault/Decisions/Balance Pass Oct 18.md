@@ -4,6 +4,8 @@ type: decision
 ---
 # Balance pass (2026-10-18)
 
+> 2026-11-09: rebirth was removed ([[Rebirth Removed]]). Anything here about rebirth gates, the rebirth cash multiplier or Cosmic at $2.4T is out of date: Cosmic is $1.1T and stands are cash only (Balance Model v14).
+
 Made with the user's balance model (`Downloads/Chop_a_Rock_Balance_Model_v3.xlsx`, which has a Checks tab testing each zone against targets on Inputs rows 44-49 and models weather and the Index). v3 passes 25 of 25 checks. In the Luau since 2026-10-18 (ArmConfig, TrainingConfig, EconomyConfig, PedestalConfig). Cozy and the Snow Geode went into PetConfig and GeodeConfig on 2026-10-20.
 
 ## Decisions (user, 2026-10-18)

@@ -34,3 +34,5 @@ In Edit, sampling every third grid point of Forest, Desert and Snow with the sam
 Related: [[Geodes As Inventory Items]]
 
 - 2026-11-05: the hatch pad timer label sits `HatchLabelGapStuds` above the egg's measured top (the `PadGeode` model's bounding box) instead of a fixed 7 studs, which clipped into bigger eggs.
+
+- 2026-11-06: ring spawning is gone. Eggs now drop from broken rocks; see [[Eggs From Rocks]]. The ring markers still keep rocks out of the enemy's home.

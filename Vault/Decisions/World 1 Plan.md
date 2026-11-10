@@ -42,3 +42,5 @@ Related: [[Rebirth Gated By Strength]], [[Auras]], [[Zone Line]], [[Diamond Rock
 **2026-11-01 Pet prompts:** lineup + six sheet prompts for each zone 6-10 are in `assets/Pets/<Zone>/Prompts.md` (Swamp, Savanna, Bamboo, Volcano, Ruins), Snow's format, body colours from the zone tables above. Not run yet.
 
 **2026-11-03 Pets:** zone 6-10 Pets are now blocky animals, see [[Animal Pets]] and `AnimalPetsPlan.md`. Those prompts and the Pet looks and body colours in `World1Plan.md` still describe rocks, so use `assets/Pets/Animals/<Zone>.md` instead. Income and odds stand.
+
+**2026-11-09 (user):** boss events, the Golem fight included, take place in the [[Boss Arena]] behind the lobby on the boss clock ([[Event Clock]]), not past the Ruins. Open: this clashes with "always awake, never time-gate a milestone" above (the first win opens world 2). Asked the user whether the first Golem win stays always available and only repeats wait for the clock; not answered yet.

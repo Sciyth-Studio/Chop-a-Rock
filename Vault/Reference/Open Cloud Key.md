@@ -38,3 +38,5 @@ Related: [[Asset Ownership]], [[Chop a Rock]]
 **Item icons, 2026-10-23:** `scripts/upload_icons.py` uploads the Pet and rock card icons as `Image` assets with this key (the user chose it over a separate icons key). All 45 icons uploaded and loaded in play (2026-10-24). See [[Item Icons]].
 
 **Animations, 2026-10-27:** `assetType` **Animation** uploads work with an `.rbxmx` KeyframeSequence sent as `type=model/x-rbxm`. They can't be archived. See [[Animation Uploads]].
+
+**Retry Fight, 2026-11-06:** created the same way, id 3729033078, 9 R$ (`MonetizationConfig.RetryFight`). Clover luck icon uploaded as group `Image` 90789156311854 from `assets/Icons/Luck/Clover.png` (converted to RGBA with System.Drawing in pwsh, since Python is not installed); state was Reviewing right after upload.

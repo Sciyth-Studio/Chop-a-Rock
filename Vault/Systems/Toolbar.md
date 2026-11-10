@@ -39,3 +39,11 @@ Related: [[Pedestals]], [[Pet Sizes]], [[Item Icons]]
 
 ## Geodes (2026-11-03, not played)
 From [[Geodes As Inventory Items]]. `data.Geodes` counts stay the source of truth. `GeodeService/Tools` keeps one Backpack Tool per owned geode key (attribute `GeodeKey`, synced in `GeodeService`'s refresh, at most 1 s late after a respawn). `PetStacks.BuildGeodes` makes stacks that the hotbar puts first (Lucky, Falling, then highest zone) and that lead the Pets panel grid, so the search and the detail popup work on them too. The popup shows the geode's full name, "Place on a hatch pad", its rarity floor and hatch time. The count line adds "Geodes: N". There is no separate heading in the grid: geode cards just come first. Geodes have no PNG icons yet, so they use the `Preview` ViewportFrame fallback (`ItemIcons`, kind `Geode`). A pad's Place prompt uses the geode in your hand, or your best one.
+
+## Only filled slots, Pets moved off the bar (2026-11-09, not played)
+User's feedback list, items 8 and 9.
+- Slots show only while something is in them: `Toolbar.luau` sets `slot.Visible = stack ~= nil`, so with every Pet placed and no egg in hand the hotbar is empty. Keys 1-7 still map to the shown slots in order. `Bar` is 788 wide (7 x 104 + 6 x 10) and its `UIListLayout` is centre-aligned (was left-aligned at 954), so a short row stays centred.
+- `PetsToggle` is deleted from the bar. Pets is now a menu button on the right edge, mirroring Shop and Index on the left: `MenuButtons.RightContainer` is a copy of `Container` (same grid, 144 tiles, 24 gap, `ScreenScale` with `ScalePosition`) anchored (1, 0.5) at (1, -18, 0.5, 0), holding `PetsButton` (a copy of `ShopButton`, blue fill 0,150,255, paw icon). `MenuButtonConfig` has `{ Name = "Pets", Screen = "Pets" }`; `MenuButtons.luau` finds buttons recursively so both columns work. ~ still opens the panel.
+- The offer rail sat on that edge, so `OfferRail.Container` moved from x -16 to -178 to sit left of the Pets column.
+- Rebirth is being removed, so its menu button and badge rule are gone too.
+- Backups: `ServerStorage.UIBackup["MenuButtons.BeforePetsRight"]` and `["Toolbar.BeforePetsRight"]`.

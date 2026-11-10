@@ -30,3 +30,20 @@ Related: [[Rock Spawning]], [[Golden Rocks]], [[Chop Effects]], [[Admin Panel]]
 
 ## Change 2026-11-03 (user)
 The `DiamondRockPill` timer is gone; the spawn notification names the zone.
+
+## Change 2026-11-09 (user): the arena
+The Diamond Rock now only spawns in the [[Boss Arena]], on the boss clock ([[Event Clock]], every 15 min at :02:30). Rules that replace the zone ones above:
+- **Where:** on `Workspace.BossArena.DiamondSpot`, at `ArenaScale` 2 (about 50 x 39 x 41 studs). No zone pick, no `FindRingSpot` and no `ReserveArea` (no per-player rocks there). `Zone` attribute = "Arena". Notice "Diamond Rock in the Arena!". Countdown 90 s (was 60) to give time to walk over. 12 chop slots (was 8).
+- **Who:** anyone out of the tutorial; no strength gate (no crack).
+- **Health:** the sum, over every player in the server out of the tutorial, of their own share: their best zone's top rock strength x Good damage x `HealthChops` (45) x `HealthShare` (0.35). A player's best zone is the furthest zone whose geode `StrengthRequired` their `PeakStrength` reaches (`Spawning.BestZone`), Forest if none.
+- **Pay:** each hit pays the hitter's own value (15 x their best zone's top rock payout) x damage / their own share, then the usual friend, Index and pass multipliers. So dealing your own share earns your full value; more players means more health and more total pay.
+- Not playtested. The client effects (ring, label height, beacon) were made for the 25-stud rock and weren't checked at 2x.
+
+**Camera (2026-11-09, user: "don't reset the camera every hit for the diamond rock"):** `ChopController` sets `chopCamera = windUpCamera` when the rock has `ChopSlots`, so on the Diamond the camera stays on the over-the-shoulder shot for the whole fight. Shakes, flashes and the Master cinematic still play.
+
+## Diamond Colossus model (2026-11-09, user approved the draft)
+- Model `tools/meshlab/models/DiamondRock.luau` → `assets/Rocks/Diamond/DiamondRockV2/DiamondRock.fbx` → Open Cloud model 117428719934905. Template `Assets.Models.Rocks.Model_Rock_Diamond` is now the `Rock` MeshPart (stone, Color white over vertex colours, Plastic + `2022 Inlet`, Hull, about 106 x 31 x 92) with children `Crystals` (Hull, collides), `Core` (Neon 190,250,255), `Veins` (Neon 80,220,255) and `Shards`, all unanchored, Massless and welded to `Rock`. Crystals, Core and Veins use WeldConstraints; Shards uses a `Weld` named `ShardSpin`, so the client can turn its `C0`. No `SplitModel` attribute. The old crystal cluster is in `ServerStorage.ModelBackups["Model_Rock_Diamond.BeforeColossus"]`.
+- Built at full size, so `ArenaScale` is 1. `Spawning.Build` moves every descendant part by the same offset as `Rock`, then the welds hold them.
+- Client (`RockController/Diamond.luau`): `animateParts` spins the shards (`ShardSpinRadPerSec` 0.35) and pulses the core colour toward `CoreDimColor` (`CorePulseSeconds` 1.6, depth 0.6) on RenderStepped. The label sits `LabelHeightAboveRock` above the tallest part (`topOffset`), not above `Rock`. A break shatters into chunks instead of splitting (`Effects.Break(..., nil, true)`, new `isWhole` argument). Rise, sink and hide carry the welded parts along.
+- Stand distance: the template's `Rock` has attribute `ChopScale` = 6.5 (new `ChopConfig.ScaleAttribute`), so choppers stand about 52 studs from the centre, just outside the rim. Without it they'd stand at 92 / 10 x 8 = 74 studs. `Spawning.StandDistance` was unused and is gone.
+- Checked in Edit with a preview copy on `DiamondSpot`: meshes load, Neon veins and heart glow, studs on the stone. Not playtested (rise, chop spots, label height, hit effects at this size, shard spin).

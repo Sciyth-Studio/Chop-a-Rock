@@ -25,3 +25,10 @@ Same day: the Shop, Index and Rebirth menu buttons went to 1.5x (144 px, contain
 - `ScreenScale` takes an optional number attribute `ScaleMultiplier` that `ViewportScale.Bind` multiplies into the screen factor. `OfferRail.Container` has 1.5, because the user wanted the purchasables bigger on phones ("i need money"). Use it instead of resizing parts when the screen's code has pixel constants.
 - `OfferRail.Container` is anchored (1, 0.5) at (1, -16, 0.5, -90) and its list is centre-aligned. The -90 nudge was asked for so it clears two active boost pills. `MenuButtons.Container` is anchored (0, 0.5) at (0, 18, 0.5, 0) and its grid is centre-aligned. Both have `ScalePosition`, so the two columns sit at mid-height on every screen.
 - With an offer card and both boosts showing, the rail runs from y about 51 to 849 at 1080p. Two boost pills reach up to y 852; a third or more still overlaps.
+
+## HUD stack 1.35x (2026-11-09, not played)
+The user asked to make the bottom-left HUD stack bigger (the friends bonus line with its + button, the strength row and the cash row):
+
+![[HUD Stack Before Enlarge.png]]
+
+Done with `ScaleMultiplier = 1.35` on `Hud.Container.ScreenScale` rather than resizing parts; `Hud.luau` already divides text widths by the live `ScreenScale.Scale`, so the fade backdrops still fit. At 1080p the stack is now about 486x240 and its top sits near y 824, below the left menu column (ends about y 696).

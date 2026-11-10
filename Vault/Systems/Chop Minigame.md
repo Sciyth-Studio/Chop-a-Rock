@@ -31,3 +31,5 @@ Take from the reference: the camera angle and the bar's size and place only. The
 - A player zoomed into first person keeps a hidden character in the wind-up shot, because the transparency controller stops updating under a Scriptable camera. Not handled.
 
 See [[Chop Timing Uses Client Time]], [[Tutorial]], [[Slice Test]].
+
+- 2026-11-05 ([[Playtest Feedback Nov 5]]): every enabled BillboardGui in Workspace and PlayerGui is disabled for the round (`Utils/HideBillboards`, `ChopConfig.HidesBillboards`) and restored at the end. The rock `HealthBar` is 0.5 x 0.067 of the screen (UISizeConstraint 300x40 to 960x72) at 8 px from the top, with `HealthText` (Chrome) and `HealthTextShadow` showing "HP / max" (`ChopBar.luau`).

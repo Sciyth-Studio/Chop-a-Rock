@@ -11,3 +11,5 @@ The strength range is typed by hand: 4 is the stone's `StrengthRequired` (2 unti
 For the next zone, duplicate the part, move it to that zone's gateway, and change the text and styles. See [[UI Text Style]], [[Forest Rock Tiers]].
 
 The forest sign now lives at `Workspace.Zones.ZoneForest.ZoneTemplate.ZoneEntrance`. The desert copy is `Workspace.ZoneDesert.ZoneTemplate.ZoneEntrance` at z -75: "Desert Zone" in `Gold` and "500 to 12,500 Strength" (draft numbers, 2026-10-07). World SurfaceGuis are not restyled at runtime, so after changing a `TextStyle` attribute, bake it in Edit with `Typography.ApplyTextStyle`.
+
+**Signs removed (2026-11-09, user asked):** every `ZoneSign` SurfaceGui is gone; the transparent `ZoneEntrance` parts stay. The ten signs are kept in `ServerStorage.UIBackup["ZoneSigns.BeforeZoneBanner"]`, each renamed to its zone folder (rename back to `ZoneSign` to restore). Zone names and the recommended strength now show in the [[Zone Banner]] when you walk in.

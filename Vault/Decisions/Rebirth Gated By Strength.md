@@ -1,8 +1,10 @@
 ---
-description: 2026-10-13 — no level system; rebirth N needs the toughest rock of zone N in strength; each rebirth unlocks the next training stand with a set strength per 1 s rep; rebirth gives cash + luck only; Robux buys the stand's cash, never skips the gate (2026-10-18).
+description: SUPERSEDED 2026-11-09 by Rebirth Removed. 2026-10-13 — no level system; rebirth N needs the toughest rock of zone N in strength; each rebirth unlocks the next training stand with a set strength per 1 s rep; rebirth gives cash + luck only; Robux buys the stand's cash, never skips the gate (2026-10-18).
 type: decision
 ---
 # Rebirth gated by strength, one stand per rebirth (2026-10-13)
+
+> **Superseded 2026-11-09 by [[Rebirth Removed]].** Rebirth is gone; stands are cash only. Kept as history.
 
 The user studied a successful game and wanted its model. Strength is the one stat. Rebirth gives money multipliers. Every rebirth unlocks a new training with a set strength per rep (a rep takes 1 s). Rebirth is gated by a strength number, so there is no level system.
 
