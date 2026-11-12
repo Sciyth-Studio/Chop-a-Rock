@@ -7,6 +7,7 @@ local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local Paint = require(script.Paint)
 
 type TroveInstance = typeof(Trove.new())
 
@@ -49,43 +50,6 @@ local function getTemplate(): Model?
 	return asset
 end
 
-local function tintSequence(sequence: ColorSequence, color: Color3): ColorSequence
-	local keypoints = {}
-	for _, keypoint in sequence.Keypoints do
-		local value = keypoint.Value
-		table.insert(
-			keypoints,
-			ColorSequenceKeypoint.new(
-				keypoint.Time,
-				Color3.new(value.R * color.R, value.G * color.G, value.B * color.B)
-			)
-		)
-	end
-	return ColorSequence.new(keypoints)
-end
-
-local function tintOne(item: Instance, color: Color3)
-	if item:GetAttribute(AuraConfig.TintAttribute) == false then
-		return
-	end
-	if item:IsA("ParticleEmitter") then
-		item.Color = tintSequence(item.Color, color)
-	elseif item:IsA("Beam") then
-		item.Color = tintSequence(item.Color, color)
-	elseif item:IsA("Trail") then
-		item.Color = tintSequence(item.Color, color)
-	elseif item:IsA("PointLight") then
-		item.Color = color
-	end
-end
-
-local function tint(instance: Instance, color: Color3)
-	tintOne(instance, color)
-	for _, item in instance:GetDescendants() do
-		tintOne(item, color)
-	end
-end
-
 local function remove(player: Player)
 	local current = worn[player]
 	if not current then
@@ -97,27 +61,35 @@ local function remove(player: Player)
 	end
 end
 
-local function attach(source: Instance, target: BasePart, emitScale: number, color: Color3, current: Worn)
+local function attach(
+	source: Instance,
+	target: BasePart,
+	emitScale: number,
+	tier: AuraConfig.AuraTier,
+	current: Worn
+)
 	local copies: { [Attachment]: Attachment } = {}
 	for _, child in source:GetChildren() do
 		if child:IsA("Attachment") then
 			local copy = child:Clone()
-			for _, descendant in copy:GetDescendants() do
-				if descendant:IsA("ParticleEmitter") then
-					descendant.Rate *= emitScale
+			if Paint.Apply(copy, tier, emitScale) then
+				copy.Parent = target
+				copies[child] = copy
+				table.insert(current.Instances, copy)
+				local speed = child:GetAttribute(AuraConfig.SpinAttribute)
+				if type(speed) == "number" and speed ~= 0 then
+					table.insert(
+						current.Spinners,
+						{ Attachment = copy, Base = copy.CFrame, DegreesPerSecond = speed, Angle = 0 }
+					)
 				end
 			end
-			tint(copy, color)
+		end
+	end
+	local function place(copy: Instance)
+		if Paint.Apply(copy, tier, emitScale) then
 			copy.Parent = target
-			copies[child] = copy
 			table.insert(current.Instances, copy)
-			local speed = child:GetAttribute(AuraConfig.SpinAttribute)
-			if type(speed) == "number" and speed ~= 0 then
-				table.insert(
-					current.Spinners,
-					{ Attachment = copy, Base = copy.CFrame, DegreesPerSecond = speed, Angle = 0 }
-				)
-			end
 		end
 	end
 	for _, child in source:GetChildren() do
@@ -125,27 +97,14 @@ local function attach(source: Instance, target: BasePart, emitScale: number, col
 			local copy = child:Clone()
 			copy.Attachment0 = if child.Attachment0 then copies[child.Attachment0] else nil
 			copy.Attachment1 = if child.Attachment1 then copies[child.Attachment1] else nil
-			tint(copy, color)
-			copy.Parent = target
-			table.insert(current.Instances, copy)
+			place(copy)
 		elseif child:IsA("Trail") then
 			local copy = child:Clone()
 			copy.Attachment0 = if child.Attachment0 then copies[child.Attachment0] else nil
 			copy.Attachment1 = if child.Attachment1 then copies[child.Attachment1] else nil
-			tint(copy, color)
-			copy.Parent = target
-			table.insert(current.Instances, copy)
-		elseif child:IsA("ParticleEmitter") then
-			local copy = child:Clone()
-			copy.Rate *= emitScale
-			tint(copy, color)
-			copy.Parent = target
-			table.insert(current.Instances, copy)
-		elseif child:IsA("PointLight") then
-			local copy = child:Clone()
-			tint(copy, color)
-			copy.Parent = target
-			table.insert(current.Instances, copy)
+			place(copy)
+		elseif child:IsA("ParticleEmitter") or child:IsA("PointLight") then
+			place(child:Clone())
 		end
 	end
 end
@@ -160,7 +119,7 @@ local function apply(player: Player)
 		return
 	end
 	remove(player)
-	if not color or not character or type(tierIndex) ~= "number" then
+	if not tier or not color or not character or type(tierIndex) ~= "number" then
 		return
 	end
 	local source = getTemplate()
@@ -174,14 +133,14 @@ local function apply(player: Player)
 		for _, partName in AuraConfig.LimbParts do
 			local part = character:FindFirstChild(partName)
 			if part and part:IsA("BasePart") then
-				attach(limbSource, part, emitScale, color, nextWorn)
+				attach(limbSource, part, emitScale, tier, nextWorn)
 			end
 		end
 	end
 	local bodySource = source:FindFirstChild(AuraConfig.BodyTemplate)
 	local body = character:FindFirstChild(AuraConfig.BodyPart)
 	if bodySource and body and body:IsA("BasePart") then
-		attach(bodySource, body, emitScale, color, nextWorn)
+		attach(bodySource, body, emitScale, tier, nextWorn)
 	end
 	worn[player] = nextWorn
 end
