@@ -44,3 +44,40 @@ Related: [[Rock Spawning]], [[Zone Geodes And Enemies]], [[Admin Panel]], [[Move
   - **Speed-up (idea A from [[Fight Tension Research]], user's pick):** each fight round the chop bar cursor sweeps 12% faster, up to 1.5x (`SweepSpeedUpPerRound`, `SweepMaxSpeed`, `EnemyRules.SweepSpeed(round)`). The server judges each release at that round's speed (`fight.Round`). The client passes the same function to `ChopController:BeginExternal` and counts `ChopRoundStart`s, so rocks keep a 1x bar. Once half the fight timer is gone, the fight music rises 2 semitones in 0.4 s (`MusicSpeedUp*`; PlaybackSpeed, so tempo rises too). The tutorial's untimed fight never speeds the music up.
   - **Final seconds (idea D, user's pick):** at 3, 2 and 1 s left (`FinalSeconds`) a clock tick plays (`SFX_Enemy_Tick`, 119133534035860, in Studio) and the camera FOV kicks in by 4 and eases back over 0.25 s. On the first tick the fight music gets muffled: an `EqualizerSoundEffect` on the track tweens high gain to -24 dB and mid to -6 dB (`Muffle*`). The chop bar's `TimerText` turns `TimerWarnColor` red at 3 s or less; only enemy fights set a timer, so rocks never see it. Not on the tutorial's untimed fight.
   - **Hitstop (idea G, user's pick):** a Great chop freezes the enemy and your character's playing animation tracks for 70 ms, Perfect and Master for 110 ms (`HitstopSeconds`, keyed by `ChopQuality`). The enemy holds full stagger tilt while frozen (`Motion.Hitstop`), then recovers. The bar and server timing aren't paused; the freeze lands in the round pause.
+
+- 2026-11-11: each Guardian now has its own Call (replaces `SFX_Enemy_Roar` at fight start) and Hurt on each hit, see [[Guardian Sounds]].
+
+## Harder Guardians (user 2026-11-12: "way too easy, doesn't feel tense, losing needs to be an actual possibility"; drafts, not playtested)
+- **Why they were easy:** the fight's bar used your strength over the zone's weakest rock, and `ChopZones` widens the coloured zones with that ratio. Near 25x (where a Guardian starts fleeing) about 70% of the bar was Great or better. Now `Fight.New` caps it with `ChopZones.CappedRatio(..., EnemyConfig.MaxPerfectShare)` 0.12 (bosses use 0.17), and the client gets the capped ratio through `EnemyChopStart`.
+- **Misses heal it:** a Bad or OK chop heals the Guardian by `MissHeal` 1 (up to full; not in the tutorial fight).
+- **Hits to win:** `FightHits` 7 (was 6), still 12 s, Good 1 / Great 2 / Perfect 3.
+- **No outline:** the black `EnemyOutline` Highlight is gone (user), with its config.
+
+## Knocked-out Guardian (user 2026-11-12: testers found fighting for every egg annoying; built, not played)
+- **Rule:** winning a Guardian fight (not the tutorial one) knocks that Guardian out for `KnockoutSeconds` 60 + `KnockoutPerPerfectSeconds` 5 per Perfect in the fight, up to `KnockoutMaxSeconds` 90 (user said yes to both). While it's out, every egg you grab in that zone goes straight to your hand with no fight (`ZoneGeodeService` checks `EnemyService:IsKnockedOut(player, zone)`). One zone at a time per player; winning in another zone wakes the old one.
+- **Server (`EnemyService`):** `knockouts[player][zone]` = os.clock wake time, ticked in `checkFights`. The timer pauses while you're in a boss fight (it's pushed back each tick). On waking: "The <Zone> Guardian woke up!".
+- **Attributes on the player:** `GuardianWakesAt<Zone>` (server time) drives the client; `BoostEndsGuardianOut` / `BoostPausedGuardianOut` drive a "Free eggs!" label (Green, egg icon) at the top of the bottom-right boost stack (`Screens/BoostPills`).
+- **Client (`EnemyController`):** after the win flight the Guardian goes to a new `Out` state instead of `Gone`: lying on its back where it landed (pivot is at the feet, so it's lifted by its radius, +90 degrees about X since Pet faces are -Z), breathing slightly. Its name label shows "Zzz 0:42" in Sky, Red for the last 10 s (`SleepFormat`, `SleepWarnSeconds`), and goes back to "<Zone> Guardian" in Chrome when it wakes and rises at home.
+- Not done: the egg prompt says "Grab" in both cases (it already did), so there's no Fight/Grab swap; no wake-up stir animation.
+
+## Hurry-up cues on the knockout (user 2026-11-12, "all the stuff from 1"; built, partly checked)
+- **Stages by time left** (`EnemyConfig.StirSeconds` 20, `RollSeconds` 10, `SitSeconds` 3; pose in `Motion` "Out", sounds in new `EnemyController/Sleep.luau`, 3D on the Guardian, 12-140 studs):
+  - over 20 s: looped snore.
+  - 20-10 s: the snore speeds up 1.15x and every 3 s it twitches with a snort.
+  - 10-3 s: no snore; it rolls onto its side (1.1 rad) and grumbles every 1.6 s (its own `SFX_Guardian_<Pet>_Hurt` at 0.8x speed), twitching each time.
+  - last 3 s: it sits up halfway (0.8 rad) and growls once (its own Call at 0.7x).
+  - last 5 s: `SFX_Enemy_Tick` once a second (2D).
+- **Sounds:** `SFX_Guardian_Snore` = ProSoundEffects "Comic Snoring Male Vocals Steady Pace 4" (9113862741, looped); `SFX_Guardian_Snort` = "Comic Snoring Female Vocals Snorting 2" (9113861687). Roblox's licensed library, free to use. Picked by description only: Creator Store audio can't be downloaded for earshot, and two snores made in code didn't read as snoring (best z +1.7, no match), so they weren't used. Not heard by anyone yet.
+- **Bug found:** `SFX_Enemy_Roar/Miss/Win/Lose/Tick` were in Studio but never in `AssetRegistry`, so they all played a placeholder (silence) since 2026-11-09. Registered 2026-11-12.
+- **Bar:** the "Free eggs!" boost label has a `Progress` bar (Studio, in `BoostPills.Stack.PillTemplate`, hidden on every other label) that drains over the knockout (`GuardianOutTotal` attribute = its length). At 10 s or less the bar and text turn red and the label pulses (`FreeEggsPulse*`). Checked in Play with attributes set on the client: 00:30 left = half bar; 00:07 = red text, red bar.
+- Not seen: the stages and sounds on a real knocked-out Guardian.
+
+## Guardian bar replaces the "Free eggs!" label (user 2026-11-13: "should work like a boss hp bar"; built, checked in Play)
+![[Boss Bar Look For Guardian Bar.png]]
+- `StarterGui.GuardianBar` is a copy of `BossBar` (hearts, halfway divider and Enraged labels removed; the fill's lip made neutral black/white so it suits every colour). `Screens/GuardianBar` + `GuardianBarConfig`.
+- Shows while you stand in the zone whose Guardian you knocked out (`Utils/ZoneAt` on your root, `GuardianWakesAt<Zone>`), title "<Zone> Guardian", timer "Free eggs! 0:54" under it. Pops in and out like the boss bar.
+- Waits until the zone banner is gone when you've just walked in (`ZoneBannerConfig` fade in + hold + fade out, about 3.9 s), so the two never overlap. Right after a win you're already in the zone, so it shows at once.
+- Drains with the time left (`GuardianOutTotal`), and changes colour by share: green over 50%, gold over 20%, then red (`Stages`); the title takes the same text style, and each change flashes the bar. Last 10 s: the timer turns red and the bar shakes harder as time runs out (2 to 9 px).
+- Pauses with the knockout during a boss fight (reads `BoostPausedGuardianOut`).
+- The "Free eggs!" boost label and its progress bar are gone (`BoostPills` no longer adds it; `Progress` frame deleted from `PillTemplate`).
+- Checked in Play with attributes set on the client: hidden 1.5 s after walking in, shown at 5 s; 0:40 = 65% green; 0:06 = red title, red fill, red timer.

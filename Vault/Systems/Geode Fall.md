@@ -42,3 +42,8 @@ Count is one geode per player in the server, capped at 4 (`MaxCount`). Each geod
 
 ## Change 2026-11-03: pickup (user)
 See [[Geodes As Inventory Items]]. Not played yet. The label's health bar is hidden in code (the `UI_DiamondLabel` template is shared with the Diamond Rock); the label shows only "Falling Geode" and the time left.
+
+## Meteor eggs (user 2026-11-12, built; checked once in Play by Claude)
+- **Bigger:** the model is scaled `ModelScale` 2.5x before a spot is found (about 12 x 14 x 12 studs for the Ruins egg).
+- **Luck:** each falling egg rolls a luck of x3.00 to x6.00 (`LuckMinHundredths` / `LuckMaxHundredths`, drafts), published as the `Luck` attribute, shown on its label ("Falling Egg x3.78") and prompt ("[x3.78] Falling Egg"), and granted with the egg, so it hatches with that luck.
+- **Zones:** only each player's furthest reached zone is eligible (was every zone any player had passed). Checked in Play: a Ruins save got a Ruins egg.

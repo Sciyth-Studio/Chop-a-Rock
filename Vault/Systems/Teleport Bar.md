@@ -29,3 +29,6 @@ Invisible, anchored, no collide/touch/query, not tagged `EditorOnly` (code reads
 - `Rocks` at (42, 0.9, -205) facing +Z: lobby side of the forest gateway (`ZoneEntrance` at z -195). Always the forest, never a later zone.
 
 Related: [[Admin Panel]], [[Bases]], [[Forest Zone Entrance]], [[Menu Panel Style]]
+
+## Launch (user 2026-11-13)
+The Rocks button is now **Launch**: it always fires your equipped cannon from wherever you are (`CannonService:LaunchEquipped`, called by `TeleportService` for `TeleportConfig.LaunchId` "Rocks"), so base to zone is one click. With no cannon yet (Forest players) it still teleports to the `Rocks` marker. The bar takes button text from `TeleportConfig.Destinations[].Label`. The walk-into-the-Forest "Fire Cannon" window is gone: `CannonService/Trigger.luau`, `Screens/CannonFire.luau`, the `FireCannon` / `CannonWindow` packets and `CannonConfig.FireButton` / `Trigger` were deleted, and `Workspace.CannonTrigger` was removed (backup `UIBackup["CannonTrigger.BeforeLaunchButton"]`; `StarterGui.CannonFire` is still in Studio, unused). The cannon hint now spotlights the Launch button ("Click Launch!"). Checked in Play: one click from the lobby landed the player in the Ruins.

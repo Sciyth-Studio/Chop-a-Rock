@@ -36,7 +36,30 @@ The 20-stand ladder from [[Rebirth Removed]] is modelled in meshlab ([[Meshlab]]
 - `TrainingConfig.Stands` is the 20-stand ladder, prices and strength per rep from [[Rebirth Removed]]. Break sounds reuse the old six: Wood `Chop`; forged metal `Steel`; precious metal `Vault`; raw crystal `Brick`; cut gem `Core`; space `Cosmic`, plus `VFX_Train_CosmicBreak`. No other stand has a break effect yet (VFX deferred by the user).
 - Old saves: `PlayerData.Migrate` remaps a save with no `TrainingLadder` by price through `TrainingConfig.OldTierMap` (Wood 1, Brick 3 Iron, Steel 5 Gold, Vault 7 Amethyst, Core 9 Titanium, Cosmic 11 Ruby), then sets `TrainingLadder` = `LadderVersion` (2). New saves start on 2. Admin snapshots without the field are remapped the same way. Admin presets: Desert = Iron (3), Late Game = Silver (4).
 - `TrainingMinigameConfig.PieceColors` has a colour per stand key.
-- The Brick/Vault/Core/Cosmic templates and their registry entries are unused now but not deleted.
+- The old Brick/Vault/Core/Cosmic stand and split templates and their registry entries were removed 2026-11-10; the models sit in `ServerStorage.TrainingStandsBackup_Before20Ladder`. Their `SFX_Train_*` sounds stay (the ladder reuses them).
 - In the [[Balance Model]] since v15.
 - Gotcha (fixed 2026-11-09): the copied `StandSign` BillboardGuis had no `Adornee`, so they drew at the breakable's centre on top of the Train prompt. The old stands set `Adornee` = the `SignAnchor` attachment (about 4 studs above the board). Fixed on all 20 templates and `Assets.Models.Base.Model_BasePlot`. A copied sign always needs its Adornee re-set. The copied `SignAnchor` also kept the old Wood offset (2.66 studs behind the board), which looked off to the side in game; every anchor is now straight above the board centre at 7.4 studs over the stand pivot (sign bottom about 6.65, clear of the crystals' 6.12 top).
-- Not done: the Black Diamond sparkles and Dark Matter swirl (VFX/decal work); playtesting.
+## Stand VFX (2026-11-10)
+- Break bursts are Attachment templates in `Assets.VFX.Training`, emitted by `TrainingService` `emitBurst` on top of the tinted `VFX_Board_Break` chunks.
+- Six textures come from the user's VFX library, uploaded to the group on 2026-11-10. Files and ids are in `assets/VFX/TrainStands/` (`assets.json`, `kit_sources.json`):
+  - Spark (metal sparks).
+  - Splinter (2x2, Random; wood).
+  - Flakes (4x4 tumbling foil, Loop; precious).
+  - Twinkle (4x4, OneShot; precious glints and Black Diamond idle).
+  - StarDing (4x4; gem flare).
+  - BlackHole (4x4, Loop; Dark Matter dark swirl).
+- The other layers reuse textures that were already uploaded. The library's gem shard (K1329) read softer than the old faceted Diamond shard, so the old one stays.
+- There are 5 families:
+  - `VFX_Train_WoodBreak`: splinters and sawdust.
+  - `VFX_Train_MetalBreak`: hot grinding sparks, a flash and embers. Used by the five forged metals.
+  - `VFX_Train_PreciousBreak`: a white glint flash, glints and spinning flakes.
+  - `VFX_Train_GemBreak`: a star flare, shards and glints.
+  - `VFX_Train_CrystalBreak`: a glow puff, shards and motes.
+  - The space stands keep `VFX_Train_CosmicBreak`.
+- The server calls `Emit` straight away, so `EmitDelay` does nothing on these. Keep every layer at t = 0.
+- `TrainingConfig` stands have an optional `BreakTint`. It recolours every emitter in the BreakEffect except those with the `NoTint` attribute: flashes, sparks, dust and white glints. The showcase plugin follows the same rule.
+- Idle effects live on the templates, under the breakable, so they switch off while it's broken:
+  - Black Diamond: `Gem.IdleGlints`, glints popping on the gem's surface.
+  - Dark Matter: `Cube.IdleSwirl` holds two camera-facing spirals, purple `SandSpiral` plus a black `DustSwirl` twin, with ZOffset over the cube. `Cube.IdlePull` is an invisible 5.5-stud ball that pulls motes inward.
+- Showcase: `Workspace.VFXShowcase.Training` holds one copy of each of the 20 stands with their tags removed, looping its break.
+- Checked in Edit by eye for every family; not playtested.

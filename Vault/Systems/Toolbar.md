@@ -47,3 +47,13 @@ User's feedback list, items 8 and 9.
 - The offer rail sat on that edge, so `OfferRail.Container` moved from x -16 to -178 to sit left of the Pets column.
 - Rebirth is being removed, so its menu button and badge rule are gone too.
 - Backups: `ServerStorage.UIBackup["MenuButtons.BeforePetsRight"]` and `["Toolbar.BeforePetsRight"]`.
+
+**2026-11-12:** While an egg is held (outside the tutorial) the Toolbar screen keeps itself hidden even when another system opens it (chop end, tutorial, panels). `EggDrop` no longer closes or reopens it. Fixed "holding an egg doesn't always hide the hotbar".
+
+## Active Pets side panel (2026-11-12, user's references, not played)
+![[Active Pets Panel Reference.png]]
+![[Active Pets Panel Reference 2.png]]
+User: "pet button should still be a thing but open this up on the right of the screen". So the right-side `PetsButton` menu button is back (`MenuButtonConfig` `{ Name = "Pets", Screen = "ActivePets" }`, restored from `UIBackup["Toolbar.BeforeBagButton"]`, `OfferRail.Container` back at x -178), and it opens a side panel of the Pets on your pedestals instead of the inventory. The inventory is the hotbar's Bag button ([[Potions]]).
+- `StarterGui.ActivePets` (`Screens/ActivePets`, `ActivePetsConfig`), non-modal, `Root` anchored right-middle at (1, -178, 0.5, -120) beside the Pets column (moved up 120 px on 2026-11-12 so Equip Best clears the bottom-right boost labels; room for three labels), `ScreenScale` with `ScalePosition`. Built from the Pets panel's own pieces: dark body and outline, green block header with "N/M Active" (placed / unlocked slots) and the "+1 Slot $X" block button, a "N stored" line (unplaced Pets), a scrolling `List` of `RowTemplate` rows (card grey with weld texture, icon or preview, name, size or modifier `Tag`, $/s, red block **Unequip**), **Equip Best** under the panel's bottom-right, and a red ">" `CollapseButton` on its left edge that closes it.
+- One row per placed Pet, best $/s first. Unequip fires the existing `UnequipPet(slot)`; Equip Best and +1 Slot use the same packets as the inventory (a can't-afford slot buy opens the cash pack prompt).
+- First user look (2026-11-12): the title wrapped ("Active" fell to a hidden second line, only its shadow showed), so `Title.TextWrapped` is off and `HeaderText` is 1,-270 wide. Rows show the plain Pet name (still in the modifier's colours) and the tag carries size + weather word ("Big Dusty") so nothing repeats; name, tag and rate columns are 186 px so long names stop before Unequip.

@@ -33,3 +33,6 @@ Take from the reference: the camera angle and the bar's size and place only. The
 See [[Chop Timing Uses Client Time]], [[Tutorial]], [[Slice Test]].
 
 - 2026-11-05 ([[Playtest Feedback Nov 5]]): every enabled BillboardGui in Workspace and PlayerGui is disabled for the round (`Utils/HideBillboards`, `ChopConfig.HidesBillboards`) and restored at the end. The rock `HealthBar` is 0.5 x 0.067 of the screen (UISizeConstraint 300x40 to 960x72) at 8 px from the top, with `HealthText` (Chrome) and `HealthTextShadow` showing "HP / max" (`ChopBar.luau`).
+
+## Colours: red to green (user, 2026-11-11)
+The user found the old red-to-purple ramp confusing (green good and red bad is the convention). `ChopStyleConfig` quality colours are now Bad red 255,0,0, Mid orange 255,128,0, Good yellow 255,255,0, Great lime 128,255,0, Perfect pure green 0,255,0, all fully saturated (user: "as saturated as possible"; the first, lighter Perfect green looked weaker than Great); Master and the Perfect and Master result texts keep the rainbow. The same colours tint the rock hit particles (`RockController/Effects`) and paint the [[Block Rounds]] zone. Seen on screen 2026-11-11.

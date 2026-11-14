@@ -11,4 +11,6 @@ Never write player-facing text in all caps. Use "Rebirth", not "REBIRTH"; "Need 
 
 Related: [[UI Text Style]], [[Menu Panel Style]].
 
+**Exception (2026-11-11):** world boss names on the boss bar are all caps ("BIG CROC"), like the user's reference. The user picked it over "Big Croc". Only the bar title; notices still say "Big Croc". See [[Boss Bar Research]].
+
 **Exception (2026-10-05):** in the Rebirth panel's "Rebirth only consumes CASH", the word CASH is all caps on purpose, in the HUD money style (`Green` text style, italic, black shadow copy). The user asked for this one word only, not for every mention of cash.

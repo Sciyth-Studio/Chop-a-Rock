@@ -15,6 +15,8 @@ Set up 2026-10-08. The user made a Roblox Open Cloud API key for uploading asset
 
 Uploading through this key with `creationContext.creator.groupId = "10962733"` should put new images and meshes under the group, avoiding the personal-account problem in [[Asset Ownership]] (untested).
 
+**Asset Delivery, 2026-11-11:** the user added `legacy-asset:manage`, so the key can download asset files (`GET apis.roblox.com/asset-delivery-api/v1/assetId/<id>` returns a `location` URL; audio arrives gzip-compressed). Used for the [[SFX Audit]].
+
 Related: [[Asset Ownership]], [[Chop a Rock]]
 
 **FBX models, 2026-10-10:** Claude imports 3D models itself; the user doesn't need to use the 3D Importer. Upload each FBX with `assetType` **Model** (file part `type=model/fbx`) under group 10962733. The script `.claude/skills/rock-model/scripts/upload_model.ps1 -Path <fbx> -Name <name>` prints the asset id. Then in Edit, `InsertService:LoadAsset(id)` via the Studio MCP returns a Model holding one MeshPart per Blender object, named after the object, with correct size and orientation (Blender -Y is Roblox -Z). All 12 zone rocks went in this way. The upload for display name "ReefBoulder" failed every time with `INTERNAL` / "Unknown Error", while the same file uploaded fine as "Reef Boulder". If an upload keeps failing, give it a display name with spaces.
@@ -39,4 +41,4 @@ Related: [[Asset Ownership]], [[Chop a Rock]]
 
 **Animations, 2026-10-27:** `assetType` **Animation** uploads work with an `.rbxmx` KeyframeSequence sent as `type=model/x-rbxm`. They can't be archived. See [[Animation Uploads]].
 
-**Retry Fight, 2026-11-06:** created the same way, id 3729033078, 9 R$ (`MonetizationConfig.RetryFight`). Clover luck icon uploaded as group `Image` 90789156311854 from `assets/Icons/Luck/Clover.png` (converted to RGBA with System.Drawing in pwsh, since Python is not installed); state was Reviewing right after upload.
+**Retry Fight, 2026-11-06:** created the same way, id 3729033078, 9 R$ (`MonetizationConfig.RetryFight`). Clover luck icon uploaded as group `Image` 90789156311854 from `assets/Icons/Luck/Clover.png` (converted to RGBA with System.Drawing in pwsh, before Python was installed; since 2026-11-11 `py -3` runs Python 3.14 with pillow, numpy, scipy and requests); state was Reviewing right after upload.

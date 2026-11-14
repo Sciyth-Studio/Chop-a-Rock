@@ -52,3 +52,6 @@ Plan: `WeatherSystemPlan.md` (approved 2026-10-14, W1-W12). Rules: Master Game P
 Playtest: the clock reported no event with the next in 566 s (time mod 1800 = 1234). "Next in 10s" sent the warning, then the start notice; the pill counted down; the Atmosphere and tint tweened; the camera rig spawned; all 50 rocks got emitters. Give Modifier Zappy on Pointy: notice "$80/s → $240/s", pedestal `Rate` 240, title "Zappy Pointy" in yellow, two emitters on the Pet. Eclipse and Thunderstorm ran with no errors. Not checked: a real catch roll, a hatch with a modifier, the boosted chop payout, lightning and catch effects on screen.
 
 Related: [[Pedestals]], [[Golden Rocks]], [[Diamond Rock]], [[Admin Panel]], [[Simple Names No Material Clash]]
+
+## No weather in the Boss Arena (2026-11-11)
+User: "weather should prob not affect the boss arena's visuals". `WeatherController` treats standing over `BossArena.Floor` (its XZ footprint, up to `ClearAreaHeight` 300 above) like the tutorial: the look tweens back to normal and the sky, camera particles, sound and lightning stop. Checked every 0.5 s (`ClearAreaCheckSeconds`); walking out brings the weather back without the start sound. Config in `WeatherConfig.ClearArea*`.

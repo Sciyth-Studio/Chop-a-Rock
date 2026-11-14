@@ -24,6 +24,8 @@ Built 2026-10-29, not playtested yet. The idea came from the user talking to a 6
 ## Left click
 - While the strike is bound, `ChopController` also listens to `UserInputService.InputBegan` for `MouseButton1`. It ignores clicks the game already handled (`gameProcessedEvent`, e.g. buttons). E, Space, R2 and the touch Chop button still work.
 - The tutorial's keyboard prompt now says "Click" instead of "Press E" ("Click here", "Now! Click!", "Click in glow!").
+- 2026-11-11, user: click is the default for every PC interaction. `PromptController` shows "Click" on the prompt bubble for keyboard and mouse, and a left click on the object a shown prompt sits on (its Model, or its part) triggers it; holding the click fills hold prompts. E still works as a backup. Tutorial prompt lines say "Click to ..." / "Click and hold to ...". Not playtested.
+- 2026-11-11, user: the prompt key shows an icon instead of text: the user's cursor with three click rays (middle ray along the cursor's axis, about 112° up-left, not 135°) for mouse and keyboard, the tapping hand for touch, and text for gamepad. The icons are `IconConfig.Click` / `Tap`, and the thick-outline versions (baked at 0.05, because at 0.07 the rays merge into one blob) are in `OutlinedIconConfig.Small`. They show in the `KeyIcon` ImageLabel (48px) in the `ChopPrompt` template's `Button`. Sources are in `assets/Icons/OutlineSources`.
 
 ## First Master Chop
 - `RockService/FirstMaster.luau`. When the tutorial finishes (`TutorialService.Finished`), `Hints.FirstMaster` is set to 1 (armed) and a random 120-240 s timer starts. When a player who is still armed loads in, the timer restarts. Players who finished the tutorial before this update never get it.

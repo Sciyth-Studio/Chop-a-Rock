@@ -8,9 +8,13 @@ updated: 2026-10-29
 Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off (deletes them) when they're done and verified in code, and adds new ones as the user approves work. Only list things that matter now; see [[Only Surface Blocking Opens]]. Pre-launch work from Hud's Guide lives in [[Launch Checklist]]; move an item here once the user picks it up.
 
 ## Next
+- [ ] World bosses (plan approved 2026-11-11, `WorldBossPlan.md` section 8): models, rigs and 27 clips done ([[Boss Sheets]]). Block rounds built and playtested by Claude 2026-11-11 ([[Block Rounds]]; admin "Toggle Block Rounds", save the place for the ChopBar UI). Boss fight service built and playtested on the Big Croc by Claude 2026-11-11 ([[World Bosses]]; admin "Spawn Boss"; GateSpot marker added in Studio). Boss bar and hearts built 2026-11-11 ([[Boss Bar Research]]; save the place for `BossBar` and `ChopBar.Bar.Hearts`). Slam (was Stomp Wave), Big Attacks, signature moves (all three bosses), wide Block camera and block shield built 2026-11-11, not yet played ([[World Bosses]]; admin `bossslam`, `bossbig`, `bossmove`; Studio templates in `Assets.VFX.Boss` and `ChopBar.Bar`). Boss clock by UTC day, arena themes, boss sounds, music and Diamond Rock bar done 2026-11-11. Per-boss Big Attacks built 2026-11-11, not yet played (croc Tail Sweep, yeti Ice Spikes, crab Boulder Rain; [[World Bosses]]). Next: new sounds for them (heavy tail whoosh, ice crack and spike burst, boulder whistle and rock crash), signature-move overlays on the ChopBar, louder boss sounds (all in progress 2026-11-11), Yeti upper weak spots moved to its back legs. 1.5x boss size dropped by the user 2026-11-11; boss Pet and pity deferred. Later: Boss Chest, badges, Index page, analytics. Waiting on the user: Boss Chest reward pool
+- [ ] Boss and arena sounds (2026-11-12): `SFX_Boss_IceSpikes` (base layer 113357911691197 plus `SFX_Ice_Crack1-3` cascade), `SFX_Arena_Grind`, `SFX_Aura_On` uploaded (Reviewing) and wired. Waiting on the user: listen once approved.
+- [ ] Ice Spikes ice field (2026-11-12, [[World Bosses]]): built, not played; save the place (ice sound id, Frost Yeti loop region). Ice spike models done 2026-11-12 (3 variants, user approved; also replace the arena's ice clusters). Save the place (ice sound id, Frost Yeti loop region, `Model_Boss_IceSpike1-3`, new arena `IceCrystal` props). Waiting on the user: playtest `bossbig` on the Frost Yeti.
+- [ ] Zone ambience (approved 2026-11-11, [[Ambience]]): system and all ten zone loops built, all "Reviewing" at upload; save the place for `Assets.Ambience`. Waiting on the user: listen once approved (Bamboo may read as rain)
 - [ ] Base upgrades (2026-11-09, built, not playtested): [[Base Upgrades]]. Waiting on the user: playtest the sign, pen growth and hatch boost, run Balance Model v16 (zone 6-10 Pet income trim applied in PetConfig 2026-11-09). Ideas: a fancier base as an Index reward (user); a red ! upgrade alert over the base sign like the training sign
 - [ ] Rebirth removed 2026-11-09 ([[Rebirth Removed]]). Code passes check.ps1, not playtested. Save the place in Studio (Rebirth screen and the sign's rebirth icon moved to `ServerStorage.UIBackup.RebirthRemoved20261109`). Playtest: strength past 100 with no cap, stand prices on the sign and buying with cash only, chop and pad income at x1, Player List without Rebirths, admin presets (Early Forest, Forest Done, Desert, Late Game), tutorial completion burst, an old save with Rebirths loading cleanly
-- [ ] 20-stand training ladder: modelled and in `TrainingConfig` 2026-11-09 ([[Stand Ladder Models]], [[Rebirth Removed]]); check.ps1 passes, not playtested. Playtest: buy up the stands with the admin cash command and check each swap, split and sign; an old save on Brick/Steel lands on Iron/Gold. In the Balance Model since v15 (`_v15_final.xlsx`, 35 / 51, same as v14). Still to do: stand VFX (Black Diamond sparkles, Dark Matter swirl, per-stand break effects, deferred by the user); remove the unused Brick/Vault/Core/Cosmic templates and registry entries
+- [ ] 20-stand training ladder: modelled and in `TrainingConfig` 2026-11-09 ([[Stand Ladder Models]], [[Rebirth Removed]]); check.ps1 passes, not playtested. Playtest: buy up the stands with the admin cash command and check each swap, split and sign; an old save on Brick/Steel lands on Iron/Gold. In the Balance Model since v15 (`_v15_final.xlsx`, 35 / 51, same as v14). Stand VFX done 2026-11-10 (five break families, Black Diamond sparkles, Dark Matter swirl; [[Stand Ladder Models]]). Old Brick/Vault/Core/Cosmic templates removed from `Assets` and `AssetRegistry` 2026-11-10 (kept in `ServerStorage.TrainingStandsBackup_Before20Ladder`)
 - [ ] Aura prices without rebirth: from the Bamboo Forest on, the zone's own aura takes 5-6 min of income (Golem Ruins fails "nothing to save for" in v14)
 - [ ] After the chop bar branch merges: delete `StarterGui.ChopMeter` and `StarterGui.TutorialChopHint` in Studio; the code now uses `ChopBar` and `TutorialChopBarHint` ([[Chop Minigame]]).
 - [ ] Animal Pets (direction chosen 2026-11-03, not built): all 32 are modelled and exported: Forest to Snow plus the Capybara and King Rex ([[Forest Animal Sheets]], [[Fox Reference]], [[Desert To Snow Animal Sheets]], [[Capybara And King Rex Sheets]]). All 32 are loaded in `ReplicatedStorage.Assets.Models.Pets` with `AssetRegistry` entries (2026-11-03), alongside the rock Pets, which the game still uses. Icons for all 32 are uploaded too ([[Item Icons]]). The config swap and save migration are merged into local `master` (2026-11-04, `AnimalPetsSwapPlan.md`), not pushed. Next: rename the Kingy Robux products if approved and archive the old rock models. The 30 Pets for zones 6-10 are approved, uploaded and loaded in Studio with registry entries (2026-11-04, [[Swamp To Ruins Animal Sheets]]); they still need effects and config. All 62 animals got the `Animal Stud` surface on 2026-11-04, and all 62 icons were re-rendered and uploaded the same day ([[Item Icons]]). The Koi icon still has black marks on its whiskers. See [[Animal Pets]]
@@ -34,10 +38,53 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 - [ ] Eggs come out of rocks (user agreed 2026-11-05): built 2026-11-06 per `NewLoopPlan.md`, passes check.ps1, not playtested, not committed ([[Eggs From Rocks]] has the build status and what is left); next: playtest, Retry Fight product id, Balance Model v14
 - [ ] Pet sizes earn more (user 2026-11-05: goes through the Balance Model first): e.g. Huge x1.5, Colossal x2; today sizes are looks only ([[Pet Sizes]])
 
+- [ ] Playtest notes 2026-11-12 (user's own playtest; bugs and boss tweaks built, the rest open). P1 = broken or blocks the loop, P2 = feel and balance, P3 = polish.
+  - **Bugs** (fixed in code 2026-11-12, check.ps1 passes; waiting on the user's playtest)
+    - Diamond Rock HP bar: the bar worked, but health was sized off the best zone's top rock (25x a new arrival's strength), about 290 hits solo so the bar looked frozen; now sized off the player's own strength like bosses (about 16 Good hits per player share) ([[Diamond Rock]])
+    - Holding an egg now always hides the hotbar: the Toolbar screen stays hidden while an egg is held, whoever opens it ([[Toolbar]])
+    - Player list Strength / Money are StringValues in the game's own short format (up to De); Roblox's list sorts strings by text, so the order may be off ([[Player List]])
+    - Boost rail sits above the 124 px event timers (`EventTimersHeightPixels`, was 64 for the old weather pill) ![[Playtest 2026-11-12 Boost Overlap.png]]
+    - Strength icon pop sfx: never existed in code; added `SFX_Strength_Pop` ("a UI pop", user), played as each muscle icon lands on the HUD (`HudConfig.StrengthPop.PopSound`). Drop-in Sound in `Assets.Sounds.UI`, starts as a copy of the hover tick; swap its SoundId if it's not the right pop
+  - **World bosses** ([[World Bosses]])
+    - Done in code 2026-11-12, not playtested: cash paid on completion (pending pot + win bonus), beaten boss stays down 15 s, Perfect band 0.65x while mad, boss bar 1.25x (see [[World Bosses]])
+    - P1 Finish the boss rewards: potions drop on wins (built, [[Potions]]); Boss Chest (pool settled in `PotionPlan.md` section 8) and Boss Egg (always the boss Pet, ~8%) not built
+    - P1 New Yeti Pet model for the boss reward; replace the Snow zone's current yeti Pet with another animal
+  - **Guardians and eggs**: all five built 2026-11-12, not playtested by the user ([[Zone Enemies]] capped bar + misses heal + 7 hits + no outline; [[Eggs From Rocks]] egg timers wait during fights, named roll-away notice, chop drops the held egg behind you; [[Geode Fall]] 2.5x size, x3-x6 luck shown, furthest zone only)
+    - Knocked-out Guardian (testers: fighting for every egg is annoying): a win knocks it out 60 s + 5 s per Perfect (max 90), eggs in that zone are free meanwhile, Zzz timer and "Free eggs!" label; built, not played ([[Zone Enemies]])
+  - **Base and hatching**
+    - Done 2026-11-13: 12 hatch pads on every base (3x2 per side, 8-stud pads; [[Bases]])
+    - P2 Players pick which base spot an egg goes to
+    - P2 Eggs hatch offline at half speed
+    - P3 VIP plot grass a lighter green than the regular base
+  - **Chop feel**
+    - Done 2026-11-13: aura-coloured slash on every chop, big outlined slash on Perfect/Master ([[Chop Effects]]); not yet seen in a playtest chop
+  - **Progression and economy**
+    - P2 Training shows a progress meter to your next rock unlock
+    - P2 Cash pack gift stops scaling past the Forest ([[Cash Packs]] / [[Free Gift]]; confirm which gift)
+    - P2 Show Pet rarity instead of $/s (prompts, hatch label; [[Interaction Prompts]])
+  - **UI and info**
+    - Done 2026-11-13: hover or tap an event icon for a card with what it is, what it does and when it starts or ends ([[Event Clock]])
+    - Done 2026-11-13: Rocks button is now Launch, always fires your cannon; the walk-in Fire Cannon window is gone ([[Teleport Bar]])
+  - **Settings** ([[Settings]])
+    - P2 Screen shake toggle
+    - Done 2026-11-13: Music and Sounds volume sliders replace master volume + toggles
+  - **Audio**
+    - P2 Croc bite sfx on its basic attack; new Block sfx; try `Rock_Break` for the Boulder Crab hit ([[Boss Sounds]])
+  - **Design change**
+    - Board Slice minigame gets disabled in favour of a bubble pop minigame (user 2026-11-12; supersedes [[Training Minigame Board Slice]]; bubble pop not designed yet)
+
+- [ ] Show the chop-skill payoff with no extra text (approved by the user 2026-11-13, not built; from a Discord tester who said the skill check felt pointless, see [[Playtest Feedback Nov 13]]). Chop quality already raises money and egg luck/odds (`EggDropConfig.SkillByQuality`), but nothing shows it:
+  - Crack glow: each Great/Perfect chop brightens a glow inside the rock that leaks through the cracks; Bad chops leave it dull. The egg comes out wearing that glow on the break (`RockController/Effects`).
+  - Colour carry-through: the egg's landing burst and outline are tinted with your average chop-quality colour, red to green (`ChopStyleConfig`).
+  - Count-up head start: the luck count-up (`ShuffleSeconds` 2) starts from a skill floor instead of x1.00 (mostly Good ~x2.00, mostly Great/Perfect ~x3.50, Master x5.50 = `MasterLuckFloorHundredths`). Start = min(skill floor, final luck), display only, odds unchanged; the egg lands bigger since it grows with luck.
+  - User's calls: no rare-egg flicker in the cracks; no "fights only for special eggs" (the Guardian knockout covers it); no on-screen explainer text.
+  - Still undecided: tap instead of the 0.5 s hold to start a chop (`ChopConfig.PromptHoldSeconds`); skipping the bar on rocks the player has far outgrown.
+
 ## Waiting on the user
+- Potions (2026-11-12): built ([[Potions]]): one-size 10 min potions, Bag button on the hotbar, Pets / Eggs / Potions tabs, boss win drops, admin Give Potion. Waiting on the user: playtest Strength, Hatch and Focus. Not built: Boss Chest + Boss Egg, Strength potion run-out card, analytics. Open: Robux option, which boss a Boss Egg gives (plan section 13)
 - Baked-outline icons in moderation review on 2026-11-09 (blank until approved): small Invite 94684220427373, small Luck 115895841336737, Leave 127249037957040, Paw 105543628272239, Cash5 82087287594287, ServerBadge 101164053200118, Crown 72947446403299. If any is rejected, re-upload. See [[Game Icon Pack]]
-- Playtest the Diamond Colossus in the arena (Ctrl+Shift+D): rise, 12 chop spots at ~52 studs, label above the crystals, shard spin and core pulse, hit and break effects at 100 studs; then propose its own glow, crack-light and hit VFX. See [[Diamond Rock]]
-- Golem timing: does the first Golem win (opens world 2) stay always available, with only repeats on the boss clock? See [[World 1 Plan]]
+- Diamond Colossus VFX first pass built 2026-11-10 (heart halo, hit kick and impact, charge-up and break, beacon cylinder hidden), checked in Edit, not playtested. Waiting on: ray texture uploaded and swapped in (116225784092446); playtest in the arena (Ctrl+Shift+D); save the place. Later beats (arrival, vein haze, shard trails, low health) are in `DiamondColossusVfxPlan.md`. See [[Diamond Rock]]
+- Golem: the plan keeps it out of the boss clock (always awake in Golem Ruins, opens world 2). User 2026-11-11: may re-add a small Golem arena in the Ruins (the old arena past the Ruins was deleted 2026-11-09). See [[World 1 Plan]]
 - Playtest the split clocks, the [[Boss Arena]] Diamond Rock (2x size, effects unchecked) and the event timers
 - Skip Wait prices per zone: all ten are 9 R$ as a draft
 - Zone geodes, Robux side: take "Gift: Auto Open" (3722325313) off sale; drop "Auto Open" from the VIP pass description. See [[Zone Geodes And Enemies]]
@@ -45,6 +92,7 @@ Phases live in `ROADMAP.md`; this is the task-level list. Claude ticks items off
 ## Deferred until the user raises it
 - Weekend Mega boss (user 2026-11-10: defer until the game is released). Then pick a Saturday admin-abuse slot, weekend weighting only, or none; see `WorldBossPlan.md` 3.5 and [[World Boss Research]]
 - Ascended Chop (1 in 1,000)
-- Board Slice minigame polish and later training games (Board Slice saved 2026-10-21; user may improve it later, see [[Training Minigame Board Slice]])
+- Later training games (Board Slice is being disabled for a bubble pop minigame, 2026-11-12; see [[Training Minigame Board Slice]])
 - Pet upgrades (user 2026-10-22: "the idea is good but i think i should save it for an update"; no plan file yet). Compared 2026-10-22: A) Golden fusion, 5 of the same Pet → Golden x3 $/s, Rainbow later; already in the Master Game Plan's Collection section, uses duplicates, Golden Index tab, no hatch-and-sell loop below x5. B) Feed Pets for XP, Lv 1-10, +20% each. C) Cash Upgrade sign per pedestal, Lv 1-5, +50% each, a direct money sink. Claude recommended A. The user wants a Robux shortcut; where it happens (Pets panel or lobby stand) is undecided. Any of them lifts pets from ~15% to ~35% of Snow income at max, so re-tune in the [[Balance Model]] first. When picked up, write `PetUpgradeSystemPlan.md`
 - Admin panel next ideas (not approved; "later", 2026-10-22): target picker so commands act on other players, inspect a player, kick/ban, server announcement, admin action log. See [[Admin Panel]]
+- Boss move overlays on the chop bar: built 2026-11-11, needs a playtest (`bossmove`). The `ChompBurst` and `Cracks` prompts in `assets/Icons/BossOverlays/Prompts.md` haven't been run yet (see [[Boss Bar Research]])

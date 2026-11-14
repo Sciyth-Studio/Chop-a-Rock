@@ -60,3 +60,11 @@ Built, passes check.ps1, **not playtested** (user: don't test). Not committed.
 - **New Pet popup:** a hotbar-style card (cloned `SlotTemplate`, 150 px) pops up above the hotbar in `Toolbar.PopupRoot` (Studio) for each new Pet once its reveal ends, 2 s each, queued (`ToolbarConfig.Popup*`).
 - **Pad label** follows the user's reference: `EggInfo` has a `TimerRow` (clock icon `IconConfig.Clock` + time) and a `Progress` bar; when ready the clock and bar hide and the text turns Green "Ready!". Pad prompts say "Hatch" and "Skip Timer".
 - 2026-11-06 (user): while holding an egg (not during the tutorial) a red block "DROP" button (`StarterGui.EggDrop`, all caps allowed here) replaces the hotbar. Dropping puts the egg on the ground 4 studs ahead with its luck (`EggDropHeld` packet, `GeodeService:TakeOne`); grabbing a dropped egg gives it back with no fight (`IsFree`). Dropped eggs still roll away after 2 min.
+
+## Round 4 (user, 2026-11-10: eggs from rocks works)
+- The egg now grows while its luck counts up (each new hundredth rescales it, and the other look while it flickers), instead of growing once the count ends (ZoneGeodeController esize; EggDropConfig.GrowSeconds removed).
+- Egg label icons have baked outlines (thick "Small" versions, 	ools/icons/bake_outline.py): clover 117280167424477 (EggDropConfig.LuckIcon; normal-size 79758435140538) and clock 75796501707522, set on Assets.VFX.Pedestal.EggInfo in Studio, mapped in OutlinedIconConfig. Uploaded 2026-11-10; blank until moderation approves them.
+
+## Playtest notes 2026-11-12 (built, not playtested)
+- **Eggs rolling away during fights:** a ground egg's 120 s timer doesn't run out while you're in a Guardian fight; it re-checks every `FightGraceSeconds` (20) until the fight ends. The roll-away notice names the egg ("Your Mushroom Egg rolled away!", `ExpiredFormat`, with its icon), and the egg pushed off the ground by a 5th drop now gets the same notice (it used to vanish silently).
+- **Chopping with an egg in hand:** starting a rock chop drops the held egg on the ground `DropBehindStuds` (6) behind you, as a free egg (no fight to pick it up), instead of putting it back in your bag (`ZoneGeodeService:DropHeld`, called from `RockService` before the session starts).

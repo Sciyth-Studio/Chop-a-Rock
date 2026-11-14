@@ -21,4 +21,14 @@ updated: 2026-10-28
 ## Modelling notes (checked 2026-10-28)
 Strong and consistent with our pipeline (1 unit = 1 stud, FBX Apply Scalings "FBX Unit Scale", 20k tris per mesh). Most useful: `14 .../Exporting and Validating Models for Roblox` (pivot traps, a read-only import audit script), `54 .../Faceted Low-Poly - Flat Normals and Facet Size` (size facets by on-screen pixels, 5 to 12 across a silhouette, no triangles over about 8:1), `54 .../Flat Colour vs Gradient Atlas vs Vertex Colour` (`Color` must be white on vertex-coloured meshes), `45 .../Blender 5 Python Gotchas for Headless Builds`, `45 .../Low-Poly Creature From a Flat Reference Sheet`. Its stud and shading advice (three tones per material, outlines) is generic; our [[Flat Shading On Buildings]] and [[Studs On Models By Default]] win. Section 45 renders are Eevee, not Roblox captures.
 
+## V2 and rigging (checked 2026-11-10)
+V2 is on GitHub: `https://github.com/lihfolk-cy/v2-vault` (1,804 files, folder `LihFolk Vault V2/`). Clone it to the scratchpad to read; same read-only rules. For the world bosses (Croc, Crab, Yeti in `WorldBossPlan.md`) the useful notes are in `08 Animation/02 Rigging and Importing/` (`Rigging in Blender`, `Creature Rig Conventions`) and `08 Animation/05 Systems/Boss Animation and Phases`. What fits this game:
+- Part rigs, not skinned: blocky meshlab pieces joined by Motor6Ds, built in Studio by a script from a list of hinge points. Joint frames are lined up with the body, not taken from the mesh. Name the meshes differently from the joints.
+- `AnimationController` + `Animator` with no Humanoid. The server moves one invisible root box.
+- A clip never applies its top-level pose, so lifts and drops go on the first child (`Body`/`LowerTorso`), never on `Root`.
+- Things that spin (orbiting pieces) are turned in code, not keyed in clips.
+- Every attack gets `Tele` and `Hit` markers at least 0.5 s apart, still checked after a phase speeds the boss up. A half-HP "gets mad" clip takes no damage while it plays, and hazards start after it ends.
+- Big creatures read heavy through how a clip is authored (anticipation, settle), not by playing it below 1x speed.
+- Family skeletons: biped 16 bones (R15 names), quadruped 26 (3-part hind legs), crawler 24 (`L1_1..` legs, keep unused pairs unweighted).
+
 Related: [[Monetization References]], [[Robux Shop Plan Approved]], [[Geode Shop]], [[Analytics]], [[Tutorial]].

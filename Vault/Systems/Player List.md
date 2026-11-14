@@ -11,3 +11,5 @@ Built 2026-10-28, not playtested. Separate from the global in-world [[Leaderboar
 - Columns, labels and order live in `PlayerListConfig.Stats` (first entry is the ranked column).
 - The Rebirths column was removed 2026-11-09 with rebirth ([[Rebirth Removed]]).
 - The intro cutscene hides the PlayerList CoreGui and restores it at the end.
+
+**2026-11-12:** Strength and Money are StringValues written with `NumberFormat.Compact` (up to De, 1e33). Roblox's own number shortening ran out before the game's late values (user). Trade-off: the list sorts strings by text, so ranking by Strength may be off.

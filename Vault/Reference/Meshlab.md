@@ -86,7 +86,13 @@ Swapping a restyle onto placed copies: record each copy's scale as old height / 
 
 Its AO bake darkens vertex colours by up to 25%. Leave it off for buildings ([[Flat Shading On Buildings]]).
 
+- **Import pivot gotcha (2026-11-12, IceSpike):** a model built around a MeshPart from `InsertService:LoadAsset` can get a rotated `PivotOffset` from the import (here -90/0/180), so `PivotTo` lays it on its side even though the MeshPart's own CFrame looks upright. After loading, set the MeshPart's CFrame and then `PivotOffset = CFrame.new(0, -heightAboveGround, 0)` with no rotation, and check with a `PivotTo` placement, not just the part.
+- **Crystals like the Diamond Rock spires:** six-sided loft rings `{-1.5, r}`, `{h*0.7, r}`, `{h, 0.03r}`, plain UVs, one flat colour per crystal (the user dropped white tips: "the blue tips should match the crystal they're attached to"). Base chunks: 5-segment lathe closed at the top (last ring radius 0) with a per-side `radiusFn` bump. A 6-segment lathe without the bumps reads as hex nuts.
+
 Related: [[Keep Decor Simple]], [[Studs On Models By Default]], [[Tintable Mesh Textures]]
 
 ## Base plot
 `tools/meshlab/models/BasePlot.luau` (2026-11-09) is the base plot as code, ported box for box from the Blender `plot_builder.py`, with 8 pen/floor lengths for [[Base Upgrades]]. It's flat, with no bake, and every piece is its own part. Seed 0 exports white meshes, every level suffixed `_L1`-`_L8`; seeds 1-8 preview one level. Asset `87595413069764`, see [[Bases]]. LoadAsset kept the OBJ origin, so the parts landed at plot-local positions with no offset. `render.py` has no top-down view, so a copy with a `high` direction (0.55, 0.9, 1.6) was used for previews. It needs `textures/` next to it.
+
+## Boss Arena props (2026-11-11)
+Eight models from `assets/Arena/LineupA/B.webp`, see [[Boss Arena]]: built big at world size need **no `beginBake`** (the AO bake splits faces into cells, so a 70-stud tower hit 20.7k triangles; without it 1.7k). `render.py` has a `top` view now (direction 0.02, 0.35, 1.0) for flat props like the hand emblem. A crossed-box disc needs about 12 rotated boxes (`ArenaParts` `kit.disc`) or its edge zigzags; four boxes read as a star at 40 studs.
