@@ -4,7 +4,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local Packets = require(ReplicatedStorage.Packets)
-local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -17,7 +16,6 @@ function EggDrop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	ViewportScale.Bind(gui, trove)
 	local player = Players.LocalPlayer
 	local dataController = context.Controllers.DataController
-	local uiController = context.Controllers.UIController
 	local found = gui:FindFirstChild("DropButton", true)
 	local button: GuiButton? = if found and found:IsA("GuiButton") then found else nil
 	if not button then
@@ -25,7 +23,6 @@ function EggDrop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 
 	local isShown = false
-	local hidToolbar = false
 
 	local function isHoldingEgg(): boolean
 		local character = player.Character
@@ -42,16 +39,8 @@ function EggDrop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		isShown = shouldShow
 		if shouldShow then
 			context.Open("EggDrop")
-			if uiController:IsOpen(ToolbarConfig.Screen) then
-				hidToolbar = true
-				context.Close(ToolbarConfig.Screen)
-			end
 		else
 			context.Close("EggDrop")
-			if hidToolbar then
-				hidToolbar = false
-				context.Open(ToolbarConfig.Screen)
-			end
 		end
 	end
 

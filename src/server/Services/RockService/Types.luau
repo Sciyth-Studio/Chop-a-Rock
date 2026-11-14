@@ -44,6 +44,8 @@ export type Session = {
 	MaxHealth: number,
 	Center: number,
 	StartTime: number?,
+	BlockStart: number?,
+	BlockDifficulty: { Speed: number, ZoneScale: number }?,
 	Round: number,
 	SkillSum: number,
 	SkillCount: number,

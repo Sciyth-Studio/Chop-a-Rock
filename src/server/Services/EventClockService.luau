@@ -1,6 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BossConfig = require(ReplicatedStorage.Config.BossConfig)
 local EventClockConfig = require(ReplicatedStorage.Config.EventClockConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -42,11 +43,38 @@ local function roll(events: { EventClockConfig.Event }, exclude: string?): strin
 	return events[1].Key
 end
 
+local function eventsAt(clock: EventClockConfig.Clock, time: number): { EventClockConfig.Event }
+	if clock.Name ~= BossConfig.ClockName then
+		return clock.Events
+	end
+	local today: string? = BossConfig.DayBosses[os.date("!*t", math.floor(time)).wday]
+	if not today then
+		return clock.Events
+	end
+	local others = 0
+	for _, event in clock.Events do
+		if BossConfig.Bosses[event.Key] and event.Key ~= today then
+			others += 1
+		end
+	end
+	local events: { EventClockConfig.Event } = {}
+	for _, event in clock.Events do
+		local weight = event.Weight
+		if event.Key == today then
+			weight = BossConfig.TodayWeight
+		elseif BossConfig.Bosses[event.Key] then
+			weight = BossConfig.OtherBossesWeight / math.max(others, 1)
+		end
+		table.insert(events, { Key = event.Key, Weight = weight })
+	end
+	return events
+end
+
 local function plan(state: State, time: number)
 	local clock = state.Clock
 	local slot = math.floor((time - clock.OffsetSeconds) / clock.PeriodSeconds) + 1
 	state.NextAt = slot * clock.PeriodSeconds + clock.OffsetSeconds
-	state.NextKey = roll(clock.Events, state.LastKey)
+	state.NextKey = roll(eventsAt(clock, state.NextAt), state.LastKey)
 	if state.NextKey == "Weather" then
 		services.WeatherService:Schedule(state.NextAt)
 	end
@@ -63,6 +91,8 @@ local function fire(state: State)
 		isStarted, message = services.GeodeFallService:Spawn(nil)
 	elseif key == "DiamondRock" then
 		isStarted, message = services.DiamondRockService:Spawn(nil)
+	elseif BossConfig.Bosses[key] then
+		isStarted, message = services.BossService:Spawn(nil, key)
 	end
 	print(`[EventClockService] {key}: started={isStarted}, {message}`)
 end

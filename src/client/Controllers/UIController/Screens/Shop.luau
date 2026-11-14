@@ -140,6 +140,7 @@ function Shop.new(context: Types.Context, gui: ScreenGui): Types.Screen
 							local isBought = Packets.BuyAura:Fire(index) == true
 							if isBought then
 								LocalSound.Play("SFX_Money_Gain")
+								LocalSound.Play(AuraConfig.OnSoundKey)
 							end
 							context.Feedback(button, isBought)
 						end)

@@ -46,6 +46,7 @@ local Packets = {
 	DiamondChop = Packet("DiamondChop"):RateLimit(3, 1),
 	DiamondChopped = Packet("DiamondChopped", Packet.NumberU8, Packet.Boolean8),
 	DiamondEnded = Packet("DiamondEnded"),
+	BossChop = Packet("BossChop", Packet.NumberU8):RateLimit(3, 1),
 	GeodeFallTake = Packet("GeodeFallTake", Packet.NumberU16):RateLimit(3, 1),
 	GeodeFallTaken = Packet("GeodeFallTaken", Packet.NumberU16),
 	EnemyReady = Packet("EnemyReady"):RateLimit(2, 1),
@@ -106,10 +107,22 @@ local Packets = {
 	ChopRelease = Packet("ChopRelease", Packet.NumberF32):RateLimit(3, 1),
 	ChopLeave = Packet("ChopLeave"):RateLimit(3, 1),
 	ChopTouch = Packet("ChopTouch", Packet.Boolean8):RateLimit(3, 1),
+	BlockRoundStart = Packet("BlockRoundStart", Packet.NumberF64, Packet.NumberF32, Packet.NumberF32),
+	BlockPress = Packet("BlockPress", Packet.NumberF32):RateLimit(3, 1),
+	BlockResult = Packet("BlockResult", Packet.NumberU8),
+	ChopModifier = Packet(
+		"ChopModifier",
+		Packet.NumberU8,
+		Packet.NumberF32,
+		Packet.NumberF32,
+		Packet.NumberF32,
+		Packet.NumberF32
+	),
+	BossAttackResult = Packet("BossAttackResult", Packet.NumberU8, Packet.Vector3F32),
 	ChopResult = Packet(
 		"ChopResult",
 		Packet.NumberU8,
-		Packet.NumberU32,
+		Packet.NumberF64,
 		Packet.NumberF64,
 		Packet.NumberF64,
 		Packet.NumberF64
@@ -135,8 +148,6 @@ local Packets = {
 	TrainingMinigameScore = Packet("TrainingMinigameScore", Packet.NumberU16, Packet.NumberF64),
 	BuyAura = Packet("BuyAura", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(5, 1),
 	EquipCannon = Packet("EquipCannon", Packet.String):Response(Packet.Boolean8):RateLimit(5, 1),
-	FireCannon = Packet("FireCannon"):Response(Packet.Boolean8):RateLimit(5, 1),
-	CannonWindow = Packet("CannonWindow", Packet.String, Packet.NumberF32),
 	CannonLaunch = Packet(
 		"CannonLaunch",
 		Packet.Instance,
@@ -162,6 +173,7 @@ local Packets = {
 	UnequipPet = Packet("UnequipPet", Packet.NumberU8):Response(Packet.Boolean8):RateLimit(10, 1),
 	EquipBestPets = Packet("EquipBestPets"):Response(Packet.Boolean8):RateLimit(2, 1),
 	BuyPedestalSlot = Packet("BuyPedestalSlot"):Response(Packet.Boolean8):RateLimit(3, 1),
+	DrinkPotion = Packet("DrinkPotion", Packet.String):Response(Packet.Boolean8):RateLimit(3, 1),
 	SellPets = Packet("SellPets", { Packet.String }):Response(Packet.NumberF64):RateLimit(3, 1),
 	ClaimIndex = Packet("ClaimIndex", Packet.String, Packet.String)
 		:Response(Packet.Boolean8)

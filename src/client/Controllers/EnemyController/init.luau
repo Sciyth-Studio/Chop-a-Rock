@@ -14,7 +14,9 @@ local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Trove = require(ReplicatedStorage.Packages.Trove)
+local TextStyleConfig = require(ReplicatedStorage.Config.TextStyleConfig)
 local Typography = require(ReplicatedStorage.Utils.Typography)
+local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local ZoneScale = require(ReplicatedStorage.Utils.ZoneScale)
 local Arrows = require(script.Arrows)
 local Audio = require(script.Audio)
@@ -22,6 +24,7 @@ local Effects = require(script.Effects)
 local Hitstop = require(script.Hitstop)
 local Launch = require(script.Launch)
 local Motion = require(script.Motion)
+local Sleep = require(script.Sleep)
 local Sequence = require(script.Sequence)
 local Wander = require(script.Wander)
 
@@ -38,6 +41,8 @@ export type FightView = {
 }
 
 local enemies: { [string]: Motion.Enemy } = {}
+local titles: { [string]: TextLabel } = {}
+local shownSleep: { [string]: string } = {}
 local folder: Folder? = nil
 local dataController: any = nil
 local uiController: any = nil
@@ -55,7 +60,6 @@ local launchTrove: TroveInstance? = nil
 local stageTrove: TroveInstance? = nil
 local screensTrove: TroveInstance? = nil
 local arrowTrove: TroveInstance? = nil
-local strike: (() -> ())? = nil
 local holdUntil: number? = nil
 local holdEnemy: Motion.Enemy? = nil
 local danger: ColorCorrectionEffect? = nil
@@ -192,6 +196,7 @@ local function addLabel(model: Model, zone: string, height: number)
 		if descendant:IsA("TextLabel") then
 			if descendant.Name == "Title" then
 				descendant.Text = string.format(EnemyConfig.GuardianText, zone)
+				titles[zone] = descendant
 			else
 				descendant.Visible = false
 			end
@@ -251,14 +256,10 @@ local function spawnEnemy(
 		WanderTo = home,
 		WanderAt = os.clock() + math.random() * EnemyConfig.WanderPauseMaxSeconds,
 		FrozenUntil = 0,
+		IsKnockedOut = false,
+		OutLeft = 0,
+		TwitchAt = 0,
 	}
-	local outline = Instance.new("Highlight")
-	outline.Name = EnemyConfig.OutlineName
-	outline.FillTransparency = 1
-	outline.OutlineColor = EnemyConfig.OutlineColor
-	outline.OutlineTransparency = 0
-	outline.DepthMode = Enum.HighlightDepthMode.Occluded
-	outline.Parent = model
 	model:PivotTo(CFrame.lookAt(home, home + EnemyConfig.HomeFacing))
 	model.Parent = folder
 	addLabel(model, zone, size.Y)
@@ -267,7 +268,7 @@ end
 local function onChopResult(quality: number)
 	local current = fight
 	local enemy = if current then enemies[current.Zone] else nil
-	if not enemy then
+	if not current or not enemy then
 		return
 	end
 	if quality < ChopQuality.Good then
@@ -286,6 +287,7 @@ local function onChopResult(quality: number)
 		Motion.Stagger(enemy, now)
 	end
 	Effects.Hit(enemy.Position + Vector3.new(0, enemy.Height / 2, 0))
+	Audio.Guardian(current.Zone, EnemyConfig.GuardianHurtFormat)
 end
 
 local function bindInput()
@@ -328,7 +330,6 @@ local function endStage()
 	if enemy and enemy.State == "Hold" then
 		Motion.Set(enemy, "Return", os.clock())
 	end
-	strike = nil
 	dangerNow = 0
 	if stageTrove then
 		stageTrove:Clean()
@@ -358,7 +359,7 @@ local function startStage(enemy: Motion.Enemy?, startedAt: number)
 	Sequence.Hold(context)
 	Sequence.Camera(context)
 	Sequence.Tint(context)
-	strike = Sequence.Strikes(context)
+	Sequence.Strikes(context)
 end
 
 local function onFightStarted(zone: string, maxHealth: number, startHealth: number, introSeconds: number)
@@ -391,7 +392,7 @@ local function onFightStarted(zone: string, maxHealth: number, startHealth: numb
 		musicTrove:Clean()
 		fightMusic = Audio.StartMusic(musicTrove, musicController)
 	end
-	Audio.Play(EnemyConfig.RoarSoundKey)
+	Audio.Guardian(zone, EnemyConfig.GuardianCallFormat, EnemyConfig.RoarSoundKey)
 	startStage(enemy, now)
 	uiController:Open(EnemyConfig.ScreenName)
 	EnemyController.FightChanged:Fire(fight)
@@ -411,7 +412,6 @@ local function onChopStart(
 		Packets.ChopLeave:Fire()
 		return
 	end
-	strike = nil
 	dangerNow = 0
 	if stageTrove then
 		stageTrove:Clean()
@@ -503,6 +503,42 @@ local function onFled(zone: string)
 	end
 end
 
+local function sleepLeft(wakesAt: number): number
+	local paused = Players.LocalPlayer:GetAttribute(
+		MonetizationConfig.BoostPausedAttributePrefix .. EnemyConfig.FreeEggsPillKey
+	)
+	return if type(paused) == "number" then paused else math.max(0, wakesAt - workspace:GetServerTimeNow())
+end
+
+local function paintTitle(zone: string, enemy: Motion.Enemy, wakesAt: any)
+	local title = titles[zone]
+	if not title then
+		return
+	end
+	local text = string.format(EnemyConfig.GuardianText, zone)
+	local style = title:GetAttribute(TextStyleConfig.AttributeName)
+	if enemy.State == "Out" and type(wakesAt) == "number" then
+		local paused = Players.LocalPlayer:GetAttribute(
+			MonetizationConfig.BoostPausedAttributePrefix .. EnemyConfig.FreeEggsPillKey
+		)
+		local left = if type(paused) == "number"
+			then paused
+			else math.max(0, math.ceil(wakesAt - workspace:GetServerTimeNow()))
+		text = string.format(EnemyConfig.SleepFormat, left // 60, left % 60)
+		style = if left <= EnemyConfig.SleepWarnSeconds
+			then EnemyConfig.SleepWarnStyle
+			else EnemyConfig.SleepStyle
+	end
+	if shownSleep[zone] == text then
+		return
+	end
+	shownSleep[zone] = text
+	title.Text = text
+	if type(style) == "string" then
+		Typography.ApplyTextStyle(title, style)
+	end
+end
+
 local function step(dt: number)
 	stepDanger()
 	local now = os.clock()
@@ -517,6 +553,15 @@ local function step(dt: number)
 		local zoneScale = ZoneScale.Of(zone)
 		local outgrown = EnemyRules.Flees(strengthNumber, zone)
 		local isActive = distance <= EnemyConfig.ActiveStuds * zoneScale
+		local wakesAt = Players.LocalPlayer:GetAttribute(EnemyConfig.KnockedOutAttributePrefix .. zone)
+		enemy.IsKnockedOut = type(wakesAt) == "number"
+		enemy.OutLeft = if type(wakesAt) == "number" then sleepLeft(wakesAt) else 0
+		if enemy.State == "Out" then
+			Sleep.Step(zone, enemy, enemy.OutLeft, now)
+		else
+			Sleep.Stop(zone)
+		end
+		paintTitle(zone, enemy, wakesAt)
 		if (enemy.State == "Home" or enemy.State == "Wander") and not outgrown then
 			if (enemy.Position - enemy.Home).Magnitude > EnemyConfig.WanderLeashStuds * zoneScale then
 				Motion.Set(enemy, "Return", now)
@@ -533,6 +578,10 @@ local function step(dt: number)
 			if run >= EnemyConfig.FleeMinRunStuds * zoneScale then
 				flee(enemy, now)
 			end
+		elseif enemy.State == "Out" and not enemy.IsKnockedOut then
+			Motion.Set(enemy, "Rise", now)
+		elseif enemy.State == "Gone" and enemy.IsKnockedOut then
+			Motion.Set(enemy, "Out", now)
 		elseif enemy.State == "Gone" then
 			local waited = now - enemy.StateAt >= EnemyConfig.DefeatedSeconds
 			local homeDistance = if feet then (feet - enemy.Home).Magnitude else math.huge
@@ -602,7 +651,6 @@ function EnemyController.Destroy(self: any)
 	launchTrove, stageTrove, screensTrove, arrowTrove, musicTrove = nil, nil, nil, nil, nil
 	holdUntil = nil
 	holdEnemy = nil
-	strike = nil
 	if self._trove then
 		self._trove:Destroy()
 		self._trove = nil

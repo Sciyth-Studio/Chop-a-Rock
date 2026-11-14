@@ -14,6 +14,7 @@ export type Fight = {
 	Center: number,
 	RoundStart: number?,
 	Round: number,
+	Perfects: number,
 	IsGentle: boolean,
 	IsOver: boolean,
 	ShownAt: number,

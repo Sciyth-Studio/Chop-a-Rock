@@ -301,7 +301,7 @@ local GeodeConfig: GeodeSettings = {
 	},
 	HatchPromptRangeStuds = 8,
 	HatchPromptHoldSeconds = 0,
-	HatchPadCount = 8,
+	HatchPadCount = 12,
 	HatchPadPrefix = "BasePlot_Pad",
 	HatchPadTag = "HatchPad",
 	HatchSpotName = "HatchSpot",

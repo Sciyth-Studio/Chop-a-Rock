@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AdminConfig = require(ReplicatedStorage.Config.AdminConfig)
 local AuraConfig = require(ReplicatedStorage.Config.AuraConfig)
+local BossConfig = require(ReplicatedStorage.Config.BossConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local GeodeFallConfig = require(ReplicatedStorage.Config.GeodeFallConfig)
@@ -288,6 +289,20 @@ local Commands: { [string]: Types.Handler } = {
 		context.Services.BoostService:ClearServer()
 		notify(context, player, "all boosts cleared")
 	end,
+	GivePotion = function(context: Types.Context, player: Player, argument: string)
+		local potionService = context.Services.PotionService
+		if argument == "Random" then
+			for _ = 1, 3 do
+				potionService:GrantRandom(player, 1)
+			end
+		elseif not potionService:Grant(player, argument, 3) then
+			notify(context, player, "choose a potion")
+		end
+	end,
+	ClearPotions = function(context: Types.Context, player: Player, _argument: string)
+		context.Services.PotionService:Clear(player)
+		notify(context, player, "potions cleared")
+	end,
 	SetTrainingTier = function(context: Types.Context, player: Player, argument: string)
 		local tier = number(context, player, argument, 1, #TrainingConfig.Stands)
 		if tier and context.Services.TrainingService:SetTier(player, tier) then
@@ -391,6 +406,59 @@ local Commands: { [string]: Types.Handler } = {
 			notify(context, player, `Diamond Rock ends in {seconds}s`)
 		else
 			notify(context, player, "no Diamond Rock out")
+		end
+	end,
+	SpawnBoss = function(context: Types.Context, player: Player, argument: string)
+		local _spawned, message = context.Services.BossService:Spawn(player, argument)
+		notify(context, player, message)
+	end,
+	BossWake = function(context: Types.Context, player: Player, _argument: string)
+		notify(
+			context,
+			player,
+			if context.Services.BossService:WakeNow() then "boss awake" else "no sleeping boss"
+		)
+	end,
+	BossDamage = function(context: Types.Context, player: Player, _argument: string)
+		notify(
+			context,
+			player,
+			if context.Services.BossService:DamageShare(0.25) then "boss -25%" else "no boss to hit"
+		)
+	end,
+	BossSlam = function(context: Types.Context, player: Player, _argument: string)
+		notify(
+			context,
+			player,
+			if context.Services.BossService:ForceAttack(BossConfig.Attacks.Slam)
+				then "boss slam"
+				else "no fighting boss"
+		)
+	end,
+	BossBigAttack = function(context: Types.Context, player: Player, _argument: string)
+		notify(
+			context,
+			player,
+			if context.Services.BossService:ForceAttack(BossConfig.Attacks.Big)
+				then "boss big attack"
+				else "no fighting boss"
+		)
+	end,
+	BossSignature = function(context: Types.Context, player: Player, _argument: string)
+		notify(
+			context,
+			player,
+			if context.Services.BossService:ForceSignature()
+				then "boss signature move"
+				else "no fighting boss"
+		)
+	end,
+	BossTimeLeft = function(context: Types.Context, player: Player, _argument: string)
+		local seconds = BossConfig.AdminTimeLeftSeconds
+		if context.Services.BossService:SetTimeLeft(seconds) then
+			notify(context, player, `boss leaves in {seconds}s`)
+		else
+			notify(context, player, "no boss fight running")
 		end
 	end,
 	LeaderboardRefresh = function(context: Types.Context, player: Player, _argument: string)
@@ -586,6 +654,8 @@ local Commands: { [string]: Types.Handler } = {
 	CheatOneHit = cheat("OneHit", "one-hit break"),
 	CheatIgnoreStrength = cheat("IgnoreStrength", "ignore strength"),
 	CheatInstantRespawn = cheat("InstantRespawn", "instant respawn"),
+	CheatBlockRounds = cheat("BlockRounds", "Block rounds every 4th round"),
+	CheatBlockRoundsMad = cheat("BlockRoundsMad", "mad Block rounds"),
 	SpawnRock = function(context: Types.Context, player: Player, argument: string)
 		local key = Arguments.Match(argument, sortedKeys(RockConfig.Rocks :: any))
 		if not key then

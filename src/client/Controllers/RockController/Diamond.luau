@@ -4,8 +4,6 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local SoundService = game:GetService("SoundService")
-local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -13,7 +11,6 @@ local DiamondRockConfig = require(ReplicatedStorage.Config.DiamondRockConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
-local Typography = require(ReplicatedStorage.Utils.Typography)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
 local Effects = require(script.Parent.Effects)
@@ -26,6 +23,7 @@ type Active = {
 	Prompt: ProximityPrompt,
 	IsUp: boolean,
 	HasEnded: boolean,
+	Animator: Animator?,
 	Loops: { Sound },
 }
 
@@ -55,7 +53,7 @@ local function playOnce(key: string)
 	if not sound then
 		return
 	end
-	SoundService:PlayLocalSound(sound)
+	LocalSound.PlayInstance(sound)
 	task.delay(5, function()
 		sound:Destroy()
 	end)
@@ -96,73 +94,189 @@ local function playModel(key: string, cframe: CFrame)
 	})
 end
 
-local function baseCFrame(part: BasePart): CFrame
-	return CFrame.new(part.Position - Vector3.new(0, part.Size.Y / 2, 0))
+local function groundCFrame(part: BasePart): CFrame
+	return CFrame.new(part.Position - Vector3.new(0, part.Size.Y / 2 - DiamondRockConfig.SinkStuds, 0))
 end
 
-local function topOffset(part: BasePart): number
-	local top = part.Position.Y + part.Size.Y / 2
-	for _, descendant in part:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			top = math.max(top, descendant.Position.Y + descendant.Size.Y / 2)
-		end
-	end
-	return top - part.Position.Y
-end
-
-local function animateParts(trove: TroveInstance, part: BasePart)
-	local spin = part:FindFirstChild(DiamondRockConfig.ShardSpinName, true)
-	local core = part:FindFirstChild(DiamondRockConfig.CoreName)
-	local spinWeld: Weld? = if spin and spin:IsA("Weld") then spin else nil
-	local corePart: BasePart? = if core and core:IsA("BasePart") then core else nil
-	local baseC0 = if spinWeld then spinWeld.C0 else CFrame.identity
-	local coreColor = if corePart then corePart.Color else Color3.new(1, 1, 1)
-	local started = os.clock()
-	trove:Connect(RunService.RenderStepped, function()
-		local elapsed = os.clock() - started
-		if spinWeld then
-			spinWeld.C0 = CFrame.Angles(0, elapsed * DiamondRockConfig.ShardSpinRadPerSec, 0) * baseC0
-		end
-		if corePart then
-			local wave = (math.sin(elapsed / DiamondRockConfig.CorePulseSeconds * math.pi * 2) + 1) / 2
-			corePart.Color =
-				coreColor:Lerp(DiamondRockConfig.CoreDimColor, wave * DiamondRockConfig.CorePulseDepth)
-		end
-	end)
-end
+type Animator = {
+	Kick: () -> (),
+	Charge: () -> (),
+}
 
 local function numberAttribute(instance: Instance, name: string): number
 	local value = instance:GetAttribute(name)
 	return if type(value) == "number" then value else 0
 end
 
-local function paint(label: TextLabel, main: Color3, light: Color3, dark: Color3)
-	local gradient = label:FindFirstChildWhichIsA("UIGradient")
-	if gradient then
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, main),
-			ColorSequenceKeypoint.new(0.5, light),
-			ColorSequenceKeypoint.new(1, main),
-		})
+local function childPart(part: BasePart, name: string): BasePart?
+	local found = part:FindFirstChild(name)
+	return if found and found:IsA("BasePart") then found else nil
+end
+
+local function attachTemplate(trove: TroveInstance, key: string, target: BasePart?, placed: { Instance })
+	if not target then
+		return
 	end
-	local stroke = label:FindFirstChildWhichIsA("UIStroke")
-	if stroke then
-		stroke.Color = dark
+	local asset = AssetRegistry.get(key)
+	local root = asset:FindFirstChild("Root")
+	if root then
+		for _, child in root:GetChildren() do
+			local instance: Instance = child
+			if instance.ClassName == "Attachment" or instance.ClassName == "ParticleEmitter" then
+				instance.Parent = target
+				trove:Add(instance)
+				table.insert(placed, instance)
+			end
+		end
+	end
+	asset:Destroy()
+end
+
+local function findIn(placed: { Instance }, name: string): { Instance }
+	local found = {}
+	for _, instance in placed do
+		if instance.Name == name then
+			table.insert(found, instance)
+		end
+		for _, descendant in instance:GetDescendants() do
+			if descendant.Name == name then
+				table.insert(found, descendant)
+			end
+		end
+	end
+	return found
+end
+
+local function setEmitters(emitters: { Instance }, enabled: boolean?, rate: number?)
+	for _, instance in emitters do
+		if instance:IsA("ParticleEmitter") then
+			if enabled ~= nil then
+				instance.Enabled = enabled
+			end
+			if rate then
+				instance.Rate = rate
+			end
+		end
 	end
 end
 
-local function findLabel(root: Instance, name: string): TextLabel?
-	local found = root:FindFirstChild(name, true)
-	return if found and found:IsA("TextLabel") then found else nil
+local function animateParts(trove: TroveInstance, part: BasePart): Animator
+	local spin = part:FindFirstChild(DiamondRockConfig.ShardSpinName, true)
+	local spinWeld: Weld? = if spin and spin:IsA("Weld") then spin else nil
+	local corePart = childPart(part, DiamondRockConfig.CoreName)
+	local veinsPart = childPart(part, DiamondRockConfig.VeinsName)
+	local shardPart: BasePart? = if spinWeld and spinWeld.Part1 then spinWeld.Part1 else nil
+	local shardSize = if shardPart then shardPart.Size else Vector3.one
+	local baseC0 = if spinWeld then spinWeld.C0 else CFrame.identity
+	local coreColor = if corePart then corePart.Color else Color3.new(1, 1, 1)
+	local veinColor = if veinsPart then veinsPart.Color else Color3.new(1, 1, 1)
+	local placed: { Instance } = {}
+	attachTemplate(trove, DiamondRockConfig.HeartKey, corePart, placed)
+	attachTemplate(trove, DiamondRockConfig.VeinsKey, veinsPart, placed)
+	attachTemplate(
+		trove,
+		DiamondRockConfig.CrumbleKey,
+		childPart(part, DiamondRockConfig.CrystalsName),
+		placed
+	)
+	attachTemplate(trove, DiamondRockConfig.ShardTrailsKey, shardPart, placed)
+	local lightFound = findIn(placed, DiamondRockConfig.HeartLightName)[1]
+	local light: PointLight? = if lightFound and lightFound:IsA("PointLight") then lightFound else nil
+	local haze = findIn(placed, DiamondRockConfig.HazeName)
+	local firstHaze = haze[1]
+	local hazeRate = if firstHaze and firstHaze:IsA("ParticleEmitter") then firstHaze.Rate else 0
+	local crumble = findIn(placed, DiamondRockConfig.CrumbleName)
+	local lastTime = os.clock()
+	local angle = 0
+	local phase = 0
+	local isLow = false
+	local kickedAt = -math.huge
+	local chargedAt: number? = nil
+	trove:Connect(RunService.RenderStepped, function()
+		local now = os.clock()
+		local dt = now - lastTime
+		lastTime = now
+		local maxHealth = numberAttribute(part, DiamondRockConfig.MaxHealthAttribute)
+		local low = maxHealth > 0
+			and numberAttribute(part, DiamondRockConfig.HealthAttribute) / maxHealth
+				< DiamondRockConfig.LowHealthRatio
+		if low ~= isLow and not chargedAt then
+			isLow = low
+			setEmitters(crumble, low)
+			setEmitters(
+				haze,
+				nil,
+				if low then hazeRate * DiamondRockConfig.LowHazeRateMultiplier else hazeRate
+			)
+			if veinsPart and not low then
+				veinsPart.Color = veinColor
+			end
+		end
+		local sinceKick = now - kickedAt
+		local boost = 1
+			+ (DiamondRockConfig.KickSpinMultiplier - 1)
+				* math.clamp(1 - sinceKick / DiamondRockConfig.KickSeconds, 0, 1)
+		local charge = if chargedAt
+			then math.clamp((now - chargedAt) / DiamondRockConfig.ChargeSeconds, 0, 1)
+			else 0
+		angle += dt * DiamondRockConfig.ShardSpinRadPerSec * (boost + charge * DiamondRockConfig.KickSpinMultiplier * 2)
+		if spinWeld then
+			spinWeld.C0 = CFrame.Angles(0, angle, 0) * baseC0
+		end
+		if shardPart and chargedAt then
+			shardPart.Size = shardSize * (1 - charge * (1 - DiamondRockConfig.ChargeShardScale))
+		end
+		phase += dt / (if isLow then DiamondRockConfig.LowPulseSeconds else DiamondRockConfig.CorePulseSeconds)
+		local wave = (math.sin(phase * math.pi * 2) + 1) / 2
+		local flash = math.max(charge, math.clamp(1 - sinceKick / DiamondRockConfig.FlashSeconds, 0, 1))
+		if corePart then
+			corePart.Color = coreColor
+				:Lerp(DiamondRockConfig.CoreDimColor, wave * DiamondRockConfig.CorePulseDepth)
+				:Lerp(DiamondRockConfig.FlashColor, flash)
+		end
+		if veinsPart and isLow then
+			local flicker =
+				math.clamp(math.noise(now * DiamondRockConfig.VeinFlickerSpeed, 0.5) * 2 + 0.3, 0, 1)
+			veinsPart.Color =
+				veinColor:Lerp(DiamondRockConfig.VeinDimColor, flicker * DiamondRockConfig.VeinFlickerDepth)
+		end
+		if light then
+			light.Brightness = DiamondRockConfig.HeartLightMin
+				+ (DiamondRockConfig.HeartLightMax - DiamondRockConfig.HeartLightMin)
+					* math.max(1 - wave, flash)
+		end
+	end)
+	return {
+		Kick = function()
+			kickedAt = os.clock()
+		end,
+		Charge = function()
+			chargedAt = os.clock()
+			setEmitters(crumble, false)
+			trove:Add(task.delay(DiamondRockConfig.ChargeSeconds, function()
+				for _, instance in placed do
+					instance:Destroy()
+				end
+				light = nil
+			end))
+		end,
+	}
 end
 
-local function setText(main: TextLabel?, shadow: TextLabel?, text: string)
-	if main then
-		main.Text = text
-	end
-	if shadow then
-		shadow.Text = text
-	end
+local function hitCFrame(part: BasePart): CFrame
+	local camera = workspace.CurrentCamera
+	local core = part:FindFirstChild(DiamondRockConfig.CoreName)
+	local center = if core and core:IsA("BasePart") then core.Position else part.Position
+	local from = if camera then camera.CFrame.Position else center + Vector3.zAxis * 100
+	local aim = Vector3.new(center.X, math.min(from.Y, center.Y), center.Z)
+	local toward = aim - from
+	local direction = if toward.Magnitude > 1e-3 then toward.Unit else -Vector3.zAxis
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { part }
+	local result = workspace:Raycast(from, direction * DiamondRockConfig.HitRayStuds, params)
+	local point = if result then result.Position else aim - direction * part.Size.X / 2
+	return CFrame.lookAt(point, point - direction)
 end
 
 local function makeBeacon(trove: TroveInstance, target: CFrame): BasePart
@@ -191,7 +305,12 @@ end
 
 local function addGlow(trove: TroveInstance, part: BasePart, beacon: BasePart, target: CFrame)
 	local glow = AssetRegistry.get(DiamondRockConfig.GlowKey)
-	local base = target.Position - Vector3.new(0, part.Size.Y / 2 - DiamondRockConfig.GlowBaseLiftStuds, 0)
+	local base = target.Position
+		- Vector3.new(
+			0,
+			part.Size.Y / 2 - DiamondRockConfig.SinkStuds - DiamondRockConfig.GlowBaseLiftStuds,
+			0
+		)
 	for _, child in glow:GetChildren() do
 		if child:IsA("ParticleEmitter") then
 			child.Parent = if child.Name == "Column" then beacon else part
@@ -206,83 +325,22 @@ local function addGlow(trove: TroveInstance, part: BasePart, beacon: BasePart, t
 	glow:Destroy()
 end
 
-local function makeLabel(trove: TroveInstance, part: BasePart, isEnded: () -> boolean)
-	local asset = AssetRegistry.get(DiamondRockConfig.LabelKey)
-	if not asset:IsA("BillboardGui") then
-		asset:Destroy()
-		return
-	end
-	local nameLabel = findLabel(asset, "NameLabel")
-	local nameShadow = findLabel(asset, "NameLabelShadow")
-	local timeLabel = findLabel(asset, "TimeLabel")
-	local timeShadow = findLabel(asset, "TimeLabelShadow")
-	local fillInstance = asset:FindFirstChild("Fill", true)
-	local fill: GuiObject? = if fillInstance and fillInstance:IsA("GuiObject") then fillInstance else nil
-	local scale = if timeLabel then timeLabel:FindFirstChildWhichIsA("UIScale") else nil
-	Typography.Apply(asset)
-	asset.Adornee = part
-	asset.MaxDistance = DiamondRockConfig.LabelMaxDistance
-	asset.StudsOffsetWorldSpace = Vector3.new(0, topOffset(part) + DiamondRockConfig.LabelHeightAboveRock, 0)
-	setText(nameLabel, nameShadow, DiamondRockConfig.DisplayName)
-	if nameLabel then
-		paint(nameLabel, DiamondRockConfig.TextMain, DiamondRockConfig.TextLight, DiamondRockConfig.TextDark)
-	end
-	if timeLabel then
-		paint(timeLabel, DiamondRockConfig.TextMain, DiamondRockConfig.TextLight, DiamondRockConfig.TextDark)
-	end
-	asset.Parent = part
-	trove:Add(asset)
-
+local function tickWarnings(trove: TroveInstance, part: BasePart, isEnded: () -> boolean)
 	local shown = -1
-	local isWarning = false
 	trove:Connect(RunService.Heartbeat, function()
-		local maxHealth = numberAttribute(part, DiamondRockConfig.MaxHealthAttribute)
-		if fill and maxHealth > 0 then
-			local ratio =
-				math.clamp(numberAttribute(part, DiamondRockConfig.HealthAttribute) / maxHealth, 0, 1)
-			fill.Size = UDim2.fromScale(ratio, 1)
+		if isEnded() then
+			return
 		end
-		local remaining = if isEnded()
-			then 0
-			else math.max(
-				0,
-				math.ceil(
-					numberAttribute(part, DiamondRockConfig.EndsAtAttribute) - workspace:GetServerTimeNow()
-				)
-			)
+		local remaining = math.max(
+			0,
+			math.ceil(numberAttribute(part, DiamondRockConfig.EndsAtAttribute) - workspace:GetServerTimeNow())
+		)
 		if remaining == shown then
 			return
 		end
 		shown = remaining
-		setText(timeLabel, timeShadow, string.format("%d:%02d", remaining // 60, remaining % 60))
 		if remaining > 0 and remaining <= DiamondRockConfig.WarningSeconds then
 			playOnce(DiamondRockConfig.TickSoundKey)
-		end
-		if remaining > DiamondRockConfig.WarningSeconds or remaining <= 0 or not timeLabel then
-			return
-		end
-		if not isWarning then
-			isWarning = true
-			paint(
-				timeLabel,
-				DiamondRockConfig.WarningMain,
-				DiamondRockConfig.WarningLight,
-				DiamondRockConfig.WarningDark
-			)
-		end
-		if scale then
-			scale.Scale = DiamondRockConfig.PulseScale
-			TweenService
-				:Create(
-					scale,
-					TweenInfo.new(
-						DiamondRockConfig.PulseSeconds,
-						Enum.EasingStyle.Quad,
-						Enum.EasingDirection.Out
-					),
-					{ Scale = 1 }
-				)
-				:Play()
 		end
 	end)
 end
@@ -368,6 +426,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			IsUp = false,
 			HasEnded = false,
 			Loops = {},
+			Animator = nil,
 		}
 		active = state
 		diamondTrove:Connect(prompt.Triggered, function()
@@ -376,7 +435,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			end
 		end)
 
-		animateParts(diamondTrove, part)
+		state.Animator = animateParts(diamondTrove, part)
 		local beacon = makeBeacon(diamondTrove, target)
 		addGlow(diamondTrove, part, beacon, target)
 		startLoop(diamondTrove, state.Loops, DiamondRockConfig.BeaconSoundKey, beacon)
@@ -385,7 +444,7 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 				startLoop(diamondTrove, state.Loops, DiamondRockConfig.ShimmerSoundKey, part)
 			end
 		end
-		makeLabel(diamondTrove, part, function(): boolean
+		tickWarnings(diamondTrove, part, function(): boolean
 			return state.HasEnded
 		end)
 
@@ -399,13 +458,14 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 		end
 		part.CFrame = target - Vector3.new(0, part.Size.Y + 1, 0)
 		LocalSound.Play(DiamondRockConfig.AppearSoundKey)
-		playModel(DiamondRockConfig.RingKey, CFrame.new(target.Position - Vector3.new(0, part.Size.Y / 2, 0)))
+		playModel(DiamondRockConfig.RingKey, groundCFrame(part) + (target.Position - part.Position))
 		diamondTrove:Add(task.delay(DiamondRockConfig.ArrivalDelaySeconds, function()
 			if active ~= state or not part.Parent then
 				return
 			end
 			shakeCamera(target.Position)
 			Effects.Rise(part, target, function()
+				shakeCamera(target.Position)
 				state.IsUp = true
 				refreshPrompt()
 				startShimmer()
@@ -423,18 +483,38 @@ function Diamond.Start(trove: TroveInstance, chopController: any)
 			Effects.Crack(part)
 			return
 		end
+		local animator = current.Animator
 		local function land()
 			if not part.Parent then
 				return
 			end
-			playModel(DiamondRockConfig.ShardsKey, baseCFrame(part) + Vector3.new(0, part.Size.Y / 2, 0))
 			if isBroken then
-				playOnce(DiamondRockConfig.ShatterSoundKey)
-				playModel(DiamondRockConfig.BurstKey, baseCFrame(part))
-				Effects.Break(part, quality, DiamondRockConfig.BreakCleanupSeconds, nil, true)
+				if animator then
+					animator.Charge()
+				end
+				playModel(DiamondRockConfig.BreakKey, groundCFrame(part))
+				task.delay(DiamondRockConfig.ChargeSeconds, function()
+					if not part.Parent then
+						return
+					end
+					playOnce(DiamondRockConfig.ShatterSoundKey)
+					shakeCamera(part.Position)
+					Effects.Break(part, quality, DiamondRockConfig.BreakCleanupSeconds, nil, true)
+				end)
 				return
 			end
 			LocalSound.Play(DiamondRockConfig.HitSoundKey)
+			if animator then
+				animator.Kick()
+			end
+			local impact = hitCFrame(part)
+			playModel(DiamondRockConfig.HitKey, impact)
+			if quality == ChopQuality.Perfect or quality == ChopQuality.Master then
+				playModel(DiamondRockConfig.BigHitKey, impact)
+			end
+			if quality == ChopQuality.Master then
+				shakeCamera(part.Position)
+			end
 			Effects.Hit(part, quality)
 		end
 		if isBroken then

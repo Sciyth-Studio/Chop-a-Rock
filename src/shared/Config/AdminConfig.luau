@@ -1,12 +1,14 @@
 --!strict
 
 local AuraConfig = require(script.Parent.AuraConfig)
+local BossConfig = require(script.Parent.BossConfig)
 local GeodeConfig = require(script.Parent.GeodeConfig)
 local GeodeOrder = require(script.Parent.Parent.Utils.GeodeOrder)
 local HotStreakConfig = require(script.Parent.HotStreakConfig)
 local IndexConfig = require(script.Parent.IndexConfig)
 local MonetizationConfig = require(script.Parent.MonetizationConfig)
 local PetConfig = require(script.Parent.PetConfig)
+local PotionConfig = require(script.Parent.PotionConfig)
 local RarityConfig = require(script.Parent.RarityConfig)
 local RockConfig = require(script.Parent.RockConfig)
 local PetSizeConfig = require(script.Parent.PetSizeConfig)
@@ -133,6 +135,16 @@ end
 local serverBoostChoices: { Choice } = {}
 for _, boost in MonetizationConfig.ServerBoosts do
 	table.insert(serverBoostChoices, { Value = boost.Key, Label = boost.DisplayName })
+end
+
+local potionChoices: { Choice } = { { Value = "Random", Label = "Random" } }
+for _, potion in PotionConfig.Sorted() do
+	table.insert(potionChoices, { Value = potion.Key, Label = potion.DisplayName })
+end
+
+local bossChoices: { Choice } = {}
+for _, key in BossConfig.Order do
+	table.insert(bossChoices, { Value = key, Label = BossConfig.Bosses[key].DisplayName })
 end
 
 local weatherChoices: { Choice } = {}
@@ -546,6 +558,20 @@ local AdminConfig: AdminSettings = {
 			Alias = "respawn",
 		},
 		{
+			Id = "CheatBlockRounds",
+			Label = "Toggle Block Rounds",
+			Tab = "Chop",
+			Kind = "Button",
+			Alias = "block",
+		},
+		{
+			Id = "CheatBlockRoundsMad",
+			Label = "Toggle Mad Block Rounds",
+			Tab = "Chop",
+			Kind = "Button",
+			Alias = "blockmad",
+		},
+		{
 			Id = "SpawnRock",
 			Label = "Spawn Rock",
 			Tab = "Chop",
@@ -619,6 +645,50 @@ local AdminConfig: AdminSettings = {
 			Alias = "diamondend",
 		},
 		{
+			Id = "SpawnBoss",
+			Label = "Spawn Boss",
+			Tab = "Events",
+			Kind = "Choice",
+			Choices = bossChoices,
+			Alias = "boss",
+		},
+		{ Id = "BossWake", Label = "Boss: Wake Now", Tab = "Events", Kind = "Button", Alias = "bosswake" },
+		{
+			Id = "BossDamage",
+			Label = "Boss: -25% Health",
+			Tab = "Events",
+			Kind = "Button",
+			Alias = "bosshit",
+		},
+		{
+			Id = "BossSlam",
+			Label = "Boss: Slam",
+			Tab = "Events",
+			Kind = "Button",
+			Alias = "bossslam",
+		},
+		{
+			Id = "BossBigAttack",
+			Label = "Boss: Big Attack",
+			Tab = "Events",
+			Kind = "Button",
+			Alias = "bossbig",
+		},
+		{
+			Id = "BossSignature",
+			Label = "Boss: Signature Move",
+			Tab = "Events",
+			Kind = "Button",
+			Alias = "bossmove",
+		},
+		{
+			Id = "BossTimeLeft",
+			Label = "Boss: 10s Left",
+			Tab = "Events",
+			Kind = "Button",
+			Alias = "bossend",
+		},
+		{
 			Id = "ForceGolden",
 			Label = "Next Rock: Golden",
 			Tab = "Events",
@@ -686,6 +756,21 @@ local AdminConfig: AdminSettings = {
 			Tab = "Shop",
 			Kind = "Button",
 			Alias = "noboosts",
+		},
+		{
+			Id = "GivePotion",
+			Label = "Give Potion (x3)",
+			Tab = "Shop",
+			Kind = "Choice",
+			Choices = potionChoices,
+			Alias = "potion",
+		},
+		{
+			Id = "ClearPotions",
+			Label = "Clear Potions",
+			Tab = "Shop",
+			Kind = "Button",
+			Alias = "nopotions",
 		},
 		{
 			Id = "GiveStarterEgg",

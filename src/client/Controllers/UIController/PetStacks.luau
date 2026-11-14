@@ -10,6 +10,7 @@ local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PetModifier = require(ReplicatedStorage.PetModifier)
 local PetSize = require(ReplicatedStorage.PetSize)
 local PetsConfig = require(ReplicatedStorage.Config.PetsConfig)
+local PotionConfig = require(ReplicatedStorage.Config.PotionConfig)
 local TextStyleConfig = require(ReplicatedStorage.Config.TextStyleConfig)
 local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
 local Typography = require(ReplicatedStorage.Utils.Typography)
@@ -319,6 +320,47 @@ function PetStacks.Paint(frame: GuiObject, stack: Stack?)
 			then string.format("x%.2f", (stack.BestLuck :: number) / 100)
 			elseif stack.GeodeKey then PetStacks.HatchText(stack.GeodeKey, stack.HatchMultiplier)
 			else `${NumberFormat.Rate(stack.Rate)}/s`
+	end
+end
+
+function PetStacks.PaintPotion(frame: GuiObject, potion: PotionConfig.Potion, count: number)
+	local icon = frame:FindFirstChild("Icon")
+	local preview = frame:FindFirstChild("Preview")
+	if icon and icon:IsA("ImageLabel") then
+		icon.Visible = true
+		icon.Image = potion.Icon
+		icon.ImageColor3 = Color3.new(1, 1, 1)
+	end
+	if preview and preview:IsA("ViewportFrame") then
+		preview.Visible = false
+	end
+	local sizeTag = label(frame, "SizeTag")
+	if sizeTag then
+		sizeTag.Visible = false
+	end
+	local countLabel = label(frame, "Count")
+	if countLabel then
+		countLabel.Visible = count > 1
+		countLabel.Text = tostring(count)
+	end
+	local nameLabel = label(frame, "PetName")
+	if nameLabel then
+		nameLabel.Visible = true
+		nameLabel.Text = potion.DisplayName
+		local styleName = nameLabel:GetAttribute(TextStyleConfig.AttributeName)
+		if type(styleName) == "string" then
+			Typography.ApplyTextStyle(nameLabel, styleName)
+		end
+	end
+	local nameShadow = label(frame, "PetNameShadow")
+	if nameShadow then
+		nameShadow.Visible = true
+		nameShadow.Text = potion.DisplayName
+	end
+	local rateLabel = label(frame, "Rate")
+	if rateLabel then
+		rateLabel.Visible = true
+		rateLabel.Text = potion.Effect
 	end
 end
 

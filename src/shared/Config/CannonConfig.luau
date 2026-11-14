@@ -42,21 +42,6 @@ export type ShopStyle = {
 	EquippedButton: ShopConfig.MeterColors,
 }
 
-export type FireButtonStyle = {
-	ScreenName: string,
-	Colors: ShopConfig.MeterColors,
-	Text: string,
-}
-
-export type TriggerSettings = {
-	FolderName: string,
-	EntryName: string,
-	AreaName: string,
-	CheckSeconds: number,
-	WindowSeconds: number,
-	GraceSeconds: number,
-}
-
 export type CannonSettings = {
 	ScreenName: string,
 	CannonName: string,
@@ -84,8 +69,7 @@ export type CannonSettings = {
 	Effects: CannonEffects,
 	Sounds: CannonSounds,
 	Shop: ShopStyle,
-	FireButton: FireButtonStyle,
-	Trigger: TriggerSettings,
+	UnlockCheckSeconds: number,
 	Cannons: { Cannon },
 }
 
@@ -134,23 +118,7 @@ local CannonConfig: CannonSettings = {
 		EquipButton = ShopConfig.Palette.Orange,
 		EquippedButton = ShopConfig.Palette.Grey,
 	},
-	FireButton = {
-		ScreenName = "CannonFire",
-		Colors = {
-			Edge = Color3.fromRGB(225, 0, 0),
-			Center = Color3.fromRGB(255, 110, 90),
-			Studs = Color3.fromRGB(150, 0, 0),
-		},
-		Text = "Fire Cannon",
-	},
-	Trigger = {
-		FolderName = "CannonTrigger",
-		EntryName = "Entry",
-		AreaName = "Area",
-		CheckSeconds = 0.2,
-		WindowSeconds = 5,
-		GraceSeconds = 0.5,
-	},
+	UnlockCheckSeconds = 0.5,
 	Cannons = {
 		{
 			Key = "Desert",

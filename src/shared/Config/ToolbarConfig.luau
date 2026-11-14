@@ -10,6 +10,7 @@ export type ToolbarSettings = {
 	PopupOutSeconds: number,
 	SlotKeys: { Enum.KeyCode },
 	PanelKey: Enum.KeyCode,
+	BagButtonName: string,
 	IdleStroke: { Color: Color3, Thickness: number },
 	HeldStroke: { Color: Color3, Thickness: number },
 	CountTextStyle: string,
@@ -35,6 +36,7 @@ export type ToolbarSettings = {
 local ToolbarConfig: ToolbarSettings = {
 	Screen = "Toolbar",
 	PanelScreen = "Pets",
+	BagButtonName = "BagButton",
 	SlotCount = 7,
 	PopupSizePixels = 150,
 	PopupInSeconds = 0.35,

@@ -35,25 +35,25 @@ local ChopStyleConfig: ChopStyleSettings = {
 		[ChopQuality.Mid] = {
 			Name = "Mid",
 			DisplayText = "Mid..",
-			Color = Color3.fromRGB(255, 140, 0),
+			Color = Color3.fromRGB(255, 128, 0),
 			IsRainbow = false,
 		},
 		[ChopQuality.Good] = {
 			Name = "Good",
 			DisplayText = "Good!",
-			Color = Color3.fromRGB(0, 255, 0),
+			Color = Color3.fromRGB(255, 255, 0),
 			IsRainbow = false,
 		},
 		[ChopQuality.Great] = {
 			Name = "Great",
 			DisplayText = "Great!",
-			Color = Color3.fromRGB(0, 120, 255),
+			Color = Color3.fromRGB(128, 255, 0),
 			IsRainbow = false,
 		},
 		[ChopQuality.Perfect] = {
 			Name = "Perfect",
 			DisplayText = "Perfect!",
-			Color = Color3.fromRGB(170, 0, 255),
+			Color = Color3.fromRGB(0, 255, 0),
 			IsRainbow = true,
 		},
 		[ChopQuality.Master] = {

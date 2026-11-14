@@ -2,6 +2,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local ChopZones = require(ReplicatedStorage.ChopZones)
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
 local Types = require(script.Parent.Types)
@@ -13,6 +14,7 @@ function Fight.New(
 	anchor: Vector3,
 	now: number,
 	strength: number,
+	isTouch: boolean,
 	isGentle: boolean,
 	onResult: (result: Types.Result) -> ()
 ): Types.Fight
@@ -26,10 +28,15 @@ function Fight.New(
 		Health = maxHealth,
 		StartsAt = startsAt,
 		Deadline = if isGentle then math.huge else startsAt + EnemyConfig.FightSeconds,
-		StrengthRatio = strength / math.max(EnemyRules.WeakestRock(zone), 1),
+		StrengthRatio = ChopZones.CappedRatio(
+			strength / math.max(EnemyRules.WeakestRock(zone), 1),
+			isTouch,
+			EnemyConfig.MaxPerfectShare
+		),
 		Center = 0.5,
 		RoundStart = nil,
 		Round = 0,
+		Perfects = 0,
 		IsGentle = isGentle,
 		IsOver = false,
 		ShownAt = 0,
@@ -53,6 +60,10 @@ function Fight.Quality(fight: Types.Fight, quality: number): number
 end
 
 function Fight.Hit(fight: Types.Fight, quality: number): (number, boolean)
+	if not fight.IsGentle and quality < ChopQuality.Good then
+		fight.Health = math.min(fight.Health + EnemyConfig.MissHeal, fight.MaxHealth)
+		return 0, false
+	end
 	local damage = EnemyConfig.HitsByQuality[quality] or 0
 	if quality == ChopQuality.Master then
 		damage = fight.Health

@@ -8,6 +8,7 @@ local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
 local PetAura = require(ServerScriptService.Utils.PetAura)
 local PetSize = require(ReplicatedStorage.PetSize)
+local PromptStat = require(ReplicatedStorage.Utils.PromptStat)
 local PetSizeConfig = require(ReplicatedStorage.Config.PetSizeConfig)
 local PetMotionConfig = require(ReplicatedStorage.Config.PetMotionConfig)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
@@ -177,8 +178,12 @@ function Display.RenderPen(
 		if view and current then
 			current:SetAttribute("OwnerUserId", owner.UserId)
 			local pickUp = current:FindFirstChild("PickUpPrompt", true)
-			if pickUp then
+			if pickUp and pickUp:IsA("ProximityPrompt") then
 				pickUp:SetAttribute("OwnerUserId", owner.UserId)
+				local pet = PetConfig.Pets[view.PetKey]
+				pickUp.ObjectText = if pet
+					then PromptStat.Pet(pet.DisplayName, view.Income or 0, view.Size)
+					else ""
 			end
 			current:SetAttribute("Income", view.Income)
 			setModifier(current, view.Modifier, true)

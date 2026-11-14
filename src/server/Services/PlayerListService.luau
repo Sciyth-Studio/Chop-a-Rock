@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local PlayerListConfig = require(ReplicatedStorage.Config.PlayerListConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -25,10 +26,10 @@ local function refresh(player: Player)
 	end
 	for _, stat in PlayerListConfig.Stats do
 		local value = folder:FindFirstChild(stat.Name)
-		if value and value:IsA("NumberValue") then
-			local amount = amountOf((data :: any)[stat.Field])
-			if value.Value ~= amount then
-				value.Value = amount
+		if value and value:IsA("StringValue") then
+			local text = NumberFormat.Compact(amountOf((data :: any)[stat.Field]))
+			if value.Value ~= text then
+				value.Value = text
 			end
 		end
 	end
@@ -41,7 +42,7 @@ local function add(player: Player)
 	local folder = Instance.new("Folder")
 	folder.Name = PlayerListConfig.FolderName
 	for _, stat in PlayerListConfig.Stats do
-		local value = Instance.new("NumberValue")
+		local value = Instance.new("StringValue")
 		value.Name = stat.Name
 		value.Parent = folder
 	end

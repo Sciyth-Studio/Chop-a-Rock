@@ -138,7 +138,8 @@ end
 
 function PassService.GetMultiplier(_self: any, player: Player, key: string): number
 	local passBonus = if owns(player, key) then MonetizationConfig.PassMultiplierBonus[key] or 0 else 0
-	return 1 + passBonus + services.BoostService:GetBonus(player, key)
+	local potionBonus = if key == "Strength" then services.PotionService:StrengthBonus(player) else 0
+	return 1 + passBonus + services.BoostService:GetBonus(player, key) + potionBonus
 end
 
 function PassService.ApplyCashMultiplier(_self: any, player: Player, amount: number): number

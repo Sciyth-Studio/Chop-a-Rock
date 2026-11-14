@@ -30,8 +30,11 @@ local OutlinedIconConfig: OutlinedIconSettings = {
 		["rbxassetid://101112809904563"] = "rbxassetid://135460604417395",
 		["rbxassetid://118503914460480"] = "rbxassetid://80184070291400",
 		["rbxassetid://123447750647234"] = "rbxassetid://72766450103598",
+		["rbxassetid://90789156311854"] = "rbxassetid://79758435140538",
 	},
 	Small = {
+		["rbxassetid://127731887777645"] = "rbxassetid://121886753421166",
+		["rbxassetid://84772485602702"] = "rbxassetid://113606266773846",
 		["rbxassetid://124121424211029"] = "rbxassetid://137807346699234",
 		["rbxassetid://120312068437386"] = "rbxassetid://123300420859502",
 		["rbxassetid://77810536840332"] = "rbxassetid://74621122874702",
@@ -39,6 +42,8 @@ local OutlinedIconConfig: OutlinedIconSettings = {
 		["rbxassetid://115907731373474"] = "rbxassetid://137794080161008",
 		["rbxassetid://97839648540693"] = "rbxassetid://115895841336737",
 		["rbxassetid://117415041002029"] = "rbxassetid://83009479189797",
+		["rbxassetid://90789156311854"] = "rbxassetid://117280167424477",
+		["rbxassetid://139362520433112"] = "rbxassetid://75796501707522",
 	},
 }
 

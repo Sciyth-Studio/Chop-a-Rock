@@ -16,6 +16,7 @@ export type StrengthPopSettings = {
 	TextGapPixels: number,
 	TextRisePixels: number,
 	TextSeconds: number,
+	PopSound: string,
 }
 
 export type HudSettings = {
@@ -55,6 +56,7 @@ local HudConfig: HudSettings = {
 		TextGapPixels = 14,
 		TextRisePixels = 24,
 		TextSeconds = 0.8,
+		PopSound = "SFX_Strength_Pop",
 	},
 }
 

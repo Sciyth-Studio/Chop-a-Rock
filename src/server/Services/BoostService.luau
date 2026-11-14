@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
+local PotionConfig = require(ReplicatedStorage.Config.PotionConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
@@ -21,6 +22,13 @@ local lastSave = 0
 local boostsByKey: { [string]: MonetizationConfig.Boost } = {}
 for _, boost in MonetizationConfig.Boosts do
 	boostsByKey[boost.Key] = boost
+end
+local timerKeys: { [string]: true } = {}
+for key in boostsByKey do
+	timerKeys[key] = true
+end
+for key in PotionConfig.Potions do
+	timerKeys[PotionConfig.BoostKey(key)] = true
 end
 local serverBoostsByKey: { [string]: MonetizationConfig.ServerBoost } = {}
 for _, boost in MonetizationConfig.ServerBoosts do
@@ -46,7 +54,7 @@ local function save(player: Player)
 	if not left or not data then
 		return
 	end
-	for key in boostsByKey do
+	for key in timerKeys do
 		local seconds = math.ceil(left[key] or 0)
 		local stored = if seconds > 0 then seconds else nil
 		if data.Boosts[key] ~= stored then
@@ -74,9 +82,12 @@ local function tick()
 	for player, left in personal do
 		for key, seconds in left do
 			local boost = boostsByKey[key]
-			local isPaused = boost ~= nil
-				and boost.OnlyWhileTraining == true
-				and not services.TrainingService:IsTraining(player)
+			local potion = PotionConfig.FromBoostKey(key)
+			local isPaused = if potion
+				then services.PotionService:IsPaused(player, potion.Key)
+				else boost ~= nil
+					and boost.OnlyWhileTraining == true
+					and not services.TrainingService:IsTraining(player)
 			local pausedAttribute = MonetizationConfig.BoostPausedAttributePrefix .. key
 			local pausedValue = if isPaused then math.ceil(seconds) else nil
 			if player:GetAttribute(pausedAttribute) ~= pausedValue then
@@ -117,7 +128,7 @@ end
 
 function BoostService.AddPersonal(_self: any, player: Player, key: string, seconds: number): boolean
 	local left = personal[player]
-	if not left or not boostsByKey[key] or seconds <= 0 then
+	if not left or not timerKeys[key] or seconds <= 0 then
 		return false
 	end
 	left[key] = math.min((left[key] or 0) + seconds, MonetizationConfig.BoostCapSeconds)
@@ -183,6 +194,13 @@ function BoostService.GetBonus(_self: any, player: Player, key: string): number
 	return bonus
 end
 
+function BoostService.IsCounting(_self: any, player: Player, key: string): boolean
+	local left = personal[player]
+	return left ~= nil
+		and (left[key] or 0) > 0
+		and player:GetAttribute(MonetizationConfig.BoostPausedAttributePrefix .. key) == nil
+end
+
 function BoostService.GetPersonalSeconds(_self: any, player: Player, key: string): number
 	local left = personal[player]
 	return if left then left[key] or 0 else 0
@@ -196,7 +214,7 @@ function BoostService.Start(_self: any)
 	services.DataService.PlayerLoaded:Connect(function(player: Player, data: any)
 		local left = {}
 		for key, seconds in data.Boosts do
-			if boostsByKey[key] and seconds > 0 then
+			if timerKeys[key] and seconds > 0 then
 				left[key] = math.min(seconds, MonetizationConfig.BoostCapSeconds)
 			end
 		end
@@ -208,7 +226,7 @@ function BoostService.Start(_self: any)
 	services.DataService.PlayerReleasing:Connect(function(player: Player, data: any)
 		local left = personal[player]
 		if left then
-			for key in boostsByKey do
+			for key in timerKeys do
 				local seconds = math.ceil(left[key] or 0)
 				data.Boosts[key] = if seconds > 0 then seconds else nil
 			end

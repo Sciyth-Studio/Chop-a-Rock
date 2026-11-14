@@ -81,11 +81,13 @@ export type BoostPillEntry = {
 
 export type BoostPillSettings = {
 	EdgeOffsetPixels: number,
-	WeatherHeightPixels: number,
+	EventTimersHeightPixels: number,
 	GapPixels: number,
 	MinutesFormat: string,
 	HoursFormat: string,
 	PausedSuffix: string,
+	PauseIconName: string,
+	PauseIconGapPixels: number,
 	Pills: { BoostPillEntry },
 }
 
@@ -336,7 +338,7 @@ local MonetizationConfig: MonetizationSettings = {
 			Ruins = 3728039630,
 		},
 		RobuxPrice = 9,
-		PadCount = 8,
+		PadCount = 12,
 	},
 	StarterPack = {
 		ProductId = 3722325285,
@@ -358,11 +360,13 @@ local MonetizationConfig: MonetizationSettings = {
 	},
 	BoostPill = {
 		EdgeOffsetPixels = 16,
-		WeatherHeightPixels = 64,
+		EventTimersHeightPixels = 124,
 		GapPixels = 10,
 		MinutesFormat = "%s (%02d:%02d)",
 		HoursFormat = "%s (%d:%02d:%02d)",
 		PausedSuffix = "paused",
+		PauseIconName = "PauseIcon",
+		PauseIconGapPixels = 34,
 		Pills = {
 			{
 				Source = "Server",

@@ -13,6 +13,7 @@ export type State =
 	| "Flee"
 	| "Defeat"
 	| "Gone"
+	| "Out"
 	| "Rise"
 
 export type Enemy = {
@@ -36,6 +37,9 @@ export type Enemy = {
 	WanderTo: Vector3,
 	WanderAt: number,
 	FrozenUntil: number,
+	IsKnockedOut: boolean,
+	OutLeft: number,
+	TwitchAt: number,
 }
 
 local Motion = {}
@@ -67,6 +71,8 @@ function Motion.Set(enemy: Enemy, state: State, now: number)
 	enemy.From = enemy.Position
 	if state == "Fight" then
 		enemy.SlamAt = now + EnemyConfig.SlamEverySeconds
+	elseif state == "Out" then
+		enemy.Position = Vector3.new(enemy.Position.X, enemy.Home.Y, enemy.Position.Z)
 	elseif state == "Rise" then
 		enemy.Position = enemy.Home
 		enemy.Facing = EnemyConfig.HomeFacing
@@ -191,8 +197,28 @@ function Motion.Step(enemy: Enemy, dt: number, now: number, feet: Vector3?): boo
 				* CFrame.Angles(EnemyConfig.KnockSpinRadians * elapsed, 0, 0)
 		)
 		if elapsed >= EnemyConfig.DefeatSeconds then
-			Motion.Set(enemy, "Gone", now)
+			Motion.Set(enemy, if enemy.IsKnockedOut then "Out" else "Gone", now)
 		end
+	elseif enemy.State == "Out" then
+		local lift = enemy.Radius
+		local position = enemy.Position + Vector3.new(0, lift, 0)
+		local breathe = math.sin(now * EnemyConfig.OutBreatheSpeed) * EnemyConfig.OutBreatheRadians
+		local pitch = math.pi / 2 + breathe
+		local roll = 0
+		if enemy.OutLeft <= EnemyConfig.SitSeconds then
+			pitch -= EnemyConfig.SitRadians
+		elseif enemy.OutLeft <= EnemyConfig.RollSeconds then
+			roll = EnemyConfig.RollRadians
+		end
+		local twitch = (now - enemy.TwitchAt) / EnemyConfig.TwitchSeconds
+		if twitch >= 0 and twitch < 1 then
+			pitch -= math.sin(twitch * math.pi) * EnemyConfig.TwitchRadians
+		end
+		enemy.Model:PivotTo(
+			CFrame.lookAt(position, position + enemy.Facing)
+				* CFrame.Angles(0, 0, roll)
+				* CFrame.Angles(pitch, 0, 0)
+		)
 	elseif enemy.State == "Rise" then
 		local alpha = math.min(elapsed / EnemyConfig.RiseSeconds, 1)
 		pose(enemy, (alpha - 1) * enemy.Height, now)

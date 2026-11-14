@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
 local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local ArenaShare = require(ServerScriptService.Utils.ArenaShare)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
@@ -105,12 +106,12 @@ end
 
 local function shareOf(player: Player): (number, number, number)
 	local data = services.DataService:GetData(player)
-	local zone = if data then Spawning.BestZone(data.PeakStrength) else nil
-	local stats = if zone then Spawning.ZoneStats(zone) else nil
+	local stats = if data then ArenaShare.StatsFor(data.PeakStrength) else nil
 	if not stats then
 		return 0, 0, 0
 	end
-	local health = stats.TopStrength
+	local strength = services.StatsService:GetStrength(player)
+	local health = math.max(strength, stats.FirstRequirement)
 		* ChopConfig.GoodDamageMultiplier
 		* DiamondRockConfig.HealthChops
 		* DiamondRockConfig.HealthShare
@@ -120,6 +121,9 @@ end
 local function spawnDiamond(): (boolean, string)
 	if current then
 		return false, "a Diamond Rock is already out"
+	end
+	if services.BossService:IsActive() then
+		return false, "a boss is in the arena"
 	end
 	local position = Spawning.Spot()
 	if not position then
@@ -193,7 +197,10 @@ local function onChopRequest(player: Player)
 	if os.clock() < diamond.UpAt - DiamondRockConfig.RiseSlackSeconds then
 		return
 	end
-	if services.RockService:HasSession(player) or not services.DataService:GetData(player) then
+	if services.RockService:HasSession(player) or services.BossService:HasSession(player) then
+		return
+	end
+	if not services.DataService:GetData(player) then
 		return
 	end
 	local position = rootPosition(player)
@@ -258,7 +265,8 @@ local function onRelease(player: Player, claimed: number)
 		ChopZones.Position(elapsed, isTouch),
 		session.Center,
 		session.StrengthRatio,
-		isTouch
+		isTouch,
+		services.PotionService:FocusScale(player)
 	)
 	local rockService = services.RockService
 	if rockService:ConsumeForcedMaster(player) or rockService:RollMaster(quality, session.StrengthRatio) then

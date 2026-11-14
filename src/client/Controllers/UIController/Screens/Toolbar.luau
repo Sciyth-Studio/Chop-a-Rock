@@ -5,7 +5,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
+local Tutorial = require(ReplicatedStorage.Tutorial)
 local BaseLevels = require(ReplicatedStorage.Utils.BaseLevels)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -30,8 +32,25 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	ViewportScale.Bind(gui, trove)
 	pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.Backpack, false)
 
+	local isOpen = gui.Enabled
+
+	local function isHoldingEgg(): boolean
+		local character = player.Character
+		local tool = if character then character:FindFirstChildOfClass("Tool") else nil
+		if not tool or type(tool:GetAttribute(GeodeConfig.ToolKeyAttribute)) ~= "string" then
+			return false
+		end
+		return not Tutorial.IsActive(Tutorial.StepOf(dataController:Get({ "Tutorial" })))
+	end
+
+	local function applyVisibility()
+		gui.Enabled = isOpen and not isHoldingEgg()
+	end
+
 	local bar: Frame? = find(gui, "Bar", "Frame")
 	local template: Frame? = find(gui, "SlotTemplate", "Frame")
+	local bagButton: GuiObject? = find(gui, ToolbarConfig.BagButtonName, "GuiObject")
+	local bagClick: GuiButton? = if bagButton then find(bagButton, "Button", "GuiButton") else nil
 
 	local slots: { Frame } = {}
 	local shown: { [number]: PetStacks.Stack } = {}
@@ -184,6 +203,10 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		end
 	end
 
+	if bagClick then
+		trove:Connect(bagClick.Activated, togglePanel)
+	end
+
 	trove:Connect(UserInputService.InputBegan, function(input: InputObject, isProcessed: boolean)
 		if isProcessed or not gui.Enabled then
 			return
@@ -205,15 +228,18 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			characterTrove:Connect(character.ChildAdded, function(child: Instance)
 				if child:IsA("Tool") then
 					refresh()
+					applyVisibility()
 				end
 			end)
 			characterTrove:Connect(character.ChildRemoved, function(child: Instance)
 				if child:IsA("Tool") then
 					refresh()
+					applyVisibility()
 				end
 			end)
 		end
 		refresh()
+		applyVisibility()
 	end
 	trove:Connect(player.CharacterAdded, watchCharacter)
 	watchCharacter(player.Character)
@@ -222,15 +248,18 @@ function Toolbar.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	trove:Add(dataController:Observe({ "Geodes" }, refresh))
 	trove:Add(dataController:Observe({ "EggLuck" }, refresh))
 	trove:Add(dataController:Observe({ "BaseLevel" }, refresh))
+	trove:Add(dataController:Observe({ "Tutorial", "Step" }, applyVisibility))
 
 	return {
 		Modal = false,
 		StartsOpen = true,
 		Open = function(_self: Types.Screen)
-			gui.Enabled = true
+			isOpen = true
+			applyVisibility()
 		end,
 		Close = function(_self: Types.Screen)
-			gui.Enabled = false
+			isOpen = false
+			applyVisibility()
 		end,
 		Destroy = function(_self: Types.Screen)
 			trove:Destroy()

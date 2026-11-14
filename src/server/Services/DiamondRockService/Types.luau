@@ -23,10 +23,4 @@ export type Session = {
 	Round: number,
 }
 
-export type ZoneStats = {
-	FirstRequirement: number,
-	TopStrength: number,
-	TopPayout: number,
-}
-
 return {}

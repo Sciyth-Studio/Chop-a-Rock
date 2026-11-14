@@ -5,8 +5,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local EggLuck = require(ReplicatedStorage.Utils.EggLuck)
 local GeodeFallConfig = require(ReplicatedStorage.Config.GeodeFallConfig)
 local Packets = require(ReplicatedStorage.Packets)
+local PromptStat = require(ReplicatedStorage.Utils.PromptStat)
+local PromptStatConfig = require(ReplicatedStorage.Config.PromptStatConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -37,6 +40,11 @@ local function groundOf(target: CFrame): CFrame
 	return CFrame.new(target.Position + Vector3.new(0, RockSpawnConfig.SinkStuds, 0))
 end
 
+local function luckText(part: BasePart): string?
+	local luck = part:GetAttribute(GeodeFallConfig.LuckAttribute)
+	return if type(luck) == "number" then EggLuck.Text(luck) else nil
+end
+
 local function findLabel(root: Instance, name: string): TextLabel?
 	local found = root:FindFirstChild(name, true)
 	return if found and found:IsA("TextLabel") then found else nil
@@ -62,7 +70,8 @@ local function makeLabel(trove: TroveInstance, state: Active)
 	FallEffects.PaintLabel(nameLabel, state.Color)
 	FallEffects.PaintLabel(timeLabel, state.Color)
 	if nameLabel then
-		nameLabel.Text = GeodeFallConfig.DisplayName
+		local luck = luckText(part)
+		nameLabel.Text = if luck then `{GeodeFallConfig.DisplayName} {luck}` else GeodeFallConfig.DisplayName
 	end
 	asset.Parent = part
 	trove:Add(asset)
@@ -144,7 +153,11 @@ function GeodeFall.Start(trove: TroveInstance, chopController: any)
 		local landTrove = geodeTrove:Extend()
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.ActionText = GeodeFallConfig.PromptText
-		prompt.ObjectText = GeodeFallConfig.DisplayName
+		prompt.ObjectText = PromptStat.Text(
+			luckText(part) or PromptStatConfig.FallingEggStat,
+			"Luck",
+			GeodeFallConfig.DisplayName
+		)
 		prompt.HoldDuration = GeodeFallConfig.PromptHoldSeconds
 		prompt.Style = Enum.ProximityPromptStyle.Custom
 		prompt.MaxActivationDistance = ChopConfig.PromptRangeStuds + math.max(part.Size.X, part.Size.Z) / 2

@@ -36,7 +36,10 @@ local EventClockConfig: EventClockSettings = {
 			PeriodSeconds = 900,
 			OffsetSeconds = 150,
 			Events = {
-				{ Key = "DiamondRock", Weight = 100 },
+				{ Key = "DiamondRock", Weight = 20 },
+				{ Key = "BigCroc", Weight = 80 / 3 },
+				{ Key = "BoulderCrab", Weight = 80 / 3 },
+				{ Key = "FrostYeti", Weight = 80 / 3 },
 			},
 			KeyAttribute = "BossClockEvent",
 			AtAttribute = "BossClockAt",

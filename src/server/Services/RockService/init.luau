@@ -5,6 +5,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local AnalyticsConfig = require(ReplicatedStorage.Config.AnalyticsConfig)
+local BlockJudge = require(ServerScriptService.Utils.BlockJudge)
+local BlockRoundConfig = require(ReplicatedStorage.Config.BlockRoundConfig)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
@@ -62,6 +64,8 @@ local cheatNames: { [string]: boolean } = {
 	OneHit = true,
 	IgnoreStrength = true,
 	InstantRespawn = true,
+	[BlockRoundConfig.CheatName] = true,
+	[BlockRoundConfig.MadCheatName] = true,
 }
 
 local function hasCheat(player: Player, name: string): boolean
@@ -269,12 +273,41 @@ local function onReady(player: Player)
 	end
 end
 
-local function scheduleNextRound(player: Player, session: Types.Session)
+local scheduleNextRound: (player: Player, session: Types.Session) -> ()
+
+local function resolveBlock(player: Player, session: Types.Session, outcome: BlockRoundConfig.Outcome)
+	session.BlockStart = nil
+	session.BlockDifficulty = nil
+	Packets.BlockResult:FireClient(player, outcome)
+	print(`[RockService] {player.Name} block round: {BlockRoundConfig.OutcomeTexts[outcome]}`)
+	scheduleNextRound(player, session)
+end
+
+local function startBlockRound(player: Player, session: Types.Session, round: number)
+	local difficulty = if hasCheat(player, BlockRoundConfig.MadCheatName)
+		then BlockRoundConfig.Difficulties.Mad
+		else BlockRoundConfig.Difficulties.Normal
+	session.Center = ChopZones.RandomCenter(random)
+	session.BlockStart = os.clock()
+	session.BlockDifficulty = difficulty
+	Packets.BlockRoundStart:FireClient(player, session.Center, difficulty.Speed, difficulty.ZoneScale)
+	task.delay(BlockJudge.TimeoutSeconds(ChopZones.IsTouch(player), difficulty), function()
+		if sessions[player] == session and session.Round == round and session.BlockStart then
+			resolveBlock(player, session, BlockRoundConfig.Outcomes.Missed)
+		end
+	end)
+end
+
+function scheduleNextRound(player: Player, session: Types.Session)
 	session.StartTime = nil
 	session.Round += 1
 	local round = session.Round
 	task.delay(ChopConfig.RoundPauseSeconds, function()
 		if sessions[player] ~= session or session.Round ~= round then
+			return
+		end
+		if hasCheat(player, BlockRoundConfig.CheatName) and round % BlockRoundConfig.RockTestEvery == 0 then
+			startBlockRound(player, session, round)
 			return
 		end
 		session.Center = ChopZones.RandomCenter(random)
@@ -283,13 +316,27 @@ local function scheduleNextRound(player: Player, session: Types.Session)
 	end)
 end
 
+local function onBlockPress(player: Player, claimed: number)
+	local session = sessions[player]
+	local started = if session then session.BlockStart else nil
+	local difficulty = if session then session.BlockDifficulty else nil
+	if not session or not started or not difficulty then
+		return
+	end
+	resolveBlock(
+		player,
+		session,
+		BlockJudge.Judge(started, claimed, session.Center, ChopZones.IsTouch(player), difficulty)
+	)
+end
+
 local function onChopRequest(player: Player, id: number)
 	local rocks = owned[player]
 	local rock = if rocks then rocks[id] else nil
 	if not rock or sessions[player] or os.clock() < rock.UpAt - RockSpawnConfig.RiseSlackSeconds then
 		return
 	end
-	if services.DiamondRockService:HasSession(player) then
+	if services.DiamondRockService:HasSession(player) or services.BossService:HasSession(player) then
 		return
 	end
 	local data = services.DataService:GetData(player)
@@ -308,6 +355,7 @@ local function onChopRequest(player: Player, id: number)
 		canBreak = true
 		strengthRatio = math.max(strengthRatio, 1)
 	end
+	services.ZoneGeodeService:DropHeld(player)
 	local session = Session.New(rock, canBreak, strengthRatio, ChopZones.RandomCenter(random), os.clock())
 	sessions[player] = session
 	services.PetService:PutAway(player)
@@ -345,7 +393,13 @@ local function onRelease(player: Player, claimed: number)
 	local elapsed = ChopTiming.Elapsed(session.StartTime, claimed)
 	local isTouch = ChopZones.IsTouch(player)
 	local position = ChopZones.Position(elapsed, isTouch)
-	local quality = ChopZones.Classify(position, session.Center, session.StrengthRatio, isTouch)
+	local quality = ChopZones.Classify(
+		position,
+		session.Center,
+		session.StrengthRatio,
+		isTouch,
+		services.PotionService:FocusScale(player)
+	)
 	local data = services.DataService:GetData(player)
 	local isTutorial = data ~= nil and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
 	local isTutorialPerfect = data ~= nil and Tutorial.ForcesPerfect(Tutorial.StepOf(data.Tutorial), data)
@@ -527,6 +581,7 @@ function RockService.Start(_self: any)
 	trove:Add(Packets.RockReady.OnServerEvent:Connect(onReady))
 	trove:Add(Packets.RockChop.OnServerEvent:Connect(onChopRequest))
 	trove:Add(Packets.ChopRelease.OnServerEvent:Connect(onRelease))
+	trove:Add(Packets.BlockPress.OnServerEvent:Connect(onBlockPress))
 	trove:Add(Packets.ChopLeave.OnServerEvent:Connect(onLeave))
 	trove:Add(Packets.ChopTouch.OnServerEvent:Connect(function(player: Player, isTouch: boolean)
 		player:SetAttribute(ChopConfig.TouchAttribute, isTouch == true)

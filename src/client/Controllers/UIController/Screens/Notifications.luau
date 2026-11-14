@@ -9,6 +9,7 @@ local RockConfig = require(ReplicatedStorage.Config.RockConfig)
 local ZoneBannerConfig = require(ReplicatedStorage.Config.ZoneBannerConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
+local BossBarConfig = require(ReplicatedStorage.Config.BossBarConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local WeatherConfig = require(ReplicatedStorage.Config.WeatherConfig)
@@ -99,6 +100,38 @@ function Notifications.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	end
 	local templateFrame = template :: Frame
 	templateFrame.Visible = false
+
+	local containerFrame = container :: Frame
+	local basePosition = containerFrame.Position
+	local function placeBelowBossBar(bossGui: Instance)
+		local function refresh()
+			local bottom = bossGui:GetAttribute(BossBarConfig.BottomAttribute)
+			if type(bottom) ~= "number" then
+				containerFrame.Position = basePosition
+				return
+			end
+			local top = bottom + BossBarConfig.NotificationGapPixels - gui.AbsolutePosition.Y
+			local baseTop = basePosition.Y.Scale * gui.AbsoluteSize.Y + basePosition.Y.Offset
+			containerFrame.Position = if top > baseTop
+				then UDim2.new(basePosition.X.Scale, basePosition.X.Offset, 0, top)
+				else basePosition
+		end
+		trove:Connect(bossGui:GetAttributeChangedSignal(BossBarConfig.BottomAttribute), refresh)
+		refresh()
+	end
+	local playerGui = gui.Parent
+	if playerGui then
+		local bossGui = playerGui:FindFirstChild(BossBarConfig.ScreenName)
+		if bossGui then
+			placeBelowBossBar(bossGui)
+		else
+			trove:Connect(playerGui.ChildAdded, function(child: Instance)
+				if child.Name == BossBarConfig.ScreenName then
+					placeBelowBossBar(child)
+				end
+			end)
+		end
+	end
 
 	local entries: { Entry } = {}
 	local nextOrder = 0

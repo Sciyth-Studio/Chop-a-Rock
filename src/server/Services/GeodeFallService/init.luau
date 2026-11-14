@@ -95,6 +95,7 @@ local function spawnGeode(fall: Types.Fall, zone: string, landsAt: number): bool
 	if not model or not part then
 		return false
 	end
+	model:ScaleTo(model:GetScale() * GeodeFallConfig.ModelScale)
 	local taken: { Vector3 } = {}
 	for _, other in fall.Geodes do
 		table.insert(taken, other.Part.Position)
@@ -125,6 +126,7 @@ local function spawnGeode(fall: Types.Fall, zone: string, landsAt: number): bool
 		ReserveOwner = `{GeodeFallConfig.Tag}{nextId}`,
 		LandsAt = landsAt,
 		IsDone = false,
+		Luck = random:NextInteger(GeodeFallConfig.LuckMinHundredths, GeodeFallConfig.LuckMaxHundredths),
 	}
 	fall.Geodes[geode.Id] = geode
 	services.RockService:ReserveArea(
@@ -226,6 +228,7 @@ local function onTake(player: Player, id: number)
 	if
 		services.RockService:HasSession(player)
 		or services.DiamondRockService:HasSession(player)
+		or services.BossService:HasSession(player)
 		or services.EnemyService:HasFight(player)
 		or inTutorial(player)
 	then
@@ -256,7 +259,7 @@ local function onTake(player: Player, id: number)
 		return
 	end
 	local geodeKey = GeodeOrder.FallingKey(geode.Zone)
-	if not geodeKey or not services.GeodeService:GrantGeodes(player, geodeKey, 1) then
+	if not geodeKey or not services.GeodeService:GrantGeodes(player, geodeKey, 1, geode.Luck) then
 		return
 	end
 	geode.IsDone = true

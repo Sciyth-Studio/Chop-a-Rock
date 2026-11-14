@@ -65,6 +65,13 @@ local TextStyleConfig: TextStyleSettings = {
 			StrokeThickness = nil,
 			GradientRotation = 90,
 		},
+		Purple = {
+			EdgeColor = Color3.fromRGB(150, 0, 255),
+			CenterColor = Color3.fromRGB(220, 150, 255),
+			StrokeColor = Color3.fromRGB(60, 0, 110),
+			StrokeThickness = nil,
+			GradientRotation = 90,
+		},
 	},
 }
 

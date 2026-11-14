@@ -6,9 +6,11 @@ local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopTiming = require(ServerScriptService.Utils.ChopTiming)
+local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopZones = require(ReplicatedStorage.ChopZones)
 local EnemyConfig = require(ReplicatedStorage.Config.EnemyConfig)
 local EnemyRules = require(ReplicatedStorage.Utils.EnemyRules)
+local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
@@ -24,7 +26,66 @@ local services: { [string]: any } = {}
 local homes: { [string]: Homes.Home } = {}
 local fights: { [Player]: Types.Fight } = {}
 local readied: { [Player]: true } = {}
+local knockouts: { [Player]: { [string]: number } } = {}
 local sinceCheck = 0
+
+local function publishKnockout(player: Player, zone: string)
+	local zones = knockouts[player]
+	local untilClock = if zones then zones[zone] else nil
+	local paused = services.BossService:HasSession(player)
+	local wakesAt = if untilClock then workspace:GetServerTimeNow() + (untilClock - os.clock()) else nil
+	player:SetAttribute(EnemyConfig.KnockedOutAttributePrefix .. zone, wakesAt)
+	local pill = EnemyConfig.FreeEggsPillKey
+	player:SetAttribute(MonetizationConfig.BoostEndsAttributePrefix .. pill, wakesAt)
+	player:SetAttribute(
+		MonetizationConfig.BoostPausedAttributePrefix .. pill,
+		if wakesAt and paused then math.ceil(untilClock :: number - os.clock()) else nil
+	)
+end
+
+local function knockOut(player: Player, fight: Types.Fight)
+	local seconds = math.min(
+		EnemyConfig.KnockoutSeconds + fight.Perfects * EnemyConfig.KnockoutPerPerfectSeconds,
+		EnemyConfig.KnockoutMaxSeconds
+	)
+	local zones: { [string]: number } = knockouts[player] or {}
+	knockouts[player] = zones
+	for zone in zones do
+		if zone ~= fight.Zone then
+			zones[zone] = nil
+			player:SetAttribute(EnemyConfig.KnockedOutAttributePrefix .. zone, nil)
+		end
+	end
+	zones[fight.Zone] = os.clock() + seconds
+	player:SetAttribute(EnemyConfig.KnockoutTotalAttribute, seconds)
+	publishKnockout(player, fight.Zone)
+end
+
+local function tickKnockouts(elapsed: number)
+	local now = os.clock()
+	for player, zones in knockouts do
+		for zone, untilClock in zones do
+			if services.BossService:HasSession(player) then
+				zones[zone] = untilClock + elapsed
+				publishKnockout(player, zone)
+			elseif now >= untilClock then
+				zones[zone] = nil
+				publishKnockout(player, zone)
+				services.NotificationService:Notify(
+					player,
+					"Error",
+					string.format(EnemyConfig.WokeUpText, string.format(EnemyConfig.GuardianText, zone))
+				)
+			elseif
+				player:GetAttribute(
+					MonetizationConfig.BoostPausedAttributePrefix .. EnemyConfig.FreeEggsPillKey
+				)
+			then
+				publishKnockout(player, zone)
+			end
+		end
+	end
+end
 
 local function rootPosition(player: Player): Vector3?
 	local character = player.Character
@@ -69,6 +130,9 @@ local function finish(player: Player, fight: Types.Fight, result: Types.Result, 
 		if player.Parent then
 			if result ~= "Won" then
 				Packets.ChopEnded:FireClient(player)
+			end
+			if result == "Won" and not fight.IsGentle then
+				knockOut(player, fight)
 			end
 			Packets.EnemyFightEnded:FireClient(player, fight.Zone, result)
 			if result == "Won" or result == "Lost" then
@@ -133,8 +197,19 @@ local function onRelease(player: Player, claimed: number)
 	local isTouch = ChopZones.IsTouch(player)
 	local position =
 		ChopZones.Position(ChopTiming.Elapsed(started, claimed), isTouch, EnemyRules.SweepSpeed(fight.Round))
-	local quality =
-		Fight.Quality(fight, ChopZones.Classify(position, fight.Center, fight.StrengthRatio, isTouch))
+	local quality = Fight.Quality(
+		fight,
+		ChopZones.Classify(
+			position,
+			fight.Center,
+			fight.StrengthRatio,
+			isTouch,
+			services.PotionService:FocusScale(player)
+		)
+	)
+	if quality >= ChopQuality.Perfect then
+		fight.Perfects += 1
+	end
 	local damage, isDead = Fight.Hit(fight, quality)
 	Packets.ChopResult:FireClient(player, quality, 0, damage, fight.Health, 1)
 	if damage > 0 and Fight.TakeShown(fight, os.clock()) then
@@ -177,6 +252,7 @@ local function checkFights(dt: number)
 	if sinceCheck < EnemyConfig.CheckSeconds then
 		return
 	end
+	tickKnockouts(sinceCheck)
 	sinceCheck = 0
 	local now = os.clock()
 	for player, fight in fights do
@@ -203,6 +279,7 @@ function EnemyService.Start(_self: any)
 	trove:Add(RunService.Heartbeat:Connect(checkFights))
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		readied[player] = nil
+		knockouts[player] = nil
 		local fight = fights[player]
 		if fight then
 			finish(player, fight, "Left")
@@ -235,7 +312,8 @@ function EnemyService.RequestFight(
 	local isGentle = data ~= nil and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial))
 	services.TeleportService:EndActivities(player)
 	services.PetService:PutAway(player)
-	local fight = Fight.New(zone, position, os.clock(), strength, isGentle, onResult)
+	local fight =
+		Fight.New(zone, position, os.clock(), strength, ChopZones.IsTouch(player), isGentle, onResult)
 	fights[player] = fight
 	Packets.EnemyFightStarted:FireClient(
 		player,
@@ -250,6 +328,11 @@ end
 
 function EnemyService.HasFight(_self: any, player: Player): boolean
 	return fights[player] ~= nil
+end
+
+function EnemyService.IsKnockedOut(_self: any, player: Player, zone: string): boolean
+	local zones = knockouts[player]
+	return zones ~= nil and zones[zone] ~= nil
 end
 
 function EnemyService.Destroy(_self: any)

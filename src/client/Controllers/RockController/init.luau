@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChopApproach = require(ReplicatedStorage.Utils.ChopApproach)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
+local CutPower = require(ReplicatedStorage.Utils.CutPower)
 local LiveSplit = require(ReplicatedStorage.Utils.LiveSplit)
 local LoadingCoverConfig = require(ReplicatedStorage.Config.LoadingCoverConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
@@ -178,6 +179,16 @@ local function spawn(
 	end, isQuiet())
 end
 
+local function cutPower(key: string, quality: number): number
+	local peak = dataController:Get({ "PeakStrength" })
+	return CutPower.Of(
+		if type(peak) == "number" then peak else 0,
+		key,
+		chopController:GetStrengthRatio(),
+		quality
+	)
+end
+
 local function breakRock(rock: ClientRock, quality: number)
 	local configs: { [string]: RockConfig.Rock } = RockConfig.Rocks
 	local piecesSeconds = configs[rock.Key].RespawnSeconds
@@ -186,7 +197,7 @@ local function breakRock(rock: ClientRock, quality: number)
 		rock.StopGolden()
 		rock.StopGolden = nil
 	end
-	Effects.Break(rock.Part, quality, piecesSeconds, rock.Split)
+	Effects.Break(rock.Part, quality, piecesSeconds, rock.Split, nil, cutPower(rock.Key, quality))
 	task.delay(piecesSeconds, function()
 		remove(rock.Id)
 	end)
@@ -202,7 +213,7 @@ local function onChopped(id: number, quality: number, isBroken: boolean)
 		return
 	end
 	if not isBroken then
-		Effects.Hit(rock.Part, quality)
+		Effects.Hit(rock.Part, quality, cutPower(rock.Key, quality))
 		return
 	end
 	rock.IsBroken = true

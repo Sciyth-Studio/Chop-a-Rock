@@ -9,6 +9,7 @@ export type Geode = {
 	ReserveOwner: string,
 	LandsAt: number,
 	IsDone: boolean,
+	Luck: number,
 }
 
 export type Fall = {

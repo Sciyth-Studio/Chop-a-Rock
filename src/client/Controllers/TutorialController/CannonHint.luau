@@ -1,9 +1,8 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local SharedHint = require(ReplicatedStorage.CannonHint)
-local TutorialConfig = require(ReplicatedStorage.Config.TutorialConfig)
+local TeleportConfig = require(ReplicatedStorage.Config.TeleportConfig)
 local Spotlight = require(script.Parent.Spotlight)
 local Targets = require(script.Parent.Targets)
 
@@ -26,25 +25,25 @@ export type View = {
 
 local CannonHint = {}
 
-function CannonHint.View(data: any, helpers: Helpers): View
+function CannonHint.View(_data: any, helpers: Helpers): View
 	if not SharedHint.Cannon() then
 		return { IsDoing = true }
 	end
-	local fireScreen = CannonConfig.FireButton.ScreenName
-	if helpers.IsOpen(fireScreen) then
-		return {
-			Title = "Fire the cannon!",
-			Detail = `{helpers.ClickVerb()} {CannonConfig.FireButton.Text}!`,
-			Button = Spotlight.Button(fireScreen, { "Button" }),
-			IsDoing = true,
-		}
+	local launch = TeleportConfig.LaunchId
+	local label = launch
+	for _, destination in TeleportConfig.Destinations do
+		if destination.Id == launch then
+			label = destination.Label
+		end
 	end
 	return {
 		Title = "Fire the cannon!",
-		Detail = "Walk into the Forest",
-		Target = Targets.CannonEntry(),
-		Teleport = TutorialConfig.ZoneTeleport,
-		IsDoing = false,
+		Detail = `{helpers.ClickVerb()} {label}!`,
+		Button = Spotlight.Button(
+			TeleportConfig.ScreenName,
+			{ launch .. TeleportConfig.ButtonSuffix, TeleportConfig.ClickButtonName }
+		),
+		IsDoing = true,
 	}
 end
 

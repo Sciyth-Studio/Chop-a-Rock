@@ -92,6 +92,7 @@ export type Data = {
 	Hints: { [string]: number },
 	Passes: { [string]: boolean },
 	Boosts: { [string]: number },
+	Potions: { [string]: number },
 	Offers: { [string]: boolean },
 	StarterPack: StarterPack,
 	StarterEgg: StarterEgg,
@@ -139,9 +140,8 @@ PlayerData.Template = {
 		},
 	},
 	Settings = {
-		Volume = 1,
-		Music = true,
-		SoundEffects = true,
+		MusicVolume = 1,
+		SoundEffectsVolume = 1,
 		LowGraphics = false,
 		Notifications = true,
 		AutoEquip = true,
@@ -150,6 +150,7 @@ PlayerData.Template = {
 	Hints = {},
 	Passes = {},
 	Boosts = {},
+	Potions = {},
 	Offers = {},
 	StarterPack = { Bought = false, OfferEndsAt = 0, SecondChanceUsed = false },
 	StarterEgg = { HasEgg = false, HasLanded = false, SecondsLeft = 0, PadIndex = 0, IsOpened = false },
@@ -362,6 +363,9 @@ function PlayerData.Validate(data: any): boolean
 	if data.Passes ~= nil and not flags(data.Passes) then
 		return false
 	end
+	if data.Potions ~= nil and not counts(data.Potions) then
+		return false
+	end
 	if data.Boosts ~= nil and not counts(data.Boosts) then
 		return false
 	end
@@ -489,6 +493,18 @@ function PlayerData.Migrate(data: any)
 			settings.Volume = settings.Music
 		end
 		settings.Music = settings.Music > 0
+	end
+	if type(settings) == "table" then
+		local master = if type(settings.Volume) == "number" then math.clamp(settings.Volume, 0, 1) else 1
+		if settings.MusicVolume == nil then
+			settings.MusicVolume = if settings.Music == false then 0 else master
+		end
+		if settings.SoundEffectsVolume == nil then
+			settings.SoundEffectsVolume = if settings.SoundEffects == false then 0 else master
+		end
+		settings.Volume = nil
+		settings.Music = nil
+		settings.SoundEffects = nil
 	end
 end
 

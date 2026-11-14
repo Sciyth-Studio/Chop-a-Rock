@@ -96,8 +96,7 @@ local function promptKey(adornee: Instance?, action: string, isHold: boolean): s
 		local key = if prompt then prompt.GamepadKeyCode else Enum.KeyCode.ButtonX
 		return `{verb} {string.gsub(key.Name, "^Button", "")}`
 	end
-	local key = if prompt then prompt.KeyboardKeyCode else Enum.KeyCode.E
-	return `{verb} {key.Name}`
+	return if isHold then "Click and hold" else "Click"
 end
 
 local function releaseKey(): string

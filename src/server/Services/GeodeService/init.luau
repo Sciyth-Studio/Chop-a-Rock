@@ -286,8 +286,9 @@ function GeodeService.GrantGeodes(
 		return false
 	end
 	context.Services.DataService:Set(player, { "Geodes", geodeKey }, (data.Geodes[geodeKey] or 0) + amount)
-	if luck and luck > EggLuck.Base then
-		EggLuck.Add(context, player, geodeKey, luck, amount)
+	local boosted = (luck or EggLuck.Base) * context.Services.PotionService:LuckMultiplier(player)
+	if boosted > EggLuck.Base then
+		EggLuck.Add(context, player, geodeKey, boosted, amount)
 	end
 	context.Services.DataService:RequestSave(player)
 	refresh(player)
@@ -366,6 +367,40 @@ function GeodeService.SkipHatch(_self: any, player: Player, padIndex: number, zo
 	context.Services.DataService:Set(player, { "HatchPads", tostring(padIndex), "ReadyAt" }, os.time())
 	refresh(player)
 	return true
+end
+
+function GeodeService.IsHatching(_self: any, player: Player): boolean
+	local data = context.Services.DataService:GetData(player)
+	if not data then
+		return false
+	end
+	for indexText, record in data.HatchPads do
+		local index = tonumber(indexText)
+		if index and not isReady(player, index, record) and pausedSeconds(player, index, record) == nil then
+			return true
+		end
+	end
+	return false
+end
+
+function GeodeService.AdvanceHatching(_self: any, player: Player, seconds: number)
+	local data = context.Services.DataService:GetData(player)
+	if not data or seconds <= 0 then
+		return
+	end
+	local now = os.time()
+	local changed = false
+	for indexText, record in data.HatchPads do
+		local index = tonumber(indexText)
+		if index and record.ReadyAt > now and pausedSeconds(player, index, record) == nil then
+			local readyAt = math.max(now, record.ReadyAt - seconds)
+			context.Services.DataService:Set(player, { "HatchPads", indexText, "ReadyAt" }, readyAt)
+			changed = true
+		end
+	end
+	if changed then
+		refresh(player)
+	end
 end
 
 local function luckyKeyFor(player: Player, data: any): string?

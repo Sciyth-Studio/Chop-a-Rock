@@ -4,9 +4,7 @@ export type Palette = { [string]: { Color3 } }
 
 export type AuraStage = {
 	Name: string,
-	RateScale: number,
-	SizeScale: number,
-	LightScale: number,
+	Intensity: number,
 }
 
 export type AuraTier = {
@@ -24,16 +22,8 @@ export type AuraTier = {
 export type AuraSettings = {
 	SpeedSource: string,
 	Attribute: string,
-	AssetKey: string,
-	TintAttribute: string,
-	LimbParts: { string },
-	BodyPart: string,
-	LimbTemplate: string,
-	BodyTemplate: string,
-	SpinAttribute: string,
-	RampAttribute: string,
-	InverseAttribute: string,
-	MinStageAttribute: string,
+	WaitParts: { string },
+	OnSoundKey: string,
 	Stages: { AuraStage },
 	Tiers: { AuraTier },
 }
@@ -45,22 +35,14 @@ end
 local AuraConfig: AuraSettings = {
 	SpeedSource = "Aura",
 	Attribute = "AuraTier",
-	AssetKey = "VFX_Aura",
-	TintAttribute = "Tint",
-	LimbParts = { "LeftLowerArm", "RightLowerArm", "LeftLowerLeg", "RightLowerLeg" },
-	BodyPart = "HumanoidRootPart",
-	LimbTemplate = "Limb",
-	BodyTemplate = "Body",
-	SpinAttribute = "SpinDegreesPerSecond",
-	RampAttribute = "Ramp",
-	InverseAttribute = "Inverse",
-	MinStageAttribute = "MinStage",
+	WaitParts = { "HumanoidRootPart", "Head", "UpperTorso", "LeftFoot", "RightFoot" },
+	OnSoundKey = "SFX_Aura_On",
 	Stages = {
-		{ Name = "Spark", RateScale = 0.7, SizeScale = 0.85, LightScale = 0.6 },
-		{ Name = "Flare", RateScale = 0.85, SizeScale = 0.9, LightScale = 0.8 },
-		{ Name = "Surge", RateScale = 1, SizeScale = 1, LightScale = 1 },
-		{ Name = "Overdrive", RateScale = 1.35, SizeScale = 1.05, LightScale = 1.25 },
-		{ Name = "Ascended", RateScale = 1.5, SizeScale = 1.1, LightScale = 1.4 },
+		{ Name = "Spark", Intensity = 0.5 },
+		{ Name = "Flare", Intensity = 0.62 },
+		{ Name = "Surge", Intensity = 0.75 },
+		{ Name = "Overdrive", Intensity = 0.88 },
+		{ Name = "Ascended", Intensity = 1 },
 	},
 	Tiers = {
 		{

@@ -3,8 +3,7 @@
 export type SettingsSettings = {
 	Toggles: { string },
 	Sliders: { string },
-	SoundToggles: { string },
-	MasterVolume: string,
+	SoundSliders: { [string]: string },
 	MaxVolumePercent: number,
 	VolumeStepPercent: number,
 	LowGraphicsAttribute: string,
@@ -14,10 +13,12 @@ export type SettingsSettings = {
 }
 
 local SettingsConfig: SettingsSettings = {
-	Toggles = { "Music", "SoundEffects", "LowGraphics", "Notifications", "AutoEquip" },
-	Sliders = { "Volume" },
-	SoundToggles = { "Music", "SoundEffects" },
-	MasterVolume = "Volume",
+	Toggles = { "LowGraphics", "Notifications", "AutoEquip" },
+	Sliders = { "MusicVolume", "SoundEffectsVolume" },
+	SoundSliders = {
+		MusicVolume = "Music",
+		SoundEffectsVolume = "SoundEffects",
+	},
 	MaxVolumePercent = 100,
 	VolumeStepPercent = 10,
 	LowGraphicsAttribute = "LowGraphics",

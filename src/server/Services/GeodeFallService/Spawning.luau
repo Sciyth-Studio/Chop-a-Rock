@@ -18,15 +18,19 @@ end
 
 function Spawning.EligibleZones(peakStrengths: { number }): { string }
 	local zones: { string } = {}
-	for zone, geode in GeodeConfig.Geodes do
-		if not RockSpawnConfig.Zones[zone] then
-			continue
-		end
-		for _, peak in peakStrengths do
-			if peak >= geode.StrengthRequired then
-				table.insert(zones, zone)
-				break
+	for _, peak in peakStrengths do
+		local best: string? = nil
+		for zone, geode in GeodeConfig.Geodes do
+			if
+				RockSpawnConfig.Zones[zone]
+				and peak >= geode.StrengthRequired
+				and (best == nil or geode.Order > GeodeConfig.Geodes[best].Order)
+			then
+				best = zone
 			end
+		end
+		if best and not table.find(zones, best) then
+			table.insert(zones, best)
 		end
 	end
 	table.sort(zones, function(a: string, b: string): boolean
@@ -125,6 +129,7 @@ function Spawning.Publish(geode: Types.Geode, endsAt: number)
 	local part = geode.Part
 	part:SetAttribute(GeodeFallConfig.IdAttribute, geode.Id)
 	part:SetAttribute(GeodeFallConfig.ZoneAttribute, geode.Zone)
+	part:SetAttribute(GeodeFallConfig.LuckAttribute, geode.Luck)
 	part:SetAttribute(GeodeFallConfig.LandsAtAttribute, Spawning.ServerTime(geode.LandsAt))
 	part:SetAttribute(GeodeFallConfig.EndsAtAttribute, Spawning.ServerTime(endsAt))
 	CollectionService:AddTag(geode.Model, GeodeFallConfig.Tag)

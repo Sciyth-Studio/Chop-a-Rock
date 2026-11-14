@@ -37,6 +37,7 @@ local dataController: any = nil
 local eventTrove: TroveInstance? = nil
 local flash: ColorCorrectionEffect? = nil
 local random = Random.new()
+local isInClearArea = false
 
 local function resolve(name: string): Instance?
 	if name == "Lighting" then
@@ -355,9 +356,27 @@ local function startSky(trove: TroveInstance, key: string)
 	end)
 end
 
+local function inClearArea(): boolean
+	local area = workspace:FindFirstChild(WeatherConfig.ClearAreaName)
+	local floor = if area then area:FindFirstChild(WeatherConfig.ClearAreaFloorName) else nil
+	if not floor or not floor:IsA("BasePart") then
+		return false
+	end
+	local character = Players.LocalPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	local position = if root and root:IsA("BasePart")
+		then root.Position
+		else workspace.CurrentCamera.CFrame.Position
+	local offset = floor.CFrame:PointToObjectSpace(position)
+	return math.abs(offset.X) <= floor.Size.X / 2
+		and math.abs(offset.Z) <= floor.Size.Z / 2
+		and offset.Y <= WeatherConfig.ClearAreaHeight
+end
+
 local function apply(isFresh: boolean)
 	local value = workspace:GetAttribute(WeatherConfig.WeatherAttribute)
 	local isHidden = not dataController:IsLoaded()
+		or isInClearArea
 		or Tutorial.IsActive(Tutorial.StepOf(dataController:Get({ "Tutorial" })))
 	local key = if type(value) == "string" and not isHidden then value else ""
 	if key == currentKey then
@@ -409,6 +428,19 @@ function WeatherController.Start(self: any)
 		apply(true)
 	end)
 	apply(false)
+	local sinceCheck = 0
+	trove:Connect(RunService.Heartbeat, function(dt: number)
+		sinceCheck += dt
+		if sinceCheck < WeatherConfig.ClearAreaCheckSeconds then
+			return
+		end
+		sinceCheck = 0
+		local inside = inClearArea()
+		if inside ~= isInClearArea then
+			isInClearArea = inside
+			apply(false)
+		end
+	end)
 	trove:Add(dataController:Observe({ "Tutorial", "Step" }, function()
 		apply(false)
 	end))

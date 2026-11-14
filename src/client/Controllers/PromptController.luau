@@ -7,6 +7,8 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
+local IconConfig = require(ReplicatedStorage.Config.IconConfig)
+local OutlinedIcon = require(ReplicatedStorage.Utils.OutlinedIcon)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
@@ -14,7 +16,7 @@ local ViewportScale = require(ReplicatedStorage.Utils.ViewportScale)
 type TroveInstance = typeof(Trove.new())
 type ActivePrompt = {
 	Gui: BillboardGui,
-	FillGradient: UIGradient,
+	HoldFill: Frame,
 	HoldStart: number?,
 	Trove: any,
 }
@@ -38,18 +40,7 @@ local function findChild(root: Instance, name: string, className: string): Insta
 end
 
 local function setProgress(entry: ActivePrompt, progress: number)
-	local boundary = 1 - math.clamp(progress, 0, 1)
-	if boundary > 0.995 then
-		boundary = 1
-	end
-	local filled = ChopConfig.PromptFillTransparency
-	local keypoints = { NumberSequenceKeypoint.new(0, if boundary <= 0 then filled else 1) }
-	if boundary > 0 and boundary < 1 then
-		table.insert(keypoints, NumberSequenceKeypoint.new(boundary, 1))
-		table.insert(keypoints, NumberSequenceKeypoint.new(math.min(1, boundary + 0.001), filled))
-	end
-	table.insert(keypoints, NumberSequenceKeypoint.new(1, if boundary >= 1 then 1 else filled))
-	entry.FillGradient.Transparency = NumberSequence.new(keypoints)
+	entry.HoldFill.Size = UDim2.fromScale(1, math.clamp(progress, 0, 1))
 end
 
 local function hide(prompt: ProximityPrompt)
@@ -67,7 +58,55 @@ local function keyString(prompt: ProximityPrompt, inputType: Enum.ProximityPromp
 	elseif inputType == Enum.ProximityPromptInputType.Touch then
 		return "Tap"
 	end
-	return UserInputService:GetStringForKeyCode(prompt.KeyboardKeyCode)
+	return "Click"
+end
+
+local function keyIcon(inputType: Enum.ProximityPromptInputType): string?
+	if inputType == Enum.ProximityPromptInputType.Touch then
+		return IconConfig.Tap
+	elseif inputType == Enum.ProximityPromptInputType.Keyboard then
+		return IconConfig.Click
+	end
+	return nil
+end
+
+local function clickRoot(prompt: ProximityPrompt): Instance?
+	local adornee = prompt.Parent
+	if adornee and adornee:IsA("Attachment") then
+		adornee = adornee.Parent
+	end
+	if not adornee then
+		return nil
+	end
+	local model = adornee:FindFirstAncestorWhichIsA("Model")
+	if model and model ~= workspace then
+		return model
+	end
+	return adornee
+end
+
+local function promptUnderMouse(): ProximityPrompt?
+	local camera = workspace.CurrentCamera
+	if not camera then
+		return nil
+	end
+	local mouse = UserInputService:GetMouseLocation()
+	local ray = camera:ViewportPointToRay(mouse.X, mouse.Y)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local character = Players.LocalPlayer.Character
+	params.FilterDescendantsInstances = if character then { character } else {}
+	local result = workspace:Raycast(ray.Origin, ray.Direction * 1000, params)
+	if not result then
+		return nil
+	end
+	for prompt in active do
+		local root = clickRoot(prompt)
+		if root and prompt.Enabled and (result.Instance == root or result.Instance:IsDescendantOf(root)) then
+			return prompt
+		end
+	end
+	return nil
 end
 
 local function show(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
@@ -87,9 +126,9 @@ local function show(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInpu
 	local objectLabel = findChild(template, "ObjectLabel", "TextLabel")
 	local actionLabel = findChild(template, "ActionLabel", "TextLabel")
 	local keyLabel = findChild(template, "KeyLabel", "TextLabel")
-	local fillGradient = findChild(template, "FillGradient", "UIGradient")
+	local holdFill = findChild(template, "HoldFill", "Frame")
 	local hit = findChild(template, "Hit", "TextButton")
-	if not (objectLabel and actionLabel and keyLabel and fillGradient and hit) then
+	if not (objectLabel and actionLabel and keyLabel and holdFill and hit) then
 		template:Destroy()
 		return
 	end
@@ -98,7 +137,7 @@ local function show(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInpu
 	entryTrove:Add(template)
 	local entry: ActivePrompt = {
 		Gui = template,
-		FillGradient = fillGradient :: UIGradient,
+		HoldFill = holdFill :: Frame,
 		HoldStart = nil,
 		Trove = entryTrove,
 	}
@@ -111,6 +150,16 @@ local function show(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInpu
 	objectText.Text = prompt.ObjectText
 	actionText.Text = prompt.ActionText
 	keyText.Text = keyString(prompt, inputType)
+	local icon = keyIcon(inputType)
+	local keyImage = template:FindFirstChild("KeyIcon", true)
+	if keyImage and keyImage:IsA("ImageLabel") then
+		keyImage.Visible = icon ~= nil
+		keyText.Visible = icon == nil
+		if icon then
+			keyImage.Image = OutlinedIcon.For(keyImage, icon)
+		end
+	end
+	entry.HoldFill.BackgroundTransparency = ChopConfig.PromptFillTransparency
 	setProgress(entry, 0)
 	entryTrove:Connect(prompt:GetPropertyChangedSignal("ObjectText"), function()
 		objectText.Text = prompt.ObjectText
@@ -167,6 +216,27 @@ function PromptController.Start(self: any)
 	trove:Connect(ProximityPromptService.PromptHidden, hide)
 	trove:Connect(ProximityPromptService.PromptButtonHoldBegan, beginHold)
 	trove:Connect(ProximityPromptService.PromptButtonHoldEnded, endHold)
+	local clickedPrompt: ProximityPrompt? = nil
+	trove:Connect(UserInputService.InputBegan, function(input: InputObject, isProcessed: boolean)
+		if isProcessed or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+			return
+		end
+		local prompt = promptUnderMouse()
+		if prompt then
+			clickedPrompt = prompt
+			prompt:InputHoldBegin()
+		end
+	end)
+	trove:Connect(UserInputService.InputEnded, function(input: InputObject)
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+			return
+		end
+		local prompt = clickedPrompt
+		clickedPrompt = nil
+		if prompt then
+			prompt:InputHoldEnd()
+		end
+	end)
 	trove:Connect(RunService.RenderStepped, function()
 		for prompt, entry in active do
 			local holdStart = entry.HoldStart

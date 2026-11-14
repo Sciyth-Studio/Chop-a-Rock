@@ -8,6 +8,9 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
+local BossConfig = require(ReplicatedStorage.Config.BossConfig)
+local BossFxConfig = require(ReplicatedStorage.Config.BossFxConfig)
+local BlockRoundConfig = require(ReplicatedStorage.Config.BlockRoundConfig)
 local CashPopConfig = require(ReplicatedStorage.Config.CashPopConfig)
 local ChopApproach = require(ReplicatedStorage.Utils.ChopApproach)
 local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
@@ -86,6 +89,19 @@ local cameraReturnToken = 0
 local releaseToken = 0
 local mouseRelease: RBXScriptConnection? = nil
 local reportedTouch: boolean? = nil
+local isBlockRound = false
+local blockSpeed = 1
+local blockStarted: any = nil
+local blockResolved: any = nil
+local modifierKind = BossConfig.Signatures.None
+local modifierValues: { number } = { 0, 0, 0, 0 }
+local releaseElapsed: number? = nil
+
+local function clearModifier()
+	modifierKind = BossConfig.Signatures.None
+	modifierValues = { 0, 0, 0, 0 }
+	releaseElapsed = nil
+end
 
 local function smooth(alpha: number): number
 	local clamped = math.clamp(alpha, 0, 1)
@@ -319,8 +335,10 @@ local function endMinigame()
 	end
 	minigameActive = false
 	deadlineClock = nil
+	isBlockRound = false
 	sweepSpeed = nil
 	sweepRound = 0
+	clearModifier()
 	releaseToken += 1
 	activeChanged:Fire(false)
 	unbindRelease()
@@ -353,11 +371,68 @@ end
 
 local function release()
 	local elapsed = os.clock() - minigameStartTime
+	releaseElapsed = elapsed
 	frozenPosition = ChopZones.Position(elapsed, ChopZones.IsTouch(Players.LocalPlayer), currentSpeed())
 	Packets.ChopRelease:Fire(elapsed)
 	unbindRelease()
 	cameraReturnToken += 1
 	moveCamera(chopCamera, ChopConfig.ImpactCameraSeconds)
+end
+
+local function bossBlockShot(): CFrame?
+	local rock = activeRock
+	if not rock or rock:GetAttribute(BossConfig.SpotIndexAttribute) == nil then
+		return nil
+	end
+	local model = rock:FindFirstAncestorOfClass("Model")
+	local character = Players.LocalPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not model or not character or not root or not root:IsA("BasePart") then
+		return nil
+	end
+	local spec = BossFxConfig.BlockCamera
+	local boxCFrame, boxSize = model:GetBoundingBox()
+	local height = boxSize.Y
+	local bossBase = Vector3.new(boxCFrame.X, boxCFrame.Y - height / 2, boxCFrame.Z)
+	local rootPosition = root.Position
+	local flat = Vector3.new(rootPosition.X - bossBase.X, 0, rootPosition.Z - bossBase.Z)
+	if flat.Magnitude < 1e-3 then
+		return nil
+	end
+	local away = flat.Unit
+	local side = away:Cross(Vector3.yAxis)
+	local desired = rootPosition
+		+ away * (spec.BackStuds + height * spec.BackPerHeight)
+		+ Vector3.yAxis * (spec.UpStuds + height * spec.UpPerHeight)
+		+ side * spec.SideStuds
+	local origin = rootPosition + Vector3.yAxis * 2
+	local clear = clearCameraDistance(origin, desired, { character, model })
+	local position = origin + (desired - origin).Unit * math.max(clear, spec.MinClearStuds)
+	local bossLook = Vector3.new(bossBase.X, bossBase.Y + height * spec.LookHeightRatio, bossBase.Z)
+	return CFrame.lookAt(position, rootPosition:Lerp(bossLook, spec.LookBlend))
+end
+
+local function blockPosition(): number
+	return ChopZones.BlockPosition(
+		os.clock() - minigameStartTime,
+		ChopZones.IsTouch(Players.LocalPlayer),
+		blockSpeed
+	)
+end
+
+local function pressBlock()
+	local elapsed = os.clock() - minigameStartTime
+	frozenPosition = blockPosition()
+	Packets.BlockPress:Fire(elapsed)
+	unbindRelease()
+end
+
+local function press()
+	if isBlockRound then
+		pressBlock()
+	else
+		release()
+	end
 end
 
 local function bindRelease()
@@ -370,15 +445,15 @@ local function bindRelease()
 		unbindRelease()
 		ContextActionService:BindAction(RELEASE_ACTION, function(_actionName, inputState)
 			if inputState == Enum.UserInputState.Begin then
-				release()
+				press()
 				return Enum.ContextActionResult.Sink
 			end
 			return Enum.ContextActionResult.Pass
 		end, true, Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
-		ContextActionService:SetTitle(RELEASE_ACTION, "Chop")
+		ContextActionService:SetTitle(RELEASE_ACTION, if isBlockRound then "Block" else "Chop")
 		mouseRelease = UserInputService.InputBegan:Connect(function(input: InputObject, isProcessed: boolean)
 			if not isProcessed and input.UserInputType == Enum.UserInputType.MouseButton1 then
-				release()
+				press()
 			end
 		end)
 	end)
@@ -424,6 +499,7 @@ local function beginMinigame(
 		return
 	end
 	minigameActive = true
+	clearModifier()
 	activeChanged:Fire(true)
 	frozenPosition = nil
 	activeRock = rock
@@ -449,9 +525,23 @@ local function beginMinigame(
 	local slotRotation = if type(slotCount) == "number" and type(slot) == "number"
 		then CFrame.Angles(0, (slot - 1) / slotCount * math.pi * 2 + math.pi, 0)
 		else nil
+	local fanSlots = rock:GetAttribute(BossConfig.FanSlotsAttribute)
+	local fanNormal = rock:GetAttribute(BossConfig.NormalAttribute)
+	local fanRotation: CFrame? = nil
+	if typeof(fanNormal) == "Vector3" and type(fanSlots) == "number" and fanNormal.Magnitude > 1e-3 then
+		local degrees = rock:GetAttribute(BossConfig.FanDegreesAttribute)
+		local spread = if type(degrees) == "number" then degrees else 0
+		local step = if fanSlots > 1 then spread / (fanSlots - 1) else 0
+		local index = if type(slot) == "number" then slot else 1
+		fanRotation = CFrame.Angles(0, math.rad(-spread / 2 + (index - 1) * step), 0)
+			* CFrame.lookAt(Vector3.zero, fanNormal.Unit)
+	end
 	local function offset(vector: Vector3): Vector3
 		if slotRotation then
 			return slotRotation:VectorToWorldSpace(vector)
+		end
+		if fanRotation then
+			return fanRotation:VectorToWorldSpace(vector)
 		end
 		if approach then
 			return approach:VectorToWorldSpace(vector)
@@ -461,7 +551,13 @@ local function beginMinigame(
 	local rootStart: CFrame? = if rootPart then rootPart.CFrame else nil
 	local rootTarget: CFrame? = nil
 	if rootPart then
-		local groundY = rock.Position.Y - rock.Size.Y / 2 + rootPart.Size.Y * 1.5
+		local groundOffset = rock:GetAttribute(ChopConfig.GroundOffsetAttribute)
+		local fixedGround = rock:GetAttribute(BossConfig.GroundYAttribute)
+		local groundY = if type(fixedGround) == "number"
+			then fixedGround + rootPart.Size.Y * 1.5
+			else rock.Position.Y - rock.Size.Y / 2 + (if type(groundOffset) == "number"
+				then groundOffset
+				else 0) + rootPart.Size.Y * 1.5
 		local snapPos = rock.Position + offset(ChopConfig.PlayerSnapOffsetFromRock) * rockScale
 		snapPos = Vector3.new(snapPos.X, groundY, snapPos.Z)
 		rootTarget = CFrame.lookAt(snapPos, rock.Position)
@@ -477,7 +573,7 @@ local function beginMinigame(
 		windUpCamera = if character and rootTarget
 			then windUpShot(rock, rootTarget, character, impactShot)
 			else impactShot
-		if slotRotation then
+		if slotRotation or fanRotation then
 			chopCamera = windUpCamera
 		end
 		moveCamera(windUpCamera, ChopConfig.CameraTransitionSeconds)
@@ -534,6 +630,8 @@ local ChopController = {
 	HealthChanged = nil :: any,
 	RoundStarted = nil :: any,
 	ActiveChanged = nil :: any,
+	BlockStarted = nil :: any,
+	BlockResolved = nil :: any,
 }
 
 function ChopController.BeginExternal(
@@ -564,7 +662,18 @@ function ChopController.GetSecondsLeft(_self: any): number?
 end
 
 function ChopController.GetZoneCenter(_self: any): number
+	if modifierKind == BossConfig.Signatures.Chomp and minigameActive and not isBlockRound then
+		local elapsed = releaseElapsed or (os.clock() - minigameStartTime)
+		return ChopZones.ChompCenter(elapsed, ChopZones.IsTouch(Players.LocalPlayer), modifierValues)
+	end
 	return zoneCenter
+end
+
+function ChopController.GetModifier(_self: any): (number, { number })
+	if not minigameActive or isBlockRound then
+		return BossConfig.Signatures.None, modifierValues
+	end
+	return modifierKind, modifierValues
 end
 
 function ChopController.GetStrengthRatio(_self: any): number
@@ -595,8 +704,16 @@ function ChopController.GetMasterSeconds(_self: any): number?
 	return os.clock() - started
 end
 
+function ChopController.IsBlockRound(_self: any): boolean
+	return minigameActive and isBlockRound
+end
+
 function ChopController.IsReleased(_self: any): boolean
 	return frozenPosition ~= nil
+end
+
+function ChopController.GetTarget(_self: any): BasePart?
+	return if minigameActive then activeRock else nil
 end
 
 function ChopController.CanBreakRock(_self: any): boolean
@@ -606,6 +723,9 @@ end
 function ChopController.GetCursorPosition(_self: any): number
 	if not minigameActive then
 		return 0
+	end
+	if isBlockRound and frozenPosition == nil then
+		return blockPosition()
 	end
 	return frozenPosition
 		or ChopZones.Position(
@@ -621,7 +741,11 @@ function ChopController.Init(self: any, controllers: { [string]: any })
 	self.HealthChanged = Signal.new()
 	self.RoundStarted = Signal.new()
 	self.ActiveChanged = Signal.new()
+	self.BlockStarted = Signal.new()
+	self.BlockResolved = Signal.new()
 	activeChanged = self.ActiveChanged
+	blockStarted = self.BlockStarted
+	blockResolved = self.BlockResolved
 	uiController = controllers.UIController
 	rockController = controllers.RockController
 	cashPopController = controllers.CashPopController
@@ -677,12 +801,66 @@ function ChopController.Start(self: any)
 		)
 	)
 	trove:Add(Packets.ChopEnded.OnClientEvent:Connect(endMinigame))
+	trove:Add(
+		Packets.BlockRoundStart.OnClientEvent:Connect(
+			function(center: number, speed: number, zoneScale: number)
+				if not minigameActive then
+					return
+				end
+				isBlockRound = true
+				clearModifier()
+				blockSpeed = speed
+				zoneCenter = center
+				frozenPosition = nil
+				minigameStartTime = os.clock()
+				LocalSound.Play(BlockRoundConfig.WarningSound)
+				bindRelease()
+				cameraReturnToken += 1
+				local wideShot = bossBlockShot()
+				if wideShot then
+					moveCamera(wideShot, BossFxConfig.BlockCamera.MoveSeconds)
+				elseif cameraTo ~= windUpCamera then
+					moveCamera(windUpCamera, ChopConfig.WindUpCameraReturnSeconds)
+				end
+				blockStarted:Fire(center, zoneScale)
+			end
+		)
+	)
+	trove:Add(Packets.BlockResult.OnClientEvent:Connect(function(outcome: number)
+		if not minigameActive then
+			return
+		end
+		if frozenPosition == nil then
+			frozenPosition = blockPosition()
+		end
+		isBlockRound = false
+		unbindRelease()
+		LocalSound.Play(BlockRoundConfig.OutcomeSounds[outcome] or BlockRoundConfig.WarningSound)
+		if outcome == BlockRoundConfig.Outcomes.Missed then
+			startShake(BlockRoundConfig.MissedShakeIntensity, BlockRoundConfig.MissedShakeSeconds)
+		elseif outcome == BlockRoundConfig.Outcomes.Perfect then
+			flashScreen()
+		end
+		blockResolved:Fire(outcome)
+	end))
+	trove:Add(
+		Packets.ChopModifier.OnClientEvent:Connect(
+			function(kind: number, first: number, second: number, third: number, fourth: number)
+				if not minigameActive then
+					return
+				end
+				modifierKind = kind
+				modifierValues = { first, second, third, fourth }
+			end
+		)
+	)
 	trove:Add(Packets.ChopRoundStart.OnClientEvent:Connect(function(center: number)
 		if not minigameActive then
 			return
 		end
 		zoneCenter = center
 		frozenPosition = nil
+		releaseElapsed = nil
 		if sweepSpeed then
 			sweepRound += 1
 		end
@@ -802,6 +980,14 @@ function ChopController.Destroy(self: any)
 	if self.ActiveChanged then
 		self.ActiveChanged:Destroy()
 		self.ActiveChanged = nil
+	end
+	if self.BlockStarted then
+		self.BlockStarted:Destroy()
+		self.BlockStarted = nil
+	end
+	if self.BlockResolved then
+		self.BlockResolved:Destroy()
+		self.BlockResolved = nil
 	end
 end
 

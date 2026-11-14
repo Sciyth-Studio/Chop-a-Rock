@@ -26,7 +26,7 @@ local MenuButtonConfig: MenuButtonSettings = {
 	Buttons = {
 		{ Name = "Shop", Screen = "RobuxShop" },
 		{ Name = "Index", Screen = "Index" },
-		{ Name = "Pets", Screen = "Pets" },
+		{ Name = "Pets", Screen = "ActivePets" },
 	},
 	Badge = {
 		Buttons = { "Index" },

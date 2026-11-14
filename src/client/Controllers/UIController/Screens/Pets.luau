@@ -19,6 +19,7 @@ local RarityRibbon = require(ReplicatedStorage.Utils.RarityRibbon)
 local PetModifier = require(ReplicatedStorage.PetModifier)
 local PetSize = require(ReplicatedStorage.PetSize)
 local PetsConfig = require(ReplicatedStorage.Config.PetsConfig)
+local PotionConfig = require(ReplicatedStorage.Config.PotionConfig)
 local ToolbarConfig = require(ReplicatedStorage.Config.ToolbarConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Typography = require(ReplicatedStorage.Utils.Typography)
@@ -88,6 +89,23 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local detailRate: TextLabel? = if detail then find(detail, "Rate", "TextLabel") else nil
 	local holdButton: GuiButton? = if detail then find(detail, "HoldButton", "GuiButton") else nil
 	local holdLabel: TextLabel? = if holdButton then find(holdButton, "Label", "TextLabel") else nil
+	local headerTitle: TextLabel? = find(gui, "Title", "TextLabel")
+	local headerIcons: { ImageLabel } = {}
+	local header = if panel then panel:FindFirstChild("Header") else nil
+	if header then
+		for _, name in { "Icon", "IconShadow" } do
+			local image = header:FindFirstChild(name)
+			if image and image:IsA("ImageLabel") then
+				table.insert(headerIcons, image)
+			end
+		end
+	end
+	local tabsFrame = if panel then panel:FindFirstChild(PetsConfig.TabsName) else nil
+	if panel and not tabsFrame then
+		warn(`[Pets] Missing Frame "{PetsConfig.TabsName}" in {panel:GetFullName()}; no Eggs or Potions tabs`)
+	end
+	local currentTab = PetsConfig.Tabs[1]
+	local selectedPotion: string? = nil
 
 	if template then
 		template.Visible = false
@@ -142,10 +160,10 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 	local popTween: Tween? = nil
 
 	local function strokeCard(card: GuiObject?, stack: Stack?, isSelected: boolean)
-		if not card or not stack then
+		if not card then
 			return
 		end
-		PetStacks.PaintStroke(card, PetStacks.IsHeld(player, stack))
+		PetStacks.PaintStroke(card, stack ~= nil and PetStacks.IsHeld(player, stack))
 		local stroke = card:FindFirstChild("OuterStroke")
 		if isSelected and stroke and stroke:IsA("UIStroke") then
 			stroke.Color = ToolbarConfig.SelectedStroke.Color
@@ -158,6 +176,7 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		selectedId = nil
 		selectedStack = nil
 		selectedCard = nil
+		selectedPotion = nil
 		if detail then
 			detail.Visible = false
 		end
@@ -243,7 +262,28 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		paintHold(stack)
 	end
 
+	local function paintPotionDetail(potion: PotionConfig.Potion)
+		setText(detailName, potion.DisplayName)
+		if detailTags then
+			detailTags.Visible = false
+		end
+		if detailRarity then
+			detailRarity.Visible = false
+		end
+		if detailBorder then
+			detailBorder.Color = potion.Color
+		end
+		setText(detailEarns, potion.Effect)
+		setText(detailRate, PetsConfig.PotionTimeText)
+		if holdLabel then
+			BlockButton.SetText(holdLabel, PotionConfig.DrinkText)
+		end
+	end
+
 	local function paintDetail(stack: Stack)
+		if detailRarity then
+			detailRarity.Visible = true
+		end
 		if stack.GeodeKey then
 			paintGeodeDetail(stack, stack.GeodeKey)
 			return
@@ -277,19 +317,24 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 		paintHold(stack)
 	end
 
-	local function showDetail(stack: Stack, card: GuiObject)
+	local function openDetail(id: string, stack: Stack?, potion: PotionConfig.Potion?, card: GuiObject)
 		if not detail then
 			return
 		end
-		local isNew = not detail.Visible or selectedId ~= stack.Id
+		local isNew = not detail.Visible or selectedId ~= id
 		if selectedCard ~= card then
 			strokeCard(selectedCard, selectedStack, false)
 		end
-		selectedId = stack.Id
+		selectedId = id
 		selectedStack = stack
+		selectedPotion = if potion then potion.Key else nil
 		selectedCard = card
 		strokeCard(card, stack, true)
-		paintDetail(stack)
+		if stack then
+			paintDetail(stack)
+		elseif potion then
+			paintPotionDetail(potion)
+		end
 		detail.Visible = true
 		if isNew and detailPop then
 			if popTween then
@@ -344,66 +389,171 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 				placedCount += #stack.PetIds
 			end
 		end
-		setText(
-			countLabel,
-			`{string.format(ToolbarConfig.CountFormat, total)}   {string.format(
-				ToolbarConfig.GeodeCountFormat,
-				geodeTotal
-			)}   {string.format(
-				ToolbarConfig.PlacedFormat,
-				placedCount,
-				#PedestalSlots.Unlocked(slotCount)
-			)}`
-		)
+		local potionCounts = dataController:Get({ "Potions" })
+		local potions: { PotionConfig.Potion } = {}
+		local potionTotal = 0
+		if type(potionCounts) == "table" then
+			for _, potion in PotionConfig.Sorted() do
+				local count = potionCounts[potion.Key]
+				if type(count) == "number" and count > 0 then
+					table.insert(potions, potion)
+					potionTotal += count
+				end
+			end
+		end
+
+		local tabKey = currentTab.Key
+		local isPetsTab = tabKey == "Pets"
+		if equipBestButton then
+			equipBestButton.Visible = isPetsTab
+		end
+		if tabKey == "Potions" then
+			setText(countLabel, string.format(PetsConfig.PotionCountFormat, potionTotal))
+		elseif tabKey == "Eggs" then
+			setText(countLabel, string.format(ToolbarConfig.GeodeCountFormat, geodeTotal))
+		else
+			setText(
+				countLabel,
+				`{string.format(ToolbarConfig.CountFormat, total)}   {string.format(
+					ToolbarConfig.PlacedFormat,
+					placedCount,
+					#PedestalSlots.Unlocked(slotCount)
+				)}`
+			)
+		end
 		refreshSlotButton()
+		if slotButton and not isPetsTab then
+			slotButton.Visible = false
+		end
 
 		cardTrove:Clean()
 		if not grid or not template then
 			return
 		end
 		local filter = if search then string.lower(search.Text) else ""
+		local function matches(name: string): boolean
+			return filter == "" or string.find(string.lower(name), filter, 1, true) ~= nil
+		end
 		local shownCount = 0
-		local selected: Stack? = nil
-		local cardStacks = table.move(stacks, 1, #stacks, #geodeStacks + 1, table.clone(geodeStacks))
-		for order, stack in cardStacks do
-			if stack.IsPlaced then
-				continue
-			end
-			if filter ~= "" and not string.find(string.lower(stack.FullName), filter, 1, true) then
-				continue
-			end
+		local function addCard(order: number): GuiObject
 			shownCount += 1
 			local card = template:Clone()
 			card.Name = `Card{order}`
 			card.LayoutOrder = order
 			card.Visible = true
-			PetStacks.Paint(card, stack)
-			PetStacks.PaintStroke(card, PetStacks.IsHeld(player, stack))
-			local select = card:FindFirstChild("Select", true)
-			if select and select:IsA("GuiButton") then
-				cardTrove:Connect(select.Activated, function()
-					showDetail(stack, card)
-				end)
-			end
 			card.Parent = grid
 			cardTrove:Add(card)
-			if stack.Id == selectedId then
-				selected = stack
-				selectedCard = card
+			return card
+		end
+		local function onSelect(card: GuiObject, callback: () -> ())
+			local select = card:FindFirstChild("Select", true)
+			if select and select:IsA("GuiButton") then
+				cardTrove:Connect(select.Activated, callback)
 			end
 		end
-		if selected and selectedCard then
-			showDetail(selected, selectedCard)
+
+		local reselect: (() -> ())? = nil
+		if tabKey == "Potions" then
+			for order, potion in potions do
+				if not matches(potion.DisplayName) then
+					continue
+				end
+				local card = addCard(order)
+				PetStacks.PaintPotion(card, potion, (potionCounts :: any)[potion.Key])
+				PetStacks.PaintStroke(card, false)
+				local id = PetsConfig.PotionStack .. potion.Key
+				onSelect(card, function()
+					openDetail(id, nil, potion, card)
+				end)
+				if id == selectedId then
+					reselect = function()
+						openDetail(id, nil, potion, card)
+					end
+				end
+			end
+		else
+			local cardStacks: { Stack } = if tabKey == "Eggs" then geodeStacks else stacks
+			for order, stack in ipairs(cardStacks) do
+				if stack.IsPlaced or not matches(stack.FullName) then
+					continue
+				end
+				local card = addCard(order)
+				PetStacks.Paint(card, stack)
+				PetStacks.PaintStroke(card, PetStacks.IsHeld(player, stack))
+				onSelect(card, function()
+					openDetail(stack.Id, stack, nil, card)
+				end)
+				if stack.Id == selectedId then
+					reselect = function()
+						openDetail(stack.Id, stack, nil, card)
+					end
+				end
+			end
+		end
+		if reselect then
+			reselect()
 		else
 			hideDetail()
 		end
 		if emptyLabel then
+			local isEmpty = if tabKey == "Potions"
+				then potionTotal == 0
+				elseif tabKey == "Eggs" then geodeTotal == 0
+				else total == placedCount
 			emptyLabel.Visible = shownCount == 0
-			emptyLabel.Text = if total == placedCount and geodeTotal == 0
-				then PetsConfig.EmptyText
-				else PetsConfig.NoMatchText
+			emptyLabel.Text = if isEmpty then currentTab.EmptyText else currentTab.NoMatchText
 		end
 	end
+
+	local function paintTabs()
+		if headerTitle then
+			setText(headerTitle, currentTab.Title)
+		end
+		for _, image in headerIcons do
+			image.Image = currentTab.Icon
+		end
+		if not tabsFrame then
+			return
+		end
+		for _, tab in PetsConfig.Tabs do
+			local tile = tabsFrame:FindFirstChild(PetsConfig.TabPrefix .. tab.Key)
+			local fill = if tile then tile:FindFirstChild("Fill", true) else nil
+			local active = if tile then tile:GetAttribute(PetsConfig.ActiveColorAttribute) else nil
+			if fill and fill:IsA("GuiObject") then
+				fill.BackgroundColor3 = if tab == currentTab and typeof(active) == "Color3"
+					then active
+					else PetsConfig.IdleTabColor
+			end
+		end
+	end
+
+	local function setTab(tab: PetsConfig.Tab)
+		if currentTab == tab then
+			return
+		end
+		currentTab = tab
+		hideDetail()
+		if search then
+			search.Text = ""
+		end
+		paintTabs()
+		refresh()
+	end
+
+	if tabsFrame then
+		for _, tab in PetsConfig.Tabs do
+			local tile = tabsFrame:FindFirstChild(PetsConfig.TabPrefix .. tab.Key)
+			local click = if tile then tile:FindFirstChild("Button") else nil
+			if click and click:IsA("GuiButton") then
+				trove:Connect(click.Activated, function()
+					setTab(tab)
+				end)
+			else
+				warn(`[Pets] Missing tab button "{PetsConfig.TabPrefix}{tab.Key}.Button"`)
+			end
+		end
+	end
+	paintTabs()
 
 	if slotButton then
 		trove:Connect(slotButton.Activated, function()
@@ -433,7 +583,13 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 
 	if holdButton then
 		trove:Connect(holdButton.Activated, function()
-			if selectedStack then
+			local potionKey = selectedPotion
+			if potionKey then
+				task.spawn(function()
+					local ok = Packets.DrinkPotion:Fire(potionKey)
+					context.Feedback(holdButton, ok == true)
+				end)
+			elseif selectedStack then
 				PetStacks.Toggle(player, selectedStack)
 			end
 		end)
@@ -476,7 +632,7 @@ function Pets.new(context: Types.Context, gui: ScreenGui): Types.Screen
 			refreshSlotButton()
 		end
 	end))
-	for _, path in { { "Pets" }, { "Geodes" }, { "PedestalSlots" }, { "BaseLevel" } } do
+	for _, path in { { "Pets" }, { "Geodes" }, { "PedestalSlots" }, { "BaseLevel" }, { "Potions" } } do
 		trove:Add(dataController:Observe(path, refreshIfOpen))
 	end
 

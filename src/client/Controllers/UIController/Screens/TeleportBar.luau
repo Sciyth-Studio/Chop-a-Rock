@@ -95,6 +95,14 @@ function TeleportBar.new(_context: Types.Context, gui: ScreenGui): Types.Screen
 	for _, destination in TeleportConfig.Destinations do
 		local frameName = destination.Id .. TeleportConfig.ButtonSuffix
 		local frame = gui:FindFirstChild(frameName, true)
+		if frame then
+			for _, name in { "Label", "LabelShadow" } do
+				local label = frame:FindFirstChild(name, true)
+				if label and label:IsA("TextLabel") then
+					label.Text = destination.Label
+				end
+			end
+		end
 		local click = if frame then frame:FindFirstChild(TeleportConfig.ClickButtonName) else nil
 		if not click or not click:IsA("GuiButton") then
 			warn(`[TeleportBar] Missing button "{frameName}" in {gui:GetFullName()}`)

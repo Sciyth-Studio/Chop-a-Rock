@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local MusicConfig = require(ReplicatedStorage.Config.MusicConfig)
+local Boss = require(script.Boss)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 
 type TroveInstance = typeof(Trove.new())
@@ -154,6 +155,9 @@ function MusicController.Start(self: any)
 		stopCurrent()
 	end)
 	playNext()
+	Boss.Start(trove, function()
+		return MusicController:Hold()
+	end)
 end
 
 function MusicController.Hold(_self: any): () -> ()

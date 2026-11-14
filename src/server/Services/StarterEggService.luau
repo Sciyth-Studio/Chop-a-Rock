@@ -10,6 +10,7 @@ local HatchTiming = require(ReplicatedStorage.HatchTiming)
 local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local Packets = require(ReplicatedStorage.Packets)
 local PetConfig = require(ReplicatedStorage.Config.PetConfig)
+local PromptStat = require(ReplicatedStorage.Utils.PromptStat)
 local RarityConfig = require(ReplicatedStorage.Config.RarityConfig)
 local StarterEggConfig = require(ReplicatedStorage.Config.StarterEggConfig)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -209,7 +210,7 @@ local function buildModel(player: Player, egg: Egg, spot: CFrame, landsAt: numbe
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "StarterEggPrompt"
 	prompt.ActionText = StarterEggConfig.PromptText
-	prompt.ObjectText = StarterEggConfig.DisplayName
+	prompt.ObjectText = PromptStat.Egg(StarterEggConfig.DisplayName, StarterEggConfig.HatchSeconds)
 	prompt.HoldDuration = 0
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.MaxActivationDistance = StarterEggConfig.PromptRangeStuds

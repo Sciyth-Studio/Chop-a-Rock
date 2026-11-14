@@ -9,6 +9,7 @@ local EggDropConfig = require(ReplicatedStorage.Config.EggDropConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local IconConfig = require(ReplicatedStorage.Config.IconConfig)
+local ItemIcons = require(ReplicatedStorage.Utils.ItemIcons)
 local MonetizationConfig = require(ReplicatedStorage.Config.MonetizationConfig)
 local Packets = require(ReplicatedStorage.Packets)
 local Trove = require(ReplicatedStorage.Packages.Trove)
@@ -68,18 +69,36 @@ local function remove(player: Player, geode: Geode, isShattered: boolean)
 	end
 end
 
-local function scheduleExpiry(player: Player, geode: Geode)
+local function notifyRolledAway(player: Player, geode: Geode)
+	local config = GeodeConfig.Geodes[geode.Key]
+	local name = if config then config.DisplayName else EggDropConfig.EggFallbackName
+	services.NotificationService:Notify(
+		player,
+		"Error",
+		string.format(EggDropConfig.ExpiredFormat, name),
+		ItemIcons.Get("Geode", geode.Key)
+	)
+end
+
+local function scheduleExpiry(player: Player, geode: Geode, seconds: number?)
 	geode.Generation += 1
 	local generation = geode.Generation
-	task.delay(EggDropConfig.GroundSeconds, function()
+	task.delay(seconds or EggDropConfig.GroundSeconds, function()
+		if geode.Generation ~= generation then
+			return
+		end
 		local data = services.DataService:GetData(player)
-		if data and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) and geode.Generation == generation then
+		if data and Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 			scheduleExpiry(player, geode)
 			return
 		end
-		if geode.Generation == generation and geode.State == "Ground" then
+		if services.EnemyService:HasFight(player) then
+			scheduleExpiry(player, geode, EggDropConfig.FightGraceSeconds)
+			return
+		end
+		if geode.State == "Ground" then
 			remove(player, geode, false)
-			services.NotificationService:Notify(player, "Error", EggDropConfig.ExpiredText)
+			notifyRolledAway(player, geode)
 		end
 	end)
 end
@@ -111,6 +130,7 @@ local function drop(
 	local oldest, count = oldestOnGround(geodes)
 	if oldest and count >= EggDropConfig.MaxOnGround then
 		remove(player, oldest, false)
+		notifyRolledAway(player, oldest)
 	end
 	local zoneConfig = ZoneGeodeConfig.Zones[zone]
 	local look = if zoneConfig then table.find(zoneConfig.Looks, key) or 1 else 1
@@ -336,7 +356,9 @@ startFight = function(player: Player, geode: Geode): boolean
 end
 
 local function isBusy(player: Player): boolean
-	return services.RockService:HasSession(player) or services.DiamondRockService:HasSession(player)
+	return services.RockService:HasSession(player)
+		or services.DiamondRockService:HasSession(player)
+		or services.BossService:HasSession(player)
 end
 
 local function onTake(player: Player, id: number)
@@ -364,14 +386,14 @@ local function onTake(player: Player, id: number)
 		services.NotificationService:Notify(player, "Error", EggDropConfig.BagFullText, IconConfig.Backpack)
 		return
 	end
-	if geode.IsFree then
+	if geode.IsFree or services.EnemyService:IsKnockedOut(player, geode.Zone) then
 		grant(player, geode)
 	else
 		startFight(player, geode)
 	end
 end
 
-local function onDropHeld(player: Player)
+local function onDropHeld(player: Player, isBehind: boolean?)
 	local data = services.DataService:GetData(player)
 	if not data or Tutorial.IsActive(Tutorial.StepOf(data.Tutorial)) then
 		return
@@ -386,7 +408,7 @@ local function onDropHeld(player: Player)
 	local forward = Vector3.new(look.X, 0, look.Z)
 	local column = root.Position
 		+ (if forward.Magnitude > 1e-3 then forward.Unit else Vector3.zAxis)
-			* EggDropConfig.DropAheadStuds
+			* (if isBehind then -EggDropConfig.DropBehindStuds else EggDropConfig.DropAheadStuds)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { root.Parent :: any }
@@ -469,6 +491,10 @@ function ZoneGeodeService.Start(_self: any)
 	trove:Add(Players.PlayerRemoving:Connect(function(player: Player)
 		owned[player] = nil
 	end))
+end
+
+function ZoneGeodeService.DropHeld(_self: any, player: Player)
+	onDropHeld(player, true)
 end
 
 function ZoneGeodeService.SpawnNear(_self: any, player: Player): (boolean, string)

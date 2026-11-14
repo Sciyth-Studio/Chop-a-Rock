@@ -1,5 +1,6 @@
 --!strict
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
@@ -7,9 +8,13 @@ local ChopConfig = require(ReplicatedStorage.Config.ChopConfig)
 local ChopEffectConfig = require(ReplicatedStorage.Config.ChopEffectConfig)
 local ChopQuality = require(ReplicatedStorage.ChopQuality)
 local ChopStyleConfig = require(ReplicatedStorage.Config.ChopStyleConfig)
+local CutLine = require(script.Parent.CutLine)
+local KiAuraConfig = require(ReplicatedStorage.Config.KiAuraConfig)
 local MasterChopConfig = require(ReplicatedStorage.Config.MasterChopConfig)
 local RockSpawnConfig = require(ReplicatedStorage.Config.RockSpawnConfig)
 local LowGraphics = require(ReplicatedStorage.Utils.LowGraphics)
+local FallEffects = require(ReplicatedStorage.Utils.FallEffects)
+local Hitstop = require(script.Parent.Parent.EnemyController.Hitstop)
 local LiveSplit = require(ReplicatedStorage.Utils.LiveSplit)
 local SplitModel = require(ReplicatedStorage.Utils.SplitModel)
 local VFXEmit = require(ReplicatedStorage.VFX.Emit) :: any
@@ -102,6 +107,7 @@ end
 type Tint = {
 	Quality: number,
 	Rock: Color3,
+	Aura: Color3?,
 }
 
 local white = Color3.new(1, 1, 1)
@@ -154,6 +160,8 @@ local function prepareEmitter(emitter: ParticleEmitter, scale: number, tint: Tin
 			ColorSequenceKeypoint.new(0.35, color),
 			ColorSequenceKeypoint.new(1, color),
 		})
+	elseif kind == "Aura" then
+		emitter.Color = ColorSequence.new(tint.Aura or white)
 	elseif kind == "Rock" then
 		emitter.Color = ColorSequence.new(tint.Rock)
 	elseif kind == "Dust" then
@@ -228,7 +236,47 @@ local function breakEffectKey(quality: number): string
 	return ChopEffectConfig.BreakKey
 end
 
+local function auraColor(): Color3
+	local character = Players.LocalPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	local color = if root then root:GetAttribute(KiAuraConfig.ColorAttribute) else nil
+	return if typeof(color) == "Color3" then color else white
+end
+
+local function handPosition(): Vector3?
+	local character = Players.LocalPlayer.Character
+	if not character then
+		return nil
+	end
+	for _, name in ChopEffectConfig.CutHandNames do
+		local hand = character:FindFirstChild(name)
+		if hand and hand:IsA("BasePart") then
+			return hand.Position
+		end
+	end
+	return nil
+end
+
+local function playCut(part: BasePart, quality: number, isFull: boolean, power: number?): number
+	local strength = power or 1
+	if isFull and strength >= ChopEffectConfig.CutShakeFromPower then
+		FallEffects.ShakeCamera(
+			part.Position,
+			ChopEffectConfig.CutShakeStudsPerPower * (strength - ChopEffectConfig.CutShakeFromPower + 1),
+			ChopEffectConfig.CutShakeSeconds
+		)
+	end
+	local character = Players.LocalPlayer.Character
+	if isFull and character and strength >= ChopEffectConfig.CutHitstopFromPower then
+		Hitstop.Character(character, ChopEffectConfig.CutHitstopSeconds)
+	end
+	return CutLine.Play(part, quality, isFull, auraColor(), handPosition(), strength)
+end
+
 local function playBreakEffect(center: Vector3, size: Vector3, quality: number, rockColor: Color3)
+	if ChopEffectConfig.SlashOnly then
+		return
+	end
 	playEffect(
 		breakEffectKey(quality),
 		baseCFrame(center, size.Y),
@@ -456,10 +504,14 @@ function Effects.Crack(part: BasePart)
 	)
 end
 
-function Effects.Hit(part: BasePart, quality: number)
+function Effects.Hit(part: BasePart, quality: number, power: number?)
 	playSound(qualitySoundKey(quality), part)
 	playSound("SFX_Rock_Break", part, ChopConfig.HitSoundVolumeMultiplier)
 	shake(part)
+	playCut(part, quality, false, power)
+	if ChopEffectConfig.SlashOnly then
+		return
+	end
 	playEffect(
 		ChopEffectConfig.HitKey,
 		impactCFrame(part.Position, part.Size.X),
@@ -480,8 +532,9 @@ function Effects.MasterStart(part: BasePart, isSilent: boolean?)
 	)
 end
 
-function Effects.BreakBurst(part: BasePart, quality: number)
+function Effects.BreakBurst(part: BasePart, quality: number, power: number?)
 	playSound("SFX_Rock_Break", part)
+	playCut(part, quality, true, power)
 	playBreakEffect(part.Position, part.Size, quality, part.Color)
 end
 
@@ -490,19 +543,26 @@ function Effects.Break(
 	quality: number,
 	piecesSeconds: number,
 	prepared: LiveSplit.Prepared?,
-	isWhole: boolean?
+	isWhole: boolean?,
+	power: number?
 )
 	if quality ~= ChopQuality.Master then
 		playSound(qualitySoundKey(quality), part)
 	end
 	playSound("SFX_Rock_Break", part)
+	local drawSeconds = playCut(part, quality, true, power)
 	playBreakEffect(part.Position, part.Size, quality, part.Color)
-	if not isWhole and (quality == ChopQuality.Master or quality == ChopQuality.Perfect) then
-		splitRock(part, piecesSeconds, prepared)
-		return
-	end
-	hide(part)
-	spawnChunks(part.Position, part.Size, lookOf(part), chunkCountFor(quality))
+	task.delay(drawSeconds, function()
+		if not part.Parent then
+			return
+		end
+		if not isWhole and (quality == ChopQuality.Master or quality == ChopQuality.Perfect) then
+			splitRock(part, piecesSeconds, prepared)
+			return
+		end
+		hide(part)
+		spawnChunks(part.Position, part.Size, lookOf(part), chunkCountFor(quality))
+	end)
 end
 
 function Effects.Shown(position: Vector3, sizeX: number, quality: number, isBroken: boolean)

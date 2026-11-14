@@ -24,25 +24,21 @@ local function findGroup(name: string): SoundGroup?
 	return group
 end
 
-local function masterLevel(value: any): number
+local function level(value: any): number
 	return if type(value) == "number" then math.clamp(value, 0, 1) else 1
 end
 
 function SettingsController.Start(_self: any)
 	local dataController = controllers.DataController
-	for _, name in SettingsConfig.SoundToggles do
-		local group = findGroup(name)
+	for setting, groupName in SettingsConfig.SoundSliders do
+		local group = findGroup(groupName)
 		if not group then
 			continue
 		end
 		local volume = group.Volume
-		local function apply()
-			local isOn = dataController:Get({ "Settings", name }) ~= false
-			local level = masterLevel(dataController:Get({ "Settings", SettingsConfig.MasterVolume }))
-			group.Volume = if isOn then volume * level else 0
-		end
-		trove:Add(dataController:Observe({ "Settings", name }, apply))
-		trove:Add(dataController:Observe({ "Settings", SettingsConfig.MasterVolume }, apply))
+		trove:Add(dataController:Observe({ "Settings", setting }, function(value: any)
+			group.Volume = volume * level(value)
+		end))
 	end
 
 	local globalShadows = Lighting.GlobalShadows

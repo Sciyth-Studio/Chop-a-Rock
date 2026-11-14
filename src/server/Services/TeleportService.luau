@@ -25,6 +25,7 @@ end
 local function endActivities(player: Player)
 	services.RockService:EndSession(player)
 	services.DiamondRockService:EndSession(player)
+	services.BossService:EndSession(player)
 	services.TrainingService:Stop(player)
 	Packets.ChopEnded:FireClient(player)
 end
@@ -46,6 +47,10 @@ local function onTeleport(player: Player, destinationId: string)
 	local now = os.clock()
 	local last = lastTeleport[player]
 	if last and now - last < TeleportConfig.CooldownSeconds then
+		return
+	end
+	if destination.Id == TeleportConfig.LaunchId and services.CannonService:LaunchEquipped(player) then
+		lastTeleport[player] = now
 		return
 	end
 	local target = findTarget(player, destination)

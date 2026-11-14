@@ -106,7 +106,7 @@ local function emitBurst(key: string, board: BasePart, tint: Color3?)
 	asset.Parent = board
 	for _, descendant in asset:GetDescendants() do
 		if descendant:IsA("ParticleEmitter") then
-			if tint then
+			if tint and descendant:GetAttribute("NoTint") ~= true then
 				descendant.Color = ColorSequence.new(tint)
 			end
 			local count = descendant:GetAttribute("EmitCount")
@@ -151,7 +151,7 @@ local function fadePieces(model: Model)
 	end
 end
 
-local function breakBoard(board: BasePart, effectKey: string)
+local function breakBoard(board: BasePart, effectKey: string, tint: Color3?)
 	if brokenBoards[board] then
 		return
 	end
@@ -177,7 +177,7 @@ local function breakBoard(board: BasePart, effectKey: string)
 	setEffectsEnabled(board, false, savedEffects)
 	emitBurst("VFX_Board_Break", board, board.Color)
 	if effectKey ~= "" then
-		emitBurst(effectKey, board, nil)
+		emitBurst(effectKey, board, tint)
 	end
 	fadePieces(model)
 	task.delay(TrainingConfig.BoardPieceLifetimeSeconds, function()
@@ -311,7 +311,7 @@ local function tick()
 			local stand = TrainingStands.Get(if data then data.TrainingTier else 1)
 			local _, newStrength = addTrainingStrength(player, 1)
 			playSoundOnPart(stand.BreakSound, training.Board)
-			breakBoard(training.Board, stand.BreakEffect)
+			breakBoard(training.Board, stand.BreakEffect, stand.BreakTint)
 			Packets.TrainingChop:FireClient(player)
 			TrainingService.Trained:Fire(player)
 			print(`[TrainingService] {player.Name} trained: strength={newStrength}`)

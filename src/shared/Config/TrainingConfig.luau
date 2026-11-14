@@ -7,6 +7,8 @@ export type Stand = {
 	TemplateKey: string,
 	BreakSound: string,
 	BreakEffect: string,
+	-- Recolours the BreakEffect's emitters (except those with a NoTint attribute); nil keeps their own colours.
+	BreakTint: Color3?,
 	Price: number,
 }
 
@@ -42,7 +44,7 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 1,
 			TemplateKey = "Model_TrainingStand_Wood",
 			BreakSound = "SFX_Train_Chop",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_WoodBreak",
 			Price = 0,
 		},
 		{
@@ -51,7 +53,7 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 2,
 			TemplateKey = "Model_TrainingStand_Bronze",
 			BreakSound = "SFX_Train_Steel",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_MetalBreak",
 			Price = 8000,
 		},
 		{
@@ -60,7 +62,7 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 6,
 			TemplateKey = "Model_TrainingStand_Iron",
 			BreakSound = "SFX_Train_Steel",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_MetalBreak",
 			Price = 30000,
 		},
 		{
@@ -69,7 +71,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 60,
 			TemplateKey = "Model_TrainingStand_Silver",
 			BreakSound = "SFX_Train_Vault",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_PreciousBreak",
+			BreakTint = Color3.fromRGB(200, 204, 212),
 			Price = 800000,
 		},
 		{
@@ -78,7 +81,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 500,
 			TemplateKey = "Model_TrainingStand_Gold",
 			BreakSound = "SFX_Train_Vault",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_PreciousBreak",
+			BreakTint = Color3.fromRGB(236, 172, 38),
 			Price = 3000000,
 		},
 		{
@@ -87,7 +91,7 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 5000,
 			TemplateKey = "Model_TrainingStand_Steel",
 			BreakSound = "SFX_Train_Steel",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_MetalBreak",
 			Price = 60000000,
 		},
 		{
@@ -96,7 +100,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 50000,
 			TemplateKey = "Model_TrainingStand_Amethyst",
 			BreakSound = "SFX_Train_Brick",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_CrystalBreak",
+			BreakTint = Color3.fromRGB(150, 70, 230),
 			Price = 250000000,
 		},
 		{
@@ -105,7 +110,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 500000,
 			TemplateKey = "Model_TrainingStand_Emerald",
 			BreakSound = "SFX_Train_Brick",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_CrystalBreak",
+			BreakTint = Color3.fromRGB(40, 200, 110),
 			Price = 4000000000,
 		},
 		{
@@ -114,7 +120,7 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 4000000,
 			TemplateKey = "Model_TrainingStand_Titanium",
 			BreakSound = "SFX_Train_Steel",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_MetalBreak",
 			Price = 15000000000,
 		},
 		{
@@ -123,7 +129,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 40000000,
 			TemplateKey = "Model_TrainingStand_Sapphire",
 			BreakSound = "SFX_Train_Brick",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_CrystalBreak",
+			BreakTint = Color3.fromRGB(40, 110, 240),
 			Price = 300000000000,
 		},
 		{
@@ -132,7 +139,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 400000000,
 			TemplateKey = "Model_TrainingStand_Ruby",
 			BreakSound = "SFX_Train_Brick",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_CrystalBreak",
+			BreakTint = Color3.fromRGB(235, 50, 60),
 			Price = 1000000000000,
 		},
 		{
@@ -141,7 +149,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 4000000000,
 			TemplateKey = "Model_TrainingStand_Platinum",
 			BreakSound = "SFX_Train_Vault",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_PreciousBreak",
+			BreakTint = Color3.fromRGB(188, 202, 226),
 			Price = 20000000000000,
 		},
 		{
@@ -150,7 +159,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 40000000000,
 			TemplateKey = "Model_TrainingStand_Obsidian",
 			BreakSound = "SFX_Train_Core",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_GemBreak",
+			BreakTint = Color3.fromRGB(120, 70, 200),
 			Price = 80000000000000,
 		},
 		{
@@ -159,7 +169,7 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 400000000000,
 			TemplateKey = "Model_TrainingStand_Tungsten",
 			BreakSound = "SFX_Train_Steel",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_MetalBreak",
 			Price = 1.5e15,
 		},
 		{
@@ -168,7 +178,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 4000000000000,
 			TemplateKey = "Model_TrainingStand_Diamond",
 			BreakSound = "SFX_Train_Core",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_GemBreak",
+			BreakTint = Color3.fromRGB(200, 232, 255),
 			Price = 5e15,
 		},
 		{
@@ -177,7 +188,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 40000000000000,
 			TemplateKey = "Model_TrainingStand_BlackDiamond",
 			BreakSound = "SFX_Train_Core",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_GemBreak",
+			BreakTint = Color3.fromRGB(54, 54, 64),
 			Price = 8e16,
 		},
 		{
@@ -186,7 +198,8 @@ local TrainingConfig: TrainingSettings = {
 			StrengthPerRep = 400000000000000,
 			TemplateKey = "Model_TrainingStand_Painite",
 			BreakSound = "SFX_Train_Brick",
-			BreakEffect = "",
+			BreakEffect = "VFX_Train_CrystalBreak",
+			BreakTint = Color3.fromRGB(235, 95, 40),
 			Price = 4e17,
 		},
 		{

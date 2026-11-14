@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local HudConfig = require(ReplicatedStorage.Config.HudConfig)
+local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local NumberFormat = require(ReplicatedStorage.Utils.NumberFormat)
 local Typography = require(ReplicatedStorage.Utils.Typography)
 
@@ -85,6 +86,7 @@ local function bumpIcon(state: State)
 		return
 	end
 	local settings = HudConfig.StrengthPop
+	LocalSound.Play(settings.PopSound)
 	local grown = UDim2.new(
 		size.X.Scale * settings.BumpScale,
 		size.X.Offset * settings.BumpScale,

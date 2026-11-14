@@ -3,13 +3,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
-local TweenService = game:GetService("TweenService")
 local AssetRegistry = require(ReplicatedStorage.AssetRegistry)
+local BaseLevels = require(ReplicatedStorage.Utils.BaseLevels)
 local EggDropConfig = require(ReplicatedStorage.Config.EggDropConfig)
 local EggLuck = require(ReplicatedStorage.Utils.EggLuck)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local LocalSound = require(ReplicatedStorage.Utils.LocalSound)
 local Packets = require(ReplicatedStorage.Packets)
+local PromptStat = require(ReplicatedStorage.Utils.PromptStat)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local Tutorial = require(ReplicatedStorage.Tutorial)
 local Typography = require(ReplicatedStorage.Utils.Typography)
@@ -159,30 +160,13 @@ local function makeLabel(trove: any, at: Vector3, height: number): (BillboardGui
 		adornee
 end
 
-local function growTo(model: Model, scale: number, position: Vector3, anchor: BasePart?)
-	local start = model:GetScale()
-	local value = Instance.new("NumberValue")
-	value.Value = start
-	value.Changed:Connect(function(current: number)
-		if not model.Parent then
-			return
-		end
-		model:ScaleTo(current)
-		reground(model, position)
-		if anchor then
-			local _, size = model:GetBoundingBox()
-			anchor.Position = position + Vector3.new(0, size.Y + EggDropConfig.LabelHeightStuds, 0)
-		end
-	end)
-	local tween = TweenService:Create(
-		value,
-		TweenInfo.new(EggDropConfig.GrowSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-		{ Value = scale }
-	)
-	tween.Completed:Once(function()
-		value:Destroy()
-	end)
-	tween:Play()
+local function resize(model: Model, scale: number, position: Vector3, anchor: BasePart?)
+	model:ScaleTo(scale)
+	reground(model, position)
+	if anchor then
+		local _, size = model:GetBoundingBox()
+		anchor.Position = position + Vector3.new(0, size.Y + EggDropConfig.LabelHeightStuds, 0)
+	end
 end
 
 local function animate(
@@ -208,6 +192,11 @@ local function animate(
 	local lastValue = -1
 	local lastTick = 0
 	local phase = "Launch"
+	local baseScale = model:GetScale()
+	local otherScales = {}
+	for index, other in others do
+		otherScales[index] = other:GetScale()
+	end
 	local connection: any
 	connection = trove:Connect(RunService.Heartbeat, function()
 		local now = os.clock()
@@ -237,6 +226,11 @@ local function animate(
 		if value ~= lastValue then
 			lastValue = value
 			setText(luckText(value))
+			local grow = EggLuck.Scale(value)
+			resize(model, baseScale * grow, position, anchor)
+			for index, other in others do
+				resize(other, otherScales[index] * grow, position, nil)
+			end
 			if now - lastTick >= EggDropConfig.TickMinGapSeconds then
 				lastTick = now
 				playTick(
@@ -262,7 +256,7 @@ local function animate(
 			model.Parent = folder
 			Silhouette.Restore(finalSave)
 			table.clear(saves)
-			growTo(model, model:GetScale() * EggLuck.Scale(luck), position, anchor)
+			resize(model, baseScale * EggLuck.Scale(luck), position, anchor)
 			LocalSound.Play(EggDropConfig.LandSoundKey)
 			setText(luckText(luck))
 			geode.IsUp = true
@@ -298,7 +292,11 @@ local function spawn(
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = EggDropConfig.PromptText
 	local key = lookKey(zone, look)
-	prompt.ObjectText = GeodeConfig.Geodes[key or zone].DisplayName
+	local geodeInfo = GeodeConfig.Geodes[key or zone]
+	local hatchMultiplier = if dataController
+		then BaseLevels.HatchMultiplier(dataController:Get({ "BaseLevel" }))
+		else 1
+	prompt.ObjectText = PromptStat.Egg(geodeInfo.DisplayName, geodeInfo.HatchSeconds * hatchMultiplier)
 	prompt.HoldDuration = ZoneGeodeConfig.PromptHoldSeconds
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.MaxActivationDistance = EggDropConfig.PromptRangeStuds + math.max(boxSize.X, boxSize.Z) / 2

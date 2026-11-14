@@ -85,4 +85,14 @@ function Audio.Play(key: string)
 	LocalSound.Play(key)
 end
 
+-- Each zone's Guardian has its own call (fight start) and hurt sound (each hit), named after the zone's Pet.
+function Audio.Guardian(zone: string, format: string, fallbackKey: string?)
+	local petKey = EnemyConfig.PetKeys[zone]
+	if petKey then
+		LocalSound.Play(string.format(format, petKey))
+	elseif fallbackKey then
+		LocalSound.Play(fallbackKey)
+	end
+end
+
 return Audio

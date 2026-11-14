@@ -3,7 +3,6 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CannonConfig = require(ReplicatedStorage.Config.CannonConfig)
 local GeodeConfig = require(ReplicatedStorage.Config.GeodeConfig)
 local PedestalConfig = require(ReplicatedStorage.Config.PedestalConfig)
 local TrainingConfig = require(ReplicatedStorage.Config.TrainingConfig)
@@ -122,22 +121,6 @@ local function shopPad(screen: string): Target?
 	return nil
 end
 
-local function cannonEntry(): Target?
-	local folder = workspace:FindFirstChild(CannonConfig.Trigger.FolderName)
-	local entry = if folder then folder:FindFirstChild(CannonConfig.Trigger.EntryName) else nil
-	if not entry or not entry:IsA("BasePart") then
-		return nil
-	end
-	local floor = entry.Position - Vector3.new(0, entry.Size.Y / 2, 0)
-	local goal = Vector3.new(floor.X, math.max(floor.Y, 0), floor.Z)
-	return {
-		Position = goal,
-		Goal = goal,
-		Adornee = entry :: Instance,
-		ArriveStuds = entry.Size.Z / 2,
-	}
-end
-
 local function nearestZoneGeode(): Target?
 	local folder = workspace:FindFirstChild(ZoneGeodeConfig.FolderName)
 	local from = rootPosition()
@@ -222,7 +205,6 @@ function Targets.For(step: number, data: any): Target?
 end
 
 Targets.ShopPad = shopPad
-Targets.CannonEntry = cannonEntry
 Targets.TrainingStand = trainingStand
 Targets.NearestRock = nearestRock
 Targets.RootPosition = rootPosition
