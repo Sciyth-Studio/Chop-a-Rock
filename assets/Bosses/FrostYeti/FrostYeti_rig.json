@@ -1,0 +1,245 @@
+{
+ "boss": "FrostYeti",
+ "studsPerUnit": 5.0,
+ "axes": "Roblox (x, y, z) = Blender (-x, z, y); front is -Z",
+ "pieces": [
+  {
+   "mesh": "FrostYeti_LowerTorso",
+   "name": "LowerTorso",
+   "parent": "Root",
+   "joint": [
+    -0.0,
+    18.0,
+    0.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_Head",
+   "name": "Head",
+   "parent": "UpperTorso",
+   "joint": [
+    -0.0,
+    35.0,
+    -6.5
+   ]
+  },
+  {
+   "mesh": "FrostYeti_Jaw",
+   "name": "Jaw",
+   "parent": "Head",
+   "joint": [
+    -0.0,
+    34.75,
+    -13.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_LeftFoot",
+   "name": "LeftFoot",
+   "parent": "LeftLowerLeg",
+   "joint": [
+    -8.5,
+    6.0,
+    0.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_LeftHand",
+   "name": "LeftHand",
+   "parent": "LeftLowerArm",
+   "joint": [
+    -23.0,
+    16.5,
+    -5.5
+   ]
+  },
+  {
+   "mesh": "FrostYeti_LeftLowerArm",
+   "name": "LeftLowerArm",
+   "parent": "LeftUpperArm",
+   "joint": [
+    -23.5,
+    25.5,
+    -1.5
+   ]
+  },
+  {
+   "mesh": "FrostYeti_LeftLowerLeg",
+   "name": "LeftLowerLeg",
+   "parent": "LeftUpperLeg",
+   "joint": [
+    -8.5,
+    12.5,
+    -0.5
+   ]
+  },
+  {
+   "mesh": "FrostYeti_LeftUpperArm",
+   "name": "LeftUpperArm",
+   "parent": "UpperTorso",
+   "joint": [
+    -15.0,
+    36.5,
+    0.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_LeftUpperLeg",
+   "name": "LeftUpperLeg",
+   "parent": "LowerTorso",
+   "joint": [
+    -8.0,
+    18.5,
+    0.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_RightFoot",
+   "name": "RightFoot",
+   "parent": "RightLowerLeg",
+   "joint": [
+    8.5,
+    6.0,
+    0.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_RightHand",
+   "name": "RightHand",
+   "parent": "RightLowerArm",
+   "joint": [
+    23.0,
+    16.5,
+    -5.5
+   ]
+  },
+  {
+   "mesh": "FrostYeti_RightLowerArm",
+   "name": "RightLowerArm",
+   "parent": "RightUpperArm",
+   "joint": [
+    23.5,
+    25.5,
+    -1.5
+   ]
+  },
+  {
+   "mesh": "FrostYeti_RightLowerLeg",
+   "name": "RightLowerLeg",
+   "parent": "RightUpperLeg",
+   "joint": [
+    8.5,
+    12.5,
+    -0.5
+   ]
+  },
+  {
+   "mesh": "FrostYeti_RightUpperArm",
+   "name": "RightUpperArm",
+   "parent": "UpperTorso",
+   "joint": [
+    15.0,
+    36.5,
+    0.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_RightUpperLeg",
+   "name": "RightUpperLeg",
+   "parent": "LowerTorso",
+   "joint": [
+    8.0,
+    18.5,
+    0.0
+   ]
+  },
+  {
+   "mesh": "FrostYeti_UpperTorso",
+   "name": "UpperTorso",
+   "parent": "LowerTorso",
+   "joint": [
+    -0.0,
+    22.5,
+    0.0
+   ]
+  }
+ ],
+ "attached": [
+  {
+   "mesh": "FrostYeti_Eyes",
+   "name": "Eyes",
+   "kind": "Eyes",
+   "parent": "Head"
+  },
+  {
+   "mesh": "FrostYeti_Pupils",
+   "name": "Pupils",
+   "kind": "Pupils",
+   "parent": "Head"
+  },
+  {
+   "mesh": "FrostYeti_WeakSpot1",
+   "name": "WeakSpot1",
+   "kind": "WeakSpot",
+   "parent": "UpperTorso",
+   "centre": [
+    -10.25,
+    23.5,
+    -7.25
+   ],
+   "normal": [
+    -0.5145,
+    0.0,
+    -0.8575
+   ]
+  },
+  {
+   "mesh": "FrostYeti_WeakSpot2",
+   "name": "WeakSpot2",
+   "kind": "WeakSpot",
+   "parent": "UpperTorso",
+   "centre": [
+    10.25,
+    23.5,
+    -7.25
+   ],
+   "normal": [
+    0.5145,
+    0.0,
+    -0.8575
+   ]
+  },
+  {
+   "mesh": "FrostYeti_WeakSpot3",
+   "name": "WeakSpot3",
+   "kind": "WeakSpot",
+   "parent": "LeftLowerLeg",
+   "centre": [
+    -8.5,
+    10.75,
+    -7.0
+   ],
+   "normal": [
+    -0.0,
+    0.0995,
+    -0.995
+   ]
+  },
+  {
+   "mesh": "FrostYeti_WeakSpot4",
+   "name": "WeakSpot4",
+   "kind": "WeakSpot",
+   "parent": "RightLowerLeg",
+   "centre": [
+    8.5,
+    10.75,
+    -7.0
+   ],
+   "normal": [
+    0.0,
+    0.0995,
+    -0.995
+   ]
+  }
+ ]
+}

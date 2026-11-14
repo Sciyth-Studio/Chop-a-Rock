@@ -1,0 +1,52 @@
+{
+ "KitSlamRing.png": {
+  "kit_id": "K0384",
+  "kit_path": "1_Normal/Shockwaves and Rings/17 (2).png",
+  "original_size": [
+   256,
+   256
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "KitSpotRing.png": {
+  "kit_id": "K0369",
+  "kit_path": "1_Normal/Shockwaves and Rings/1 (2).png",
+  "original_size": [
+   604,
+   604
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "KitPocketRing.png": {
+  "kit_id": "K0416",
+  "kit_path": "1_Normal/Shockwaves and Rings/2023-05-18_22-58-08 thing.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "KitCrackWeb.png": {
+  "kit_id": "K0009",
+  "kit_path": "1_Normal/Cracks/2023-02-09_22-27-28 e0337937-effe-4158-a704-00630adea56d.png",
+  "original_size": [
+   256,
+   256
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "KitCrackTile.png": {
+  "kit_id": "K0012",
+  "kit_path": "1_Normal/Cracks/2023-05-18_22-58-08 crackk.png",
+  "original_size": [
+   868,
+   868
+  ],
+  "kind": "tintable",
+  "grid": null
+ }
+}

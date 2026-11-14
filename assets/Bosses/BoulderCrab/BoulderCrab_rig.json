@@ -1,0 +1,365 @@
+{
+ "boss": "BoulderCrab",
+ "studsPerUnit": 5.0,
+ "axes": "Roblox (x, y, z) = Blender (-x, z, y); front is -Z",
+ "pieces": [
+  {
+   "mesh": "BoulderCrab_Body",
+   "name": "Body",
+   "parent": "Root",
+   "joint": [
+    -0.0,
+    9.5,
+    0.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftClaw1",
+   "name": "LeftClaw1",
+   "parent": "Body",
+   "joint": [
+    -11.5,
+    9.0,
+    -8.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftClaw2",
+   "name": "LeftClaw2",
+   "parent": "LeftClaw1",
+   "joint": [
+    -16.5,
+    9.5,
+    -12.25
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftClaw3",
+   "name": "LeftClaw3",
+   "parent": "LeftClaw2",
+   "joint": [
+    -18.0,
+    10.0,
+    -18.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg1_1",
+   "name": "LeftLeg1_1",
+   "parent": "Body",
+   "joint": [
+    -15.0,
+    11.5,
+    -3.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg1_2",
+   "name": "LeftLeg1_2",
+   "parent": "LeftLeg1_1",
+   "joint": [
+    -19.6969,
+    6.25,
+    -4.7145
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg1_3",
+   "name": "LeftLeg1_3",
+   "parent": "LeftLeg1_2",
+   "joint": [
+    -21.1059,
+    3.5,
+    -5.2288
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg2_1",
+   "name": "LeftLeg2_1",
+   "parent": "Body",
+   "joint": [
+    -15.0,
+    11.5,
+    4.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg2_2",
+   "name": "LeftLeg2_2",
+   "parent": "LeftLeg2_1",
+   "joint": [
+    -19.7767,
+    6.25,
+    5.4776
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg2_3",
+   "name": "LeftLeg2_3",
+   "parent": "LeftLeg2_2",
+   "joint": [
+    -21.2097,
+    3.5,
+    5.9209
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg3_1",
+   "name": "LeftLeg3_1",
+   "parent": "Body",
+   "joint": [
+    -15.0,
+    11.5,
+    10.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg3_2",
+   "name": "LeftLeg3_2",
+   "parent": "LeftLeg3_1",
+   "joint": [
+    -17.9084,
+    6.25,
+    14.0671
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftLeg3_3",
+   "name": "LeftLeg3_3",
+   "parent": "LeftLeg3_2",
+   "joint": [
+    -18.7809,
+    3.5,
+    15.2872
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_LeftPincer",
+   "name": "LeftPincer",
+   "parent": "LeftClaw3",
+   "joint": [
+    -17.5,
+    6.5,
+    -27.5
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightClaw1",
+   "name": "RightClaw1",
+   "parent": "Body",
+   "joint": [
+    11.5,
+    9.0,
+    -8.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightClaw2",
+   "name": "RightClaw2",
+   "parent": "RightClaw1",
+   "joint": [
+    16.5,
+    9.5,
+    -12.25
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightClaw3",
+   "name": "RightClaw3",
+   "parent": "RightClaw2",
+   "joint": [
+    18.0,
+    10.0,
+    -18.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg1_1",
+   "name": "RightLeg1_1",
+   "parent": "Body",
+   "joint": [
+    15.0,
+    11.5,
+    -3.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg1_2",
+   "name": "RightLeg1_2",
+   "parent": "RightLeg1_1",
+   "joint": [
+    19.6969,
+    6.25,
+    -4.7145
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg1_3",
+   "name": "RightLeg1_3",
+   "parent": "RightLeg1_2",
+   "joint": [
+    21.1059,
+    3.5,
+    -5.2288
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg2_1",
+   "name": "RightLeg2_1",
+   "parent": "Body",
+   "joint": [
+    15.0,
+    11.5,
+    4.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg2_2",
+   "name": "RightLeg2_2",
+   "parent": "RightLeg2_1",
+   "joint": [
+    19.7767,
+    6.25,
+    5.4776
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg2_3",
+   "name": "RightLeg2_3",
+   "parent": "RightLeg2_2",
+   "joint": [
+    21.2097,
+    3.5,
+    5.9209
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg3_1",
+   "name": "RightLeg3_1",
+   "parent": "Body",
+   "joint": [
+    15.0,
+    11.5,
+    10.0
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg3_2",
+   "name": "RightLeg3_2",
+   "parent": "RightLeg3_1",
+   "joint": [
+    17.9084,
+    6.25,
+    14.0671
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightLeg3_3",
+   "name": "RightLeg3_3",
+   "parent": "RightLeg3_2",
+   "joint": [
+    18.7809,
+    3.5,
+    15.2872
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_RightPincer",
+   "name": "RightPincer",
+   "parent": "RightClaw3",
+   "joint": [
+    17.5,
+    6.5,
+    -27.5
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_Shell",
+   "name": "Shell",
+   "parent": "Body",
+   "joint": [
+    -0.0,
+    13.0,
+    1.5
+   ]
+  }
+ ],
+ "attached": [
+  {
+   "mesh": "BoulderCrab_Eyes",
+   "name": "Eyes",
+   "kind": "Eyes",
+   "parent": "Shell"
+  },
+  {
+   "mesh": "BoulderCrab_Pupils",
+   "name": "Pupils",
+   "kind": "Pupils",
+   "parent": "Shell"
+  },
+  {
+   "mesh": "BoulderCrab_WeakSpot1",
+   "name": "WeakSpot1",
+   "kind": "WeakSpot",
+   "parent": "LeftLeg2_1",
+   "centre": [
+    -20.2928,
+    11.6257,
+    5.6373
+   ],
+   "normal": [
+    -0.7084,
+    0.6709,
+    0.2191
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_WeakSpot2",
+   "name": "WeakSpot2",
+   "kind": "WeakSpot",
+   "parent": "LeftLeg3_1",
+   "centre": [
+    -18.2227,
+    11.6257,
+    14.5066
+   ],
+   "normal": [
+    -0.4313,
+    0.6709,
+    0.6032
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_WeakSpot3",
+   "name": "WeakSpot3",
+   "kind": "WeakSpot",
+   "parent": "RightLeg2_1",
+   "centre": [
+    20.2928,
+    11.6257,
+    5.6373
+   ],
+   "normal": [
+    0.7084,
+    0.6709,
+    0.2191
+   ]
+  },
+  {
+   "mesh": "BoulderCrab_WeakSpot4",
+   "name": "WeakSpot4",
+   "kind": "WeakSpot",
+   "parent": "RightLeg3_1",
+   "centre": [
+    18.2227,
+    11.6257,
+    14.5066
+   ],
+   "normal": [
+    0.4313,
+    0.6709,
+    0.6032
+   ]
+  }
+ ]
+}

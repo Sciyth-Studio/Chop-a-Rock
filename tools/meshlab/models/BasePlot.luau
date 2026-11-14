@@ -1,7 +1,7 @@
 --!nocheck
 -- Chop a Rock base plot, rebuilt in meshlab 2026-11-09 from the 2026-11-03 Blender plot (assets/Base/BasePlot/plot_builder.py).
 -- 64 wide, 66-94 long by level: three stacked slabs (Edge = lower two, Floor = top, both per level), a centre path that drapes down the front steps (Path)
--- with a white stringer trim on both edges (Trim), 8 hatch pads 2x2 per side (PadFrames + Pad1-8 centres) and a raised
+-- with a white stringer trim on both edges (Trim), 12 hatch pads 3x2 per side (PadFrames + Pad1-12 centres; 8 wide since 2026-11-13) and a raised
 -- green pen with a fence. The pen grows in length with the base level: front edge fixed at z 2, 56 wide, 28 deep at
 -- level 1 up to 56 deep at level 8; the slabs end 2 studs behind it (Floor/Edge/PenFloor/PenSide/FencePosts/FenceRails per level). Every piece is its own part
 -- so each can be recoloured. Front (entrance) faces -Z, pivot bottom centre, 1 unit = 1 stud, flat (no bake).
@@ -26,15 +26,15 @@ return function(em, lib, Shapes, part)
 	local F = 2.4
 	local SLAB_BEVEL = 0.12
 	local WALK_HALF, WALK_H, TRIM_W, TRIM_H = 4, 0.4, 0.6, 0.1
-	local PAD, PAD_RIM_W, PAD_RIM_H, PAD_BASE_H = 9, 1, 0.5, 0.1
+	local PAD, PAD_RIM_W, PAD_RIM_H, PAD_BASE_H = 8, 1, 0.5, 0.1
 	local PEN_X, PEN_Z0, PEN_H, PEN_TOP_H = 28, 2, 2, 0.4
 	local STAIR_Z, STAIR_STEPS = -4, 3
 	local FENCE_H, POST, POST_GAP, RAIL, FENCE_INSET = 3, 1.2, 7, 0.6, 0.7
 	local RAIL_YS = { 1.1, 2.3 }
 	local PEN_DEPTHS = { 28, 32, 36, 40, 44, 48, 52, 56 }
 	local PADS = {
-		{ 11, -21 }, { 11, -10 }, { 22, -21 }, { 22, -10 },
-		{ -11, -21 }, { -11, -10 }, { -22, -21 }, { -22, -10 },
+		{ 8.5, -21 }, { 8.5, -10 }, { 17.15, -21 }, { 17.15, -10 }, { 25.8, -21 }, { 25.8, -10 },
+		{ -8.5, -21 }, { -8.5, -10 }, { -17.15, -21 }, { -17.15, -10 }, { -25.8, -21 }, { -25.8, -10 },
 	}
 
 	local function new(name)

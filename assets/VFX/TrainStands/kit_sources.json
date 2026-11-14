@@ -1,0 +1,62 @@
+{
+  "Spark.png": {
+    "kit_id": "K0347",
+    "kit_path": "1_Normal/Shards/32.png",
+    "original_size": [
+      1024,
+      1024
+    ],
+    "kind": "tintable",
+    "grid": null
+  },
+  "Splinter.flipbook.png": {
+    "kit_id": "K1324",
+    "kit_path": "2_Flipbooks/Shards/4.png",
+    "original_size": [
+      1024,
+      1024
+    ],
+    "kind": "tintable",
+    "grid": 2
+  },
+  "Flakes.flipbook.png": {
+    "kit_id": "K1638",
+    "kit_path": "2_Flipbooks/Specs/30.png",
+    "original_size": [
+      1024,
+      1024
+    ],
+    "kind": "tintable",
+    "grid": 4
+  },
+  "Twinkle.flipbook.png": {
+    "kit_id": "K1655",
+    "kit_path": "2_Flipbooks/Stars/2024-03-30_13-32-57 ThinStarV2.4x4.png",
+    "original_size": [
+      1024,
+      1024
+    ],
+    "kind": "tintable",
+    "grid": 4
+  },
+  "StarDing.flipbook.png": {
+    "kit_id": "K1659",
+    "kit_path": "2_Flipbooks/Stars/4.png",
+    "original_size": [
+      1024,
+      1024
+    ],
+    "kind": "tintable",
+    "grid": 4
+  },
+  "BlackHole.flipbook.png": {
+    "kit_id": "K1663",
+    "kit_path": "2_Flipbooks/Swirls/2023-06-20_22-43-37 ripplevideo2.png",
+    "original_size": [
+      1024,
+      1024
+    ],
+    "kind": "tintable",
+    "grid": 4
+  }
+}

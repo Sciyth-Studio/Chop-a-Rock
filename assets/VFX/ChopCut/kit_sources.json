@@ -1,0 +1,142 @@
+{
+ "CutGlow.png": {
+  "kit_id": "K1911",
+  "kit_path": "3_BeamsTrails/Elemental/Wind/2022-12-20_04-50-55 Line_08.png",
+  "original_size": [
+   64,
+   256
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "CutStreaks.png": {
+  "kit_id": "K1929",
+  "kit_path": "3_BeamsTrails/Misc/Distorted/2022-12-20_04-50-55 Line_09.png",
+  "original_size": [
+   128,
+   256
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "CrackLine.png": {
+  "kit_id": "K1797",
+  "kit_path": "3_BeamsTrails/27.png",
+  "original_size": [
+   128,
+   512
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "CrackJag.png": {
+  "kit_id": "K1812",
+  "kit_path": "3_BeamsTrails/57.png",
+  "original_size": [
+   301,
+   601
+  ],
+  "kind": "additive",
+  "grid": null
+ },
+ "CrackBranch.png": {
+  "kit_id": "K0022",
+  "kit_path": "1_Normal/Cracks/goodcrack.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "CrackSplit.png": {
+  "kit_id": "K0018",
+  "kit_path": "1_Normal/Cracks/8.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "BoltBeam.png": {
+  "kit_id": "K1854",
+  "kit_path": "3_BeamsTrails/asdasda9.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "RingBrush.png": {
+  "kit_id": "K0431",
+  "kit_path": "1_Normal/Shockwaves and Rings/2023-11-24_05-30-16 5.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "BurstRays.png": {
+  "kit_id": "K0406",
+  "kit_path": "1_Normal/Shockwaves and Rings/2023-02-17_17-13-22 Circle16.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "additive",
+  "grid": null
+ },
+ "RockChunk.flipbook.png": {
+  "kit_id": "K1311",
+  "kit_path": "2_Flipbooks/Rocks/SUNOROCK1.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": 2
+ },
+ "ShockFlip.flipbook.png": {
+  "kit_id": "K1344",
+  "kit_path": "2_Flipbooks/Shockwaves/14.png",
+  "original_size": [
+   1024,
+   1024
+  ],
+  "kind": "tintable",
+  "grid": 4
+ },
+ "CoreBand.png": {
+  "kit_id": "K1792",
+  "kit_path": "3_BeamsTrails/2.png",
+  "original_size": [
+   604,
+   604
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "SpikeBand.png": {
+  "kit_id": "K1856",
+  "kit_path": "3_BeamsTrails/Elemental/Energy/2022-12-20_02-51-55 T_cmn_trail_03_00_E.png",
+  "original_size": [
+   256,
+   256
+  ],
+  "kind": "additive",
+  "grid": null
+ },
+ "Streaks.png": {
+  "kit_id": "K1795",
+  "kit_path": "3_BeamsTrails/21.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ }
+}

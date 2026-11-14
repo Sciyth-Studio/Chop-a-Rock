@@ -1,0 +1,22 @@
+{
+ "Flares_K0099.png": {
+  "kit_id": "K0099",
+  "kit_path": "1_Normal/Flares/13.png",
+  "original_size": [
+   512,
+   512
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "Slashes_or_Crescents_IDK_K0638.png": {
+  "kit_id": "K0638",
+  "kit_path": "1_Normal/Slashes or Crescents IDK/11.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ }
+}

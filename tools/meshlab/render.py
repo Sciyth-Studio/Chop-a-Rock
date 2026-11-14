@@ -100,7 +100,7 @@ cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
 scene.collection.objects.link(cam)
 cam.data.lens = 50
 # OBJ -Z (Roblox front) lands on Blender +Y with these import axes.
-direction = {"front": Vector((0.45, 1.3, 0.3)), "straight": Vector((0.0, 1.0, 0.12)), "hero": Vector((1.1, 1.0, 0.75)), "rear": Vector((-1.0, -1.1, 0.7)), "side": Vector((1.0, 0.08, 0.22)), "left": Vector((-1.0, 0.25, 0.15)), "left34": Vector((-1.0, 0.7, 0.35))}.get(view, Vector((1.0, -1.3, 0.8)))
+direction = {"front": Vector((0.45, 1.3, 0.3)), "straight": Vector((0.0, 1.0, 0.12)), "hero": Vector((1.1, 1.0, 0.75)), "rear": Vector((-1.0, -1.1, 0.7)), "side": Vector((1.0, 0.08, 0.22)), "left": Vector((-1.0, 0.25, 0.15)), "left34": Vector((-1.0, 0.7, 0.35)), "top": Vector((0.02, 0.35, 1.0))}.get(view, Vector((1.0, -1.3, 0.8)))
 zoom = float(argv[3]) if len(argv) > 3 else 1.6
 cam.location = center + direction.normalized() * size * zoom
 cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()

@@ -72,13 +72,24 @@ class Refs:
         return f"RBX{self.count}"
 
 
-def pose_xml(refs, part, poses, default_style, default_direction):
+def rig_tree(rig_json_path):
+    """Build a pose tree from a boss <Boss>_rig.json (pieces with name and parent, root 'Root')."""
+    with open(rig_json_path, encoding="utf-8") as handle:
+        rig = json.load(handle)
+    tree = {"Root": []}
+    for piece in rig["pieces"]:
+        tree.setdefault(piece["name"], [])
+        tree.setdefault(piece["parent"], []).append(piece["name"])
+    return tree
+
+
+def pose_xml(refs, part, poses, default_style, default_direction, tree=R15_TREE):
     spec = poses.get(part, {})
     style = EASING_STYLES[spec.get("style", default_style)]
     direction = EASING_DIRECTIONS[spec.get("dir", default_direction)]
     weight = 1 if part in poses else 0
     children = "".join(
-        pose_xml(refs, child, poses, default_style, default_direction) for child in R15_TREE[part]
+        pose_xml(refs, child, poses, default_style, default_direction, tree) for child in tree[part]
     )
     return (
         f'<Item class="Pose" referent="{refs.next()}"><Properties>'
@@ -93,7 +104,7 @@ def pose_xml(refs, part, poses, default_style, default_direction):
     )
 
 
-def keyframe_xml(refs, keyframe, fps):
+def keyframe_xml(refs, keyframe, fps, tree=R15_TREE, root="HumanoidRootPart"):
     poses = keyframe["poses"]
     style = keyframe.get("style", "CubicV2")
     direction = keyframe.get("dir", "InOut")
@@ -107,7 +118,7 @@ def keyframe_xml(refs, keyframe, fps):
         f'<Item class="Keyframe" referent="{refs.next()}"><Properties>'
         f'<string name="Name">Keyframe</string><float name="Time">{keyframe["f"] / fps:.6f}</float>'
         "</Properties>"
-        + pose_xml(refs, "HumanoidRootPart", poses, style, direction)
+        + pose_xml(refs, root, poses, style, direction, tree)
         + markers
         + "</Item>"
     )
@@ -116,7 +127,9 @@ def keyframe_xml(refs, keyframe, fps):
 def clip_xml(clip):
     fps = clip.get("fps", 60)
     refs = Refs()
-    keyframes = "".join(keyframe_xml(refs, keyframe, fps) for keyframe in clip["keyframes"])
+    tree = clip.get("tree", R15_TREE)
+    root = clip.get("root", "HumanoidRootPart")
+    keyframes = "".join(keyframe_xml(refs, keyframe, fps, tree, root) for keyframe in clip["keyframes"])
     return (
         '<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '

@@ -1,0 +1,22 @@
+{
+ "Slash.png": {
+  "kit_id": "K0638",
+  "kit_path": "1_Normal/Slashes or Crescents IDK/11.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ },
+ "SlashOutlined.png": {
+  "kit_id": "K0663",
+  "kit_path": "1_Normal/Slashes or Crescents IDK/2023-10-03_13-26-41 slash_74.png",
+  "original_size": [
+   420,
+   420
+  ],
+  "kind": "tintable",
+  "grid": null
+ }
+}
