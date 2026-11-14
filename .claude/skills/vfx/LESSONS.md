@@ -169,3 +169,39 @@ hero beat (the meteor impact) the user picked.
 and the palette first, then build that beat's own template. Borrowed effects and
 plain Neon parts (beacons, discs) are placeholders only. A beacon is a textured
 Beam pillar, not a Neon cylinder.
+
+## 16. The Diamond's STAR flash texture is a scatter of stars
+
+**Why:** on the Colossus (2026-11-10), `rbxassetid://97917584432190` used as a 100-stud flash showed as several spiky, clip-art white stars spread over the screen, not one flare.
+
+**How to apply:** for a big flash, use a soft glow in white (131288307457982) or a single flare from the kit; keep 97917584432190 small (under about 20 studs).
+
+## 17. Two crescents crossed at ±45° read as a ring
+
+**Why:** the first Perfect chop slash (2026-11-13) layered two outlined crescents at -45° and 45° plus a ring flash, meaning an X; frozen mid-play it read as a closed circle.
+
+**How to apply:** a slash is one hero crescent. Add a thinner, plainer crescent at a nearby angle (about 20° off) as a speed line, not a mirrored one, and skip ring layers on slashes.
+
+## 18. A chop slash follows the cut, not the impact point
+
+**Why:** the user (2026-11-13) wanted the slash to "apply in a straight line down the cut where the rock" splits; a tilted crescent at the impact point didn't line up with the split halves.
+
+**How to apply:** when an effect shows a cut, draw it along the real cut geometry (here a vertical Beam spindle on the `LiveSplit` plane, top to bottom), and hold the split until the line is drawn. Hits that don't split get a short nick on the same line.
+
+## 19. Don't rely on Beam `ZOffset` for a black twin over a textured beam
+
+**Why:** on the chop cut line (2026-11-13) a black outline spindle behind the white core drew correctly while every layer was untextured, but once the glow got a texture the black drew in front of the core whatever the `ZOffset`. Moving the black onto attachments set physically behind made it vanish head-on and slide sideways at an angle.
+
+**How to apply:** for a beam effect, get value from the textures (a streaky glow, a streak bundle) instead of a black twin beam. If an outline is needed, bake it into one texture (like the outlined crescent K0663) rather than layering a separate black beam.
+
+## 20. A black twin works as a particle that outlives the bright layer
+
+**Why:** the fire katana reference (2026-11-13) gets its depth from a black copy of each slash sprite that lives longer than the bright copy; as a separate Beam it had fought the bright beams for draw order (lesson 19). As a particle fired just as the bright beams start to fade (`Ghost` on the chop cut line) it reads as a dark cut left behind.
+
+**How to apply:** time the black twin to appear as the bright layer fades, not on top of it; keep it the same shape. When stretching a `FacingCamera` sprite with `Squash`, expect the height to grow by roughly 2 x (1 + squash) times the size; check it against a marker part before tuning.
+
+## 21. A rock cut lies on the ground along the split and lingers
+
+**Why:** the upright cut line was "way too short" (rocks are wide, low domes) and hidden behind the character; the user wanted it "across the length of the rock", lingering on the ground after the rock splits down the middle, then fading (2026-11-13), and picked a flat beam lying on the floor.
+
+**How to apply:** draw cuts as flat beams (`FaceCamera` false; a Beam's width runs along its attachments' Y axis, so give them a basis with X along the line and Y horizontal) on the ground through the split, running about 2.2x the object's length, and let them linger a second or two after the break before fading. Test a new beam orientation with three coloured beams in Edit and let the user pick.

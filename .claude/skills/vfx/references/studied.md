@@ -73,6 +73,19 @@ Seven emitters on one attachment at the floor. The funnel is **flat swirl rings 
 
 A 41-stud invisible part with an attachment at each end and three Beams between them (two left at Transparency 1, so hidden; one visible, Width 2 to 0.5). Each end has an emitter cluster: a small-dot scatter (Rate 100, Spread 360), glow puffs, and sparkle stars at Rotation 45. Blue `0,85,255` to `85,170,255`. A dash or projectile path: a line beam plus a sparkle source at each end.
 
+## Fire katana slash (`Downloads/fire slash os.rbxl`, studied 2026-11-13)
+
+No scripts: a showcase of emitter templates driven by a commercial emitter plugin's attributes (`EmitCount`, `EmitDelay`, `EmitDuration` plus `TimeScale_Start/End/Duration`, `Size_Start/End/Curve`, and on a mesh Model `Part_CFrame_Curve`, `Part_Size_Curve`, `Part_Transparency_Start/End`, `Speed_*`, `EffectDuration`). Our vendored `Emit` reads only the first three and `EffectDuration`; the curve and `TimeScale` attributes are ignored. Texture ids aren't readable with Lune (Content properties); open the file in Studio to read them. Dumped with `lune` + a safe per-property getter (unsaved properties throw).
+- **The slash itself is all particles on one tilted Attachment, every one Emit 1-2, `VelocityPerpendicular`, Speed 0** (a flat sprite lying in the attachment's plane, so it can be rolled to the swing angle):
+  - **Hero crescents:** flipbook (Grid4x4, OneShot) slash sprites, 8.6-13 studs, Lifetime **0.09-0.25 s**, fixed Rotation (95-175) plus a big `RotSpeed` (-300 to 600 deg/s) so the crescent *spins through the swing* while its flipbook plays. Size grows fast in the first 10% then holds (8.6 -> 10.7).
+  - **Colour layers on one shape:** a red-orange layer at `LightEmission` 0, Brightness 12-25 (painted, not additive); a **black twin** of the same sprite (Color 0,0,0, LightEmission 0.5-0.6, longer life 0.17-0.35 s, fading 0 -> 1 over the life) so a dark ghost lingers after the bright slash; one with **negative LightEmission** (-0.3, -1, -5) to burn it darker and more saturated on bright backgrounds.
+  - **Wind afterimages:** 2-3 grey "360 Slash" sprites (`LockedToPart`, Transparency 0.5-0.8 -> 1, size 5 -> 18 over 0.35-2 s, slow spin) — the swing's wake.
+  - **Specks:** 4-25 "OffCentered Spec" streaks per layer, `VelocityParallel`, Speed 1-40, life 0.35-2 s, Drag 0-1, in the slash colour and a black twin set.
+- **Swoosh mesh:** a Neon MeshPart tweened from `Start` (19 x 3 x 19) to `End` (39 x 9 x 40) with a rotation between them, Transparency 0.96 -> 1 over 1.4 s: a faint swept volume, not the hero.
+- **Ground mark:** an Attachment at the floor with Top-facing `VelocityPerpendicular` sprites, Speed 0, long lives (slash mark 1.6-2 s, crack 4 s, fade/wave 7 s), `Squash` 1-3 to stretch them along the cut, a black copy under an orange `LightEmission` 3 copy.
+- **Fire along the blade path:** a "slash parts" Model of invisible 1.5 x 10 Parts placed around the arc (each rotated to the arc tangent), each with ~15 fire/smoke emitters (`Disc` shape, `VelocityParallel`, Speed 24-43, Drag 6.7, Acceleration up, `VelocityInheritance` 1, colour red -> dark red -> black) so flames shoot off the whole arc at once.
+- **Impact:** a separate Attachment ahead of the slash with ~25 emitters (star flash, "Circular Smack" rings 8 -> 25 studs at `EmitDelay` 0.04, shards, halftone, dust, lens flares).
+
 ## Texture ids (cleared for use 2026-10-10)
 
 Some of these textures have colour baked in, so tinting them to another hue fails:

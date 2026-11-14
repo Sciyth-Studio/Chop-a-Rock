@@ -74,6 +74,7 @@ type Context = {
 	ChopEffect: any,
 	HotStreak: any,
 	Aura: any,
+	CutLine: any,
 }
 
 local function qualityColor(context: Context, quality: number): Color3
@@ -88,7 +89,10 @@ local function prepareEmitter(context: Context, emitter: ParticleEmitter, stand:
 	local quality = stand:GetAttribute("Quality")
 	local color = stand:GetAttribute("Color")
 	if typeof(color) == "Color3" then
-		emitter.Color = ColorSequence.new(color)
+		-- NoTint layers keep their own colours, as TrainingService's emitBurst does.
+		if emitter:GetAttribute("NoTint") ~= true then
+			emitter.Color = ColorSequence.new(color)
+		end
 	elseif type(quality) == "number" then
 		local minQuality = emitter:GetAttribute("MinQuality")
 		if type(minQuality) == "number" and quality < minQuality then
@@ -333,10 +337,48 @@ local function applyAura(context: Context, stand: Instance, myGeneration: number
 	end)
 end
 
+local function playCutLine(context: Context, stand: Instance)
+	local cutLine = context.CutLine
+	local dummy = stand:FindFirstChild("Dummy")
+	local camera = workspace.CurrentCamera
+	if not cutLine or not dummy or not dummy:IsA("BasePart") or not camera then
+		return
+	end
+	local quality = stand:GetAttribute("Quality")
+	local color = stand:GetAttribute("Color")
+	local line = cutLine.Spawn(
+		dummy,
+		if type(quality) == "number" then quality else 5,
+		stand:GetAttribute("IsFull") ~= false,
+		if typeof(color) == "Color3" then color else white,
+		nil,
+		camera.CFrame.Position - dummy.Position,
+		if type(stand:GetAttribute("Power")) == "number" then stand:GetAttribute("Power") else 1
+	)
+	if not line then
+		return
+	end
+	track(line.Model, 5)
+	local duration = cutLine.Duration(line)
+	local started = os.clock()
+	while line.Model.Parent do
+		local t = os.clock() - started
+		cutLine.Pose(line, math.min(t, duration))
+		if t >= duration then
+			return
+		end
+		task.wait()
+	end
+end
+
 local function playStand(context: Context, stand: Instance)
 	local mode = stand:GetAttribute("Mode")
 	local key = stand:GetAttribute("Effect")
 	if mode == "HeadFire" or mode == "Aura" then
+		return
+	end
+	if mode == "CutLine" then
+		playCutLine(context, stand)
 		return
 	end
 	if type(key) ~= "string" then
@@ -359,6 +401,15 @@ local function playStand(context: Context, stand: Instance)
 	end
 end
 
+local function cutLineModule(): Instance?
+	for _, descendant in game:GetService("StarterPlayer"):GetDescendants() do
+		if descendant.Name == "CutLine" and descendant.Parent and descendant.Parent.Name == "RockController" then
+			return descendant
+		end
+	end
+	return nil
+end
+
 local function start()
 	generation += 1
 	local myGeneration = generation
@@ -379,6 +430,7 @@ local function start()
 		ChopEffect = fresh(config and config:FindFirstChild("ChopEffectConfig")),
 		HotStreak = fresh(config and config:FindFirstChild("HotStreakConfig")),
 		Aura = fresh(config and config:FindFirstChild("AuraConfig")),
+		CutLine = fresh(cutLineModule()),
 	}
 	if not context.VFXEmit then
 		warn("[VFXShowcase] Could not load ReplicatedStorage.VFX.Emit")
